@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>background for PubMed-er</title>
+    <script type="text/javascript" src="jquery151.js"></script>
+    <script type="text/javascript"><!--
+      function getRequest(request, sender, callback) {
+        var apikey = localStorage.getItem('thepaperlink_apikey'), pubmeder_apikey = localStorage.getItem('pubmeder_apikey'), pubmeder_email = localStorage.getItem('pubmeder_email'), tail = '';
+        if (apikey === null) {
+          apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+        }
+        if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
+          tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
+        }
+        if (request.url) {
+          $.getJSON(request.url + apikey, function (d) {
+            chrome.tabs.getSelected(null, function (tab) {
+              if (d && d.count) {
+                if (localStorage.getItem('thepaperlink_apikey')) {
+                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey});
+                } else {
+                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: ''});
+                }
+              }
+            });
+          });
+        }
+        if (request.pubmeder_apikey && request.pubmeder_email) {
+          localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
+          localStorage.setItem('pubmeder_email', request.pubmeder_email);
+        }
+        if (request.thepaperlink_apikey) {
+          localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
+        }
+      }
+      chrome.extension.onRequest.addListener(getRequest);
+    //-->
+    </script>
+  </head>
+  <body> </body>
+</html>

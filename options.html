@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>Options for "the Paper Link" for PubMed</title>
+  <style type="text/css">
+    body{font-family:arial,sans-serif;font-size:62.5%;}
+    h1{font-size:2em;}
+    h3{font-size:1.6em;padding-top:20px;}
+    p{font-size:1.3em;}
+  </style>
+  <script type="text/javascript" src="jquery151.js"></script>
+</head>
+<body>
+
+  <h1>"the Paper Link" for PubMed - Google Chrome</h1>
+
+  <h3>Section 1, API - "the Paper Link" (required)</h3>
+
+  <p>visit <a rel="external" href="http://thepaperlink.appspot.com/reg">http://thepaperlink.appspot.com/reg</a> will fill the following automatically</p>
+  <p><input type="text" value="" size="40" id="thepaperlink_apikey" /> <a style="text-decoration:none;" rel="external" href="http://thepaperlink.appspot.com">"the Paper Link"</a> apikey
+  <br/><i>once it is enabled, "?" will show on the bar for reporting error PDF link, etc.</i></p>
+
+  <h3>Section 2, API - "pubmeder at appspot.com" (optional)</h3>
+
+  <p>visit <a rel="external" href="http://pubmeder.appspot.com/registration">http://pubmeder.appspot.com/registration</a> will fill the following automatically</p>
+  <p><input type="text" value="" size="40" id="pubmeder_email" /><a style="text-decoration:none;" rel="external" href="http://pubmeder.appspot.com">"pubmder at appspot.com"</a> user
+  <br/><input type="text" value="" size="40" id="pubmeder_apikey" /><a style="text-decoration:none;" rel="external" href="http://pubmeder.appspot.com">"pubmder at appspot.com"</a> apikey
+  <br/><i>once it is enabled, "save all" and "save it" will show on the bar for bookmarking to "pubmeder at appspot.com"</i></p>
+
+  <hr/>
+  <p><button onclick="saveOptions()">Save All Options</button></p>
+
+<script type="text/javascript"><!--
+$(document).ready(function () {
+  $(function () {
+    $('a[rel="external"]').attr('target', '_blank');
+  });
+  $('#thepaperlink_apikey').val(localStorage.getItem('thepaperlink_apikey'));
+  $('#pubmeder_email').val(localStorage.getItem('pubmeder_email'));
+  $('#pubmeder_apikey').val(localStorage.getItem('pubmeder_apikey'));
+});
+
+function saveOptions() {
+  var accessApi = $('#thepaperlink_apikey').val();
+  if (accessApi.length === 32) {
+    localStorage.setItem('thepaperlink_apikey', accessApi);
+  } else {
+    alert('Please provide a valid apikey to use this extension. Get it by visiting http://thepaperlink.appspot.com/registration');
+  }
+  var userEmail = $('#pubmeder_email').val(), userApi = $('#pubmeder_apikey').val(), filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+  if (!filter.test(userEmail)) {
+    alert('Please provide a valid email address');
+    $('#pubmeder_email').val('');
+    $('#pubmeder_email').focus();
+  }
+  if (userApi.length === 32 && userEmail) {
+    var checkurl = 'https://pubmeder.appspot.com/input?pmid=999999999&apikey=' + userApi + '&email=' + userEmail;
+    $.ajax({
+      async: false,
+      type: 'GET',
+      url: checkurl,
+      dataType: 'text',
+      success: function (txt) {
+        if (txt === 'correct') {
+          localStorage.setItem('pubmeder_apikey', userApi);
+          localStorage.setItem('pubmeder_email', userEmail);
+        } else {
+          $('#pubmeder_apikey').val('');
+          alert('Please provide a valid apikey. Get it by visiting http://pubmeder.appspot.com/registration');
+        }
+      }
+    });
+  }
+  location.reload();
+}
+//-->
+</script>
+</body>
+</html>
