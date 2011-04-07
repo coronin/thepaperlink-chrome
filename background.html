@@ -6,6 +6,19 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery151.js"></script>
     <script type="text/javascript"><!--
+      function reLoadOp() {
+        chrome.tabs.getAllInWindow(undefined, function (tabs) {
+          var i, tab, urlOp = chrome.extension.getURL('options.html');
+          for (i = 0; i < tabs.length; i += 1) {
+            tab = tabs[i];
+            if (tab.url && tab.url === urlOp) {
+              chrome.tabs.update(tab.id, {url: urlOp, selected: true});
+              return;
+            }
+          }
+        });
+      }
+
       function getRequest(request, sender, callback) {
         var apikey = localStorage.getItem('thepaperlink_apikey'), pubmeder_apikey = localStorage.getItem('pubmeder_apikey'), pubmeder_email = localStorage.getItem('pubmeder_email'), tail = '';
         if (apikey === null) {
@@ -30,9 +43,11 @@
         if (request.pubmeder_apikey && request.pubmeder_email) {
           localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
           localStorage.setItem('pubmeder_email', request.pubmeder_email);
+          reLoadOp();
         }
         if (request.thepaperlink_apikey) {
           localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
+          reLoadOp();
         }
       }
       chrome.extension.onRequest.addListener(getRequest);

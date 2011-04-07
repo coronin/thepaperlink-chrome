@@ -9,6 +9,7 @@
     h1{font-size:2em;}
     h3{font-size:1.6em;padding-top:20px;}
     p{font-size:1.3em;}
+    .Off{display:none !important;}
   </style>
   <script type="text/javascript" src="jquery151.js"></script>
 </head>
@@ -30,7 +31,7 @@
   <br/><i>once it is enabled, "save all" and "save it" will show on the bar for bookmarking to "pubmeder at appspot.com"</i></p>
 
   <hr/>
-  <p><button onclick="saveOptions()">Save All Options</button></p>
+  <p><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></p>
 
 <script type="text/javascript"><!--
 $(document).ready(function () {
@@ -40,6 +41,9 @@ $(document).ready(function () {
   $('#thepaperlink_apikey').val(localStorage.getItem('thepaperlink_apikey'));
   $('#pubmeder_email').val(localStorage.getItem('pubmeder_email'));
   $('#pubmeder_apikey').val(localStorage.getItem('pubmeder_apikey'));
+  $('input').bind('change', function () {
+    $('#saveBtn').removeClass('Off');
+  });
 });
 
 function saveOptions() {
