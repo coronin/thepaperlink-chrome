@@ -1,14 +1,14 @@
-3-30-2011
+In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more…
 
-Lists the direct PDF link next to each search result in PubMed, using API of http://thepaperlink.appspot.com and http://paperlink2.appspot.com
-
-It enhances the existing results display by showing: 
+The enhancement includes: 
 * Impact Factor of the Journal 
 * Direct link to its PDF file 
-* External page of the article 
-* Faculty 1000 score and comment page link
+* External pages related to the article 
+* Faculty 1000 score and link to its comment page
 * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://paperlink2.appspot.com/static/peaks.html)
 * ...
+
+This extension is built using API from http://pubmeder.appspot.com, http://thepaperlink.appspot.com, http://paperlink2.appspot.com and eUtils.
 
 
 For Firefox (not work in 4.0 yet), please use the following:
@@ -19,10 +19,10 @@ For Safari, please use the following:
 * http://thepaperlink.appspot.com/static/thepaperlink.safariextz
 
 For Mobile Devices, please try our mobile site:
-* http://thepaperlink.appspot.com/m (or visit http://thepaperlink.com on your mobile device)
+* http://thepaperlink.appspot.com/m (or visit http://thepaperlink.com on your mobile device: iPhone, Android, iPod Touch, iPad, etc)
 
 
-There is one more thing, we just released the js client for "the Paper Link".
+There is one more thing - we have a js client for "the Paper Link", working in all web browsers.
 * http://thepaperlink.appspot.com/js/ (shorten URL http://goo.gl/m5C49)
 * instruction for the js client is at http://en.dogeno.us/?p=7567
 
@@ -35,3 +35,6 @@ Change Log:
 * v0.2.2 - add https support
 * v0.2.3 - test using "Peaks" api
 * v0.2.4 - option page ui improved, "Peaks" full functional
+* v0.2.5 - option page update
+
+Source of this extension is at https://github.com/coronin/thepaperlink-chrome
