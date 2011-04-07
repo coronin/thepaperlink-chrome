@@ -158,7 +158,7 @@ chrome.extension.onRequest.addListener(
         div.innerHTML += '<a href="https://pubmeder.appspot.com/input?pmid=' + r.item[i].pmid + request.tail + '" target="_blank">save it</a>';
       }
       if (request.tpl) {
-        div.innerHTML += '<span class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
+        div.innerHTML += '<span id="rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
       }
       $(r.item[i].pmid).appendChild(div);
       k = pmidArray.length;
