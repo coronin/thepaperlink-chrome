@@ -36,5 +36,6 @@ Change Log:
 * v0.2.3 - test using "Peaks" api
 * v0.2.4 - option page ui improved, "Peaks" full functional
 * v0.2.5 - option page update
+* v0.2.6 - better "save it/save all" bookmarking
 
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
