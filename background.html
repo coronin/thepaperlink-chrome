@@ -27,25 +27,26 @@
         if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
           tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
         }
+
         if (request.url) {
-          $.getJSON(request.url + apikey, function (d) {
+          $.getJSON('https://thepaperlink.appspot.com' + request.url + apikey, function (d) {
             chrome.tabs.getSelected(null, function (tab) {
               if (d && d.count) {
                 if (localStorage.getItem('thepaperlink_apikey')) {
-                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey});
+                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email});
                 } else {
-                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: ''});
+                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email});
                 }
               }
             });
           });
         }
-        if (request.pubmeder_apikey && request.pubmeder_email) {
+        else if (request.pubmeder_apikey && request.pubmeder_email) {
           localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
           localStorage.setItem('pubmeder_email', request.pubmeder_email);
           reLoadOp();
         }
-        if (request.thepaperlink_apikey) {
+        else if (request.thepaperlink_apikey) {
           localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
           reLoadOp();
         }
