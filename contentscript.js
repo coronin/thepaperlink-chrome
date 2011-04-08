@@ -48,7 +48,7 @@ function getPmid(zone, num) {
 }
 
 function get_Json(pmids) {
-  var i, url = 'https://thepaperlink.appspot.com/api?flash=yes&a=chrome&pmid=' + pmids;
+  var i, url = '/api?flash=yes&a=chrome&pmid=' + pmids;
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -61,10 +61,6 @@ function get_Json(pmids) {
       t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> ... loading data from "the Paper Link"</span>&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
     }
   }
-  //script = document.createElement('script');
-  //script.setAttribute('type', 'text/javascript');
-  //script.src = url;
-  //document.body.appendChild(script);
   chrome.extension.sendRequest({url: url});
 }
 
@@ -121,7 +117,7 @@ chrome.extension.onRequest.addListener(
       + '  cursor: pointer'
       + '}', bookmark_div = '<div id="css_loaded"></div>';
     if (request.tail) {
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><a href="https://pubmeder.appspot.com/input?pmid=' + pmids + request.tail + '" target="_blank">save all</a></div>';
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">save all</span></div>';
     }
     if (!document.getElementById('css_loaded')) {
       S = document.createElement('style');
@@ -143,22 +139,22 @@ chrome.extension.onRequest.addListener(
         div.innerHTML += '<span>impact factor ' + r.item[i].slfo + '</span>';
       }
       if (r.item[i].pdf) {
-        div.innerHTML += '<a class="thepaperlink-green" href="' + r.item[i].pdf + '" target="_blank">direct pdf</a>';
+        div.innerHTML += '<a id="thepaperlink_pdf' + r.item[i].pmid + '" class="thepaperlink-green" href="' + r.item[i].pdf + '" target="_blank">direct pdf</a>';
       }
       if (r.item[i].pmcid) {
-        div.innerHTML += '<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/' + r.item[i].pmcid + '/?tool=thepaperlinkClient" target="_blank">free article</a>';
+        div.innerHTML += '<a id="thepaperlink_pmc' + r.item[i].pmid + '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' + r.item[i].pmcid + '/?tool=thepaperlinkClient" target="_blank">free article</a>';
       }
       if (r.item[i].doi) {
-        div.innerHTML += '<a href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">external page</a>';
+        div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid + '" href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">external page</a>';
       }
       if (r.item[i].f_v && r.item[i].fid) {
-        div.innerHTML += '<a class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid + '" target="_blank">f1000 score ' + r.item[i].f_v + '</a>';
+        div.innerHTML += '<a id="thepaperlink_f' + r.item[i].pmid + '" class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid + '" target="_blank">f1000 score ' + r.item[i].f_v + '</a>';
       }
       if (request.tail) {
-        div.innerHTML += '<a href="https://pubmeder.appspot.com/input?pmid=' + r.item[i].pmid + request.tail + '" target="_blank">save it</a>';
+        div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid + '" onclick="saveIt(\'' + r.item[i].pmid + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">save it</span>';
       }
       if (request.tpl) {
-        div.innerHTML += '<span id="rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
+        div.innerHTML += '<span id="thepaperlink_rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
       }
       $(r.item[i].pmid).appendChild(div);
       k = pmidArray.length;
@@ -170,7 +166,7 @@ chrome.extension.onRequest.addListener(
     }
     if (pmidArray.length > 0) {
       t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
-      chrome.extension.sendRequest({url: 'https://thepaperlink.appspot.com/api?pmid=' + pmidArray.join(',') + '&apikey='});
+      chrome.extension.sendRequest({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
     }
     sendResponse({});
   }
