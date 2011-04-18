@@ -1,7 +1,7 @@
 {
   "name": "the Paper Link for PubMed",
-  "version": "0.2.7",
-  "description": "Add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more… (by Liang Cai, for Google Chrome)",
+  "version": "0.2.8",
+  "description": "Add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more... (by Liang Cai, for Google Chrome)",
   "background_page" : "background.html",
   "options_page" : "options.html",
   "permissions": [
