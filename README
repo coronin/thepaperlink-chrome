@@ -11,9 +11,9 @@ The enhancement includes:
 This extension is built using API from http://pubmeder.appspot.com, http://thepaperlink.appspot.com, http://paperlink2.appspot.com and eUtils.
 
 
-For Firefox (not work in 4.0 yet), please use the following:
-* http://userscripts.org/scripts/show/97865
-* https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/
+For Firefox, please use the following:
+* http://userscripts.org/scripts/show/97865 (need GreaseMonkey, tested with fx4)
+* https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/ (not work in 4.0 yet)
 
 For Safari, please use the following:
 * http://thepaperlink.appspot.com/static/thepaperlink.safariextz
@@ -37,5 +37,6 @@ Change Log:
 * v0.2.4 - option page ui improved, "Peaks" full functional
 * v0.2.5 - option page update
 * v0.2.6 - better "save it/save all" bookmarking
+* v0.2.7 - lousy fix json fetch error (update to jQuery 1.5.2)
 
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome

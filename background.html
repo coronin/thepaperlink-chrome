@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery151.js"></script>
+    <script type="text/javascript" src="jquery152.js"></script>
     <script type="text/javascript"><!--
       function reLoadOp() {
         chrome.tabs.getAllInWindow(undefined, function (tabs) {
@@ -37,6 +37,8 @@
                 } else {
                   chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email});
                 }
+              } else {
+                chrome.tabs.sendRequest(tab.id, {except: 1});
               }
             });
           });

@@ -94,6 +94,10 @@ run();
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
+    if (request.except) {
+      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">reload</button></span>';
+      return;
+    }
     var div, i, j, k, S, r = request.r, styles = '.thepaperlink {'
       + '  background: #e0ecf1;'
       + '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;'
