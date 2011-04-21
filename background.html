@@ -6,6 +6,21 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery152.js"></script>
     <script type="text/javascript"><!--
+      function getBinary(file) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', file, false);
+        if (xhr.hasOwnProperty('responseType')) {
+          xhr.responseType = 'arraybuffer';
+        } else {
+          xhr.overrideMimeType('text/plain; charset=x-user-defined');
+        }
+        xhr.send(null);
+        var responseArrayBuffer = xhr.hasOwnProperty('responseType') && xhr.responseType === 'arraybuffer',
+        mozResponseArrayBuffer = 'mozResponseArrayBuffer' in xhr,
+        bin_data = mozResponseArrayBuffer ? xhr.mozResponseArrayBuffer : responseArrayBuffer ? xhr.response : xhr.responseText;
+        return bin_data;
+      }
+
       function reLoadOp() {
         chrome.tabs.getAllInWindow(undefined, function (tabs) {
           var i, tab, urlOp = chrome.extension.getURL('options.html');
@@ -53,17 +68,19 @@
           reLoadOp();
         }
         else if (request.upload_url && request.pdf) {
-
+          console.log(request.pdf);
+          var pdf_data = getBinary(request.pdf);
+          console.log(request.upload_url);
           $.ajax({ 
             type: 'POST',
-            url: upload_url,
+            async: true,
+            url: request.upload_url,
             enctype: 'multipart/form-data',
             data: {file: '~/test.pdf'},
             success: function () {
-              alert('Data Uploaded');
+              console.log('post pdf done');
             }
           });
-
         }
       }
       chrome.extension.onRequest.addListener(getRequest);

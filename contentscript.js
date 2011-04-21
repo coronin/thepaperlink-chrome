@@ -10,21 +10,21 @@
 function t(n) { return document.getElementsByTagName(n); }
 function $(d) { return document.getElementById(d); }
 function a_proxy(data) {
-  console.log("calling ajax");
+  console.log('calling ajax');
   chrome.extension.sendRequest(data);
 }
 var noRun = 0;
 
 // storage data for access the api server
 if (document.URL === 'http://thepaperlink.appspot.com/reg' || document.URL === 'https://thepaperlink.appspot.com/reg') {
-  var apikey = document.getElementById('apikey').innerHTML;
+  var apikey = $('apikey').innerHTML;
   a_proxy({thepaperlink_apikey: apikey});
   noRun = 1;
 }
 // storage data for access the bookmark server
 if (document.URL === 'http://pubmeder.appspot.com/registration' || document.URL === 'https://pubmeder.appspot.com/registration') {
-  var email = document.getElementById('currentUser').innerHTML;
-  var apikey = document.getElementById('apikey_pubmeder').innerHTML;
+  var email = $('currentUser').innerHTML;
+  var apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
   noRun = 1;
 }
@@ -86,7 +86,7 @@ function run() {
   if (pmids) {
     get_Json(pmids);
   }
-  if (!document.getElementById('paperlink2_display')) {
+  if (!$('paperlink2_display')) {
     s = document.createElement('script');
     s.setAttribute('type', 'text/javascript');
     s.setAttribute('src', 'https://paperlink2.appspot.com/js?y=' + (Math.random()));
@@ -94,24 +94,6 @@ function run() {
   }
 }
 run();
-
-function email_pdf(pmid, apikey, pdf) {
-  var answer = confirm('\nemail the pdf of this paper to your gmail?\n\nfile will be downloaded first\nstill testing\n');
-  if (answer) {
-    jQuery.ajax({
-      url: 'https://thepaperlink.appspot.com/file/new',
-      dataType: 'jsonp',
-      data: {'apikey': apikey},
-      async: false,
-      success: function (upload_url) {
-        jQuery('#thepaperlink_D' + pmid).fadeOut('fast');
-        if (a_proxy && typeof a_proxy === 'function') { alert('chrome');
-          a_proxy({upload_url: upload_url, pdf: pdf});
-        }
-      }
-    });
-  }
-}
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
@@ -144,7 +126,7 @@ chrome.extension.onRequest.addListener(
     if (request.tail) {
       bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     }
-    if (!document.getElementById('css_loaded')) {
+    if (!$('css_loaded')) {
       S = document.createElement('style');
       S.type = 'text/css';
       S.appendChild(document.createTextNode(styles));
@@ -181,10 +163,17 @@ chrome.extension.onRequest.addListener(
       if (request.tpl) {
         div.innerHTML += '<span id="thepaperlink_rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
       }
-      if (r.item[i].pdf && request.tpl) {
-        div.innerHTML += '<span id="thepaperlink_D' + r.item[i].pmid + '" class="thepaperlink-home" onclick="email_pdf(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\',\'' + r.item[i].pdf + '\')">email&nbsp;pdf</span>';
- 	  }
+      if (request.tpl && r.item[i].pdf) {
+        div.innerHTML += '<span style="display:none !important;" id="thepaperlink_hidden' + r.item[i].pmid + '"></span>';
+      }
       $(r.item[i].pmid).appendChild(div);
+      if ($('thepaperlink_hidden' + r.item[i].pmid)) {
+        $('thepaperlink_hidden' + r.item[i].pmid).addEventListener('email_pdf', function () {
+          var eventData = this.innerText, pmid = this.id.substr(19), pdf = $('thepaperlink_pdf' + pmid).href;
+          $('thepaperlink_D' + pmid).innerText = '';
+          a_proxy({upload_url: eventData, pdf: pdf});
+        });
+      }
       k = pmidArray.length;
       for (j = 0; j < k; j += 1) {
         if (r.item[i].pmid === pmidArray[j]) {
