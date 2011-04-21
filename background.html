@@ -21,6 +21,50 @@
         return bin_data;
       }
 
+
+function sendBinary(url, data, pmid) {
+  var xhr = new XMLHttpRequest(),
+    boundary = 'AJAX------------------------AJAX',
+    contentType = "multipart/form-data; boundary=" + boundary,
+    postHead = '--' + boundary + '\r\n' +
+      'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
+      'Content-Type: application/octet-stream\r\n\r\n',
+    postTail = '\r\n--' + boundary + '--',
+    tmp = '', i;
+
+  if (data instanceof ArrayBuffer) {
+    console.log('ArrayBuffer, need View, assume Uint8Array');
+    var abView = new Uint8Array(data);
+    console.log(abView.length);
+    for (i = 0; i < abView.length; i += 1) {
+      tmp += String.fromCharCode(abView[i] & 0xff);
+    }
+    data = postHead + tmp + postTail;
+  } else {
+    data = postHead + tmp + postTail;
+  }
+
+  if (typeof XMLHttpRequest.prototype.sendAsBinary === 'function') {
+    console.log('built-in support sendAsBinary, Firefox 3+');
+  } else {
+    console.log('define sendAsBinary, Chrome 8+');
+    XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
+      function byteValue(x) {
+        return x.charCodeAt(0) & 0xff;
+      }
+      var ords = Array.prototype.map.call(datastr, byteValue);
+      var ui8a = new Uint8Array(ords);
+      this.send(ui8a.buffer);
+    };
+  }
+
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader("Content-Type", contentType);
+  xhr.sendAsBinary(data);
+  return xhr.responseText;
+}
+
+
       function reLoadOp() {
         chrome.tabs.getAllInWindow(undefined, function (tabs) {
           var i, tab, urlOp = chrome.extension.getURL('options.html');
@@ -70,29 +114,22 @@
         else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
           console.log(request.pdf);
           var pdf_data = getBinary(request.pdf);
-          console.log('ajax download ' + pdf_data.length + ', now uploading');
-          $.ajax({
-            type: 'POST',
-            url: 'https://thepaperlink.appspot.com/',
-            data: {
-              'apikey': request.apikey, 
-              'pmid': request.pmid,
-              'action': 'pdf',
-              'pdf_data': pdf_data
-            },
-            success: function () {
-              console.log('pdf data post');
-            }
-          });
-          //$.ajax({ 
+          console.log('ajax download ' + pdf_data + ', now uploading');
+          //$.ajax({
           //  type: 'POST',
-          //  url: request.upload_url,
-          //  enctype: 'multipart/form-data',
-          //  data: pdf_data,
+          //  url: 'https://thepaperlink.appspot.com/',
+          //  data: {
+          //    'apikey': request.apikey, 
+          //    'pmid': request.pmid,
+          //    'action': 'pdf',
+          //    'pdf_data': pdf_data
+          //  },
           //  success: function () {
           //    console.log('pdf data post');
           //  }
           //});
+          msg = sendBinary(request.upload_url, pdf_data, request.pmid);
+          console.log('response from server (if any) : ' + msg);
         }
       }
       chrome.extension.onRequest.addListener(getRequest);
