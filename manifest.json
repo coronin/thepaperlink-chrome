@@ -5,7 +5,8 @@
   "background_page" : "background.html",
   "options_page" : "options.html",
   "permissions": [
-    "tabs", "https://thepaperlink.appspot.com/api"
+    "tabs",
+    "https://thepaperlink.appspot.com/*"
   ],
   "icons": {
     "48": "48.png",
@@ -13,7 +14,13 @@
   },
   "content_scripts": [ {
     "js": [ "contentscript.js" ],
-    "matches": [ "http://www.ncbi.nlm.nih.gov/pubmed*", "https://www.ncbi.nlm.nih.gov/pubmed*", "http://thepaperlink.appspot.com/reg", "http://pubmeder.appspot.com/registration", "https://thepaperlink.appspot.com/reg", "https://pubmeder.appspot.com/registration" ],
-    "exclude_globs": [ "http://www.ncbi.nlm.nih.gov/pubmed/", "https://www.ncbi.nlm.nih.gov/pubmed/" ]
+    "matches": [ "*://www.ncbi.nlm.nih.gov/pubmed*",
+                 "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&term=*",
+                 "*://thepaperlink.appspot.com/reg",
+                 "*://pubmeder.appspot.com/registration"
+               ],
+    "exclude_globs": [ "*://www.ncbi.nlm.nih.gov/pubmed/",
+                       "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
+                     ]
   } ]
 }
