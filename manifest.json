@@ -6,7 +6,8 @@
   "options_page" : "options.html",
   "permissions": [
     "tabs",
-    "https://thepaperlink.appspot.com/*"
+    "https://thepaperlink.appspot.com/*",
+    "http://*/*"
   ],
   "icons": {
     "48": "48.png",
