@@ -68,7 +68,7 @@ function get_Json(pmids) {
 }
 
 function run() {
-  var i, s;
+  var i, s, z;
   for (i = 0; i < t('div').length; i += 1) {
     if (t('div')[i].className === 'rprt' && t('div')[i].className !== 'abstract') {
       getPmid('div', i);
@@ -170,7 +170,7 @@ chrome.extension.onRequest.addListener(
       if ($('thepaperlink_hidden' + r.item[i].pmid)) {
         $('thepaperlink_hidden' + r.item[i].pmid).addEventListener('email_pdf', function () {
           var eventData = this.innerText, pmid = this.id.substr(19), pdf = $('thepaperlink_pdf' + pmid).href;
-          $('thepaperlink_D' + pmid).innerText = '';
+          $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
           a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl});
         });
       }
