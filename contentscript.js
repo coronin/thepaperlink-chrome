@@ -10,7 +10,7 @@
 function t(n) { return document.getElementsByTagName(n); }
 function $(d) { return document.getElementById(d); }
 function a_proxy(data) {
-  console.log('calling ajax');
+  console.log('sendRequest to background.html');
   chrome.extension.sendRequest(data);
 }
 var noRun = 0;
@@ -171,7 +171,7 @@ chrome.extension.onRequest.addListener(
         $('thepaperlink_hidden' + r.item[i].pmid).addEventListener('email_pdf', function () {
           var eventData = this.innerText, pmid = this.id.substr(19), pdf = $('thepaperlink_pdf' + pmid).href;
           $('thepaperlink_D' + pmid).innerText = '';
-          a_proxy({upload_url: eventData, pdf: pdf});
+          a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl});
         });
       }
       k = pmidArray.length;
