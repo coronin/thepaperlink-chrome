@@ -68,11 +68,9 @@
           reLoadOp();
         }
         else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
-          console.log(request.apikey);
-          console.log(request.pmid);
           console.log(request.pdf);
           var pdf_data = getBinary(request.pdf);
-          console.log(request.upload_url);
+          console.log('ajax download ' + pdf_data.length + ', now uploading');
           $.ajax({
             type: 'POST',
             url: 'https://thepaperlink.appspot.com/',
@@ -80,21 +78,19 @@
               'apikey': request.apikey, 
               'pmid': request.pmid,
               'action': 'pdf',
-              'pdf_data': pdf_data,
-              'upload_url': request.upload_url
+              'pdf_data': pdf_data
             },
             success: function () {
-              console.log('pdf data sent');
+              console.log('pdf data post');
             }
           });
           //$.ajax({ 
           //  type: 'POST',
-          //  async: true,
           //  url: request.upload_url,
           //  enctype: 'multipart/form-data',
           //  data: pdf_data,
           //  success: function () {
-          //    console.log('post pdf done');
+          //    console.log('pdf data post');
           //  }
           //});
         }
