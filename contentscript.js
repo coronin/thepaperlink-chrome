@@ -7,19 +7,25 @@
  * modified from my UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  */
 
+function t(n) { return document.getElementsByTagName(n); }
+function $(d) { return document.getElementById(d); }
+function a_proxy(data) {
+  console.log("calling ajax");
+  chrome.extension.sendRequest(data);
+}
 var noRun = 0;
 
 // storage data for access the api server
 if (document.URL === 'http://thepaperlink.appspot.com/reg' || document.URL === 'https://thepaperlink.appspot.com/reg') {
   var apikey = document.getElementById('apikey').innerHTML;
-  chrome.extension.sendRequest({thepaperlink_apikey: apikey});
+  a_proxy({thepaperlink_apikey: apikey});
   noRun = 1;
 }
 // storage data for access the bookmark server
 if (document.URL === 'http://pubmeder.appspot.com/registration' || document.URL === 'https://pubmeder.appspot.com/registration') {
   var email = document.getElementById('currentUser').innerHTML;
   var apikey = document.getElementById('apikey_pubmeder').innerHTML;
-  chrome.extension.sendRequest({pubmeder_apikey: apikey, pubmeder_email: email});
+  a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
   noRun = 1;
 }
 
@@ -28,9 +34,6 @@ var pmidArray = [];
 var old_title = '';
 var title_pos = 0;
 var search_term = '';
-
-function t(n) { return document.getElementsByTagName(n); }
-function $(d) { return document.getElementById(d); }
 
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent, regpmid = /PMID:\s(\d+)\s/, ID;
@@ -61,7 +64,7 @@ function get_Json(pmids) {
       t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> ... loading data from "the Paper Link"</span>&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
     }
   }
-  chrome.extension.sendRequest({url: url});
+  a_proxy({url: url});
 }
 
 function run() {
@@ -92,6 +95,24 @@ function run() {
 }
 run();
 
+function email_pdf(pmid, apikey, pdf) {
+  var answer = confirm('\nemail the pdf of this paper to your gmail?\n\nfile will be downloaded first\nstill testing\n');
+  if (answer) {
+    jQuery.ajax({
+      url: 'https://thepaperlink.appspot.com/file/new',
+      dataType: 'jsonp',
+      data: {'apikey': apikey},
+      async: false,
+      success: function (upload_url) {
+        jQuery('#thepaperlink_D' + pmid).fadeOut('fast');
+        if (a_proxy && typeof a_proxy === 'function') { alert('chrome');
+          a_proxy({upload_url: upload_url, pdf: pdf});
+        }
+      }
+    });
+  }
+}
+
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     if (request.except) {
@@ -121,7 +142,7 @@ chrome.extension.onRequest.addListener(
       + '  cursor: pointer'
       + '}', bookmark_div = '<div id="css_loaded"></div>';
     if (request.tail) {
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">save all</span></div>';
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     }
     if (!document.getElementById('css_loaded')) {
       S = document.createElement('style');
@@ -140,26 +161,29 @@ chrome.extension.onRequest.addListener(
       div.className = 'thepaperlink';
       div.innerHTML = '<a class="thepaperlink-home" href="http://thepaperlink.appspot.com/?q=pmid:' + r.item[i].pmid + '" target="_blank">the Paper Link</a>: ';
       if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
-        div.innerHTML += '<span>impact factor ' + r.item[i].slfo + '</span>';
+        div.innerHTML += '<span>impact&nbsp;' + r.item[i].slfo + '</span>';
       }
       if (r.item[i].pdf) {
-        div.innerHTML += '<a id="thepaperlink_pdf' + r.item[i].pmid + '" class="thepaperlink-green" href="' + r.item[i].pdf + '" target="_blank">direct pdf</a>';
+        div.innerHTML += '<a id="thepaperlink_pdf' + r.item[i].pmid + '" class="thepaperlink-green" href="' + r.item[i].pdf + '" target="_blank">direct&nbsp;pdf</a>';
       }
       if (r.item[i].pmcid) {
-        div.innerHTML += '<a id="thepaperlink_pmc' + r.item[i].pmid + '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' + r.item[i].pmcid + '/?tool=thepaperlinkClient" target="_blank">free article</a>';
+        div.innerHTML += '<a id="thepaperlink_pmc' + r.item[i].pmid + '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' + r.item[i].pmcid + '/?tool=thepaperlinkClient" target="_blank">free&nbsp;article</a>';
       }
       if (r.item[i].doi) {
-        div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid + '" href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">external page</a>';
+        div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid + '" href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">external&nbsp;page</a>';
       }
       if (r.item[i].f_v && r.item[i].fid) {
-        div.innerHTML += '<a id="thepaperlink_f' + r.item[i].pmid + '" class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid + '" target="_blank">f1000 score ' + r.item[i].f_v + '</a>';
+        div.innerHTML += '<a id="thepaperlink_f' + r.item[i].pmid + '" class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid + '" target="_blank">f1000&nbsp;score&nbsp;' + r.item[i].f_v + '</a>';
       }
       if (request.tail) {
-        div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid + '" onclick="saveIt(\'' + r.item[i].pmid + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">save it</span>';
+        div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid + '" onclick="saveIt(\'' + r.item[i].pmid + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;it</span>';
       }
       if (request.tpl) {
         div.innerHTML += '<span id="thepaperlink_rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
       }
+      if (r.item[i].pdf && request.tpl) {
+        div.innerHTML += '<span id="thepaperlink_D' + r.item[i].pmid + '" class="thepaperlink-home" onclick="email_pdf(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\',\'' + r.item[i].pdf + '\')">email&nbsp;pdf</span>';
+ 	  }
       $(r.item[i].pmid).appendChild(div);
       k = pmidArray.length;
       for (j = 0; j < k; j += 1) {
@@ -170,7 +194,7 @@ chrome.extension.onRequest.addListener(
     }
     if (pmidArray.length > 0) {
       t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
-      chrome.extension.sendRequest({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
+      a_proxy({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
     }
     sendResponse({});
   }

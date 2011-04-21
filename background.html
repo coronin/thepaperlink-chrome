@@ -52,6 +52,19 @@
           localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
           reLoadOp();
         }
+        else if (request.upload_url && request.pdf) {
+
+          $.ajax({ 
+            type: 'POST',
+            url: upload_url,
+            enctype: 'multipart/form-data',
+            data: {file: '~/test.pdf'},
+            success: function () {
+              alert('Data Uploaded');
+            }
+          });
+
+        }
       }
       chrome.extension.onRequest.addListener(getRequest);
     //-->
