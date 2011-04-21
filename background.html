@@ -6,133 +6,148 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery152.js"></script>
     <script type="text/javascript"><!--
-      function getBinary(file) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', file, false);
-        if (xhr.hasOwnProperty('responseType')) {
-          xhr.responseType = 'arraybuffer';
-        } else {
-          xhr.overrideMimeType('text/plain; charset=x-user-defined');
-        }
-        xhr.send(null);
-        var responseArrayBuffer = xhr.hasOwnProperty('responseType') && xhr.responseType === 'arraybuffer',
-        mozResponseArrayBuffer = 'mozResponseArrayBuffer' in xhr,
-        bin_data = mozResponseArrayBuffer ? xhr.mozResponseArrayBuffer : responseArrayBuffer ? xhr.response : xhr.responseText;
-        return bin_data;
-      }
-
-
-function sendBinary(url, data, pmid) {
-  var xhr = new XMLHttpRequest(),
-    boundary = 'AJAX------------------------AJAX',
-    contentType = "multipart/form-data; boundary=" + boundary,
-    postHead = '--' + boundary + '\r\n' +
-      'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
-      'Content-Type: application/octet-stream\r\n\r\n',
-    postTail = '\r\n--' + boundary + '--',
-    tmp = '', i;
-
-  if (data instanceof ArrayBuffer) {
-    console.log('ArrayBuffer, need View, assume Uint8Array');
-    var abView = new Uint8Array(data);
-    console.log(abView.length);
-    for (i = 0; i < abView.length; i += 1) {
-      tmp += String.fromCharCode(abView[i] & 0xff);
-    }
-    data = postHead + tmp + postTail;
+function getBinary(file) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', file, false);
+  if (xhr.hasOwnProperty('responseType')) {
+    xhr.responseType = 'arraybuffer';
   } else {
-    data = postHead + tmp + postTail;
+    xhr.overrideMimeType('text/plain; charset=x-user-defined');
   }
-
-  if (typeof XMLHttpRequest.prototype.sendAsBinary === 'function') {
-    console.log('built-in support sendAsBinary, Firefox 3+');
-  } else {
-    console.log('define sendAsBinary, Chrome 8+');
-    XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
-      function byteValue(x) {
-        return x.charCodeAt(0) & 0xff;
-      }
-      var ords = Array.prototype.map.call(datastr, byteValue);
-      var ui8a = new Uint8Array(ords);
-      this.send(ui8a.buffer);
-    };
-  }
-
-  xhr.open('POST', url, true);
-  xhr.setRequestHeader("Content-Type", contentType);
-  xhr.sendAsBinary(data);
-  return xhr.responseText;
+  xhr.send(null);
+  var responseArrayBuffer = xhr.hasOwnProperty('responseType') && xhr.responseType === 'arraybuffer',
+    mozResponseArrayBuffer = 'mozResponseArrayBuffer' in xhr,
+    bin_data = mozResponseArrayBuffer ? xhr.mozResponseArrayBuffer : responseArrayBuffer ? xhr.response : xhr.responseText;
+  return bin_data;
 }
 
+function sendBinary(url, data, pmid) {
+  try {
+    var xhr = new XMLHttpRequest(),
+      boundary = 'AJAX------------------------AJAX',
+      contentType = "multipart/form-data; boundary=" + boundary,
+      postHead = '--' + boundary + '\r\n' +
+        'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
+        'Content-Type: application/octet-stream\r\n\r\n',
+      postTail = '\r\n--' + boundary + '--',
+      tmp = '',
+      abView,
+      i;
+    if (data instanceof ArrayBuffer) {
+      console.log('ArrayBuffer, need View, assume Uint8Array');
+      abView = new Uint8Array(data);
+      if (abView.length < 100) {
+        return null;
+      }
+      console.log(abView.length);
+      for (i = 0; i < abView.length; i += 1) {
+        tmp += String.fromCharCode(abView[i] & 0xff);
+      }
+      data = postHead + tmp + postTail;
+    } else {
+      data = postHead + tmp + postTail;
+    }
+    if (typeof XMLHttpRequest.prototype.sendAsBinary === 'function') {
+      console.log('built-in support sendAsBinary');
+    } else {
+      console.log('define sendAsBinary');
+      XMLHttpRequest.prototype.sendAsBinary = function (datastr) {
+        function byteValue(x) {
+          return x.charCodeAt(0) & 0xff;
+        }
+        var ords = Array.prototype.map.call(datastr, byteValue);
+        var ui8a = new Uint8Array(ords);
+        this.send(ui8a.buffer);
+      };
+    }
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader("Content-Type", contentType);
+    xhr.sendAsBinary(data);
+    return xhr.responseText;
+  } catch (err) {
+    return null;
+  }
+}
 
-      function reLoadOp() {
-        chrome.tabs.getAllInWindow(undefined, function (tabs) {
-          var i, tab, urlOp = chrome.extension.getURL('options.html');
-          for (i = 0; i < tabs.length; i += 1) {
-            tab = tabs[i];
-            if (tab.url && tab.url === urlOp) {
-              chrome.tabs.update(tab.id, {url: urlOp, selected: true});
-              return;
-            }
+function reLoadOp() {
+  chrome.tabs.getAllInWindow(undefined, function (tabs) {
+    var i, tab, urlOp = chrome.extension.getURL('options.html');
+    for (i = 0; i < tabs.length; i += 1) {
+      tab = tabs[i];
+      if (tab.url && tab.url === urlOp) {
+        chrome.tabs.update(tab.id, {url: urlOp, selected: true});
+        return;
+      }
+    }
+  });
+}
+
+function getRequest(request, sender, callback) {
+  var apikey = localStorage.getItem('thepaperlink_apikey'),
+    pubmeder_apikey = localStorage.getItem('pubmeder_apikey'),
+    pubmeder_email = localStorage.getItem('pubmeder_email'),
+    tail = '';
+  if (apikey === null) {
+    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+  }
+  if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
+    tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
+  }
+
+  if (request.url) {
+    $.getJSON('https://thepaperlink.appspot.com' + request.url + apikey, function (d) {
+      chrome.tabs.getSelected(null, function (tab) {
+        if (d && d.count) {
+          if (localStorage.getItem('thepaperlink_apikey')) {
+            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email});
+          } else {
+            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email});
           }
-        });
-      }
-
-      function getRequest(request, sender, callback) {
-        var apikey = localStorage.getItem('thepaperlink_apikey'), pubmeder_apikey = localStorage.getItem('pubmeder_apikey'), pubmeder_email = localStorage.getItem('pubmeder_email'), tail = '';
-        if (apikey === null) {
-          apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+        } else {
+          chrome.tabs.sendRequest(tab.id, {except: 1});
         }
-        if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
-          tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
+      });
+    });
+  } else if (request.pubmeder_apikey && request.pubmeder_email) {
+    localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
+    localStorage.setItem('pubmeder_email', request.pubmeder_email);
+    reLoadOp();
+  } else if (request.thepaperlink_apikey) {
+    localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
+    reLoadOp();
+  } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
+    console.log(request.pdf);
+    var pdf_data = getBinary(request.pdf), msg;
+    console.log('ajax download ' + pdf_data + ', now uploading');
+    //$.ajax({
+    //  type: 'POST',
+    //  url: 'https://thepaperlink.appspot.com/',
+    //  data: {
+    //    'apikey': request.apikey, 
+    //    'pmid': request.pmid,
+    //    'action': 'pdf',
+    //    'pdf_data': pdf_data
+    //  },
+    //  success: function () {
+    //    console.log('pdf data post');
+    //  }
+    //});
+    msg = sendBinary(request.upload_url, pdf_data, request.pmid);
+    console.log('response from server (if any) : ' + msg);
+    if (msg === null) {
+      console.log('email_pdf failed, just email the abstract');
+      $.ajax({
+        type: 'POST',
+        url: 'https://thepaperlink.appspot.com/',
+        data: {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
+        success: function () {
+          $('#thepaperlink_A' + request.pmid).fadeOut('fast');
         }
-
-        if (request.url) {
-          $.getJSON('https://thepaperlink.appspot.com' + request.url + apikey, function (d) {
-            chrome.tabs.getSelected(null, function (tab) {
-              if (d && d.count) {
-                if (localStorage.getItem('thepaperlink_apikey')) {
-                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email});
-                } else {
-                  chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email});
-                }
-              } else {
-                chrome.tabs.sendRequest(tab.id, {except: 1});
-              }
-            });
-          });
-        }
-        else if (request.pubmeder_apikey && request.pubmeder_email) {
-          localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
-          localStorage.setItem('pubmeder_email', request.pubmeder_email);
-          reLoadOp();
-        }
-        else if (request.thepaperlink_apikey) {
-          localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
-          reLoadOp();
-        }
-        else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
-          console.log(request.pdf);
-          var pdf_data = getBinary(request.pdf);
-          console.log('ajax download ' + pdf_data + ', now uploading');
-          //$.ajax({
-          //  type: 'POST',
-          //  url: 'https://thepaperlink.appspot.com/',
-          //  data: {
-          //    'apikey': request.apikey, 
-          //    'pmid': request.pmid,
-          //    'action': 'pdf',
-          //    'pdf_data': pdf_data
-          //  },
-          //  success: function () {
-          //    console.log('pdf data post');
-          //  }
-          //});
-          msg = sendBinary(request.upload_url, pdf_data, request.pmid);
-          console.log('response from server (if any) : ' + msg);
-        }
-      }
-      chrome.extension.onRequest.addListener(getRequest);
+      });
+    }
+  }
+}
+chrome.extension.onRequest.addListener(getRequest);
     //-->
     </script>
   </head>
