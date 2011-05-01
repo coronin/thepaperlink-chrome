@@ -36,7 +36,7 @@ var title_pos = 0;
 var search_term = '';
 
 function getPmid(zone, num) {
-  var a = t(zone)[num].textContent, regpmid = /PMID:\s(\d+)\s/, ID;
+  var a = t(zone)[num].textContent, regpmid = /PMID:\s(\d+)\s/, ID, b, content, tmp, ii;
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
@@ -44,6 +44,20 @@ function getPmid(zone, num) {
         t(zone)[num - 1].setAttribute('id', ID[1]);
       } else {
         t(zone)[num + 2].setAttribute('id', ID[1]);
+        b = document.createElement('div');
+        content = t(zone)[num + 2].innerText;
+        tmp = content.split(' [PubMed - ')[0].replace('.PMID:', '. PMID:').split('.');
+        for (ii = 0; ii < tmp.length; ii += 1) {
+          if (ii === 0) {
+            content = tmp[ii];
+          } else if (ii < 3) {
+            content += '.\n' + tmp[ii];
+          } else {
+            content += '.' + tmp[ii];
+          }
+        }
+        b.innerHTML = '<div style="float:right"><embed src="https://paperlink2.appspot.com/static/clippy.swf" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
+        t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
     }
@@ -98,10 +112,17 @@ run();
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     if (request.except) {
-      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">reload</button></span>';
+      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">try reload?</button></span>';
+      sendResponse({});
       return;
     }
-    var div, i, j, k, S, r = request.r, styles = '.thepaperlink {'
+    var r = request.r, div, i, j, k, S, bookmark_div = '<div id="css_loaded"></div>';
+    if (r.error) {
+      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
+      sendResponse({});
+      return;
+    }
+    styles = '.thepaperlink {'
       + '  background: #e0ecf1;'
       + '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;'
       + '  padding: 2px 4px;'
@@ -122,7 +143,7 @@ chrome.extension.onRequest.addListener(
       + '  color: grey;'
       + '  text-decoration: none;'
       + '  cursor: pointer'
-      + '}', bookmark_div = '<div id="css_loaded"></div>';
+      + '}';
     if (request.tail) {
       bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     }
@@ -158,7 +179,7 @@ chrome.extension.onRequest.addListener(
         div.innerHTML += '<a id="thepaperlink_f' + r.item[i].pmid + '" class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid + '" target="_blank">f1000&nbsp;score&nbsp;' + r.item[i].f_v + '</a>';
       }
       if (request.tail) {
-        div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid + '" onclick="saveIt(\'' + r.item[i].pmid + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;it</span>';
+        div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid + '" class="thepaperlink-home" onclick="saveIt(\'' + r.item[i].pmid + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;it</span>';
       }
       if (request.tpl) {
         div.innerHTML += '<span id="thepaperlink_rpt' + r.item[i].pmid + '" class="thepaperlink-home" onclick="show_me_the_money(\'' + r.item[i].pmid + '\',\'' + request.tpl + '\')">?</span>';
@@ -186,5 +207,6 @@ chrome.extension.onRequest.addListener(
       a_proxy({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
     }
     sendResponse({});
+    return;
   }
 );

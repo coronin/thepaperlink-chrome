@@ -97,7 +97,7 @@ function getRequest(request, sender, callback) {
   if (request.url) {
     $.getJSON('https://thepaperlink.appspot.com' + request.url + apikey, function (d) {
       chrome.tabs.getSelected(null, function (tab) {
-        if (d && d.count) {
+        if (d && (d.count || d.error)) {
           if (localStorage.getItem('thepaperlink_apikey')) {
             chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email});
           } else {
