@@ -36,6 +36,34 @@
 
   <script type="text/javascript">
   <!--
+function save_pubmeder(a, key, email) {
+  if (!key || !email) {
+    console.log('save to pubmeder needs valid apikey and email');
+    return;
+  }
+  var url_base, url, IdList = localStorage.getItem('pubmeder_IdList');
+  if (IdList && IdList.indexOf(a) !== -1) {
+    return;
+  } else if (IdList === null) {
+    IdList = '';
+  } else {
+    IdList += ',';
+  }
+  if (localStorage.getItem('rev_proxy') === 'yes') {
+    url_base = 'http://1.pl4.me';
+  } else {
+    url_base = 'https://pubmeder.appspot.com';
+  }
+  url = url_base + '/input?pmid=' + a + '&apikey=' + key + '&email=' + email;
+  $.getJSON(url, function (text) {
+    if (text.respond === 1) {
+      var b = $('#found').html();
+      $('#found').html(b + ' [pubmeder ' + text.respond.toString() + ']');
+      localStorage.setItem('pubmeder_IdList', IdList + a);
+    }
+  });
+}
+
 function hideMore() {
   $('.moreAbout').addClass('Off');
   $('.AbsButton').removeClass('Off');
@@ -244,6 +272,7 @@ chrome.tabs.getSelected(null, function (tab) {
     $('#result').removeClass('Off');
     $('#found').html('PMID:<a onclick="eSummary(\'' + ID + '\')">' + ID + '</a> found on page ' + url_trim);
     eSummary(ID);
+    save_pubmeder(ID, localStorage.getItem('pubmeder_apikey'), localStorage.getItem('pubmeder_email'));
   }
 });
   //-->
