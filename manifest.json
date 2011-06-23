@@ -2,8 +2,6 @@
   "name": "the Paper Link for PubMed",
   "version": "0.3.0",
   "description": "Add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more... (by Liang Cai, for Google Chrome)",
-  "background_page" : "background.html",
-  "options_page" : "options.html",
   "permissions": [
     "tabs",
     "https://thepaperlink.appspot.com/*",
@@ -13,12 +11,18 @@
     "48": "48.png",
     "128": "128.png"
   },
+  "options_page" : "options.html",
+  "background_page" : "background.html",
+  "page_action": {
+    "default_icon": "19grey.png",
+    "default_title": "the Paper Link for PubMed: click to extract"
+  },
   "content_scripts": [ {
     "js": [ "contentscript.js" ],
     "matches": [ "*://www.ncbi.nlm.nih.gov/pubmed*",
                  "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&term=*",
-                 "*://thepaperlink.appspot.com/reg",
-                 "*://pubmeder.appspot.com/registration"
+                 "http://0.pl4.me/reg",
+                 "http://1.pl4.me/registration"
                ],
     "exclude_globs": [ "*://www.ncbi.nlm.nih.gov/pubmed/",
                        "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"

@@ -16,13 +16,13 @@ function a_proxy(data) {
 var noRun = 0;
 
 // storage data for access the api server
-if (document.URL === 'http://thepaperlink.appspot.com/reg' || document.URL === 'https://thepaperlink.appspot.com/reg') {
+if (document.URL === 'http://0.pl4.me/reg') {
   var apikey = $('apikey').innerHTML;
   a_proxy({thepaperlink_apikey: apikey});
   noRun = 1;
 }
 // storage data for access the bookmark server
-if (document.URL === 'http://pubmeder.appspot.com/registration' || document.URL === 'https://pubmeder.appspot.com/registration') {
+if (document.URL === 'http://1.pl4.me/registration') {
   var email = $('currentUser').innerHTML;
   var apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
@@ -56,7 +56,7 @@ function getPmid(zone, num) {
             content += '.' + tmp[ii];
           }
         }
-        b.innerHTML = '<div style="float:right"><embed src="https://paperlink2.appspot.com/static/clippy.swf" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
+        b.innerHTML = '<div style="float:right"><embed src="http://dogeno.us/image/clippy.swf" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
         t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
@@ -75,14 +75,14 @@ function get_Json(pmids) {
     if (t('h2')[i].className === 'result_count') {
       old_title = t('h2')[i].innerHTML;
       title_pos = i;
-      t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> ... loading data from "the Paper Link"</span>&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
+      t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> ... loading data from "the Paper Link"</span>&nbsp;&nbsp;<img src="http://dogeno.us/image/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
     }
   }
   a_proxy({url: url});
 }
 
 function run() {
-  var i, s, z;
+  var i, z;
   for (i = 0; i < t('div').length; i += 1) {
     if (t('div')[i].className === 'rprt' && t('div')[i].className !== 'abstract') {
       getPmid('div', i);
@@ -100,23 +100,27 @@ function run() {
   if (pmids) {
     get_Json(pmids);
   }
-  if (!$('paperlink2_display')) {
-    s = document.createElement('script');
-    s.setAttribute('type', 'text/javascript');
-    s.setAttribute('src', 'https://paperlink2.appspot.com/js?y=' + (Math.random()));
-    document.body.appendChild(s);
-  }
 }
 run();
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
+    var r = request.r, div, i, j, k, S, styles, peaks, bookmark_div = '<div id="css_loaded"></div>';
+    if (!$('paperlink2_display')) {
+      peaks = document.createElement('script');
+      peaks.setAttribute('type', 'text/javascript');
+      if (request.uri === 'http://0.pl4.me') {
+        peaks.setAttribute('src', 'http://2.pl4.me/js?y=' + (Math.random()));
+      } else {
+        peaks.setAttribute('src', 'https://paperlink2.appspot.com/js?y=' + (Math.random()));
+      }
+      document.body.appendChild(peaks);
+    }
     if (request.except) {
       t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">try reload?</button></span>';
       sendResponse({});
       return;
     }
-    var r = request.r, div, i, j, k, S, bookmark_div = '<div id="css_loaded"></div>';
     if (r.error) {
       t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
       sendResponse({});
@@ -145,7 +149,7 @@ chrome.extension.onRequest.addListener(
       + '  cursor: pointer'
       + '}';
     if (request.tail) {
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"><span id="thepaperlink_saveAll" onclick="saveIt(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     }
     if (!$('css_loaded')) {
       S = document.createElement('style');
@@ -162,7 +166,7 @@ chrome.extension.onRequest.addListener(
     for (i = 0; i < r.count; i += 1) {
       div = document.createElement('div');
       div.className = 'thepaperlink';
-      div.innerHTML = '<a class="thepaperlink-home" href="http://thepaperlink.appspot.com/?q=pmid:' + r.item[i].pmid + '" target="_blank">the Paper Link</a>: ';
+      div.innerHTML = '<a class="thepaperlink-home" href="' + request.uri + '/?q=pmid:' + r.item[i].pmid + '" target="_blank">the Paper Link</a>: ';
       if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
         div.innerHTML += '<span>impact&nbsp;' + r.item[i].slfo + '</span>';
       }
@@ -203,7 +207,7 @@ chrome.extension.onRequest.addListener(
       }
     }
     if (pmidArray.length > 0) {
-      t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="https://thepaperlink.appspot.com/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
+      t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' + request.uri + '/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
       a_proxy({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
     }
     sendResponse({});

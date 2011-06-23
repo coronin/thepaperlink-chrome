@@ -1,48 +1,53 @@
-ATTENTION: since v0.2.8, you can email the PubMed abstract with PDF attached to yourself. Details about this feature is at http://en.dogeno.us/?p=7601 . To achieve this, I have to change the access permission of the extension, but not the content_scripts running scope.
+ATTENTION:
+ - Since v0.2.8, you can email the PubMed abstract with PDF attached to yourself. Details about this feature is at http://en.dogeno.us/?p=7601 . To achieve this, I have to change the access permission of the extension.
+ - Anonymous is served at a low frequency. Please visit the Options page to unleash the power of this extension.
 
-----
 
+the Paper Link for PubMed
+--------
 In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more...
 
-The enhancement includes: 
-* Impact Factor of the Journal 
-* Direct link to its PDF file 
-* External pages related to the article 
-* Faculty 1000 score and link to its comment page
-* "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://paperlink2.appspot.com/static/peaks.html)
-* ...
+Detailed enhancement includes:
+ * Impact Factor of the Journal
+ * Direct link to its PDF file
+ * External pages related to the article
+ * Faculty 1000 score and link to its comment page
+ * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://paperlink2.appspot.com/static/peaks.html)
+ * Email PDF file to yourself
+ * Extract PMID on any webpage
 
-This extension is built using API from http://pubmeder.appspot.com, http://thepaperlink.appspot.com, http://paperlink2.appspot.com and eUtils.
+This extension is built using API from http://pubmeder.appspot.com, http://thepaperlink.appspot.com and PubMed eUtils.
 
 
 For Firefox, please use the following:
-* http://userscripts.org/scripts/show/97865 (need GreaseMonkey, tested with fx4)
-* https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/ (not work in 4.0 yet)
+ + http://userscripts.org/scripts/show/97865 (need GreaseMonkey, tested with fx4)
+ + https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/ (not work in 4.0 yet)
 
 For Safari, please use the following:
-* http://thepaperlink.appspot.com/static/thepaperlink.safariextz
+ + http://pl4.me/static/thepaperlink.safariextz
 
 For Mobile Devices, please try our mobile site:
-* http://thepaperlink.appspot.com/m (or visit http://thepaperlink.com on your mobile device: iPhone, Android, iPod Touch, iPad, etc)
+ + http://m.thepaperlink.com/ (or visit http://pl4.me on your mobile device: iPhone, Android, iPod Touch, iPad, etc)
 
+One more thing - we have a js client for "the Paper Link", working in all web browsers.
+ + http://pl4.me/js/ (shorten URL http://goo.gl/m5C49)
+ + instruction for the js client is at http://en.dogeno.us/?p=7567
 
-There is one more thing - we have a js client for "the Paper Link", working in all web browsers.
-* http://thepaperlink.appspot.com/js/ (shorten URL http://goo.gl/m5C49)
-* instruction for the js client is at http://en.dogeno.us/?p=7567
-
-
+中国用户请使用 http://0.pl4.me 替代 http://pl4.me 来访问上述的链接。
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
+
 Change Log:
-* v0.2.9 - copy to clipboard, report error
-* v0.2.8 - "email it" will try to attach the PDF file (Chrome Only); UI tweak
-* v0.2.7 - lousy fix json fetch error (update to jQuery 1.5.2)
-* v0.2.6 - better "pubmeder it / pubmeder all" bookmarking
-* v0.2.5 - option page update
-* v0.2.4 - option page ui improved, "Peaks" full functional
-* v0.2.3 - test using "Peaks" api
-* v0.2.2 - add https support
-* v0.2.1 - bug fix
-* v0.2.0 - two-hit for fast data fetching
-* v0.1.2 - "pubmeder all" for users of "pubmeder at appspot.com"
-* v0.1.1 - first public version
+ * v0.3.0 - bug fix; use reverse proxy domains; Chinese support
+ * v0.2.9 - copy to clipboard, report error
+ * v0.2.8 - "email it" will try to attach the PDF file (Chrome Only); UI tweak
+ * v0.2.7 - lousy fix json fetch error (update to jQuery 1.5.2)
+ * v0.2.6 - better "pubmeder it / pubmeder all" bookmarking
+ * v0.2.5 - option page update
+ * v0.2.4 - option page ui improved, "Peaks" full functional
+ * v0.2.3 - test using "Peaks" api
+ * v0.2.2 - add https support
+ * v0.2.1 - bug fix
+ * v0.2.0 - two-hit for fast data fetching
+ * v0.1.2 - "pubmeder all" for users of "pubmeder at appspot.com"
+ * v0.1.1 - first public version
