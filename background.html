@@ -6,6 +6,32 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery152.js"></script>
     <script type="text/javascript"><!--
+var rev_proxy = localStorage.getItem('rev_proxy'),
+  apikey = localStorage.getItem('thepaperlink_apikey');
+if (apikey === null) {
+  apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+}
+
+chrome.tabs.onCreated.addListener(function(tab) {
+  chrome.pageAction.show(tab.id);
+});
+chrome.tabs.onUpdated.addListener(function(tabId) {
+  chrome.pageAction.show(tabId);
+});
+chrome.tabs.getSelected(null, function(tab) {
+  chrome.pageAction.show(tab.id);
+});
+
+chrome.pageAction.onClicked.addListener(function(tab) {
+  chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
+  chrome.pageAction.setTitle({title: 'extracting...', tabId: tab.id});
+  if (rev_proxy === 'yes') {
+    chrome.tabs.executeScript(null, {file: 'rev_bubble.js'});
+  } else {
+    chrome.tabs.executeScript(null, {file: 'bubble.js'});
+  }
+});
+
 function getBinary(file) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', file, false);
@@ -36,7 +62,7 @@ function sendBinary(url, data, pmid) {
     if (data instanceof ArrayBuffer) {
       console.log('ArrayBuffer, need View, assume Uint8Array');
       abView = new Uint8Array(data);
-      if (abView.length < 100) {
+      if (abView.length < 1000) {
         return null;
       }
       console.log(abView.length);
@@ -83,28 +109,29 @@ function reLoadOp() {
 }
 
 function getRequest(request, sender, callback) {
-  var apikey = localStorage.getItem('thepaperlink_apikey'),
-    pubmeder_apikey = localStorage.getItem('pubmeder_apikey'),
+  var pubmeder_apikey = localStorage.getItem('pubmeder_apikey'),
     pubmeder_email = localStorage.getItem('pubmeder_email'),
-    tail = '';
-  if (apikey === null) {
-    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+    tail = '', uri;
+  if (rev_proxy === 'yes') {
+    uri = 'http://0.pl4.me';
+  } else {
+    uri = 'https://thepaperlink.appspot.com';
   }
   if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
     tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
   }
 
   if (request.url) {
-    $.getJSON('https://thepaperlink.appspot.com' + request.url + apikey, function (d) {
+    $.getJSON(uri + request.url + apikey, function (d) {
       chrome.tabs.getSelected(null, function (tab) {
         if (d && (d.count || d.error)) {
           if (localStorage.getItem('thepaperlink_apikey')) {
-            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email});
+            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
           } else {
-            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email});
+            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
           }
         } else {
-          chrome.tabs.sendRequest(tab.id, {except: 1});
+          chrome.tabs.sendRequest(tab.id, {except: 1, uri: uri});
         }
       });
     });
@@ -119,26 +146,13 @@ function getRequest(request, sender, callback) {
     console.log(request.pdf);
     var pdf_data = getBinary(request.pdf), msg;
     console.log('ajax download ' + pdf_data + ', now uploading');
-    //$.ajax({
-    //  type: 'POST',
-    //  url: 'https://thepaperlink.appspot.com/',
-    //  data: {
-    //    'apikey': request.apikey, 
-    //    'pmid': request.pmid,
-    //    'action': 'pdf',
-    //    'pdf_data': pdf_data
-    //  },
-    //  success: function () {
-    //    console.log('pdf data post');
-    //  }
-    //});
     msg = sendBinary(request.upload_url, pdf_data, request.pmid);
     console.log('response from server (if any) : ' + msg);
     if (msg === null) {
       console.log('email_pdf failed, just email the abstract');
       $.ajax({
         type: 'POST',
-        url: 'https://thepaperlink.appspot.com/',
+        url: uri + '/',
         data: {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
         success: function () {
           $('#thepaperlink_A' + request.pmid).fadeOut('fast');
