@@ -15,15 +15,12 @@
   "background_page" : "background.html",
   "page_action": {
     "default_icon": "19grey.png",
-    "default_title": "the Paper Link for PubMed: click to extract"
+    "default_title": "the Paper Link for PubMed: click to display extracted info",
+    "default_popup" : "popup.html"
   },
   "content_scripts": [ {
     "js": [ "contentscript.js" ],
-    "matches": [ "*://www.ncbi.nlm.nih.gov/pubmed*",
-                 "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&term=*",
-                 "http://0.pl4.me/reg",
-                 "http://1.pl4.me/registration"
-               ],
+    "matches": [ "http://*/*", "https://*/*" ],
     "exclude_globs": [ "*://www.ncbi.nlm.nih.gov/pubmed/",
                        "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
                      ]
