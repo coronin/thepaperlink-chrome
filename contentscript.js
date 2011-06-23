@@ -8,35 +8,64 @@
  */
 
 function t(n) { return document.getElementsByTagName(n); }
+
 function $(d) { return document.getElementById(d); }
+
 function a_proxy(data) {
   console.log('sendRequest to background.html');
   chrome.extension.sendRequest(data);
 }
+
+function parse_id(a) { // pubmeder code
+  var regpmid = /pmid\s*:?\s*(\d+)\s*/i, 
+    regdoi = /doi\s*:?\s*/i,
+    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9\.\/\)\(-]+\w)\s*\W?/,
+    regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
+    ID = null;
+  if (regpmid.test(a)) {
+    ID = regpmid.exec(a);
+  } else if (regpmc.test(a)) {
+    ID = regpmc.exec(a);
+    ID[1] = ID[1].toUpperCase();
+  } else if (regdoi.test(a) || doipattern.test(a)) {
+    ID = doipattern.exec(a);
+  }
+  return ID;
+}
+
 var noRun = 0;
 
-// storage data for access the api server
-if (document.URL === 'http://0.pl4.me/reg') {
+if (document.URL === 'http://0.pl4.me/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML;
   a_proxy({thepaperlink_apikey: apikey});
   noRun = 1;
-}
-// storage data for access the bookmark server
-if (document.URL === 'http://1.pl4.me/registration') {
-  var email = $('currentUser').innerHTML;
-  var apikey = $('apikey_pubmeder').innerHTML;
+} else if (document.URL === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
+  var email = $('currentUser').innerHTML,
+    apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
+  noRun = 1;
+} else if (document.URL.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1 && document.URL.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&term=') === -1) {
+  var ID = parse_id(document.body.innerText) || parse_id(document.body.innerHTML);
+  if (ID !== null) {
+    console.log('non-ncbi site, got ID ' + ID[1]);  
+    a_proxy({sendID: ID[1]})
+  } else {
+    console.log('non-ncbi site, no ID found');  
+  }
   noRun = 1;
 }
 
-var pmids = '';
-var pmidArray = [];
-var old_title = '';
-var title_pos = 0;
-var search_term = '';
+var pmids = '',
+  pmidArray = [],
+  old_title = '',
+  title_pos = 0,
+  search_term = '';
 
 function getPmid(zone, num) {
-  var a = t(zone)[num].textContent, regpmid = /PMID:\s(\d+)\s/, ID, b, content, tmp, ii;
+  var a = t(zone)[num].textContent,
+    regpmid = /PMID:\s(\d+)\s/,
+    ID, b, content, tmp, ii,
+    local_swf = chrome.extension.getURL('clippy.swf'); // bug 58907
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
@@ -46,12 +75,14 @@ function getPmid(zone, num) {
         t(zone)[num + 2].setAttribute('id', ID[1]);
         b = document.createElement('div');
         content = t(zone)[num + 2].innerText;
-        tmp = content.split(' [PubMed - ')[0].replace('.PMID:', '. PMID:').split('.');
+        tmp = content.split(' [PubMed - ')[0].split('.');
         for (ii = 0; ii < tmp.length; ii += 1) {
           if (ii === 0) {
             content = tmp[ii];
-          } else if (ii < 3) {
-            content += '.\n' + tmp[ii];
+          //} else if (ii < 3) {
+          //  content += '.\n' + tmp[ii];
+          } else if (ii === tmp.length - 1) {
+            content += '. [' + tmp[ii].substr(1) + ']';
           } else {
             content += '.' + tmp[ii];
           }
@@ -65,7 +96,9 @@ function getPmid(zone, num) {
 }
 
 function get_Json(pmids) {
-  var i, url = '/api?flash=yes&a=chrome&pmid=' + pmids;
+  var i,
+    url = '/api?flash=yes&a=chrome&pmid=' + pmids,
+    local_gif = chrome.extension.getURL('loadingLine.gif');
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -75,7 +108,7 @@ function get_Json(pmids) {
     if (t('h2')[i].className === 'result_count') {
       old_title = t('h2')[i].innerHTML;
       title_pos = i;
-      t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> ... loading data from "the Paper Link"</span>&nbsp;&nbsp;<img src="http://dogeno.us/image/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
+      t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + local_gif + '" width="16" height="11" alt="loading" />';
     }
   }
   a_proxy({url: url});
@@ -105,7 +138,9 @@ run();
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
-    var r = request.r, div, i, j, k, S, styles, peaks, bookmark_div = '<div id="css_loaded"></div>';
+    var r = request.r,
+      div, i, j, k, S, styles, peaks,
+      bookmark_div = '<div id="css_loaded"></div>';
     if (!$('paperlink2_display')) {
       peaks = document.createElement('script');
       peaks.setAttribute('type', 'text/javascript');

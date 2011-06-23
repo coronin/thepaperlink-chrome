@@ -10,27 +10,24 @@ var rev_proxy = localStorage.getItem('rev_proxy'),
   apikey = localStorage.getItem('thepaperlink_apikey');
 if (apikey === null) {
   apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+  //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
 }
 
-chrome.tabs.onCreated.addListener(function(tab) {
-  chrome.pageAction.show(tab.id);
-});
-chrome.tabs.onUpdated.addListener(function(tabId) {
-  chrome.pageAction.show(tabId);
-});
-chrome.tabs.getSelected(null, function(tab) {
-  chrome.pageAction.show(tab.id);
-});
-
-chrome.pageAction.onClicked.addListener(function(tab) {
-  chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
-  chrome.pageAction.setTitle({title: 'extracting...', tabId: tab.id});
-  if (rev_proxy === 'yes') {
-    chrome.tabs.executeScript(null, {file: 'rev_bubble.js'});
-  } else {
-    chrome.tabs.executeScript(null, {file: 'bubble.js'});
-  }
-});
+function eSearch(search_term, tabId) {
+  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  $.ajax({
+    // async: false,
+    type: "GET",
+    url: url,
+    dataType: "xml",
+    success: function (xml) {
+      var pmid = $(xml).find('Id');
+      if (pmid.length === 1) {
+        localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
+      }
+    }
+  });
+}
 
 function getBinary(file) {
   var xhr = new XMLHttpRequest();
@@ -158,6 +155,14 @@ function getRequest(request, sender, callback) {
           $('#thepaperlink_A' + request.pmid).fadeOut('fast');
         }
       });
+    }
+  } else if (request.sendID) {
+    chrome.pageAction.show(sender.tab.id);
+    localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
+    var dotCheck = /\./,
+      pmcCheck = /PMC/;
+    if (dotCheck.test(request.sendID) || pmcCheck.test(request.sendID)) {
+      eSearch(request.sendID, sender.tab.id);
     }
   }
 }
