@@ -8,11 +8,10 @@
     body{font-family:arial,sans-serif;font-size:62.5%;}
     h1{font-size:2em;}
     h3{font-size:1.6em;padding-top:20px;}
-    p{font-size:1.3em;}
-    .items{border-left:5px solid #f0f0f0;padding-left:10px;}
+    p{font-size:1.3em;text-indent:-1.6em;margin-left:40px;}
     .Off{display:none !important;}
   </style>
-  <script type="text/javascript" src="jquery152.js"></script>
+  <script type="text/javascript" src="jquery162.js"></script>
 </head>
 <body>
 
@@ -20,21 +19,27 @@
 
   <h3 style="color:red">Required API - "the Paper Link"</h3>
 
-  <p class="items">visit page <a rel="external" href="http://0.pl4.me/reg">http://0.pl4.me/reg</a> will automatically fill out the box below
+  <p>visit page <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> will automatically fill out the box below
   <br/><input type="text" value="" size="40" id="thepaperlink_apikey" /> <a style="text-decoration:none;" rel="external" href="http://thepaperlink.appspot.com">"the Paper Link"</a> apikey
   <br/><i>once enabled, "?" will show on the bar for reporting error PDF link, etc.</i>
   </p>
 
   <h3>Optional API - "pubmeder at appspot.com"</h3>
 
-  <p class="items">visit page <a rel="external" href="http://1.pl4.me/registration">http://1.pl4.me/registration</a> will automatically fill out the boxes below
+  <p>visit page <a rel="external" href="http://www.pubmeder.com/registration">http://www.pubmeder.com/registration</a> will automatically fill out the boxes below
   <br/><input type="text" value="" size="40" id="pubmeder_email" /><a style="text-decoration:none;" rel="external" href="http://pubmeder.appspot.com">"pubmder at appspot.com"</a> user
   <br/><input type="text" value="" size="40" id="pubmeder_apikey" /><a style="text-decoration:none;" rel="external" href="http://pubmeder.appspot.com">"pubmder at appspot.com"</a> apikey
   <br/><i>once enabled, "pubmeder all" and "pubmeder it" will show on the bar for bookmarking to "pubmeder at appspot.com"</i>
   </p>
 
   <h3>Enable the reverse proxy? 推荐中国用户使用</h3>
-  <p class="items"><input type="checkbox" id="rev_proxy" /> if you cannot visit <a rel="external" href="http://thepaperlink.appspot.com">this page</a>, please check it <i>(most users don't need to; using the reverse proxy will slow down the response)</i>
+  <p><input type="checkbox" id="rev_proxy" /> if you cannot visit <a rel="external" href="http://thepaperlink.appspot.com">this page</a>, please check it <i>
+  <br/>(most users don't need to; using the reverse proxy will slow down the response)</i>
+  </p>
+
+  <h3>Disable this extension on non-PubMed sites?</h3>
+  <p><input type="checkbox" id="co_pubmed" /> due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
+  <br/>you could check here to prevent two icons shown in your address bar
   </p>
   <hr/>
   <p><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></p>
@@ -50,6 +55,9 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy').attr('checked', true);
   }
+  if (localStorage.getItem('co_pubmed') === 'no') {
+    $('#co_pubmed').attr('checked', true);
+  }
   $('input').bind('change', function () {
     $('#saveBtn').removeClass('Off');
   });
@@ -57,6 +65,7 @@ $(document).ready(function () {
 
 function saveOptions() {
   var rev_proxy = $('#rev_proxy').attr('checked'),
+    co_pubmed = $('#co_pubmed').attr('checked'),
     accessApi = $('#thepaperlink_apikey').val(),
     userEmail = $('#pubmeder_email').val(),
     userApi = $('#pubmeder_apikey').val(),
@@ -66,10 +75,15 @@ function saveOptions() {
   } else {
     localStorage.setItem('rev_proxy', 'no');
   }
+  if (co_pubmed) {
+    localStorage.setItem('co_pubmed', 'no');
+  } else {
+    localStorage.setItem('co_pubmed', 'yes');
+  }
   if (accessApi.length === 32) {
     localStorage.setItem('thepaperlink_apikey', accessApi);
   } else {
-    alert('Please provide a valid apikey to use this extension. Get it by visiting http://0.pl4.me/reg');
+    alert('Please provide a valid apikey to use this extension. Get it by visiting http://www.thepaperlink.com/reg');
   }
   if (!filter.test(userEmail)) {
     alert('Please provide a valid email address');
@@ -88,7 +102,7 @@ function saveOptions() {
           localStorage.setItem('pubmeder_email', userEmail);
         } else {
           $('#pubmeder_apikey').val('');
-          alert('Please provide a valid apikey. Get it by visiting http://1.pl4.me/registration');
+          alert('Please provide a valid apikey. Get it by visiting http://www.pubmeder.com/registration');
         }
       }
     });

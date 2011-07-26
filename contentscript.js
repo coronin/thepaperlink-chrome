@@ -35,11 +35,17 @@ function parse_id(a) { // pubmeder code
 
 var noRun = 0;
 
-if (document.URL === 'http://0.pl4.me/reg') { // storage data for access the api server
+if (document.URL === 'http://www.thepaperlink.com/reg'
+    || document.URL === 'http://thepaperlink.appspot.com/reg'
+    || document.URL === 'https://thepaperlink.appspot.com/reg'
+    || document.URL === 'http://0.pl4.me/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML;
   a_proxy({thepaperlink_apikey: apikey});
   noRun = 1;
-} else if (document.URL === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
+} else if (document.URL === 'http://www.pubmeder.com/registration'
+    || document.URL === 'http://pubmeder.appspot.com/registration'
+    || document.URL === 'https://pubmeder.appspot.com/registration'
+    || document.URL === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
   var email = $('currentUser').innerHTML,
     apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
@@ -48,7 +54,7 @@ if (document.URL === 'http://0.pl4.me/reg') { // storage data for access the api
   var ID = parse_id(document.body.innerText) || parse_id(document.body.innerHTML);
   if (ID !== null) {
     console.log('non-ncbi site, got ID ' + ID[1]);  
-    a_proxy({sendID: ID[1]})
+    a_proxy({sendID: ID[1]});
   } else {
     console.log('non-ncbi site, no ID found');  
   }
