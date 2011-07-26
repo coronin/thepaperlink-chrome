@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery152.js"></script>
+    <script type="text/javascript" src="jquery162.js"></script>
     <script type="text/javascript"><!--
 var rev_proxy = localStorage.getItem('rev_proxy'),
   apikey = localStorage.getItem('thepaperlink_apikey');
@@ -156,7 +156,7 @@ function getRequest(request, sender, callback) {
         }
       });
     }
-  } else if (request.sendID) {
+  } else if (request.sendID && localStorage.getItem('co_pubmed') !== 'no') {
     chrome.pageAction.show(sender.tab.id);
     localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
     var dotCheck = /\./,
