@@ -71,7 +71,7 @@ function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
     ID, b, content, tmp, ii,
-    local_swf = chrome.extension.getURL('clippy.swf'); // bug 58907
+    swf_file = 'http://9.pl4.me/clippy.swf'; // chrome.extension.getURL('clippy.swf'); // bug 58907
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
@@ -93,7 +93,7 @@ function getPmid(zone, num) {
             content += '.' + tmp[ii];
           }
         }
-        b.innerHTML = '<div style="float:right"><embed src="http://dogeno.us/image/clippy.swf" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
+        b.innerHTML = '<div style="float:right"><embed src="' + swf_file + '" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
         t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
