@@ -115,9 +115,9 @@ function eFetch(pmid) {
           var DataBank_list = '<p onClick="hideMore()" class="moreAbout"><b><u>PDB Files</u>: </b>', jm;
           for (jm = 0; jm < ls.AccessionNumberList.length; jm += 1) {     
             if (jm === 0) {
-              DataBank_list += '<a target="_blank" href="http://jolecule.appspot.com/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
+              DataBank_list += '<a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
             } else {
-              DataBank_list += '; <a target="_blank" href="http://jolecule.appspot.com/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
+              DataBank_list += '; <a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
             }
           }
           DataBank_list += '</p>';
