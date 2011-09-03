@@ -93,7 +93,7 @@ function getPmid(zone, num) {
             content += '.' + tmp[ii];
           }
         }
-        b.innerHTML = '<div style="float:right"><embed src="' + swf_file + '" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
+        b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
         t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
@@ -151,9 +151,9 @@ chrome.extension.onRequest.addListener(
       peaks = document.createElement('script');
       peaks.setAttribute('type', 'text/javascript');
       if (request.uri === 'http://0.pl4.me') {
-        peaks.setAttribute('src', 'http://2.pl4.me/js?y=' + (Math.random()));
+        peaks.setAttribute('src', 'http://0.pl4.me/jss?y=' + (Math.random()));
       } else {
-        peaks.setAttribute('src', 'https://paperlink2.appspot.com/js?y=' + (Math.random()));
+        peaks.setAttribute('src', 'https://thepaperlink.appspot.com/jss?y=' + (Math.random()));
       }
       document.body.appendChild(peaks);
     }
