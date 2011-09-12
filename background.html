@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery162.js"></script>
+    <script type="text/javascript" src="jquery163.js"></script>
     <script type="text/javascript"><!--
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
@@ -120,15 +120,15 @@ function getRequest(request, sender, callback) {
 
   if (request.url) {
     $.getJSON(uri + request.url + apikey, function (d) {
-      chrome.tabs.getSelected(null, function (tab) {
+      chrome.tabs.getSelected(sender.tab.windowId, function () {
         if (d && (d.count || d.error)) {
           if (localStorage.getItem('thepaperlink_apikey')) {
-            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
+            chrome.tabs.sendRequest(sender.tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
           } else {
-            chrome.tabs.sendRequest(tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
+            chrome.tabs.sendRequest(sender.tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
           }
         } else {
-          chrome.tabs.sendRequest(tab.id, {except: 1, uri: uri});
+          chrome.tabs.sendRequest(sender.tab.id, {except: 1, uri: uri});
         }
       });
     });

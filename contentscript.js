@@ -102,9 +102,11 @@ function getPmid(zone, num) {
 }
 
 function get_Json(pmids) {
-  var i,
-    url = '/api?flash=yes&a=chrome&pmid=' + pmids,
-    local_gif = chrome.extension.getURL('loadingLine.gif');
+  var i, div,
+    need_insert = 1,
+    url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
+    local_gif = chrome.extension.getURL('loadingLine.gif'),
+    loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + local_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -114,8 +116,14 @@ function get_Json(pmids) {
     if (t('h2')[i].className === 'result_count') {
       old_title = t('h2')[i].innerHTML;
       title_pos = i;
-      t('h2')[i].innerHTML = old_title + '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + local_gif + '" width="16" height="11" alt="loading" />';
+      need_insert = 0;
+      t('h2')[i].innerHTML = old_title + loading_span;
     }
+  }
+  if (need_insert) {
+    div = document.createElement('h2');
+    div.innerHTML = loading_span;
+    $('messagearea').appendChild(div);
   }
   a_proxy({url: url});
 }
@@ -248,8 +256,13 @@ chrome.extension.onRequest.addListener(
       }
     }
     if (pmidArray.length > 0) {
-      t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' + request.uri + '/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
-      a_proxy({url: '/api?pmid=' + pmidArray.join(',') + '&apikey='});
+      if (pmidArray.length === k) {
+        console.log('getting nothing, failed on ' + k);
+      } else {
+        console.log('call for ' + k + ', not get ' + pmidArray.length);
+        t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' + request.uri + '/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
+        a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
+      }
     }
     sendResponse({});
     return;
