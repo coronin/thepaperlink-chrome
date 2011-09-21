@@ -64,8 +64,8 @@ $(document).ready(function () {
 });
 
 function saveOptions() {
-  var rev_proxy = $('#rev_proxy').attr('checked'),
-    co_pubmed = $('#co_pubmed').attr('checked'),
+  var rev_proxy = $('#rev_proxy:checked').val(),
+    co_pubmed = $('#co_pubmed:checked').val(),
     accessApi = $('#thepaperlink_apikey').val(),
     userEmail = $('#pubmeder_email').val(),
     userApi = $('#pubmeder_apikey').val(),
