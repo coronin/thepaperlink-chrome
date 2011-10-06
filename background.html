@@ -8,9 +8,9 @@
     <script type="text/javascript"><!--
 current_tabId = undefined;
 function openNewTab(winId,url) {
-  chrome.tabs.create({'windowId': winId, 'url': url, 'selected': true, 'pinned': true}, function (tab) {
+  chrome.tabs.create({'windowId': winId, 'url': url, 'selected': true}, function (tab) {
     current_tabId = tab.id;
-    console.log('new pinned tab for your search #' + current_tabId);
+    console.log('new tab for your search #' + current_tabId);
   });
 }
 
@@ -43,8 +43,27 @@ function selectOnClick(info,tab) {
   }
 }
 
-chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], "onclick": selectOnClick});
-chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page', 'link', 'editable', 'image', 'video', 'audio'], "onclick": genericOnClick});
+function callJsOnClick(info,tab) {
+  var apikey = localStorage.getItem('thepaperlink_apikey'),
+    rev_proxy = localStorage.getItem('rev_proxy'),
+    base;
+  if (rev_proxy === 'yes') {
+    base = 'http://0.pl4.me/';
+  } else {
+    base = 'https://thepaperlink.appspot.com/';
+  }
+  if (apikey === null) {
+    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+  }
+  chrome.tabs.getSelected(tab.windowId, function () {
+    chrome.tabs.sendRequest(tab.id, {js_key: apikey, js_base: base});
+  });
+}
+
+chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], 'onclick': selectOnClick});
+chrome.contextMenus.create({'title': 'Find ID on this page', 'contexts':['page'], 'onclick': callJsOnClick});
+chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page', 'link', 'editable', 'image', 'video', 'audio'], 'onclick': genericOnClick});
+
 
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
@@ -161,7 +180,7 @@ function getRequest(request, sender, callback) {
   if (request.url) {
     $.getJSON(uri + request.url + apikey, function (d) {
       chrome.tabs.getSelected(sender.tab.windowId, function () {
-        if (d && (d.count || d.error)) {
+        if (d && (d.count || d.error)) { // good or bad, both got json return
           if (localStorage.getItem('thepaperlink_apikey')) {
             chrome.tabs.sendRequest(sender.tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
           } else {

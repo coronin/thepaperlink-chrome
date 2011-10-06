@@ -1,11 +1,20 @@
 {
   "name": "the Paper Link for PubMed",
-  "version": "0.3.5",
+  "version": "0.3.5.1",
   "description": "Add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more... (by Liang Cai, for Google Chrome)",
   "permissions": [
-    "tabs",
     "contextMenus",
-    "*://*/*"
+    "tabs",
+    "https://www.ncbi.nlm.nih.gov/*",
+    "https://thepaperlink.appspot.com/*",
+    "https://pubmeder.appspot.com/*",
+    "http://*.gov/*",
+    "http://*.org/*",
+    "http://*.net/*",
+    "http://*.com/*",
+    "http://*.info/*",
+    "http://*.jp/*",
+    "http://*.pl4.me/*"
   ],
   "icons": {
     "128": "128.png",
@@ -21,10 +30,22 @@
     "default_popup" : "popup.html"
   },
   "content_scripts": [ {
-    "matches": [ "http://*/*", "https://*/*" ],
-    "exclude_globs": [ "*://www.ncbi.nlm.nih.gov/pubmed/",
-                       "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
-                     ],
+    "matches": [
+        "https://www.ncbi.nlm.nih.gov/*",
+        "https://thepaperlink.appspot.com/*",
+        "https://pubmeder.appspot.com/*",
+        "http://*.gov/*",
+        "http://*.org/*",
+        "http://*.net/*",
+        "http://*.com/*",
+        "http://*.info/*",
+        "http://*.jp/*",
+        "http://*.pl4.me/*"
+    ],
+    "exclude_globs": [
+        "*://www.ncbi.nlm.nih.gov/pubmed/",
+        "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
+    ],
     "js": [ "contentscript.js" ],
     "run_at" : "document_idle",
     "all_frames" : true

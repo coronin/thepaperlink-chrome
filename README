@@ -38,6 +38,7 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.3.5.1 - context menu for page
  * v0.3.5 - context menu for selected text
  * v0.3.4.1 - bug fix of its Option page
  * v0.3.4 - bug fix (single no-repeat call, insert title_pos, multi-tab); update to jQuery 1.6.3
