@@ -6,6 +6,46 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery163.js"></script>
     <script type="text/javascript"><!--
+current_tabId = undefined;
+function openNewTab(winId,url) {
+  chrome.tabs.create({'windowId': winId, 'url': url, 'selected': true, 'pinned': true}, function (tab) {
+    current_tabId = tab.id;
+    console.log('new pinned tab for your search #' + current_tabId);
+  });
+}
+
+function genericOnClick(info,tab) {
+  console.log('info: ' + JSON.stringify(info));
+  console.log('tab: ' + JSON.stringify(tab));
+  openNewTab(tab.windowId, 'http://www.thepaperlink.com');
+}
+
+function selectOnClick(info,tab) {
+  var alldigi = /^\d+$/, url, new_tab = localStorage.getItem('new_tab');
+  if (alldigi.test(info.selectionText)) {
+    url = 'http://www.thepaperlink.com/_' + info.selectionText;
+  } else {
+    url = 'http://www.thepaperlink.com/?q=' + info.selectionText;
+  }
+  if (current_tabId && new_tab === 'no') {
+    chrome.tabs.getAllInWindow(undefined, function (tabs) {
+      var i;
+      for (i = 0; i < tabs.length; i += 1) {
+        if (current_tabId === tabs[i].id) {
+          chrome.tabs.update(current_tabId, {'url': url, 'selected': true});
+          return;
+        }
+      }
+      openNewTab(tab.windowId, url);
+    });
+  } else {
+    openNewTab(tab.windowId, url);
+  }
+}
+
+chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], "onclick": selectOnClick});
+chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page', 'link', 'editable', 'image', 'video', 'audio'], "onclick": genericOnClick});
+
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   $.ajax({

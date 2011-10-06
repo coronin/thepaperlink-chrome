@@ -37,9 +37,11 @@
   <br/>(most users don't need to; using the reverse proxy will slow down the response)</i>
   </p>
 
-  <h3>Disable this extension on non-PubMed sites?</h3>
+  <h3>Other Options</h3>
   <p><input type="checkbox" id="co_pubmed" /> due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
   <br/>you could check here to prevent two icons shown in your address bar
+  </p>
+  <p><input type="checkbox" id="new_tab" /> you could check here to always open a new tab when searching selected text, rather than refresh the existing search page
   </p>
   <hr/>
   <p><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></p>
@@ -58,6 +60,9 @@ $(document).ready(function () {
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').attr('checked', true);
   }
+  if (localStorage.getItem('new_tab') === 'yes') {
+    $('#new_tab').attr('checked', true);
+  }
   $('input').bind('change', function () {
     $('#saveBtn').removeClass('Off');
   });
@@ -66,6 +71,7 @@ $(document).ready(function () {
 function saveOptions() {
   var rev_proxy = $('#rev_proxy:checked').val(),
     co_pubmed = $('#co_pubmed:checked').val(),
+    new_tab = $('#new_tab:checked').val(),
     accessApi = $('#thepaperlink_apikey').val(),
     userEmail = $('#pubmeder_email').val(),
     userApi = $('#pubmeder_apikey').val(),
@@ -79,6 +85,11 @@ function saveOptions() {
     localStorage.setItem('co_pubmed', 'no');
   } else {
     localStorage.setItem('co_pubmed', 'yes');
+  }
+  if (new_tab) {
+    localStorage.setItem('new_tab', 'yes');
+  } else {
+    localStorage.setItem('new_tab', 'no');
   }
   if (accessApi.length === 32) {
     localStorage.setItem('thepaperlink_apikey', accessApi);
