@@ -155,6 +155,25 @@ chrome.extension.onRequest.addListener(
     var r = request.r,
       div, i, j, k, S, styles, peaks,
       bookmark_div = '<div id="css_loaded"></div>';
+    if (request.except) {
+      console.log('oops, no json return from the server');
+      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">try reload?</button></span>';
+      sendResponse({});
+      return;
+    }
+    if (request.js_key && request.js_base) {
+      console.log('starting the js client');
+      localStorage.setItem('thePaperLink_pubget_js_key', request.js_key);
+      localStorage.setItem('thePaperLink_pubget_js_base', request.js_base);
+      if (!$('__tr_display')) {
+        var jsClient = document.createElement('script');
+        jsClient.setAttribute('type', 'text/javascript');
+        jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
+        document.body.appendChild(jsClient);
+      }
+      sendResponse({});
+      return;
+    }
     if (!$('paperlink2_display')) {
       peaks = document.createElement('script');
       peaks.setAttribute('type', 'text/javascript');
@@ -164,11 +183,6 @@ chrome.extension.onRequest.addListener(
         peaks.setAttribute('src', 'https://thepaperlink.appspot.com/jss?y=' + (Math.random()));
       }
       document.body.appendChild(peaks);
-    }
-    if (request.except) {
-      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">error in "the Paper Link" <button onclick="window.location.reload();">try reload?</button></span>';
-      sendResponse({});
-      return;
     }
     if (r.error) {
       t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
