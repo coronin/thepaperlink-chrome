@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "醫學文獻助手",
+    "description": "The title displayed in the web store."
+  },
+  "appDesc": {
+    "message": "在 PubMed 搜索結果頁面，添加 PDF 鏈接、影響因子、F1000評論、作者發表記錄 等；在普通網頁上，嘗試提取文獻並展示相關信息 （蔡亮 作品）", 
+    "description":"The description displayed in the web store."
+  }
+}
