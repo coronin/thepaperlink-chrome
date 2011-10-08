@@ -239,7 +239,9 @@ chrome.extension.onRequest.addListener(
       if (r.item[i].pmcid) {
         div.innerHTML += '<a id="thepaperlink_pmc' + r.item[i].pmid + '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' + r.item[i].pmcid + '/?tool=thepaperlinkClient" target="_blank">free&nbsp;article</a>';
       }
-      if (r.item[i].doi) {
+      if (r.item[i].pii) {
+        div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid + '" href="http://linkinghub.elsevier.com/retrieve/pii/' + r.item[i].pii + '" target="_blank">external&nbsp;page</a>';
+      } else if (r.item[i].doi) {
         div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid + '" href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">external&nbsp;page</a>';
       }
       if (r.item[i].f_v && r.item[i].fid) {

@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "the Paper Link for PubMed",
+    "description": "The title displayed in the web store."
+  },
+  "appDesc": {
+    "message": "Add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more... (by Liang Cai, for Google Chrome)", 
+    "description":"The description displayed in the web store."
+  }
+}
