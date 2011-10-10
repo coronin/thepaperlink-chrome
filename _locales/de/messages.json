@@ -1,10 +1,10 @@
 {
   "appName": {
-    "message": "das Papier Link f®πr PubMed",
+    "message": "das Papier Link f√ºr PubMed",
     "description": "The title displayed in the web store."
   },
   "appDesc": {
-    "message": "Add direkten PDF-Link; Display F1000 Partituren, Impact Factor, Peaks und vieles mehr ... (von Liang Cai, f®πr Google Chrome)", 
+    "message": "Add direkten PDF-Link; Display F1000 Partituren, Impact Factor, Peaks und vieles mehr ... (von Liang Cai, f√ºr Google Chrome)", 
     "description":"The description displayed in the web store."
   }
 }

@@ -100,10 +100,14 @@ function saveOptions() {
   }
   if (contextMenu_shown) {
     localStorage.setItem('contextMenu_shown', 'no');
+    localStorage.removeItem('contextMenu_on');
     chrome.contextMenus.removeAll();
   } else {
     localStorage.setItem('contextMenu_shown', 'yes');
-    chrome.extension.sendRequest({menu_display: 1});
+    if (!localStorage.getItem('contextMenu_on')) {
+      localStorage.setItem('contextMenu_on', 1);
+      chrome.extension.sendRequest({menu_display: 1});
+    }
   }
   if (accessApi.length === 32) {
     localStorage.setItem('thepaperlink_apikey', accessApi);

@@ -148,7 +148,6 @@ function run() {
   if (pmids) {
     get_Json(pmids);
   }
-  a_proxy({menu_display: 1});
 }
 run();
 

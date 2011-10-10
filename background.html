@@ -69,6 +69,11 @@ function menu_generator() {
     chrome.tabs.create({'url': chrome.extension.getURL('options.html'), 'selected': true});
   } });
 }
+if (localStorage.getItem('contextMenu_shown') !== 'no') {
+  menu_generator();
+  localStorage.setItem('contextMenu_on', 1);
+}
+
 
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
