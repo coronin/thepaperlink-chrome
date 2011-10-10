@@ -72,13 +72,16 @@ function getPmid(zone, num) {
     regpmid = /PMID:\s(\d+)\s/,
     ID, b, content, tmp, ii,
     swf_file = 'http://9.pl4.me/clippy.swf'; // chrome.extension.getURL('clippy.swf'); // bug 58907
+  //console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
-      if (t(zone)[num].className === 'rprt_all') {
-        t(zone)[num - 1].setAttribute('id', ID[1]);
-      } else {
+      if (t(zone)[num + 1].className === 'rprtnum') {
         t(zone)[num + 2].setAttribute('id', ID[1]);
+      } else {
+        t(zone)[num - 2].setAttribute('id', ID[1]);
+      }
+      if (t(zone)[num].className === 'rprt') {
         b = document.createElement('div');
         content = t(zone)[num + 2].innerText;
         tmp = content.split(' [PubMed - ')[0].split('.');
@@ -131,9 +134,7 @@ function get_Json(pmids) {
 function run() {
   var i, z;
   for (i = 0; i < t('div').length; i += 1) {
-    if (t('div')[i].className === 'rprt' && t('div')[i].className !== 'abstract') {
-      getPmid('div', i);
-    } else if (t('div')[i].className === 'rprt_all') {
+    if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') { //  && t('div')[i].className !== 'abstract'
       getPmid('div', i);
     } else if (t('div')[i].className === 'print_term') {
       z = t('div')[i].textContent;
@@ -147,8 +148,10 @@ function run() {
   if (pmids) {
     get_Json(pmids);
   }
+  a_proxy({menu_display: 1});
 }
 run();
+
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
@@ -174,6 +177,11 @@ chrome.extension.onRequest.addListener(
       sendResponse({});
       return;
     }
+    if (r.error) {
+      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
+      sendResponse({});
+      return;
+    }
     if (!$('paperlink2_display')) {
       peaks = document.createElement('script');
       peaks.setAttribute('type', 'text/javascript');
@@ -183,11 +191,6 @@ chrome.extension.onRequest.addListener(
         peaks.setAttribute('src', 'https://thepaperlink.appspot.com/jss?y=' + (Math.random()));
       }
       document.body.appendChild(peaks);
-    }
-    if (r.error) {
-      t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
-      sendResponse({});
-      return;
     }
     styles = '.thepaperlink {'
       + '  background: #e0ecf1;'

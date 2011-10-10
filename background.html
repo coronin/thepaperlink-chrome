@@ -60,10 +60,15 @@ function callJsOnClick(info,tab) {
   });
 }
 
-chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], 'onclick': selectOnClick});
-chrome.contextMenus.create({'title': 'Find ID on this page', 'contexts':['page'], 'onclick': callJsOnClick});
-chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page', 'link', 'editable', 'image', 'video', 'audio'], 'onclick': genericOnClick});
-
+function menu_generator() {
+  chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], 'onclick': selectOnClick});
+  chrome.contextMenus.create({'title': 'Find ID on this page', 'contexts':['page'], 'onclick': callJsOnClick});
+  chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page'], 'onclick': genericOnClick}); // , 'link', 'editable', 'image', 'video', 'audio'
+  chrome.contextMenus.create({'type': 'separator', 'contexts':['page']});
+  chrome.contextMenus.create({'title': 'Options', 'contexts':['page'], 'onclick': function () {
+    chrome.tabs.create({'url': chrome.extension.getURL('options.html'), 'selected': true});
+  } });
+}
 
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
@@ -223,6 +228,8 @@ function getRequest(request, sender, callback) {
     if (dotCheck.test(request.sendID) || pmcCheck.test(request.sendID)) {
       eSearch(request.sendID, sender.tab.id);
     }
+  } else if (request.menu_display && localStorage.getItem('contextMenu_shown') !== 'no') {
+    menu_generator();
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
