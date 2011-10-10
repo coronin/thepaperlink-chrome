@@ -33,15 +33,18 @@
   </p>
 
   <h3>Enable the reverse proxy? 推荐中国用户使用</h3>
-  <p><input type="checkbox" id="rev_proxy" /> if you cannot visit <a rel="external" href="http://thepaperlink.appspot.com">this page</a>, please check it <i>
-  <br/>(most users don't need to; using the reverse proxy will slow down the response)</i>
+  <p><input type="checkbox" id="rev_proxy" /> If you cannot visit <a rel="external" href="http://thepaperlink.appspot.com">this page</a>, please <b>check to enable</b> it.
+  <br/>Most users don't need to. Using the reverse proxy will slow down the communication with the server.
   </p>
 
   <h3>Other Options</h3>
-  <p><input type="checkbox" id="co_pubmed" /> due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
-  <br/>you could check here to prevent two icons shown in your address bar
+  <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
+  <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
   </p>
-  <p><input type="checkbox" id="new_tab" /> you could check here to always open a new tab when searching selected text, rather than refresh the existing search page
+  <p><input type="checkbox" id="new_tab" /> You could check here to <b>always open a new tab</b> when searching selected text,
+  <br/>rather than refresh the existing search page.
+  </p>
+  <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
   </p>
   <hr/>
   <p><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></p>
@@ -63,6 +66,9 @@ $(document).ready(function () {
   if (localStorage.getItem('new_tab') === 'yes') {
     $('#new_tab').attr('checked', true);
   }
+  if (localStorage.getItem('contextMenu_shown') === 'no') {
+    $('#contextMenu_shown').attr('checked', true);
+  }
   $('input').bind('change', function () {
     $('#saveBtn').removeClass('Off');
   });
@@ -72,6 +78,7 @@ function saveOptions() {
   var rev_proxy = $('#rev_proxy:checked').val(),
     co_pubmed = $('#co_pubmed:checked').val(),
     new_tab = $('#new_tab:checked').val(),
+    contextMenu_shown = $('#contextMenu_shown:checked').val(),
     accessApi = $('#thepaperlink_apikey').val(),
     userEmail = $('#pubmeder_email').val(),
     userApi = $('#pubmeder_apikey').val(),
@@ -91,17 +98,24 @@ function saveOptions() {
   } else {
     localStorage.setItem('new_tab', 'no');
   }
+  if (contextMenu_shown) {
+    localStorage.setItem('contextMenu_shown', 'no');
+    chrome.contextMenus.removeAll();
+  } else {
+    localStorage.setItem('contextMenu_shown', 'yes');
+    chrome.extension.sendRequest({menu_display: 1});
+  }
   if (accessApi.length === 32) {
     localStorage.setItem('thepaperlink_apikey', accessApi);
-  } else {
+  } else if (accessApi) {
     alert('Please provide a valid apikey to use this extension. Get it by visiting http://www.thepaperlink.com/reg');
   }
-  if (!filter.test(userEmail)) {
+  if (userEmail && !filter.test(userEmail)) {
     alert('Please provide a valid email address');
     $('#pubmeder_email').val('');
     $('#pubmeder_email').focus();
   }
-  if (userApi.length === 32 && userEmail) {
+  if (userEmail && userApi.length === 32) {
     $.ajax({
       async: false,
       type: 'GET',
