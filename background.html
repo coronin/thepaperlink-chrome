@@ -156,26 +156,6 @@ function sendBinary(url, data, pmid) {
   }
 }
 
-function send_email_alert(uri, pmid, apikey) {
-  return $.post(uri + '/',
-    {'pmid': pmid, 'apikey': apikey, 'action': 'email'},
-    function (d) {
-      console.log(d);
-      $('#thepaperlink_A' + pmid).fadeOut('fast');
-    }
-  );
-}
-
-function saveIt_thepaperlink(uri, pmid, apikey) {
-  return $.post(uri + '/api',
-    {'pmid': pmid, 'apikey': apikey},
-    function (d) {
-      console.log(d);
-      $('#thepaperlink_A' + pmid).fadeOut('fast');
-    }
-  );
-}
-
 function reLoadOp() {
   chrome.tabs.getAllInWindow(undefined, function (tabs) {
     var i, tab, urlOp = chrome.extension.getURL('options.html');
@@ -276,7 +256,6 @@ function getRequest(request, sender, callback) {
     console.log('response from server (if any) : ' + msg);
     if (msg === null) {
       console.log('email_pdf failed, just email the abstract');
-      send_email_alert(uri, request.pmid, request.apikey);
     }
   }
 }

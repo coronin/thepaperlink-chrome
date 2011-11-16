@@ -4,12 +4,14 @@
  * LICENSE file.
  *
  * http://cail.cn
- * modified from my UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
+ * initial version, a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  */
 
 function t(n) { return document.getElementsByTagName(n); }
 
 function $(d) { return document.getElementById(d); }
+
+function trim(s){ return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(data) {
   console.log('sendRequest to background.html');
@@ -53,7 +55,7 @@ if (document.URL === 'http://www.thepaperlink.com/reg'
   a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
   noRun = 1;
 } else if (document.URL.indexOf('://www.thepaperlink.com/oauth') > 0) {
-  console.log('the Paper Link, setup options');
+  console.log('the Paper Link, setup m f d');
   var content = $('r_content').innerHTML,
     service = $('r_success').innerHTML;
   a_proxy({service: service, content: content});
@@ -79,7 +81,7 @@ var pmids = '',
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, content, tmp, ii,
+    ID, b, content, tmp, temp,
     swf_file = 'http://9.pl4.me/clippy.swf'; // chrome.extension.getURL('clippy.swf'); // bug 58907
   //console.log(a);
   if (regpmid.test(a)) {
@@ -94,17 +96,14 @@ function getPmid(zone, num) {
         b = document.createElement('div');
         content = t(zone)[num + 2].innerText;
         tmp = content.split(' [PubMed - ')[0].split('.');
-        for (ii = 0; ii < tmp.length; ii += 1) {
-          if (ii === 0) {
-            content = tmp[ii];
-          //} else if (ii < 3) {
-          //  content += '.\n' + tmp[ii];
-          } else if (ii === tmp.length - 1) {
-            content += '. [' + tmp[ii].substr(1) + ']';
-          } else {
-            content += '.' + tmp[ii];
-          }
-        }
+        content = trim(tmp[0]) +
+          '.\r\n' + trim(tmp[1]) +
+          '.\r\n' + trim(tmp[2]) +
+          '. ' + trim(tmp[3]);
+        temp = trim(tmp[tmp.length - 1]);
+        if (temp.indexOf('[Epub ahead of print]') >= 0) {
+          content += '. [' + temp.substr(22) + ']\r\n';
+        } else { content += '. [' + temp + ']\r\n'; }
         b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
         t(zone)[num + 3].appendChild(b);
       }
@@ -277,7 +276,7 @@ chrome.extension.onRequest.addListener(
         div.innerHTML += '<span id="thepaperlink_save' + r.item[i].pmid +
           '" class="thepaperlink-home" onclick="saveIt(\'' + r.item[i].pmid +
           '\',\'' + request.save_key + '\',\'' + request.save_email + '\',\'' +
-          request.cloud_op + '\')">save&nbsp;it</span>';
+          request.tpl + '\',\'' + request.cloud_op + '\')">save&nbsp;it</span>';
       }
       if (request.tpl) {
         div.innerHTML += '<span id="thepaperlink_rpt' + r.item[i].pmid +
@@ -291,7 +290,11 @@ chrome.extension.onRequest.addListener(
       if ($('thepaperlink_hidden' + r.item[i].pmid)) {
         $('thepaperlink_hidden' + r.item[i].pmid).addEventListener('email_pdf', function () {
           var eventData = this.innerText, pmid = this.id.substr(19), pdf = $('thepaperlink_pdf' + pmid).href;
-          $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
+          try {
+            $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
+          } catch (err) {
+            console.log(err);
+          }
           a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl});
         });
       }
