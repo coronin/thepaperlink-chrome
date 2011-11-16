@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery163.js"></script>
+    <script type="text/javascript" src="jquery17.js"></script>
     <script type="text/javascript"><!--
 current_tabId = undefined;
 function openNewTab(winId,url) {
@@ -61,12 +61,17 @@ function callJsOnClick(info,tab) {
 }
 
 function menu_generator() {
-  chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'', 'contexts':['selection'], 'onclick': selectOnClick});
-  chrome.contextMenus.create({'title': 'Find ID on this page', 'contexts':['page'], 'onclick': callJsOnClick});
-  chrome.contextMenus.create({'title': 'Visit the_Paper_Link', 'contexts':['page'], 'onclick': genericOnClick}); // , 'link', 'editable', 'image', 'video', 'audio'
-  chrome.contextMenus.create({'type': 'separator', 'contexts':['page']});
-  chrome.contextMenus.create({'title': 'Options', 'contexts':['page'], 'onclick': function () {
-    chrome.tabs.create({'url': chrome.extension.getURL('options.html'), 'selected': true});
+  chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'',
+    'contexts':['selection'], 'onclick': selectOnClick});
+  chrome.contextMenus.create({'title': 'Find ID on this page',
+    'contexts':['page'], 'onclick': callJsOnClick});
+  chrome.contextMenus.create({'title': 'Visit the_Paper_Link',
+    'contexts':['page'], 'onclick': genericOnClick}); // , 'link', 'editable', 'image', 'video', 'audio'
+  chrome.contextMenus.create({'type': 'separator',
+    'contexts':['page']});
+  chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
+    'onclick': function () {
+      chrome.tabs.create({'url': chrome.extension.getURL('options.html'), 'selected': true});
   } });
 }
 if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -77,18 +82,15 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
 
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
-  $.ajax({
-    // async: false,
-    type: "GET",
-    url: url,
-    dataType: "xml",
-    success: function (xml) {
+  $.get(url,
+    function (xml) {
       var pmid = $(xml).find('Id');
       if (pmid.length === 1) {
         localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
       }
-    }
-  });
+    },
+    'xml'
+  );
 }
 
 function getBinary(file) {
@@ -154,6 +156,26 @@ function sendBinary(url, data, pmid) {
   }
 }
 
+function send_email_alert(uri, pmid, apikey) {
+  return $.post(uri + '/',
+    {'pmid': pmid, 'apikey': apikey, 'action': 'email'},
+    function (d) {
+      console.log(d);
+      $('#thepaperlink_A' + pmid).fadeOut('fast');
+    }
+  );
+}
+
+function saveIt_thepaperlink(uri, pmid, apikey) {
+  return $.post(uri + '/api',
+    {'pmid': pmid, 'apikey': apikey},
+    function (d) {
+      console.log(d);
+      $('#thepaperlink_A' + pmid).fadeOut('fast');
+    }
+  );
+}
+
 function reLoadOp() {
   chrome.tabs.getAllInWindow(undefined, function (tabs) {
     var i, tab, urlOp = chrome.extension.getURL('options.html');
@@ -170,61 +192,71 @@ function reLoadOp() {
 function getRequest(request, sender, callback) {
   var pubmeder_apikey = localStorage.getItem('pubmeder_apikey'),
     pubmeder_email = localStorage.getItem('pubmeder_email'),
-    rev_proxy = localStorage.getItem('rev_proxy'),
+    pubmeder_ok = 0,
+    m_status = localStorage.getItem('mendeley_status'),
+    f_status = localStorage.getItem('facebook_status'),
+    d_status = localStorage.getItem('dropbox_status'),
+    cloud_op = '',
     apikey = localStorage.getItem('thepaperlink_apikey'),
-    tail = '', uri;
-
+    rev_proxy = localStorage.getItem('rev_proxy'),
+    uri;
   if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
-    tail = '&apikey=' + pubmeder_apikey + '&email=' + pubmeder_email;
+    pubmeder_ok = 1;
+  }
+  if (m_status && m_status === 'success') {
+    cloud_op += 'm';
+  }
+  if (f_status && f_status === 'success') {
+    cloud_op += 'f';
+  }
+  if (d_status && d_status === 'success') {
+    cloud_op += 'd';
+  }
+  if (apikey === null) {
+    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+    //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
   }
   if (rev_proxy === 'yes') {
     uri = 'http://0.pl4.me';
   } else {
     uri = 'https://thepaperlink.appspot.com';
   }
-  if (apikey === null) {
-    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
-    //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
-  }
-
   if (request.url) {
     $.getJSON(uri + request.url + apikey, function (d) {
       chrome.tabs.getSelected(sender.tab.windowId, function () {
         if (d && (d.count || d.error)) { // good or bad, both got json return
           if (localStorage.getItem('thepaperlink_apikey')) {
-            chrome.tabs.sendRequest(sender.tab.id, {r: d, tail: tail, tpl: apikey, save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
+            chrome.tabs.sendRequest(sender.tab.id,
+              {r:d, pubmeder:pubmeder_ok, tpl:apikey, save_key:pubmeder_apikey, save_email:pubmeder_email, cloud_op:cloud_op, uri:uri}
+            );
           } else {
-            chrome.tabs.sendRequest(sender.tab.id, {r: d, tail: tail, tpl: '', save_key: pubmeder_apikey, save_email: pubmeder_email, uri: uri});
+            chrome.tabs.sendRequest(sender.tab.id,
+              {r:d, pubmeder:pubmeder_ok, tpl:'', save_key:pubmeder_apikey, save_email:pubmeder_email, cloud_op:cloud_op, uri:uri}
+            );
           }
         } else {
-          chrome.tabs.sendRequest(sender.tab.id, {except: 1, uri: uri});
+          chrome.tabs.sendRequest(sender.tab.id,
+            {except:1, uri:uri});
         }
       });
     });
   } else if (request.pubmeder_apikey && request.pubmeder_email) {
     localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
     localStorage.setItem('pubmeder_email', request.pubmeder_email);
+    localStorage.setItem('b_apikey_gold', 1);
     reLoadOp();
   } else if (request.thepaperlink_apikey) {
     localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
+    localStorage.setItem('a_apikey_gold', 1);
     reLoadOp();
-  } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
-    console.log(request.pdf);
-    var pdf_data = getBinary(request.pdf), msg;
-    console.log('ajax download ' + pdf_data + ', now uploading');
-    msg = sendBinary(request.upload_url, pdf_data, request.pmid);
-    console.log('response from server (if any) : ' + msg);
-    if (msg === null) {
-      console.log('email_pdf failed, just email the abstract');
-      $.ajax({
-        type: 'POST',
-        url: uri + '/',
-        data: {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
-        success: function () {
-          $('#thepaperlink_A' + request.pmid).fadeOut('fast');
-        }
-      });
+  } else if (request.service && request.content) {
+    console.log(request.service + ': ' + request.content);
+    if (request.content.indexOf('error') < 0) {
+      localStorage.setItem(request.service + '_status', 'success');
+    } else {
+      localStorage.setItem(request.service + '_status', 'error? try again please');
     }
+    reLoadOp();
   } else if (request.sendID && localStorage.getItem('co_pubmed') !== 'no') {
     chrome.pageAction.show(sender.tab.id);
     localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
@@ -235,6 +267,17 @@ function getRequest(request, sender, callback) {
     }
   } else if (request.menu_display && localStorage.getItem('contextMenu_shown') !== 'no') {
     menu_generator();
+    // just generated context menu
+  } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
+    console.log(request.pdf);
+    var pdf_data = getBinary(request.pdf), msg;
+    console.log('ajax download ' + pdf_data + ', now uploading');
+    msg = sendBinary(request.upload_url, pdf_data, request.pmid);
+    console.log('response from server (if any) : ' + msg);
+    if (msg === null) {
+      console.log('email_pdf failed, just email the abstract');
+      send_email_alert(uri, request.pmid, request.apikey);
+    }
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
