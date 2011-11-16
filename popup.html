@@ -21,7 +21,7 @@
     .Off {display:none;}
   -->
   </style>
-  <script type="text/javascript" src="jquery163.js"></script>
+  <script type="text/javascript" src="jquery17.js"></script>
 </head>
 <body>
   <p><input id="ess" type="text" value="Search PubMed" onkeydown="if (event.keyCode == 13) eSS(ess.value)" />
@@ -38,11 +38,12 @@
   <!--
 function save_pubmeder(a, key, email) {
   if (!key || !email) {
-    console.log('save to pubmeder needs valid apikey and email');
+    console.log('save to pubmeder needs valid apikey and email; set at "Options"');
     return;
   }
   var url_base, url, IdList = localStorage.getItem('pubmeder_IdList');
   if (IdList && IdList.indexOf(a) !== -1) {
+    console.log('already sent, no need to save to pubmeder again');
     return;
   } else if (IdList === null) {
     IdList = '';
@@ -177,11 +178,8 @@ function eSummary(term) {
     urll = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&id=' + term;
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
-  $.ajax({
-    type: 'GET',
-    url: urll,
-    dataType: 'xml',
-    success: function (xml) {
+  $.get(urll,
+    function (xml) {
       $('#result').html(''); // turn off loading
       $(xml).find('DocSum').each(function () {
         var a = $(this).find('Item[Name="Author"]'),
@@ -219,23 +217,22 @@ function eSummary(term) {
         $('<div/>').html(eSummary).appendTo('#result');
       });
       $('#result').removeClass('Off');
-    }
-  });
+    },
+    'xml'
+  );
 }
 
 function eSS(search_term) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $('#result').removeClass('Off');
-  $.ajax({
-    type: 'GET',
-    url: url,
-    dataType: 'xml',
-    success: function (xml) {
+  $.get(url,
+    function (xml) {
       var WebEnv = $(xml).find('WebEnv').text();
       eSummary(WebEnv);
-    }
-  });
+    },
+    'xml'
+  );
 }
 
 function clearPopup() {
