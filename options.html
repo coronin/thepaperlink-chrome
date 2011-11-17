@@ -125,7 +125,7 @@ function valid_thepaperlink(apikey) {
   return $.get('http://0.pl4.me/api?validate=' + apikey,
     function (txt) {
       if (txt === 'valid') {
-        localStorage.setItem('thepaperlink_apikey', accessApi);
+        localStorage.setItem('thepaperlink_apikey', apikey);
         localStorage.setItem('a_apikey_gold', 1);
       } else {
         $('#thepaperlink_apikey').val('');
