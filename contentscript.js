@@ -11,7 +11,7 @@ function t(n) { return document.getElementsByTagName(n); }
 
 function $(d) { return document.getElementById(d); }
 
-function trim(s){ return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
+function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(data) {
   console.log('sendRequest to background.html');
@@ -101,7 +101,7 @@ function getPmid(zone, num) {
           '.\r\n' + trim(tmp[2]) +
           '. ' + trim(tmp[3]);
         temp = trim(tmp[tmp.length - 1]);
-        if (temp.indexOf('[Epub ahead of print]') >= 0) {
+        if (temp.indexOf('[Epub ahead of print]') > -1) {
           content += '. [' + temp.substr(22) + ']\r\n';
         } else { content += '. [' + temp + ']\r\n'; }
         b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
@@ -295,13 +295,20 @@ chrome.extension.onRequest.addListener(
       $(r.item[i].pmid).appendChild(div);
       if ($('thepaperlink_hidden' + r.item[i].pmid)) {
         $('thepaperlink_hidden' + r.item[i].pmid).addEventListener('email_pdf', function () {
-          var eventData = this.innerText, pmid = this.id.substr(19), pdf = $('thepaperlink_pdf' + pmid).href;
-          try {
-            $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
-          } catch (err) {
-            console.log(err);
+          var eventData = this.innerText,
+            pmid = this.id.substr(19),
+            pdf = $('thepaperlink_pdf' + pmid).href,
+            no_email_span = $('thepaperlink_save' + pmid).className;
+          if ( (' ' + no_email_span + ' ').indexOf(' no_email ') > -1 ) {
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl, no_email: 1});
+          } else {
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl, no_email: 0});
+            try {
+              $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
+            } catch (err) {
+              console.log(err);
+            }
           }
-          a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl});
         });
       }
       k = pmidArray.length;

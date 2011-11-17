@@ -6,6 +6,7 @@
     <title>background for PubMed-er</title>
     <script type="text/javascript" src="jquery17.js"></script>
     <script type="text/javascript"><!--
+
 current_tabId = undefined;
 function openNewTab(winId,url) {
   chrome.tabs.create({'windowId': winId, 'url': url, 'selected': true}, function (tab) {
@@ -78,7 +79,6 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
   menu_generator();
   localStorage.setItem('contextMenu_on', 1);
 }
-
 
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
@@ -256,7 +256,15 @@ function getRequest(request, sender, callback) {
     console.log('response from server (if any) : ' + msg);
     if (msg === null) {
       console.log('email_pdf failed, just email the abstract');
-    }
+      if (!request.no_email) {
+        $.post(uri + '/',
+          {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
+          function (d) {
+            console.log(d);
+            $('#thepaperlink_A' + request.pmid).fadeOut('fast');
+          }
+        );
+    } }
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
