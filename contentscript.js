@@ -142,7 +142,11 @@ function get_Json(pmids) {
 
 function run() {
   var i, z;
-  search_term = $('search_term').value;
+  try {
+    search_term = $('search_term').value;
+  } catch (err) {
+    console.log(err);
+  }
   for (i = 0; i < t('div').length; i += 1) {
     if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') { //  && t('div')[i].className !== 'abstract'
       getPmid('div', i);
@@ -159,7 +163,9 @@ function run() {
     get_Json(pmids);
   }
 }
-run();
+if (!noRun) {
+  run();
+}
 
 
 chrome.extension.onRequest.addListener(

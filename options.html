@@ -41,15 +41,15 @@
   <ul>
     <li><b>http://www.mendeley.com/</b>
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=mendeley" id="mendeley_a">connect now</a>]
-        <br/>status: <input style="display:none" type="text" value="" size="20" id="mendeley_status" />
+        <br/><input style="display:none" type="text" value="" size="20" id="mendeley_status" />
       </li>
     <li><b>http://www.facebook.com/</b>
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>]
-        <br/>status: <input style="display:none" type="text" value="" size="20" id="facebook_status" />
+        <br/><input style="display:none" type="text" value="" size="20" id="facebook_status" />
       </li>
     <li><b>http://www.dropbox.com/</b> (beta testing)
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>]
-        <br/>status: <input style="display:none" type="text" value="" size="20" id="dropbox_status" />
+        <br/><input style="display:none" type="text" value="" size="20" id="dropbox_status" />
       </li>
   </ul>
 
@@ -91,17 +91,17 @@ $(document).ready(function () {
   }
   if (m_status) {
     $('#mendeley_status').css('display', 'inline');
-    $('#mendeley_status').val(m_status);
+    $('#mendeley_status').val('status: ' + m_status);
     $('#mendeley_a').html('check connection');
   }
   if (f_status) {
     $('#facebook_status').css('display', 'inline');
-    $('#facebook_status').val(m_status);
+    $('#facebook_status').val('status: ' + f_status);
     $('#facebook_a').html('check connection');
   }
   if (d_status) {
     $('#dropbox_status').css('display', 'inline');
-    $('#dropbox_status').val(m_status);
+    $('#dropbox_status').val('status: ' + d_status);
     $('#dropbox_a').html('check connection');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
