@@ -12,11 +12,11 @@ Detailed enhancement includes:
  * Direct link to its PDF file
  * External pages related to the article
  * Faculty 1000 score and link to its comment page
- * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://paperlink2.appspot.com/static/peaks.html)
+ * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://2.thepaperlink.com/static/peaks.html)
  * Email PDF file to yourself
  * Extract PMID on any webpage
 
-This extension is built using API from http://pubmeder.appspot.com, http://thepaperlink.appspot.com and PubMed eUtils.
+This extension is built using API from http://www.pubmeder.com, http://www.thepaperlink.com and PubMed eUtils.
 
 
 For Firefox, please use the following:
@@ -38,6 +38,8 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.3.7 - automatically enable the reverse proxy; jQuery 1.7.1
+ * v0.3.6.3 - "save it" to www.douban.com
  * v0.3.6.2 - bug fix for v0.3.6
  * v0.3.6 - "pubmeder it" changed to "save it", option page update
  * v0.3.5.2 - option to disable the context menu
@@ -60,5 +62,5 @@ Change Log:
  * v0.2.2 - add https support
  * v0.2.1 - bug fix
  * v0.2.0 - two-hit for fast data fetching
- * v0.1.2 - "pubmeder all" for users of "pubmeder at appspot.com"
+ * v0.1.2 - "pubmeder all" for users of http://www.pubmeder.com
  * v0.1.1 - first public version

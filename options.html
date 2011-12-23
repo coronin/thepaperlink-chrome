@@ -12,7 +12,7 @@
     li{font-size:1.3em;line-height:1.4em;padding-bottom:0.4em;}
     .Off{display:none !important;}
   </style>
-  <script type="text/javascript" src="jquery17.js"></script>
+  <script type="text/javascript" src="jquery171.js"></script>
 </head>
 <body>
 
@@ -21,7 +21,7 @@
   <h3 style="color:red">"the Paper Link" API &ndash; required</h3>
   <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
     <br/></span><input type="text" value="" size="40" id="thepaperlink_apikey" /> <a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon <b style="background:#f0f0f0">"?"</b> will show on the bar for extra function
+    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon <b style="background:#f0f0f0">"&hellip;"</b> will show on the bar for extra function
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
     </p>
@@ -47,7 +47,11 @@
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>]
         <br/><input style="display:none" type="text" value="" size="20" id="facebook_status" />
       </li>
-    <li><b>http://www.dropbox.com/</b> (beta testing)
+    <li><b>http://www.douban.com/</b>
+      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>]
+        <br/><input style="display:none" type="text" value="" size="20" id="douban_status" />
+      </li>
+    <li><b>http://www.dropbox.com/</b> (testing)
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>]
         <br/><input style="display:none" type="text" value="" size="20" id="dropbox_status" />
       </li>
@@ -55,9 +59,6 @@
 
   <h3>Other Settings</h3>
 
-  <p><input type="checkbox" id="rev_proxy" /> If you cannot visit <a rel="external" href="http://thepaperlink.appspot.com">this page</a>, please <b>check to enable</b> the reverse proxy. 推荐中国用户使用
-  <br/>Most users don't need to. Using the reverse proxy will slow down the communication with our server.
-  </p>
   <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
   <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
   </p>
@@ -66,6 +67,7 @@
   </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
   </p>
+  <p id="rev_proxy_content"></p>
 
   <div style="background:#fff0f0;position:fixed;right:50px;top:50px;padding:20px"><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></div>
 
@@ -80,6 +82,7 @@ $(document).ready(function () {
     m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status');
+    b_status = localStorage.getItem('douban_status');
   if (a_key) {
     $('#thepaperlink_apikey').val(a_key);
     $('.thepaperlink_a').css('display', 'none');
@@ -104,8 +107,17 @@ $(document).ready(function () {
     $('#dropbox_status').val('status: ' + d_status);
     $('#dropbox_a').html('check connection');
   }
+  if (b_status) {
+    $('#douban_status').css('display', 'inline');
+    $('#douban_status').val('status: ' + b_status);
+    $('#douban_a').html('check connection');
+  }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy').prop('checked', true);
+    $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link". 推荐中国用户使用' +
+      '<br/>It is slower, but more accessible.');
+  } else {
+    $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which will be slower.' +
+      '<br/>But, if you want, you can <b>check to enable</b> the reverse proxy. 推荐中国用户使用');
   }
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);

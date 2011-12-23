@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery17.js"></script>
+    <script type="text/javascript" src="jquery171.js"></script>
     <script type="text/javascript"><!--
 
 current_tabId = undefined;
@@ -176,6 +176,7 @@ function getRequest(request, sender, callback) {
     m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
+    b_status = localStorage.getItem('douban_status'),
     cloud_op = '',
     apikey = localStorage.getItem('thepaperlink_apikey'),
     rev_proxy = localStorage.getItem('rev_proxy'),
@@ -191,6 +192,9 @@ function getRequest(request, sender, callback) {
   }
   if (d_status && d_status === 'success') {
     cloud_op += 'd';
+  }
+  if (b_status && b_status === 'success') {
+    cloud_op += 'b';
   }
   if (apikey === null) {
     apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
@@ -216,7 +220,7 @@ function getRequest(request, sender, callback) {
           }
         } else {
           chrome.tabs.sendRequest(sender.tab.id,
-            {except:1, uri:uri});
+            {except:1, tpl:apikey});
         }
       });
     });
@@ -237,17 +241,21 @@ function getRequest(request, sender, callback) {
       localStorage.setItem(request.service + '_status', 'error? try again please');
     }
     reLoadOp();
-  } else if (request.sendID && localStorage.getItem('co_pubmed') !== 'no') {
-    chrome.pageAction.show(sender.tab.id);
-    localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
-    var dotCheck = /\./,
-      pmcCheck = /PMC/;
-    if (dotCheck.test(request.sendID) || pmcCheck.test(request.sendID)) {
-      eSearch(request.sendID, sender.tab.id);
-    }
-  } else if (request.menu_display && localStorage.getItem('contextMenu_shown') !== 'no') {
-    menu_generator();
-    // just generated context menu
+  } else if (request.sendID) {
+    if (localStorage.getItem('co_pubmed') !== 'no') {
+      chrome.pageAction.show(sender.tab.id);
+      localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
+      var dotCheck = /\./,
+        pmcCheck = /PMC/;
+      if (dotCheck.test(request.sendID) || pmcCheck.test(request.sendID)) {
+        eSearch(request.sendID, sender.tab.id);
+      }
+    } else { console.log('do nothing to ' + request.sendID); }
+  } else if (request.menu_display) {
+    if (localStorage.getItem('contextMenu_shown') !== 'no') {
+      menu_generator();
+      // just generated context menu
+    } else { console.log('no need to update context menu'); }
   } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
     console.log(request.pdf);
     var pdf_data = getBinary(request.pdf), msg;
@@ -265,9 +273,21 @@ function getRequest(request, sender, callback) {
           }
         );
     } }
+  } else {
+    console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
+
+$.ajax({
+  url: 'https://thepaperlink.appspot.com/static/humans.txt',
+  dataType: 'text',
+  timeout: 4000,
+  success: function() { console.log('Hi, you can access our secured server directly.'); },
+  error: function() {
+    console.log('error? force rev_proxy');
+    localStorage.setItem('rev_proxy', 'yes'); }
+});
     //-->
     </script>
   </head>
