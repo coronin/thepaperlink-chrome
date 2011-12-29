@@ -51,7 +51,7 @@ function callJsOnClick(info,tab) {
   if (rev_proxy === 'yes') {
     base = 'http://0.pl4.me/';
   } else {
-    base = 'https://thepaperlink.appspot.com/';
+    base = 'https://pubget-hrd.appspot.com/';
   }
   if (apikey === null) {
     apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
@@ -180,6 +180,7 @@ function getRequest(request, sender, callback) {
     cloud_op = '',
     apikey = localStorage.getItem('thepaperlink_apikey'),
     rev_proxy = localStorage.getItem('rev_proxy'),
+    ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
     uri;
   if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
     pubmeder_ok = 1;
@@ -203,7 +204,10 @@ function getRequest(request, sender, callback) {
   if (rev_proxy === 'yes') {
     uri = 'http://0.pl4.me';
   } else {
-    uri = 'https://thepaperlink.appspot.com';
+    uri = 'https://pubget-hrd.appspot.com';
+  }
+  if (ezproxy_prefix === null) {
+    ezproxy_prefix = '';
   }
   if (request.url) {
     $.getJSON(uri + request.url + apikey, function (d) {
@@ -211,11 +215,13 @@ function getRequest(request, sender, callback) {
         if (d && (d.count || d.error)) { // good or bad, both got json return
           if (localStorage.getItem('thepaperlink_apikey')) {
             chrome.tabs.sendRequest(sender.tab.id,
-              {r:d, pubmeder:pubmeder_ok, tpl:apikey, save_key:pubmeder_apikey, save_email:pubmeder_email, cloud_op:cloud_op, uri:uri}
+              {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
+                cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
             );
           } else {
             chrome.tabs.sendRequest(sender.tab.id,
-              {r:d, pubmeder:pubmeder_ok, tpl:'', save_key:pubmeder_apikey, save_email:pubmeder_email, cloud_op:cloud_op, uri:uri}
+              {r:d, tpl:'', pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
+                cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
             );
           }
         } else {
@@ -280,7 +286,7 @@ function getRequest(request, sender, callback) {
 chrome.extension.onRequest.addListener(getRequest);
 
 $.ajax({
-  url: 'https://thepaperlink.appspot.com/static/humans.txt',
+  url: 'https://pubget-hrd.appspot.com/static/humans.txt',
   dataType: 'text',
   timeout: 4000,
   success: function() { console.log('Hi, you can access our secured server directly.'); },

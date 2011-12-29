@@ -21,13 +21,13 @@
   <h3 style="color:red">"the Paper Link" API &ndash; required</h3>
   <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
     <br/></span><input type="text" value="" size="40" id="thepaperlink_apikey" /> <a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon <b style="background:#f0f0f0">"&hellip;"</b> will show on the bar for extra function
+    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
     </p>
 
   <h3>save it &mdash; archive what you read to the cloud</h3>
-  <p>After enable any of the following, <b style="background:#f0f0f0">"save it"</b> will show on the bar for bookmarking.</p>
+  <p>After enable any of the following, "<b style="background:#f0f0f0">save it</b>" will show on the bar for bookmarking.</p>
 
   <p>1. By default, articles are saved to <b>http://www.pubmeder.com/</b>
     &nbsp;&nbsp;[<a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>]
@@ -68,8 +68,16 @@
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
   </p>
   <p id="rev_proxy_content"></p>
+  <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
+  <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
+  </p>
 
-  <div style="background:#fff0f0;position:fixed;right:50px;top:50px;padding:20px"><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></div>
+  <div style="background:#f0fff0;position:fixed;right:50px;top:50px;padding:20px"><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></div>
+
+  <hr/>
+  <p>&copy; 2010-12 <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a> ;
+    <em>product of <a href="http://about.me/cail" rel="external">Liang Cai</a>, made in California</em>
+  </p>
 
 <script type="text/javascript"><!--
 $(document).ready(function () {
@@ -83,6 +91,7 @@ $(document).ready(function () {
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status');
     b_status = localStorage.getItem('douban_status');
+    ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
   if (a_key) {
     $('#thepaperlink_apikey').val(a_key);
     $('.thepaperlink_a').css('display', 'none');
@@ -112,6 +121,10 @@ $(document).ready(function () {
     $('#douban_status').val('status: ' + b_status);
     $('#douban_a').html('check connection');
   }
+  if (ezproxy_prefix) {
+    $('#ezproxy_prefix').text(ezproxy_prefix);
+    $('#ezproxy_login').val(ezproxy_prefix);
+  }
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link". 推荐中国用户使用' +
       '<br/>It is slower, but more accessible.');
@@ -130,6 +143,7 @@ $(document).ready(function () {
   }
   $('input').on('change', function () {
     $('#saveBtn').removeClass('Off');
+    $('#saveBtn').parent().css('background', '#fff0f0');
   });
 });
 
@@ -172,9 +186,10 @@ function saveOptions() {
     accessApi = $('#thepaperlink_apikey').val(),
     req_a = null,
     userEmail = $('#pubmeder_email').val(),
+    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
     userApi = $('#pubmeder_apikey').val(),
     req_b = null,
-    filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+    ezproxy_prefix = $('#ezproxy_login').val();
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
   } else {
@@ -201,6 +216,14 @@ function saveOptions() {
       chrome.extension.sendRequest({menu_display: 1});
     }
   }
+  if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
+    localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
+  } else {
+    if (ezproxy_prefix) {
+      alert('wrong format of the prefix.\nplease check with your librarian');
+    }
+    localStorage.setItem('ezproxy_prefix', '');
+  }
   if (accessApi.length === 32 && !localStorage.getItem('a_apikey_gold')) {
     req_a = valid_thepaperlink(accessApi);
   } else if (accessApi && !localStorage.getItem('a_apikey_gold')) {
@@ -208,7 +231,7 @@ function saveOptions() {
     alert('Please provide a valid apikey to use this extension. Get it by visiting http://www.thepaperlink.com/reg');
     return false;
   }
-  if (userEmail && !filter.test(userEmail)) {
+  if (userEmail && !email_filter.test(userEmail)) {
     alert('Please provide a valid email address');
     $('#pubmeder_email').val('');
     $('#pubmeder_email').focus();
