@@ -43,6 +43,8 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.net/reg'
     || page_url === 'http://thepaperlink.appspot.com/reg'
     || page_url === 'https://thepaperlink.appspot.com/reg'
+    || page_url === 'http://pubget-hrd.appspot.com/reg'
+    || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
   console.log('the Paper Link, setup a');
   var apikey = $('apikey').innerHTML;
@@ -51,6 +53,8 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
     || page_url === 'https://pubmeder.appspot.com/registration'
+    || page_url === 'http://pubmeder-hrd.appspot.com/registration'
+    || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
   console.log('the Paper Link, setup b');
   var email = $('currentUser').innerHTML,
@@ -192,8 +196,7 @@ var alert_js = 'function alert_dev(apikey) {' +
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
-    var r = request.r,
-      div, i, j, k, S, styles, peaks,
+    var r, p, div, i, j, k, S, styles, peaks,
       bookmark_div = '<div id="css_loaded"></div>';
     if (request.except) {
       if (!search_term) {
@@ -231,6 +234,8 @@ chrome.extension.onRequest.addListener(
       sendResponse({});
       return;
     }
+    r = request.r;
+    p = request.p;
     if (r.error) {
       t('h2')[title_pos].innerHTML = old_title + ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error : ' + r.error + '</span>';
       sendResponse({});
@@ -242,7 +247,7 @@ chrome.extension.onRequest.addListener(
       if (request.uri === 'http://0.pl4.me') {
         peaks.setAttribute('src', 'http://0.pl4.me/jss?y=' + (Math.random()));
       } else {
-        peaks.setAttribute('src', 'https://thepaperlink.appspot.com/jss?y=' + (Math.random()));
+        peaks.setAttribute('src', 'https://pubget-hrd.appspot.com/jss?y=' + (Math.random()));
       }
       page_body.appendChild(peaks);
     }
@@ -293,7 +298,7 @@ chrome.extension.onRequest.addListener(
       }
       if (r.item[i].pdf) {
         div.innerHTML += '<a id="thepaperlink_pdf' + r.item[i].pmid +
-          '" class="thepaperlink-green" href="' + r.item[i].pdf +
+          '" class="thepaperlink-green" href="' + p + r.item[i].pdf +
           '" target="_blank">direct&nbsp;pdf</a>';
       }
       if (r.item[i].pmcid) {
@@ -303,14 +308,14 @@ chrome.extension.onRequest.addListener(
       }
       if (r.item[i].doi) {
         div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid +
-          '" href="http://dx.doi.org/' + r.item[i].doi + '" target="_blank">publisher</a>';
+          '" href="' + p + 'http://dx.doi.org/' + r.item[i].doi + '" target="_blank">publisher</a>';
       } else if (r.item[i].pii) {
         div.innerHTML += '<a id="thepaperlink_doi' + r.item[i].pmid +
-          '" href="http://linkinghub.elsevier.com/retrieve/pii/' + r.item[i].pii + '" target="_blank">publisher</a>';
+          '" href="' + p + 'http://linkinghub.elsevier.com/retrieve/pii/' + r.item[i].pii + '" target="_blank">publisher</a>';
       }
       if (r.item[i].f_v && r.item[i].fid) {
         div.innerHTML += '<a id="thepaperlink_f' + r.item[i].pmid +
-          '" class="thepaperlink-red" href="http://f1000.com/' + r.item[i].fid +
+          '" class="thepaperlink-red" href="' + p + 'http://f1000.com/' + r.item[i].fid +
           '" target="_blank">f1000&nbsp;score&nbsp;' + r.item[i].f_v + '</a>';
       }
       if (request.pubmeder || request.cloud_op) {

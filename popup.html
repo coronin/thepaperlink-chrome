@@ -53,7 +53,7 @@ function save_pubmeder(a, key, email) {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     url_base = 'http://1.pl4.me';
   } else {
-    url_base = 'https://pubmeder.appspot.com';
+    url_base = 'https://pubmeder-hrd.appspot.com';
   }
   url = url_base + '/input?pmid=' + a + '&apikey=' + key + '&email=' + email;
   $.getJSON(url, function (text) {
