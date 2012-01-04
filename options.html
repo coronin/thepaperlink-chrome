@@ -81,6 +81,7 @@
   </p>
 
 <script type="text/javascript"><!--
+
 $(document).ready(function () {
   $(function () {
     $('a[rel="external"]').attr('target', '_blank');
@@ -94,14 +95,14 @@ $(document).ready(function () {
     b_status = localStorage.getItem('douban_status'),
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
   if (a_key) {
-    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer" onclick="rest_key(1)">[x]</span>');
+    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" onclick="rest_key(1)">[x]</span>');
     $('.thepaperlink_a').css('display', 'none');
   } else {
     $('#thepaperlink_apikey').html('<input type="text" value="" size="40" id="thepaperlink_apikey" />');
   }
   if (b_key) {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
-    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer" onclick="rest_key(2)">[x]</span>');
+    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" onclick="rest_key(2)">[x]</span>');
     $('#pubmeder_a').text('visit the site');
   } else {
     $('#pubmeder_email').html('<input type="text" value="" size="40" id="pubmeder_email" />');
@@ -291,7 +292,7 @@ function saveOptions() {
     });
   } else {
     location.reload();
-  }  
+  }
 }
 //-->
 </script>

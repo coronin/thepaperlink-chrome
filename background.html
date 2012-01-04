@@ -7,7 +7,7 @@
     <script type="text/javascript" src="jquery171.js"></script>
     <script type="text/javascript"><!--
 
-var current_tabId = undefined;
+var current_tabId = null;
 function openNewTab(winId, url) {
   if (winId) {
     chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
@@ -86,6 +86,9 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
 }
 
 function save_visited_ID(new_id) {
+  if (!new_id || new_id === '999999999') {
+    return;
+  }
   var id_found = localStorage.getItem('id_found') || '';
   if (id_found.indexOf(new_id) === -1) {
     localStorage.setItem('id_found', id_found + ' ' + new_id);
@@ -110,7 +113,9 @@ function saveIt_pubmeder(pmid) {
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
       var pre_history = localStorage.getItem('id_history') || '';
-      localStorage.setItem('id_history', pre_history + ',' + pmid);
+      pre_history.replace( /^,+|,+$/g, '' );
+      pre_history += ',' + pmid;
+      localStorage.setItem('id_history', pre_history);
       localStorage.setItem('id_found', '');
     }
   });
@@ -277,13 +282,15 @@ function getRequest(request, sender, callback) {
   } else if (request.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender.tab.id);
-      localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
-      if ( alldigi.test(request.sendID) ) {
-        save_visited_ID(request.sendID);
-      } else {
-        eSearch(request.sendID, sender.tab.id);
-      }
-    } else { console.log('do nothing to ' + request.sendID); }
+    } else {
+      console.log('do nothing to ' + request.sendID);
+    }
+    localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
+    if ( alldigi.test(request.sendID) ) {
+      save_visited_ID(request.sendID);
+    } else {
+      eSearch(request.sendID, sender.tab.id);
+    }
   } else if (request.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
       menu_generator();
@@ -309,6 +316,20 @@ function getRequest(request, sender, callback) {
     if (request.open === 2) {
       openNewTab(null, 'http://www.pubmeder.com/registration');
     }
+  } else if (request.save_cloud_op) {
+    console.log(request.save_cloud_op);
+    if (request.save_cloud_op.indexOf('mendeley') > -1) {
+      localStorage.setItem('mendeley_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('facebook') > -1) {
+      localStorage.setItem('facebook_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('dropbox') > -1) {
+      localStorage.setItem('dropbox_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('douban') > -1) {
+      localStorage.setItem('douban_status', 'success');
+    }
   } else {
     console.log(request);
   }
@@ -326,12 +347,15 @@ $.ajax({
 });
 
 var i, aKey, aVal, old_id = '', init_found = localStorage.getItem('id_found') || '';
-for (var i = 0; i < localStorage.length; i += 1) {
-  aKey = localStorage.key[i];
-  if (aKey.substr(0,6) === 'tabId:') {
+for (i = 0; i < localStorage.length; i += 1) {
+  aKey = localStorage.key(i);
+  if (aKey && aKey.substr(0,6) === 'tabId:') {
     aVal = localStorage.getItem(aKey);
-    if ( alldigi.test(aVal) && init_found.indexOf(aVal) === -1 ) {
-      old_id += ' ' + aVal;
+    if ( alldigi.test(aVal) ) {
+      if (aVal !== '999999999' && init_found.indexOf(aVal) === -1) {
+        old_id += ' ' + aVal;
+      }
+      localStorage.removeItem(aKey);
     }
   }
 }
