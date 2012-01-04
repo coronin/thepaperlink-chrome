@@ -47,8 +47,10 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
   console.log('the Paper Link, setup a');
-  var apikey = $('apikey').innerHTML;
-  a_proxy({thepaperlink_apikey: apikey});
+  var apikey = $('apikey').innerHTML,
+    cloud_op = $('cloud_op').innerHTML;
+  a_proxy({save_apikey: apikey, save_email: null});
+  a_proxy({save_cloud_op: cloud_op});
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
@@ -59,10 +61,10 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   console.log('the Paper Link, setup b');
   var email = $('currentUser').innerHTML,
     apikey = $('apikey_pubmeder').innerHTML;
-  a_proxy({pubmeder_apikey: apikey, pubmeder_email: email});
+  a_proxy({save_apikey: apikey, save_email: email});
   noRun = 1;
 } else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
-  console.log('the Paper Link, setup m f d');
+  console.log('the Paper Link, setup m f d b');
   var content = $('r_content').innerHTML,
     service = $('r_success').innerHTML;
   a_proxy({service: service, content: content});
@@ -166,6 +168,9 @@ function run() {
   }
   pmids = pmids.substr(1, pmids.length);
   pmidArray = pmids.split(',');
+  if (pmidArray.length === 1) {
+    a_proxy({sendID: pmidArray[0]});
+  }
   if (pmids) {
     localStorage.setItem('thePaperLink_ID', pmidArray[0]);
     get_Json(pmids);
@@ -197,7 +202,7 @@ var alert_js = 'function alert_dev(apikey) {' +
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     var r, p, div, i, j, k, S, styles, peaks,
-      bookmark_div = '<div id="css_loaded"></div>';
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer">';
     if (request.except) {
       if (!search_term) {
         search_term = page_url.split('/pubmed/')[1];
@@ -244,11 +249,7 @@ chrome.extension.onRequest.addListener(
     if (!$('paperlink2_display')) {
       peaks = document.createElement('script');
       peaks.setAttribute('type', 'text/javascript');
-      if (request.uri === 'http://0.pl4.me') {
-        peaks.setAttribute('src', 'http://0.pl4.me/jss?y=' + (Math.random()));
-      } else {
-        peaks.setAttribute('src', 'https://pubget-hrd.appspot.com/jss?y=' + (Math.random()));
-      }
+      peaks.setAttribute('src', request.uri + '/jss?y=' + (Math.random()));
       page_body.appendChild(peaks);
     }
     styles = '.thepaperlink {'
@@ -274,8 +275,10 @@ chrome.extension.onRequest.addListener(
       + '  cursor: pointer'
       + '}';
     if (request.pubmeder) {
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"><span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
-    }
+      bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
+    } else {
+      bookmark_div += '<span onclic="a_proxy({open:2})">wanna save what you are reading? Enable <b>PubMed-er</b></span></div>';
+	}
     if (!$('css_loaded')) {
       S = document.createElement('style');
       S.type = 'text/css';

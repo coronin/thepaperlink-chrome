@@ -7,21 +7,27 @@
     <script type="text/javascript" src="jquery171.js"></script>
     <script type="text/javascript"><!--
 
-current_tabId = undefined;
-function openNewTab(winId,url) {
-  chrome.tabs.create({'windowId': winId, 'url': url, 'selected': true}, function (tab) {
-    current_tabId = tab.id;
-    console.log('new tab for your search #' + current_tabId);
-  });
+var current_tabId = undefined;
+function openNewTab(winId, url) {
+  if (winId) {
+    chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
+      current_tabId = tab.id;
+    });
+  } else {
+    chrome.tabs.create({url: url, active: true}, function (tab) {
+      current_tabId = tab.id;
+    });
+  }
+  console.log('a new tab for you, #' + current_tabId);
 }
 
-function genericOnClick(info,tab) {
+function genericOnClick(info, tab) {
   console.log('info: ' + JSON.stringify(info));
   console.log('tab: ' + JSON.stringify(tab));
   openNewTab(tab.windowId, 'http://www.thepaperlink.com');
 }
 
-function selectOnClick(info,tab) {
+function selectOnClick(info, tab) {
   var alldigi = /^\d+$/, url, new_tab = localStorage.getItem('new_tab');
   if (alldigi.test(info.selectionText)) {
     url = 'http://www.thepaperlink.com/_' + info.selectionText;
@@ -33,7 +39,7 @@ function selectOnClick(info,tab) {
       var i;
       for (i = 0; i < tabs.length; i += 1) {
         if (current_tabId === tabs[i].id) {
-          chrome.tabs.update(current_tabId, {'url': url, 'selected': true});
+          chrome.tabs.update(current_tabId, {url: url, active: true});
           return;
         }
       }
@@ -44,20 +50,18 @@ function selectOnClick(info,tab) {
   }
 }
 
-function callJsOnClick(info,tab) {
-  var apikey = localStorage.getItem('thepaperlink_apikey'),
-    rev_proxy = localStorage.getItem('rev_proxy'),
-    base;
+function callJsOnClick(info, tab) {
+  var base = 'https://pubget-hrd.appspot.com/',
+    req_key = localStorage.getItem('thepaperlink_apikey') || null,
+    rev_proxy = localStorage.getItem('rev_proxy');
   if (rev_proxy === 'yes') {
     base = 'http://0.pl4.me/';
-  } else {
-    base = 'https://pubget-hrd.appspot.com/';
   }
-  if (apikey === null) {
-    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+  if (req_key === null) {
+    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
   }
   chrome.tabs.getSelected(tab.windowId, function () {
-    chrome.tabs.sendRequest(tab.id, {js_key: apikey, js_base: base});
+    chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base});
   });
 }
 
@@ -72,7 +76,7 @@ function menu_generator() {
     'contexts':['page']});
   chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
     'onclick': function () {
-      chrome.tabs.create({'url': chrome.extension.getURL('options.html'), 'selected': true});
+      chrome.tabs.create({url: chrome.extension.getURL('options.html'), active: true});
   } });
 }
 if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -162,7 +166,7 @@ function reLoadOp() {
     for (i = 0; i < tabs.length; i += 1) {
       tab = tabs[i];
       if (tab.url && tab.url === urlOp) {
-        chrome.tabs.update(tab.id, {url: urlOp, selected: true});
+        chrome.tabs.update(tab.id, {url: urlOp, active: true});
         return;
       }
     }
@@ -170,18 +174,19 @@ function reLoadOp() {
 }
 
 function getRequest(request, sender, callback) {
-  var pubmeder_apikey = localStorage.getItem('pubmeder_apikey'),
-    pubmeder_email = localStorage.getItem('pubmeder_email'),
+  var pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null,
+    pubmeder_email = localStorage.getItem('pubmeder_email') || null,
     pubmeder_ok = 0,
     m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
     b_status = localStorage.getItem('douban_status'),
     cloud_op = '',
-    apikey = localStorage.getItem('thepaperlink_apikey'),
+    apikey = localStorage.getItem('thepaperlink_apikey') || null,
+    req_key = apikey,
     rev_proxy = localStorage.getItem('rev_proxy'),
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
-    uri;
+    ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '',
+    uri = 'https://pubget-hrd.appspot.com';
   if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
     pubmeder_ok = 1;
   }
@@ -197,47 +202,36 @@ function getRequest(request, sender, callback) {
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
   }
-  if (apikey === null) {
-    apikey = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+  if (req_key === null) {
+    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
     //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
   }
   if (rev_proxy === 'yes') {
     uri = 'http://0.pl4.me';
-  } else {
-    uri = 'https://pubget-hrd.appspot.com';
-  }
-  if (ezproxy_prefix === null) {
-    ezproxy_prefix = '';
   }
   if (request.url) {
-    $.getJSON(uri + request.url + apikey, function (d) {
+    $.getJSON(uri + request.url + req_key, function (d) {
       chrome.tabs.getSelected(sender.tab.windowId, function () {
         if (d && (d.count || d.error)) { // good or bad, both got json return
-          if (localStorage.getItem('thepaperlink_apikey')) {
-            chrome.tabs.sendRequest(sender.tab.id,
-              {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-                cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
-            );
-          } else {
-            chrome.tabs.sendRequest(sender.tab.id,
-              {r:d, tpl:'', pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-                cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
-            );
-          }
+          chrome.tabs.sendRequest(sender.tab.id,
+            {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
+              cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
+          );
         } else {
           chrome.tabs.sendRequest(sender.tab.id,
             {except:1, tpl:apikey});
         }
       });
     });
-  } else if (request.pubmeder_apikey && request.pubmeder_email) {
-    localStorage.setItem('pubmeder_apikey', request.pubmeder_apikey);
-    localStorage.setItem('pubmeder_email', request.pubmeder_email);
-    localStorage.setItem('b_apikey_gold', 1);
-    reLoadOp();
-  } else if (request.thepaperlink_apikey) {
-    localStorage.setItem('thepaperlink_apikey', request.thepaperlink_apikey);
-    localStorage.setItem('a_apikey_gold', 1);
+  } else if (request.save_apikey) {
+    if (request.save_email) {
+      localStorage.setItem('pubmeder_apikey', request.save_apikey);
+      localStorage.setItem('pubmeder_email', request.save_email);
+      localStorage.setItem('b_apikey_gold', 1);
+    } else {
+      localStorage.setItem('thepaperlink_apikey', request.save_apikey);
+      localStorage.setItem('a_apikey_gold', 1);
+    }
     reLoadOp();
   } else if (request.service && request.content) {
     console.log(request.service + ': ' + request.content);
@@ -275,10 +269,13 @@ function getRequest(request, sender, callback) {
           {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
           function (d) {
             console.log(d);
-            $('#thepaperlink_A' + request.pmid).fadeOut('fast');
           }
         );
     } }
+  } else if (request.open) {
+    if (request.open === 2) {
+      openNewTab(null, 'http://www.pubmeder.com/registration');
+    }
   } else {
     console.log(request);
   }
