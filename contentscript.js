@@ -274,7 +274,7 @@ chrome.extension.onRequest.addListener(
     if (request.pubmeder) {
       bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     } else {
-      bookmark_div += '<span onclic="a_proxy({open:2})">wanna save what you are reading? Enable <b>PubMed-er</b></span></div>';
+      bookmark_div += 'wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
 	}
     if (!$('css_loaded')) {
       S = document.createElement('style');
@@ -283,7 +283,7 @@ chrome.extension.onRequest.addListener(
       page_body.appendChild(S);
       //GM_addStyle(styles);
     }
-    if (request.pubmeder && old_title) {
+    if (old_title) {
       t('h2')[title_pos].innerHTML = old_title + bookmark_div;
     } else {
       t('h2')[title_pos].innerHTML = old_title;
