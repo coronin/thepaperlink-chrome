@@ -11,6 +11,7 @@
     p{font-size:1.3em;line-height:1.5em;text-indent:-1.6em;margin-left:40px;}
     li{font-size:1.3em;line-height:1.4em;padding-bottom:0.4em;}
     .Off{display:none !important;}
+    .keys{font-family:'Courier New',Courier,monospace;text-decoration:underline;background-color:#f9f9f9;}
   </style>
   <script type="text/javascript" src="jquery171.js"></script>
 </head>
@@ -20,7 +21,7 @@
 
   <h3 style="color:red">"the Paper Link" API &ndash; required</h3>
   <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
-    <br/></span><input type="text" value="" size="40" id="thepaperlink_apikey" /> <a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey
+    <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
@@ -31,8 +32,8 @@
 
   <p>1. By default, articles are saved to <b>http://www.pubmeder.com/</b>
     &nbsp;&nbsp;[<a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>]
-    <br/><input type="text" value="" size="40" id="pubmeder_email" /><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name
-    <br/><input type="text" value="" size="40" id="pubmeder_apikey" /><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> apikey
+    <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
+    <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> apikey : <span id="pubmeder_apikey"></span>
     </p>
 
   <p>2. Articles will also be saved to other cloud services, if enabled.
@@ -63,7 +64,7 @@
   <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
   </p>
   <p><input type="checkbox" id="new_tab" /> You could check here to <b>always open a new tab</b> when searching selected text,
-  <br/>rather than refresh the existing search page.
+  <br/>rather than refresh the existing search tab.
   </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
   </p>
@@ -89,37 +90,42 @@ $(document).ready(function () {
     b_email = localStorage.getItem('pubmeder_email'),
     m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
-    d_status = localStorage.getItem('dropbox_status');
-    b_status = localStorage.getItem('douban_status');
+    d_status = localStorage.getItem('dropbox_status'),
+    b_status = localStorage.getItem('douban_status'),
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
   if (a_key) {
-    $('#thepaperlink_apikey').val(a_key);
+    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer" onclick="rest_key(1)">[x]</span>');
     $('.thepaperlink_a').css('display', 'none');
+  } else {
+    $('#thepaperlink_apikey').html('<input type="text" value="" size="40" id="thepaperlink_apikey" />');
   }
   if (b_key) {
-    $('#pubmeder_email').val(b_email);
-    $('#pubmeder_apikey').val(b_key);
+    $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
+    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer" onclick="rest_key(2)">[x]</span>');
     $('#pubmeder_a').text('visit the site');
+  } else {
+    $('#pubmeder_email').html('<input type="text" value="" size="40" id="pubmeder_email" />');
+    $('#pubmeder_apikey').html('<input type="text" value="" size="40" id="pubmeder_apikey" />');
   }
   if (m_status) {
     $('#mendeley_status').css('display', 'inline');
     $('#mendeley_status').val('status: ' + m_status);
-    $('#mendeley_a').html('check connection');
+    $('#mendeley_a').text('check connection');
   }
   if (f_status) {
     $('#facebook_status').css('display', 'inline');
     $('#facebook_status').val('status: ' + f_status);
-    $('#facebook_a').html('check connection');
+    $('#facebook_a').text('check connection');
   }
   if (d_status) {
     $('#dropbox_status').css('display', 'inline');
     $('#dropbox_status').val('status: ' + d_status);
-    $('#dropbox_a').html('check connection');
+    $('#dropbox_a').text('check connection');
   }
   if (b_status) {
     $('#douban_status').css('display', 'inline');
     $('#douban_status').val('status: ' + b_status);
-    $('#douban_a').html('check connection');
+    $('#douban_a').text('check connection');
   }
   if (ezproxy_prefix) {
     $('#ezproxy_prefix').text(ezproxy_prefix);
@@ -147,31 +153,46 @@ $(document).ready(function () {
   });
 });
 
-function valid_thepaperlink(apikey) {
-  return $.get('http://0.pl4.me/api?validate=' + apikey,
+function rest_key(v) {
+  var answer = confirm('\ndo you really want to rest the key?\n');
+  if (answer) {
+    if (v === 1) {
+      localStorage.removeItem('thepaperlink_apikey');
+      localStorage.removeItem('a_apikey_gold');
+    } else if (v === 2) {
+      localStorage.removeItem('pubmeder_apikey');
+      localStorage.removeItem('pubmeder_email');
+      localStorage.removeItem('b_apikey_gold');
+    }
+    location.reload();
+  }
+}
+
+function valid_thepaperlink(ak) {
+  return $.get('http://0.pl4.me/api?validate=' + ak,
     function (txt) {
       if (txt === 'valid') {
-        localStorage.setItem('thepaperlink_apikey', apikey);
+        localStorage.setItem('thepaperlink_apikey', ak);
         localStorage.setItem('a_apikey_gold', 1);
       } else {
         $('#thepaperlink_apikey').val('');
-        alert('Please provide a valid apikey. Get it by visiting http://www.thepaperlink.com/reg');
+        alert('Please provide a valid apikey. Please visit http://www.thepaperlink.com/reg');
       }
     },
     'json'
   );
 }
 
-function valid_pubmeder(email,apikey) {
-  return $.get('http://1.pl4.me/input?pmid=999999999&apikey=' + apikey + '&email=' + email,
+function valid_pubmeder(e,ak) {
+  return $.get('http://1.pl4.me/input?pmid=999999999&apikey=' + ak + '&email=' + e,
     function (txt) {
       if (txt === 'correct') {
-        localStorage.setItem('pubmeder_apikey', apikey);
-        localStorage.setItem('pubmeder_email', email);
+        localStorage.setItem('pubmeder_apikey', ak);
+        localStorage.setItem('pubmeder_email', e);
         localStorage.setItem('b_apikey_gold', 1);
       } else {
         $('#pubmeder_apikey').val('');
-        alert('Please provide a valid apikey. Get it by visiting http://www.pubmeder.com/registration');
+        alert('Please provide a valid apikey. Please visit http://www.pubmeder.com/registration');
       }
     },
     'text'
@@ -183,13 +204,9 @@ function saveOptions() {
     co_pubmed = $('#co_pubmed').prop('checked'),
     new_tab = $('#new_tab').prop('checked'),
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
-    accessApi = $('#thepaperlink_apikey').val(),
+    ezproxy_prefix = $('#ezproxy_login').val(),
     req_a = null,
-    userEmail = $('#pubmeder_email').val(),
-    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
-    userApi = $('#pubmeder_apikey').val(),
-    req_b = null,
-    ezproxy_prefix = $('#ezproxy_login').val();
+    req_b = null;
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
   } else {
@@ -224,26 +241,36 @@ function saveOptions() {
     }
     localStorage.setItem('ezproxy_prefix', '');
   }
-  if (accessApi.length === 32 && !localStorage.getItem('a_apikey_gold')) {
-    req_a = valid_thepaperlink(accessApi);
-  } else if (accessApi && !localStorage.getItem('a_apikey_gold')) {
-    $('#thepaperlink_apikey').val('');
-    alert('Please provide a valid apikey to use this extension. Get it by visiting http://www.thepaperlink.com/reg');
-    return false;
+
+  if ( !localStorage.getItem('a_apikey_gold') ) {
+    var accessApi = $('#thepaperlink_apikey').val();
+    if (accessApi.length === 32) {
+      req_a = valid_thepaperlink(accessApi);
+    } else if (accessApi) {
+      $('#thepaperlink_apikey').val('');
+      alert('Please provide a valid apikey to use this extension. Please visit http://www.thepaperlink.com/reg');
+      return false;
+    }
   }
-  if (userEmail && !email_filter.test(userEmail)) {
-    alert('Please provide a valid email address');
-    $('#pubmeder_email').val('');
-    $('#pubmeder_email').focus();
-    return false;
-  } else if (userEmail && (!userApi || userApi.length !== 32)) {
-    alert('Please provide a valid apikey. Get it by visiting http://www.pubmeder.com/registration');
-    $('#pubmeder_apikey').val('');
-    $('#pubmeder_apikey').focus();
-    return false;
-  } else if (userEmail && userApi.length === 32 && !localStorage.getItem('b_apikey_gold')) {
-    req_b = valid_pubmeder(userEmail, userApi);
+  if ( !localStorage.getItem('b_apikey_gold') ) {
+    var userEmail = $('#pubmeder_email').val(),
+      email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
+      userApi = $('#pubmeder_apikey').val();
+    if (userEmail && !email_filter.test(userEmail)) {
+      alert('Please provide a valid email address');
+      $('#pubmeder_email').val('');
+      $('#pubmeder_email').focus();
+      return false;
+    } else if (userEmail && (!userApi || userApi.length !== 32)) {
+      alert('Please provide a valid apikey. Please visit http://www.pubmeder.com/registration');
+      $('#pubmeder_apikey').val('');
+      $('#pubmeder_apikey').focus();
+      return false;
+    } else if (userEmail && userApi.length === 32) {
+      req_b = valid_pubmeder(userEmail, userApi);
+    }
   }
+
   if (req_a) {
     $.when(req_a).then(function () {
         if (localStorage.getItem('a_apikey_gold')) {
@@ -256,7 +283,7 @@ function saveOptions() {
           location.reload();
         }
     });
-  } else if (req_a, req_b) {
+  } else if (req_a && req_b) {
     $.when(req_a, req_b).then(function () {
         if (localStorage.getItem('a_apikey_gold') && localStorage.getItem('b_apikey_gold')) {
           location.reload();

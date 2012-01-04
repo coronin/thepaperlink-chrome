@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.3.7.1",
+  "version": "0.3.7.2",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "permissions": [
@@ -8,16 +8,16 @@
     "tabs",
     "https://www.ncbi.nlm.nih.gov/*",
     "https://thepaperlink.appspot.com/*",
+    "https://pubget-hrd.appspot.com/*",
     "https://pubmeder.appspot.com/*",
+    "https://pubmeder-hrd.appspot.com/*",
+    "http://*.jp/*",
+    "http://*.info/*",
     "http://*.gov/*",
     "http://*.org/*",
     "http://*.net/*",
     "http://*.com/*",
-    "http://*.info/*",
-    "http://*.jp/*",
-    "http://*.pl4.me/*",
-    "https://pubget-hrd.appspot.com/*",
-    "https://pubmeder-hrd.appspot.com/*"
+    "http://*.pl4.me/*"
   ],
   "icons": {
     "128": "128.png",
@@ -29,23 +29,23 @@
   "background_page" : "background.html",
   "page_action": {
     "default_icon": "19grey.png",
-    "default_title": "the Paper Link for PubMed: click to display extracted info",
+    "default_title": "the Paper Link for PubMed: click to display detailed info",
     "default_popup" : "popup.html"
   },
   "content_scripts": [ {
     "matches": [
-        "https://www.ncbi.nlm.nih.gov/*",
-        "https://thepaperlink.appspot.com/*",
-        "https://pubmeder.appspot.com/*",
-        "http://*.gov/*",
-        "http://*.org/*",
-        "http://*.net/*",
-        "http://*.com/*",
-        "http://*.info/*",
-        "http://*.jp/*",
-        "http://*.pl4.me/*",
-        "https://pubget-hrd.appspot.com/*",
-        "https://pubmeder-hrd.appspot.com/*"
+      "https://www.ncbi.nlm.nih.gov/*",
+      "https://thepaperlink.appspot.com/*",
+      "https://pubget-hrd.appspot.com/*",
+      "https://pubmeder.appspot.com/*",
+      "https://pubmeder-hrd.appspot.com/*",
+      "http://*.jp/*",
+      "http://*.info/*",
+      "http://*.gov/*",
+      "http://*.org/*",
+      "http://*.net/*",
+      "http://*.com/*",
+      "http://*.pl4.me/*"
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
