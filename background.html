@@ -27,9 +27,10 @@ function genericOnClick(info, tab) {
   openNewTab(tab.windowId, 'http://www.thepaperlink.com');
 }
 
+var alldigi = /^\d+$/;
 function selectOnClick(info, tab) {
-  var alldigi = /^\d+$/, url, new_tab = localStorage.getItem('new_tab');
-  if (alldigi.test(info.selectionText)) {
+  var url, new_tab = localStorage.getItem('new_tab');
+  if ( alldigi.test(info.selectionText) ) {
     url = 'http://www.thepaperlink.com/_' + info.selectionText;
   } else {
     url = 'http://www.thepaperlink.com/?q=' + info.selectionText;
@@ -84,6 +85,37 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
   localStorage.setItem('contextMenu_on', 1);
 }
 
+function save_visited_ID(new_id) {
+  var id_found = localStorage.getItem('id_found') || '';
+  if (id_found.indexOf(new_id) === -1) {
+    localStorage.setItem('id_found', id_found + ' ' + new_id);
+  }
+  if (id_found && id_found.split(' ').length > 11) {
+    saveIt_pubmeder( localStorage.getItem('id_found').replace(/\s+/g, ',') );
+  }
+}
+
+function saveIt_pubmeder(pmid) {
+  var args = {'apikey' : localStorage.getItem('pubmeder_apikey') || null,
+              'email' : localStorage.getItem('pubmeder_email') || null,
+              'pmid' : pmid},
+    url = 'https://pubmeder-hrd.appspot.com/input?callback=?';
+  if (args.apikey === null || args.email === null) {
+    console.log('no valid pubmeder credit');
+    return;
+  }
+  if (localStorage.getItem('rev_proxy') === 'yes') {
+    url = 'http://1.pl4.me/input?callback=?';
+  }
+  $.getJSON(url, args, function (d) {
+    if (d.respond > 1) {
+      var pre_history = localStorage.getItem('id_history') || '';
+      localStorage.setItem('id_history', pre_history + ',' + pmid);
+      localStorage.setItem('id_found', '');
+    }
+  });
+}
+
 function eSearch(search_term, tabId) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   $.get(url,
@@ -91,6 +123,7 @@ function eSearch(search_term, tabId) {
       var pmid = $(xml).find('Id');
       if (pmid.length === 1) {
         localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
+        save_visited_ID( pmid.text() );
       }
     },
     'xml'
@@ -245,9 +278,9 @@ function getRequest(request, sender, callback) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender.tab.id);
       localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
-      var dotCheck = /\./,
-        pmcCheck = /PMC/;
-      if (dotCheck.test(request.sendID) || pmcCheck.test(request.sendID)) {
+      if ( alldigi.test(request.sendID) ) {
+        save_visited_ID(request.sendID);
+      } else {
         eSearch(request.sendID, sender.tab.id);
       }
     } else { console.log('do nothing to ' + request.sendID); }
@@ -291,6 +324,20 @@ $.ajax({
     console.log('error? force rev_proxy');
     localStorage.setItem('rev_proxy', 'yes'); }
 });
+
+var i, aKey, aVal, old_id = '', init_found = localStorage.getItem('id_found') || '';
+for (var i = 0; i < localStorage.length; i += 1) {
+  aKey = localStorage.key[i];
+  if (aKey.substr(0,6) === 'tabId:') {
+    aVal = localStorage.getItem(aKey);
+    if ( alldigi.test(aVal) && init_found.indexOf(aVal) === -1 ) {
+      old_id += ' ' + aVal;
+    }
+  }
+}
+if (old_id) {
+  localStorage.setItem('id_found', init_found + ' ' + old_id);
+}
     //-->
     </script>
   </head>
