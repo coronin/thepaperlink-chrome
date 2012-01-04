@@ -312,10 +312,6 @@ function getRequest(request, sender, callback) {
           }
         );
     } }
-  } else if (request.open) {
-    if (request.open === 2) {
-      openNewTab(null, 'http://www.pubmeder.com/registration');
-    }
   } else if (request.save_cloud_op) {
     console.log(request.save_cloud_op);
     if (request.save_cloud_op.indexOf('mendeley') > -1) {
