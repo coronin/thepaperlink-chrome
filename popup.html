@@ -30,40 +30,11 @@
   <div id="result" class="Off">
     loading <img class="loadIcon" src="loadingLine.gif" alt="..." />
   </div>
-  
+
   <hr/>
   <p id="found"></p>
 
-  <script type="text/javascript">
-  <!--
-function save_pubmeder(a, key, email) {
-  if (!key || !email) {
-    console.log('save to pubmeder needs valid apikey and email; set at "Options"');
-    return;
-  }
-  var url_base, url, IdList = localStorage.getItem('pubmeder_IdList');
-  if (IdList && IdList.indexOf(a) !== -1) {
-    console.log('already sent, no need to save to pubmeder again');
-    return;
-  } else if (IdList === null) {
-    IdList = '';
-  } else {
-    IdList += ',';
-  }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
-    url_base = 'http://1.pl4.me';
-  } else {
-    url_base = 'https://pubmeder-hrd.appspot.com';
-  }
-  url = url_base + '/input?pmid=' + a + '&apikey=' + key + '&email=' + email;
-  $.getJSON(url, function (text) {
-    if (text.respond === 1) {
-      var b = $('#found').html();
-      $('#found').html(b + ' [pubmeder ' + text.respond.toString() + ']');
-      localStorage.setItem('pubmeder_IdList', IdList + a);
-    }
-  });
-}
+  <script type="text/javascript"><!--
 
 function hideMore() {
   $('.moreAbout').addClass('Off');
@@ -94,7 +65,7 @@ function eFetch(pmid) {
       }
       if (l.MedlineCitation.CommentsCorrectionsList) {
         var ref_list = '<p onClick="hideMore()" class="moreAbout"><b><u>References</u>: </b>', j;
-        for (j = 0; j < l.MedlineCitation.CommentsCorrectionsList.length; j += 1) {     
+        for (j = 0; j < l.MedlineCitation.CommentsCorrectionsList.length; j += 1) {
           if (j === 0) {
             ref_list += '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999;">$2</font>') + '</a>';
           } else {
@@ -114,7 +85,7 @@ function eFetch(pmid) {
         }
         if (lsc > 0) {
           var DataBank_list = '<p onClick="hideMore()" class="moreAbout"><b><u>PDB Files</u>: </b>', jm;
-          for (jm = 0; jm < ls.AccessionNumberList.length; jm += 1) {     
+          for (jm = 0; jm < ls.AccessionNumberList.length; jm += 1) {
             if (jm === 0) {
               DataBank_list += '<a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
             } else {
@@ -128,7 +99,7 @@ function eFetch(pmid) {
 
       if (l.MedlineCitation.Article.GrantList) {
         var grant_list = '<p onClick="hideMore()" class="moreAbout"><b><u>Fund By</u>: </b>', jj;
-        for (jj = 0; jj < l.MedlineCitation.Article.GrantList.length; jj += 1) {     
+        for (jj = 0; jj < l.MedlineCitation.Article.GrantList.length; jj += 1) {
           if (jj === 0) {
             grant_list += l.MedlineCitation.Article.GrantList[jj].Agency + ': ' + l.MedlineCitation.Article.GrantList[jj].GrantID;
           } else {
@@ -141,7 +112,7 @@ function eFetch(pmid) {
 
       if (l.MedlineCitation.ChemicalList) {
         var keyChem = '<p onClick="hideMore()" class="moreAbout"><b><u>Chemical</u>: </b>', jk;
-        for (jk = 0; jk < l.MedlineCitation.ChemicalList.length; jk += 1) {     
+        for (jk = 0; jk < l.MedlineCitation.ChemicalList.length; jk += 1) {
           if (jk === 0) {
             keyChem += l.MedlineCitation.ChemicalList[jk].NameOfSubstance;
           } else {
@@ -154,7 +125,7 @@ function eFetch(pmid) {
 
       if (l.MedlineCitation.MeshHeadingList) {
         var keyHead = '<p onClick="hideMore()" class="moreAbout"><b><u>Heading</u>: </b>', jl;
-        for (jl = 0; jl < l.MedlineCitation.MeshHeadingList.length; jl += 1) {     
+        for (jl = 0; jl < l.MedlineCitation.MeshHeadingList.length; jl += 1) {
           if (jl === 0) {
             keyHead += l.MedlineCitation.MeshHeadingList[jl].DescriptorName;
           } else {
@@ -192,7 +163,7 @@ function eSummary(term) {
           PubDate = $(this).find('Item[Name="PubDate"]').text(),
           Source = $(this).find('Item[Name="Source"]').text(),
           Volume = $(this).find('Item[Name="Volume"]').text(),
-          Pages = $(this).find('Item[Name="Pages"]').text(),          
+          Pages = $(this).find('Item[Name="Pages"]').text(),
           eSummary;
 
         a.each(function (j) {
@@ -212,7 +183,7 @@ function eSummary(term) {
         } else {
           titleLin = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pubmed + '/?tool=thepaperlink_chrome">' + Title + '</a> ';
         }
-         
+
         eSummary = '<p class="eSum" id="' + pubmed + '">' + author_list + ' (' + PubDate + '). ' + titleLin + Source + '.  <i>' + Volume + '</i>, ' + Pages + '<br/><button class="AbsButton" onclick="eFetch(' + pubmed + ')"> More about </button><a id="pmid" target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pubmed + '/?tool=thepaperlink_chrome">PMID:' + pubmed + '</a> <img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
         $('<div/>').html(eSummary).appendTo('#result');
       });
@@ -253,7 +224,7 @@ $('#ess').focus(function () {
 
 chrome.tabs.getSelected(undefined, function (tab) {
   chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
-  chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});    
+  chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
   var ID = localStorage.getItem('tabId:' + tab.id.toString()),
     dotCheck = /\./,
     pmcCheck = /PMC/,
@@ -269,7 +240,7 @@ chrome.tabs.getSelected(undefined, function (tab) {
     $('#result').removeClass('Off');
     $('#found').html('PMID:<a onclick="eSummary(\'' + ID + '\')">' + ID + '</a> found on page ' + url_trim);
     eSummary(ID);
-    save_pubmeder(ID, localStorage.getItem('pubmeder_apikey'), localStorage.getItem('pubmeder_email'));
+    //save_pubmeder
   }
 });
   //-->

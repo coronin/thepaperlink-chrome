@@ -19,7 +19,7 @@ function a_proxy(data) {
 }
 
 function parse_id(a) { // pubmeder code
-  var regpmid = /pmid\s*:?\s*(\d+)\s*/i, 
+  var regpmid = /pmid\s*:?\s*(\d+)\s*/i,
     regdoi = /doi\s*:?\s*/i,
     doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9\.\/\)\(-]+\w)\s*\W?/,
     regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
@@ -46,7 +46,6 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://pubget-hrd.appspot.com/reg'
     || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
-  console.log('the Paper Link, setup a');
   var apikey = $('apikey').innerHTML,
     cloud_op = $('cloud_op').innerHTML;
   a_proxy({save_apikey: apikey, save_email: null});
@@ -58,24 +57,22 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
-  console.log('the Paper Link, setup b');
   var email = $('currentUser').innerHTML,
     apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({save_apikey: apikey, save_email: email});
   noRun = 1;
 } else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
-  console.log('the Paper Link, setup m f d b');
   var content = $('r_content').innerHTML,
     service = $('r_success').innerHTML;
   a_proxy({service: service, content: content});
   noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1) {
   var ID = parse_id(page_body.innerText) || parse_id(page_body.innerHTML);
-  if (ID !== null) {
-    console.log('non-ncbi site, got ID ' + ID[1]);  
+  if (ID !== null && ID[1] !== '999999999') {
+    console.log('non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   } else {
-    console.log('non-ncbi site, no ID found');  
+    console.log('non-ncbi site, no ID found');
   }
   noRun = 1;
 }
@@ -121,11 +118,11 @@ function getPmid(zone, num) {
   }
 }
 
+var local_gif = chrome.extension.getURL('loadingLine.gif');
 function get_Json(pmids) {
   var i, div,
     need_insert = 1,
     url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
-    local_gif = chrome.extension.getURL('loadingLine.gif'),
     loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + local_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
@@ -168,7 +165,7 @@ function run() {
   }
   pmids = pmids.substr(1, pmids.length);
   pmidArray = pmids.split(',');
-  if (pmidArray.length === 1) {
+  if (pmidArray.length > 0) {
     a_proxy({sendID: pmidArray[0]});
   }
   if (pmids) {
@@ -367,7 +364,7 @@ chrome.extension.onRequest.addListener(
       } else {
         console.log('call for ' + k + ', not get ' + pmidArray.length);
         t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
-          request.uri + '/static/loadingLine.gif" width="16" height="11" alt="loading icon on the server" />';
+          + local_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
         a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
       }
