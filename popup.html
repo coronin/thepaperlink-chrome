@@ -137,6 +137,8 @@ function eFetch(pmid) {
       }
 
     });
+  }).error(function () {
+    $('<div/>').html('I am sorry. Nothing I can do about it now. :-(').appendTo('#result');
   });
 }
 
@@ -190,7 +192,9 @@ function eSummary(term) {
       $('#result').removeClass('Off');
     },
     'xml'
-  );
+  ).error(function () {
+    $('#result').html('I am very sorry, but I failed. Try later?');
+  });
 }
 
 function eSS(search_term) {
@@ -203,7 +207,9 @@ function eSS(search_term) {
       eSummary(WebEnv);
     },
     'xml'
-  );
+  ).error(function () {
+    $('#result').html('Sorry, I failed. Try later?');
+  });
 }
 
 function clearPopup() {

@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.3.7.2",
+  "version": "0.3.7.3",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "permissions": [
@@ -11,13 +11,7 @@
     "https://pubget-hrd.appspot.com/*",
     "https://pubmeder.appspot.com/*",
     "https://pubmeder-hrd.appspot.com/*",
-    "http://*.jp/*",
-    "http://*.info/*",
-    "http://*.gov/*",
-    "http://*.org/*",
-    "http://*.net/*",
-    "http://*.com/*",
-    "http://*.pl4.me/*"
+    "http://*/*"
   ],
   "icons": {
     "128": "128.png",
@@ -39,13 +33,7 @@
       "https://pubget-hrd.appspot.com/*",
       "https://pubmeder.appspot.com/*",
       "https://pubmeder-hrd.appspot.com/*",
-      "http://*.jp/*",
-      "http://*.info/*",
-      "http://*.gov/*",
-      "http://*.org/*",
-      "http://*.net/*",
-      "http://*.com/*",
-      "http://*.pl4.me/*"
+      "http://*/*"
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
