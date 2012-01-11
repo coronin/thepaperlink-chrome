@@ -118,6 +118,9 @@ function saveIt_pubmeder(pmid) {
       localStorage.setItem('id_history', pre_history);
       localStorage.setItem('id_found', '');
     }
+  }).error(function () {
+    var date = new Date();
+    localStorage.setItem('pubmed_' + pmid, date.getTime());
   });
 }
 
@@ -132,7 +135,9 @@ function eSearch(search_term, tabId) {
       }
     },
     'xml'
-  );
+  ).error(function () {
+    console.log('eSearch failed, do nothing');
+  });
 }
 
 function getBinary(file) {
@@ -248,8 +253,8 @@ function getRequest(request, sender, callback) {
     uri = 'http://0.pl4.me';
   }
   if (request.url) {
-    $.getJSON(uri + request.url + req_key, function (d) {
-      chrome.tabs.getSelected(sender.tab.windowId, function () {
+    chrome.tabs.getSelected(sender.tab.windowId, function () {
+      $.getJSON(uri + request.url + req_key, function (d) {
         if (d && (d.count || d.error)) { // good or bad, both got json return
           chrome.tabs.sendRequest(sender.tab.id,
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
@@ -259,6 +264,9 @@ function getRequest(request, sender, callback) {
           chrome.tabs.sendRequest(sender.tab.id,
             {except:1, tpl:apikey});
         }
+      }).error(function () {
+        chrome.tabs.sendRequest(sender.tab.id,
+          {except:1, tpl:apikey});
       });
     });
   } else if (request.save_apikey) {
@@ -310,7 +318,11 @@ function getRequest(request, sender, callback) {
           function (d) {
             console.log(d);
           }
-        );
+        ).error(function () {
+          console.log('email failed again, save for later');
+          var date = new Date();
+          localStorage.setItem('email_' + request.apikey + '_' + request.pmid, date.getTime());
+        });
     } }
   } else if (request.save_cloud_op) {
     console.log(request.save_cloud_op);
@@ -353,6 +365,18 @@ for (i = 0; i < localStorage.length; i += 1) {
       }
       localStorage.removeItem(aKey);
     }
+  } else if (aKey && aKey.substr(0,6) === 'email_') {
+    aVal = aKey.split('_');
+    $.post('http://www.thepaperlink.com',
+      {'pmid': aVal[2], 'apikey': aVal[1], 'action': 'email'},
+      function (d) {
+        localStorage.removeItem(aKey);
+      }
+    );
+  } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
+    aVal = aKey.split('_');
+    localStorage.removeItem(aKey);
+    saveIt_pubmeder(aVal[1]);
   }
 }
 if (old_id) {

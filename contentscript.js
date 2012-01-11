@@ -39,6 +39,18 @@ var noRun = 0,
   page_url = document.URL,
   page_body = document.body;
 
+function client_set() {
+  if (page_url.indexOf('thepaperlink.com') > -1
+    || page_url.indexOf('thepaperlink.net') > -1
+    || page_url.indexOf('0.pl4.me') > -1
+    || page_url.indexOf('thepaperlink.appspot.com') > -1
+    || page_url.indexOf('pubget-hrd.appspot.com') > -1 ) {
+    if ($('client_modify_it')) {
+      $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
+    }
+  }
+}
+
 if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.net/reg'
     || page_url === 'http://thepaperlink.appspot.com/reg'
@@ -50,6 +62,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     cloud_op = $('cloud_op').innerHTML;
   a_proxy({save_apikey: apikey, save_email: null});
   a_proxy({save_cloud_op: cloud_op});
+  client_set();
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
@@ -74,6 +87,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   } else {
     console.log('non-ncbi site, no ID found');
   }
+  client_set();
   noRun = 1;
 }
 
@@ -275,7 +289,7 @@ chrome.extension.onRequest.addListener(
       bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' + pmids + '\',\'' + request.save_key + '\',\'' + request.save_email + '\')">pubmeder&nbsp;all</span></div>';
     } else {
       bookmark_div += 'wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
-	}
+    }
     if (!$('css_loaded')) {
       S = document.createElement('style');
       S.type = 'text/css';

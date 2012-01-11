@@ -34,6 +34,7 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.3.7.3 - ajax error handle
  * v0.3.7.2 - better pubmeder support
  * v0.3.7.1 - support ezproxy prefix
  * v0.3.7 - automatically enable the reverse proxy; jQuery 1.7.1
