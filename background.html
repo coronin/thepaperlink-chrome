@@ -252,7 +252,9 @@ function getRequest(request, sender, callback) {
   if (rev_proxy === 'yes') {
     uri = 'http://0.pl4.me';
   }
-  if (request.url) {
+  if (request.loadExtraJs) {
+    chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:uri});
+  } else if (request.url) {
     chrome.tabs.getSelected(sender.tab.windowId, function () {
       $.getJSON(uri + request.url + req_key, function (d) {
         if (d && (d.count || d.error)) { // good or bad, both got json return
