@@ -99,7 +99,9 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     service = $('r_success').innerHTML;
   a_proxy({service: service, content: content});
   noRun = 1;
-} else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1) {
+} else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
+    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
+    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez/') === -1) {
   var ID = parse_id(page_body.innerText) || parse_id(page_body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
     console.log('non-ncbi site, got ID ' + ID[1]);
@@ -298,19 +300,19 @@ chrome.extension.onRequest.addListener(
       + '  text-decoration: none;'
       + '  cursor: pointer'
       + '}';
-    if (request.pubmeder) {
-      bookmark_div += '<span id="thepaperlink_saveAll onclick="saveIt_pubmeder(\'' +
-        pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
-        uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
-    } else {
-      bookmark_div += 'wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
-    }
     if (!$('css_loaded')) {
       S = page_d.createElement('style');
       S.type = 'text/css';
       S.appendChild(page_d.createTextNode(styles));
       page_body.appendChild(S);
       //GM_addStyle(styles);
+    }
+    if (request.pubmeder) {
+      bookmark_div += '<span id="thepaperlink_saveAll onclick="saveIt_pubmeder(\'' +
+        pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
+        uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
+    } else {
+      bookmark_div += 'Wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
     }
     if (old_title) {
       t('h2')[title_pos].innerHTML = old_title + bookmark_div;
