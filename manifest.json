@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.3.7.5",
+  "version": "0.3.7.6",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "permissions": [
@@ -37,6 +37,7 @@
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
+        "*://www.ncbi.nlm.nih.gov/sites/entrez/",
         "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
     ],
     "js": [ "contentscript.js" ],
