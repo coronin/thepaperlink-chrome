@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Liang Cai . All rights reserved.  Use of this
+ * Copyright (c) 2012 Liang Cai . All rights reserved.  Use of this
  * source code is governed by a BSD-style license that can be found in the
  * LICENSE file.
  *
@@ -12,6 +12,7 @@ var noRun = 0,
   page_url = page_d.URL,
   page_body = page_d.body,
   local_gif = chrome.extension.getURL('loadingLine.gif'),
+  clippy_file = chrome.extension.getURL('clippyIt.png'),
   pmids = '',
   pmidArray = [],
   old_title = '',
@@ -114,8 +115,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, t_cont, t_strings, t_test,
-    swf_file = 'http://9.pl4.me/clippy.swf'; // chrome.extension.getURL('clippy.swf'); // bug 58907
+    ID, b, t_cont, t_strings, t_test;
   //console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -139,7 +139,12 @@ function getPmid(zone, num) {
           t_cont += '. [' + t_test + ']\r\n';
         }
         b = page_d.createElement('div');
-        b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + t_cont + '" /></div>';
+        b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
+          + '<img title="copy to clipboard" src="' + clippy_file
+          + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
+        b.onclick = function () {
+          chrome.extension.sendRequest({t_cont: t_cont});
+        };
         t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
