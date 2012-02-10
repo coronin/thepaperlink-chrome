@@ -7,7 +7,11 @@
     <script type="text/javascript" src="jquery171.js"></script>
     <script type="text/javascript"><!--
 
-var current_tabId = null;
+var DEBUG = false,
+  current_tabId = null,
+  alldigi = /^\d+$/,
+  i, aKey, aVal, old_id = '', init_found = localStorage.getItem('id_found') || '';
+
 function openNewTab(winId, url) {
   if (winId) {
     chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
@@ -18,16 +22,15 @@ function openNewTab(winId, url) {
       current_tabId = tab.id;
     });
   }
-  console.log('a new tab for you, #' + current_tabId);
+  DEBUG && console.log('a new tab for you, #' + current_tabId);
 }
 
 function genericOnClick(info, tab) {
-  console.log('info: ' + JSON.stringify(info));
-  console.log('tab: ' + JSON.stringify(tab));
+  DEBUG && console.log('info: ' + JSON.stringify(info));
+  DEBUG && console.log('tab: ' + JSON.stringify(tab));
   openNewTab(tab.windowId, 'http://www.thepaperlink.com');
 }
 
-var alldigi = /^\d+$/;
 function selectOnClick(info, tab) {
   var url, new_tab = localStorage.getItem('new_tab');
   if ( alldigi.test(info.selectionText) ) {
@@ -37,7 +40,6 @@ function selectOnClick(info, tab) {
   }
   if (current_tabId && new_tab === 'no') {
     chrome.tabs.getAllInWindow(undefined, function (tabs) {
-      var i;
       for (i = 0; i < tabs.length; i += 1) {
         if (current_tabId === tabs[i].id) {
           chrome.tabs.update(current_tabId, {url: url, active: true});
@@ -104,7 +106,7 @@ function saveIt_pubmeder(pmid) {
               'pmid' : pmid},
     url = 'https://pubmeder-hrd.appspot.com/input?callback=?';
   if (args.apikey === null || args.email === null) {
-    console.log('no valid pubmeder credit');
+    DEBUG && console.log('no valid pubmeder credit');
     return;
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
@@ -136,7 +138,7 @@ function eSearch(search_term, tabId) {
     },
     'xml'
   ).error(function () {
-    console.log('eSearch failed, do nothing');
+    DEBUG && console.log('eSearch failed, do nothing');
   });
 }
 
@@ -165,15 +167,14 @@ function sendBinary(url, data, pmid) {
         'Content-Type: application/octet-stream\r\n\r\n',
       postTail = '\r\n--' + boundary + '--',
       tmp = '',
-      abView,
-      i;
+      abView;
     if (data instanceof ArrayBuffer) {
-      console.log('ArrayBuffer, need View, assume Uint8Array');
+      DEBUG && console.log('ArrayBuffer, need View, assume Uint8Array');
       abView = new Uint8Array(data);
       if (abView.length < 1000) {
         return null;
       }
-      console.log(abView.length);
+      DEBUG && console.log(abView.length);
       for (i = 0; i < abView.length; i += 1) {
         tmp += String.fromCharCode(abView[i] & 0xff);
       }
@@ -182,9 +183,9 @@ function sendBinary(url, data, pmid) {
       data = postHead + tmp + postTail;
     }
     if (typeof XMLHttpRequest.prototype.sendAsBinary === 'function') {
-      console.log('built-in support sendAsBinary');
+      DEBUG && console.log('built-in support sendAsBinary');
     } else {
-      console.log('define sendAsBinary');
+      DEBUG && console.log('define sendAsBinary');
       XMLHttpRequest.prototype.sendAsBinary = function (datastr) {
         function byteValue(x) {
           return x.charCodeAt(0) & 0xff;
@@ -205,7 +206,7 @@ function sendBinary(url, data, pmid) {
 
 function reLoadOp() {
   chrome.tabs.getAllInWindow(undefined, function (tabs) {
-    var i, tab, urlOp = chrome.extension.getURL('options.html');
+    var tab, urlOp = chrome.extension.getURL('options.html');
     for (i = 0; i < tabs.length; i += 1) {
       tab = tabs[i];
       if (tab.url && tab.url === urlOp) {
@@ -282,7 +283,7 @@ function getRequest(request, sender, callback) {
     }
     reLoadOp();
   } else if (request.service && request.content) {
-    console.log(request.service + ': ' + request.content);
+    DEBUG && console.log(request.service + ': ' + request.content);
     if (request.content.indexOf('error') < 0) {
       localStorage.setItem(request.service + '_status', 'success');
     } else {
@@ -293,7 +294,7 @@ function getRequest(request, sender, callback) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender.tab.id);
     } else {
-      console.log('do nothing to ' + request.sendID);
+      DEBUG && console.log('do nothing to ' + request.sendID);
     }
     localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
     if ( alldigi.test(request.sendID) ) {
@@ -305,29 +306,31 @@ function getRequest(request, sender, callback) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
       menu_generator();
       // just generated context menu
-    } else { console.log('no need to update context menu'); }
+    } else {
+      DEBUG && console.log('no need to update context menu');
+    }
   } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
-    console.log(request.pdf);
+    DEBUG && console.log(request.pdf);
     var pdf_data = getBinary(request.pdf), msg;
-    console.log('ajax download ' + pdf_data + ', now uploading');
+    DEBUG && console.log('ajax download ' + pdf_data + ', now uploading');
     msg = sendBinary(request.upload_url, pdf_data, request.pmid);
-    console.log('response from server (if any) : ' + msg);
+    DEBUG && console.log('response from server (if any) : ' + msg);
     if (msg === null) {
-      console.log('email_pdf failed, just email the abstract');
+      DEBUG && console.log('email_pdf failed, just email the abstract');
       if (!request.no_email) {
         $.post(uri + '/',
           {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
           function (d) {
-            console.log(d);
+            DEBUG && console.log(d);
           }
         ).error(function () {
-          console.log('email failed again, save for later');
+          DEBUG && console.log('email failed again, save for later');
           var date = new Date();
           localStorage.setItem('email_' + request.apikey + '_' + request.pmid, date.getTime());
         });
     } }
   } else if (request.save_cloud_op) {
-    console.log(request.save_cloud_op);
+    DEBUG && console.log(request.save_cloud_op);
     if (request.save_cloud_op.indexOf('mendeley') > -1) {
       localStorage.setItem('mendeley_status', 'success');
     }
@@ -340,8 +343,16 @@ function getRequest(request, sender, callback) {
     if (request.save_cloud_op.indexOf('douban') > -1) {
       localStorage.setItem('douban_status', 'success');
     }
+  } else if (request.t_cont) {
+    var holder = document.getElementById('clippy_t');
+    holder.style.display = 'block';
+    holder.value = request.t_cont;
+    holder.select();
+    document.execCommand('Copy');
+    holder.style.display = 'none';
+    DEBUG && console.log(request.t_cont);
   } else {
-    console.log(request);
+    DEBUG && console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
@@ -350,13 +361,12 @@ $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
   dataType: 'text',
   timeout: 4000,
-  success: function() { console.log('Hi, you can access our secured server directly.'); },
+  success: function() { DEBUG && console.log('Hi, you can access our secured server directly.'); },
   error: function() {
-    console.log('error? force rev_proxy');
+    DEBUG && console.log('error? force rev_proxy');
     localStorage.setItem('rev_proxy', 'yes'); }
 });
 
-var i, aKey, aVal, old_id = '', init_found = localStorage.getItem('id_found') || '';
 for (i = 0; i < localStorage.length; i += 1) {
   aKey = localStorage.key(i);
   if (aKey && aKey.substr(0,6) === 'tabId:') {
@@ -387,5 +397,5 @@ if (old_id) {
     //-->
     </script>
   </head>
-  <body> <textarea id="clippy_t" /> </body>
+  <body> <textarea id="clippy_t" style="display:none"></textarea> </body>
 </html>

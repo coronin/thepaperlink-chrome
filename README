@@ -34,6 +34,7 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.3.8 - clipboardWrite without Flash
  * v0.3.7.5 - bug fix
  * v0.3.7.4 - safer innerHTML
  * v0.3.7.3 - ajax error handle
