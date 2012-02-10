@@ -1,11 +1,13 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.3.7.6",
+  "version": "0.3.8",
+  "minimum_chrome_version": "13",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "permissions": [
     "contextMenus",
     "tabs",
+    "clipboardWrite",
     "https://www.ncbi.nlm.nih.gov/*",
     "https://thepaperlink.appspot.com/*",
     "https://pubget-hrd.appspot.com/*",

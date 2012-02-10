@@ -38,7 +38,7 @@ function $(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(data) {
-  console.log('sendRequest to background.html');
+  //console.log('sendRequest to background.html');
   chrome.extension.sendRequest(data);
 }
 
@@ -101,13 +101,11 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
-    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez/') === -1) {
+    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
   var ID = parse_id(page_body.innerText) || parse_id(page_body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    console.log('non-ncbi site, got ID ' + ID[1]);
+    //console.log('non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
-  } else {
-    console.log('non-ncbi site, no ID found');
   }
   client_set();
   noRun = 1;
@@ -116,7 +114,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, content, tmp, temp,
+    ID, b, t_cont, t_strings, t_test,
     swf_file = 'http://9.pl4.me/clippy.swf'; // chrome.extension.getURL('clippy.swf'); // bug 58907
   //console.log(a);
   if (regpmid.test(a)) {
@@ -128,18 +126,20 @@ function getPmid(zone, num) {
         t(zone)[num - 2].setAttribute('id', ID[1]);
       }
       if (t(zone)[num].className === 'rprt') {
+        t_cont = t(zone)[num + 2].innerText;
+        t_strings = t_cont.split(' [PubMed - ')[0].split('.');
+        t_cont = trim( t_strings[0] ) +
+          '.\r\n' + trim( t_strings[1] ) +
+          '.\r\n' + trim( t_strings[2] ) +
+          '. ' + trim( t_strings[3] );
+        t_test = trim( t_strings[t_strings.length - 1] );
+        if (t_test.indexOf('[Epub ahead of print]') > -1) {
+          t_cont += '. [' + trim( t_test.substr(21) ) + ']\r\n';
+        } else {
+          t_cont += '. [' + t_test + ']\r\n';
+        }
         b = page_d.createElement('div');
-        content = t(zone)[num + 2].innerText;
-        tmp = content.split(' [PubMed - ')[0].split('.');
-        content = trim(tmp[0]) +
-          '.\r\n' + trim(tmp[1]) +
-          '.\r\n' + trim(tmp[2]) +
-          '. ' + trim(tmp[3]);
-        temp = trim(tmp[tmp.length - 1]);
-        if (temp.indexOf('[Epub ahead of print]') > -1) {
-          content += '. [' + temp.substr(22) + ']\r\n';
-        } else { content += '. [' + temp + ']\r\n'; }
-        b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + content + '" /></div>';
+        b.innerHTML = '<div style="float:right;z-index:1"><embed src="' + swf_file + '" wmode="transparent" width="110" height="14" quality="high" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" FlashVars="text=' + t_cont + '" /></div>';
         t(zone)[num + 3].appendChild(b);
       }
       pmids += ',' + ID[1];
@@ -256,7 +256,7 @@ chrome.extension.onRequest.addListener(
       return;
     } else if (request.js_key && request.js_base) {
       if (window.location.protocol !== 'https:') {
-        console.log('starting the js client');
+        //console.log('starting the js client');
         localStorage.setItem('thePaperLink_pubget_js_key', request.js_key);
         localStorage.setItem('thePaperLink_pubget_js_base', request.js_base);
         if (!$('__tr_display')) {
@@ -395,11 +395,11 @@ chrome.extension.onRequest.addListener(
         }
       }
     }
-    if (pmidArray.length > 0) {
+    if (pmidArray.length > 0 && onePage_calls < 10) {
       if (pmidArray.length === k) {
-        console.log('getting nothing, failed on ' + k);
+        console.log('Got nothing; stopped. ' + k);
       } else {
-        console.log('call for ' + k + ', not get ' + pmidArray.length);
+        //console.log('call for ' + k + ', not get ' + pmidArray.length);
         t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           local_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
