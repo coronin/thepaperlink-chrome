@@ -7,10 +7,35 @@
     <script type="text/javascript" src="jquery171.js"></script>
     <script type="text/javascript"><!--
 
-var DEBUG = false,
+var DEBUG = true,
+  i, aKey, aVal,
   current_tabId = null,
   alldigi = /^\d+$/,
-  i, aKey, aVal, old_id = '', init_found = localStorage.getItem('id_found') || '';
+  old_id = '',
+  dd = document,
+  init_found = localStorage.getItem('id_found') || '',
+  apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
+  pubmeder_ok = 0;
+
+function load_common_values() {
+  apikey = localStorage.getItem('thepaperlink_apikey') || null;
+  req_key = apikey;
+  rev_proxy = localStorage.getItem('rev_proxy');
+  base = 'https://pubget-hrd.appspot.com';
+  pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
+  pubmeder_email = localStorage.getItem('pubmeder_email') || null;
+  if (req_key === null) {
+    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
+    //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
+  }
+  if (rev_proxy === 'yes') {
+    base = 'http://0.pl4.me';
+  }
+  if (pubmeder_apikey !== null && pubmeder_email !== null) {
+    pubmeder_ok = 1;
+  }
+}
+load_common_values();
 
 function openNewTab(winId, url) {
   if (winId) {
@@ -54,17 +79,8 @@ function selectOnClick(info, tab) {
 }
 
 function callJsOnClick(info, tab) {
-  var base = 'https://pubget-hrd.appspot.com/',
-    req_key = localStorage.getItem('thepaperlink_apikey') || null,
-    rev_proxy = localStorage.getItem('rev_proxy');
-  if (rev_proxy === 'yes') {
-    base = 'http://0.pl4.me/';
-  }
-  if (req_key === null) {
-    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
-  }
   chrome.tabs.getSelected(tab.windowId, function () {
-    chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base});
+    chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base + '/'});
   });
 }
 
@@ -101,15 +117,15 @@ function save_visited_ID(new_id) {
 }
 
 function saveIt_pubmeder(pmid) {
-  var args = {'apikey' : localStorage.getItem('pubmeder_apikey') || null,
-              'email' : localStorage.getItem('pubmeder_email') || null,
-              'pmid' : pmid},
-    url = 'https://pubmeder-hrd.appspot.com/input?callback=?';
-  if (args.apikey === null || args.email === null) {
+  if (pubmeder_ok === 0) {
     DEBUG && console.log('no valid pubmeder credit');
     return;
   }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  var args = {'apikey' : pubmeder_apikey,
+              'email' : pubmeder_email,
+              'pmid' : pmid},
+    url = 'https://pubmeder-hrd.appspot.com/input?callback=?';
+  if (rev_proxy === 'yes') {
     url = 'http://1.pl4.me/input?callback=?';
   }
   $.getJSON(url, args, function (d) {
@@ -218,22 +234,12 @@ function reLoadOp() {
 }
 
 function getRequest(request, sender, callback) {
-  var pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null,
-    pubmeder_email = localStorage.getItem('pubmeder_email') || null,
-    pubmeder_ok = 0,
-    m_status = localStorage.getItem('mendeley_status'),
+  var m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
     b_status = localStorage.getItem('douban_status'),
     cloud_op = '',
-    apikey = localStorage.getItem('thepaperlink_apikey') || null,
-    req_key = apikey,
-    rev_proxy = localStorage.getItem('rev_proxy'),
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '',
-    uri = 'https://pubget-hrd.appspot.com';
-  if ((pubmeder_apikey !== null) && (pubmeder_email !== null)) {
-    pubmeder_ok = 1;
-  }
+    ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   if (m_status && m_status === 'success') {
     cloud_op += 'm';
   }
@@ -246,22 +252,15 @@ function getRequest(request, sender, callback) {
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
   }
-  if (req_key === null) {
-    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
-    //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
-  }
-  if (rev_proxy === 'yes') {
-    uri = 'http://0.pl4.me';
-  }
   if (request.loadExtraJs) {
-    chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:uri});
+    chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
   } else if (request.url) {
     chrome.tabs.getSelected(sender.tab.windowId, function () {
-      $.getJSON(uri + request.url + req_key, function (d) {
+      $.getJSON(base + request.url + req_key, function (d) {
         if (d && (d.count || d.error)) { // good or bad, both got json return
           chrome.tabs.sendRequest(sender.tab.id,
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-              cloud_op:cloud_op, uri:uri, p:ezproxy_prefix}
+              cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
           );
         } else {
           chrome.tabs.sendRequest(sender.tab.id,
@@ -277,9 +276,14 @@ function getRequest(request, sender, callback) {
       localStorage.setItem('pubmeder_apikey', request.save_apikey);
       localStorage.setItem('pubmeder_email', request.save_email);
       localStorage.setItem('b_apikey_gold', 1);
+      pubmeder_apikey = request.save_apikey;
+      pubmeder_email = request.save_email;
+      pubmeder_ok = 1;
     } else {
       localStorage.setItem('thepaperlink_apikey', request.save_apikey);
       localStorage.setItem('a_apikey_gold', 1);
+      apikey = request.save_apikey;
+      req_key = apikey;
     }
     reLoadOp();
   } else if (request.service && request.content) {
@@ -318,7 +322,7 @@ function getRequest(request, sender, callback) {
     if (msg === null) {
       DEBUG && console.log('email_pdf failed, just email the abstract');
       if (!request.no_email) {
-        $.post(uri + '/',
+        $.post(base + '/',
           {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
           function (d) {
             DEBUG && console.log(d);
@@ -344,18 +348,22 @@ function getRequest(request, sender, callback) {
       localStorage.setItem('douban_status', 'success');
     }
   } else if (request.t_cont) {
-    var holder = document.getElementById('clippy_t');
+    var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
     holder.value = request.t_cont;
     holder.select();
-    document.execCommand('Copy');
+    dd.execCommand('Copy');
     holder.style.display = 'none';
     DEBUG && console.log(request.t_cont);
+  } else if (request.load_common_values) {
+    load_common_values();
+    DEBUG && console.log('load_common_values after saveOptions');
   } else {
     DEBUG && console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
+
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
@@ -364,7 +372,10 @@ $.ajax({
   success: function() { DEBUG && console.log('Hi, you can access our secured server directly.'); },
   error: function() {
     DEBUG && console.log('error? force rev_proxy');
-    localStorage.setItem('rev_proxy', 'yes'); }
+    localStorage.setItem('rev_proxy', 'yes');
+    rev_proxy = 'yes';
+    base = 'http://0.pl4.me';
+  }
 });
 
 for (i = 0; i < localStorage.length; i += 1) {
@@ -393,6 +404,42 @@ for (i = 0; i < localStorage.length; i += 1) {
 }
 if (old_id) {
   localStorage.setItem('id_found', init_found + ' ' + old_id);
+}
+
+
+var channel_token, goog_load_try = 10;
+function load_goog_channel() {
+  if (typeof goog === 'undefined' && goog_load_try > 0) {
+    goog_load_try -= 1;
+    setTimeout(load_goog_channel, 1000);
+    return;
+  }
+  var channel = new goog.appengine.Channel(channel_token),
+    socket = channel.open();
+  //socket.onopen = onOpened;
+  socket.onmessage = function (m) {
+    DEBUG && console.log(m);
+  };
+  //socket.onerror = onError;
+  //socket.onclose = onClose;
+}
+if (localStorage.getItem('ajax_citedBy') === 'yes' && apikey) {
+  $.post(base + '/mesh/create',
+    {'apikey': apikey},
+    function (d) {
+      DEBUG && console.log(d);
+      channel_token = d;
+      try {
+        var ah = dd.createElement('script');
+        ah.setAttribute('type', 'text/javascript');
+        ah.setAttribute('src', base + '/_ah/channel/jsapi');
+        dd.body.appendChild(ah);
+        load_goog_channel();
+      } catch (err) {
+        DEBUG && console.log('this is bleeding: ' + err);
+      }
+    }
+  );
 }
     //-->
     </script>

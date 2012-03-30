@@ -18,7 +18,7 @@ This extension is built using API from http://www.pubmeder.com, http://www.thepa
 
 
 For Firefox, please use the following:
- + v1.0.1 from https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/
+ + from https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/
 
 For Safari, please use the following:
  + http://www.thepaperlink.com/static/thepaperlink.safariextz
@@ -34,6 +34,7 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.3.9 - "cited by" data from Scopus and Google Scholar
  * v0.3.8 - clipboardWrite without Flash
  * v0.3.7.5 - bug fix
  * v0.3.7.4 - safer innerHTML
