@@ -430,8 +430,10 @@ function scholar_title(pmid, t) {
               DEBUG && console.log(d);
             }
           );
+          return;
         }
       }
+      chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: '0', g_link: '0'});
     },
     'html'
   );
