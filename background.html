@@ -7,9 +7,10 @@
     <script type="text/javascript" src="jquery172.js"></script>
     <script type="text/javascript"><!--
 
-var DEBUG = true,
+var DEBUG = false,
   i, aKey, aVal,
-  current_tabId = null,
+  new_tabId = null,
+  the_tabId = null,
   alldigi = /^\d+$/,
   old_id = '',
   dd = document,
@@ -40,14 +41,14 @@ load_common_values();
 function openNewTab(winId, url) {
   if (winId) {
     chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
-      current_tabId = tab.id;
+      new_tabId = tab.id;
     });
   } else {
     chrome.tabs.create({url: url, active: true}, function (tab) {
-      current_tabId = tab.id;
+      new_tabId = tab.id;
     });
   }
-  DEBUG && console.log('a new tab for you, #' + current_tabId);
+  DEBUG && console.log('a new tab for you, #' + new_tabId);
 }
 
 function genericOnClick(info, tab) {
@@ -63,11 +64,11 @@ function selectOnClick(info, tab) {
   } else {
     url = 'http://www.thepaperlink.com/?q=' + info.selectionText;
   }
-  if (current_tabId && new_tab === 'no') {
-    chrome.tabs.getAllInWindow(undefined, function (tabs) {
+  if (new_tabId && new_tab === 'no') {
+    chrome.tabs.query({'windowId': tab.windowID}, function (tabs) {
       for (i = 0; i < tabs.length; i += 1) {
-        if (current_tabId === tabs[i].id) {
-          chrome.tabs.update(current_tabId, {url: url, active: true});
+        if (new_tabId === tabs[i].id) {
+          chrome.tabs.update(new_tabId, {url: url, active: true});
           return;
         }
       }
@@ -79,9 +80,7 @@ function selectOnClick(info, tab) {
 }
 
 function callJsOnClick(info, tab) {
-  chrome.tabs.getSelected(tab.windowId, function () {
-    chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base + '/'});
-  });
+  chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base + '/'});
 }
 
 function menu_generator() {
@@ -221,15 +220,12 @@ function sendBinary(url, data, pmid) {
 }
 
 function reLoadOp() {
-  chrome.tabs.getAllInWindow(undefined, function (tabs) {
-    var tab, urlOp = chrome.extension.getURL('options.html');
-    for (i = 0; i < tabs.length; i += 1) {
-      tab = tabs[i];
-      if (tab.url && tab.url === urlOp) {
-        chrome.tabs.update(tab.id, {url: urlOp, active: true});
-        return;
-      }
+  var urlOp = chrome.extension.getURL('options.html');
+  chrome.tabs.query({'url': urlOp}, function (tabs) {
+    for (i = 1; i < tabs.length; i += 1) {
+      chrome.tabs.update(tabs[i].id, {url: urlOp, active: false});
     }
+    chrome.tabs.update(tabs[0].id, {url: urlOp, active: true});
   });
 }
 
@@ -255,21 +251,19 @@ function getRequest(request, sender, callback) {
   if (request.loadExtraJs) {
     chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
   } else if (request.url) {
-    chrome.tabs.getSelected(sender.tab.windowId, function () {
-      $.getJSON(base + request.url + req_key, function (d) {
-        if (d && (d.count || d.error)) { // good or bad, both got json return
-          chrome.tabs.sendRequest(sender.tab.id,
-            {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-              cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
-          );
-        } else {
-          chrome.tabs.sendRequest(sender.tab.id,
-            {except:1, tpl:apikey});
-        }
-      }).error(function () {
+    $.getJSON(base + request.url + req_key, function (d) {
+      if (d && (d.count || d.error)) { // good or bad, both got json return
+        chrome.tabs.sendRequest(sender.tab.id,
+          {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
+            cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
+        );
+      } else {
         chrome.tabs.sendRequest(sender.tab.id,
           {except:1, tpl:apikey});
-      });
+      }
+    }).error(function () {
+      chrome.tabs.sendRequest(sender.tab.id,
+        {except:1, tpl:apikey});
     });
   } else if (request.save_apikey) {
     if (request.save_email) {
@@ -357,13 +351,15 @@ function getRequest(request, sender, callback) {
     DEBUG && console.log(request.t_cont);
   } else if (request.load_common_values) {
     load_common_values();
-    DEBUG && console.log('load_common_values after saveOptions');
   } else {
     DEBUG && console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
 
+chrome.tabs.onHighlighted.addListener(function (info) {
+  the_tabId = info.tabIds[0];
+});
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
@@ -412,18 +408,24 @@ var load_try = 10, channel_token;
 function scholar_title(pmid, t) {
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
     + encodeURIComponent('"' + t + '"');
+  if (the_tabId) {
+    chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: '1', g_link: '1'});
+  }
   $.get(url,
     function (r) {
       var reg = /<a[^<]+>Cited by \d+<\/a>/,
         h = reg.exec(r),
-        a_num = [], a_link = [];
+        g_num = [], g_link = [];
       if (h && h.length) {
         DEBUG && console.log(h);
-        a_num = />Cited by (\d+)</.exec(h[0]);
-        a_link = /href="([^"]+)"/.exec(h[0]);
-        if (a_num.length === 2 && a_link.length === 2) {
+        g_num = />Cited by (\d+)</.exec(h[0]);
+        g_link = /href="([^"]+)"/.exec(h[0]);
+        if (g_num.length === 2 && g_link.length === 2) {
+          if (the_tabId) {
+            chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
+          }
           $.post(base + '/',
-            {'apikey': apikey, 'pmid': pmid, 'a_num': a_num[1], 'a_link': a_link[1]},
+            {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
             function (d) {
               DEBUG && console.log(d);
             }
