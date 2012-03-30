@@ -273,6 +273,10 @@ chrome.extension.onRequest.addListener(
       } else { alert('this is a secure page, js client not working yet'); }
       sendResponse({});
       return;
+    } else if (request.pmid && request.cited_by) {
+      $('citedBy' + request.pmid).innerHTML = request.cited_by;
+      sendResponse({});
+      return;
     }
     r = request.r;
     if (r.error) {
