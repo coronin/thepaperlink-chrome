@@ -61,17 +61,19 @@
   <h3>Other Settings</h3>
 
   <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
-  <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
-  </p>
+    <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
+    </p>
   <p><input type="checkbox" id="new_tab" /> You could check here to <b>always open a new tab</b> when searching selected text,
-  <br/>rather than refresh the existing search tab.
-  </p>
+    <br/>rather than refresh the existing search tab.
+    </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
-  </p>
+    </p>
+  <p><input type="checkbox" id="ajax_citedBy" /> <b>Enable</b> the bleeding cool feature - display "cited by" count on the fly.
+    </p>
   <p id="rev_proxy_content"></p>
   <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
-  <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
-  </p>
+    <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
+    </p>
 
   <div style="background:#f0fff0;position:fixed;right:50px;top:50px;padding:20px"><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></div>
 
@@ -148,6 +150,9 @@ $(document).ready(function () {
   if (localStorage.getItem('contextMenu_shown') === 'no') {
     $('#contextMenu_shown').prop('checked', true);
   }
+  if (localStorage.getItem('ajax_citedBy') === 'yes') {
+    $('#ajax_citedBy').prop('checked', true);
+  }
   $('input').on('change', function () {
     $('#saveBtn').removeClass('Off');
     $('#saveBtn').parent().css('background', '#fff0f0');
@@ -205,6 +210,7 @@ function saveOptions() {
     co_pubmed = $('#co_pubmed').prop('checked'),
     new_tab = $('#new_tab').prop('checked'),
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
+    ajax_citedBy = $('#ajax_citedBy').prop('checked'),
     ezproxy_prefix = $('#ezproxy_login').val(),
     req_a = null,
     req_b = null;
@@ -233,6 +239,11 @@ function saveOptions() {
       localStorage.setItem('contextMenu_on', 1);
       chrome.extension.sendRequest({menu_display: 1});
     }
+  }
+  if (ajax_citedBy) {
+    localStorage.setItem('ajax_citedBy', 'yes');
+  } else {
+    localStorage.setItem('ajax_citedBy', 'no');
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
@@ -293,6 +304,8 @@ function saveOptions() {
   } else {
     location.reload();
   }
+
+  chrome.extension.sendRequest({load_common_values: 1});
 }
 //-->
 </script>
