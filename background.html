@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>background for PubMed-er</title>
-    <script type="text/javascript" src="jquery171.js"></script>
+    <script type="text/javascript" src="jquery172.js"></script>
     <script type="text/javascript"><!--
 
 var DEBUG = true,
@@ -407,10 +407,37 @@ if (old_id) {
 }
 
 
-var channel_token, goog_load_try = 10;
+var load_try = 10, channel_token;
+
+function scholar_title(pmid, t) {
+  var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
+    + encodeURIComponent('"' + t + '"');
+  $.get(url,
+    function (r) {
+      var reg = /<a[^<]+>Cited by \d+<\/a>/,
+        h = reg.exec(r),
+        a_num = [], a_link = [];
+      if (h && h.length) {
+        DEBUG && console.log(h);
+        a_num = />Cited by (\d+)</.exec(h[0]);
+        a_link = /href="([^"]+)"/.exec(h[0]);
+        if (a_num.length === 2 && a_link.length === 2) {
+          $.post(base + '/',
+            {'apikey': apikey, 'pmid': pmid, 'a_num': a_num[1], 'a_link': a_link[1]},
+            function (d) {
+              DEBUG && console.log(d);
+            }
+          );
+        }
+      }
+    },
+    'html'
+  );
+}
+
 function load_goog_channel() {
-  if (typeof goog === 'undefined' && goog_load_try > 0) {
-    goog_load_try -= 1;
+  if (typeof goog === 'undefined' && load_try > 0) {
+    load_try -= 1;
     setTimeout(load_goog_channel, 1000);
     return;
   }
@@ -418,29 +445,64 @@ function load_goog_channel() {
     socket = channel.open();
   //socket.onopen = onOpened;
   socket.onmessage = function (m) {
-    DEBUG && console.log(m);
+    var d = JSON.parse(m.data);
+    DEBUG && console.log(d);
+    if (d.action === 'title') {
+      scholar_title( d.pmid, d.title );
+    }
   };
   //socket.onerror = onError;
   //socket.onclose = onClose;
 }
-if (localStorage.getItem('ajax_citedBy') === 'yes' && apikey) {
-  $.post(base + '/mesh/create',
-    {'apikey': apikey},
-    function (d) {
-      DEBUG && console.log(d);
-      channel_token = d;
-      try {
-        var ah = dd.createElement('script');
-        ah.setAttribute('type', 'text/javascript');
-        ah.setAttribute('src', base + '/_ah/channel/jsapi');
-        dd.body.appendChild(ah);
-        load_goog_channel();
-      } catch (err) {
-        DEBUG && console.log('this is bleeding: ' + err);
-      }
+
+function load_pusher() {
+  if (typeof Pusher === 'undefined' && load_try > 0) {
+    load_try -= 1;
+    setTimeout(load_pusher, 1000);
+    return;
+  }
+  var pusher = new Pusher('0ba83dd56d3312cc67c7'),
+    myChannel = pusher.subscribe('server');
+  myChannel.bind('broadcast', function (m) {
+    DEBUG && console.log(m);
+    var d = JSON.parse(m.msg);
+    DEBUG && console.log(d);
+    if (d.action === 'title') {
+      scholar_title( d.pmid, d.title );
     }
-  );
+  });
 }
+
+$(document).ready(function () {
+  if (localStorage.getItem('ajax_citedBy') === 'yes' && apikey) {
+    $.post(base + '/mesh/create',
+      {'apikey': apikey},
+      function (d) {
+        DEBUG && console.log(d);
+        channel_token = d;
+        try {
+          var ah = dd.createElement('script');
+          ah.setAttribute('type', 'text/javascript');
+          ah.setAttribute('src', base + '/_ah/channel/jsapi');
+          dd.body.appendChild(ah);
+          load_goog_channel();
+        } catch (err) {
+          DEBUG && console.log('goog_channel is bleeding: ' + err);
+        }
+      }
+    );
+  } else {
+    try {
+      var p = dd.createElement('script');
+      p.setAttribute('type', 'text/javascript');
+      p.setAttribute('src', 'https://d3dy5gmtp8yhk7.cloudfront.net/1.11/pusher.min.js');
+      dd.body.appendChild(p);
+      load_pusher();
+    } catch (err) {
+      DEBUG && console.log('pusher is bleeding: ' + err);
+    }
+  }
+});
     //-->
     </script>
   </head>
