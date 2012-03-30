@@ -60,18 +60,6 @@ function parse_id(a) { // pubmeder code
   return ID;
 }
 
-function client_set() {
-  if (page_url.indexOf('thepaperlink.com') > -1
-    || page_url.indexOf('thepaperlink.net') > -1
-    || page_url.indexOf('0.pl4.me') > -1
-    || page_url.indexOf('thepaperlink.appspot.com') > -1
-    || page_url.indexOf('pubget-hrd.appspot.com') > -1 ) {
-    if ($('client_modify_it')) {
-      $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
-    }
-  }
-}
-
 if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.net/reg'
     || page_url === 'http://thepaperlink.appspot.com/reg'
@@ -83,7 +71,9 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     cloud_op = $('cloud_op').innerHTML;
   a_proxy({save_apikey: apikey, save_email: null});
   a_proxy({save_cloud_op: cloud_op});
-  client_set();
+  if ($('client_modify_it')) {
+    $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
+  }
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
@@ -108,7 +98,6 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     //console.log('non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   }
-  client_set();
   noRun = 1;
 }
 
@@ -273,8 +262,14 @@ chrome.extension.onRequest.addListener(
       } else { alert('this is a secure page, js client not working yet'); }
       sendResponse({});
       return;
-    } else if (request.pmid && request.cited_by) {
-      $('citedBy' + request.pmid).innerHTML = request.cited_by;
+    } else if (request.pmid && request.g_num && request.g_link) {
+      if (request.g_num === '1' && request.g_link === '1') {
+        $('citedBy' + request.pmid).innerText = 'trying...';
+      } else if (request.g_num && request.g_link) {
+        $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
+          + uneval_trim(request.g_link) + '">' + uneval_trim(request.g_num)
+          + ' times (in Google Scholar)</a>';
+      }
       sendResponse({});
       return;
     }
