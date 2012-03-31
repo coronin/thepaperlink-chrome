@@ -68,7 +68,8 @@
     </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input type="checkbox" id="ajax_citedBy" /> <b>Enable</b> the bleeding feature - display "cited by" count <span style="color:red">(require a restart of the browser)</span>
+  <p><input type="checkbox" id="ajax_citedBy" /> <b>Enable</b> the bleeding feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
+    <br/><span style="color:red">(require a restart of the browser)</span>
     </p>
   <p id="rev_proxy_content"></p>
   <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
@@ -171,6 +172,7 @@ function rest_key(v) {
       localStorage.removeItem('b_apikey_gold');
     }
     location.reload();
+    chrome.extension.sendRequest({load_common_values: 1});
   }
 }
 

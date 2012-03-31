@@ -94,7 +94,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
-  var ID = parse_id(page_body.innerText) || parse_id(page_body.innerHTML);
+  var ID = parse_id(page_body.textContent) || parse_id(page_body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
     DEBUG && console.log('non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
@@ -105,7 +105,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, t_cont, t_strings, t_test;
+    ID, b, c, t_cont, t_strings, t_test, t_title;
   DEBUG && console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -116,28 +116,43 @@ function getPmid(zone, num) {
         t(zone)[num - 2].setAttribute('id', ID[1]);
       }
       if (t(zone)[num].className === 'rprt') {
-        t_cont = t(zone)[num + 2].innerText;
+        t_cont = t(zone)[num + 2].textContent;
         t_strings = t_cont.split(' [PubMed - ')[0].split('.');
-        t_cont = trim( t_strings[0] ) +
+        t_title = trim( t_strings[0] );
+        t_cont = t_title +
           '.\r\n' + trim( t_strings[1] ) +
           '.\r\n' + trim( t_strings[2] ) +
-          '. ' + trim( t_strings[3] );
-        t_test = trim( t_strings[t_strings.length - 1] );
-        if (t_test.indexOf('[Epub ahead of print]') > -1) {
-          t_cont += '. [' + trim( t_test.substr(21) ) + ']\r\n';
-        } else {
-          t_cont += '. [' + t_test + ']\r\n';
-        }
-        b = page_d.createElement('div');
-        b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
-          + '<img title="copy to clipboard" src="' + clippy_file
-          + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
-        b.onclick = function () {
-          chrome.extension.sendRequest({t_cont: t_cont});
-        };
+          '. ' + trim( t_strings[3] ) +
+          '. [' + ID[1] + ']\r\n';
+      } else{
+        t_strings = a.split('.');
+        t_title = trim( t_strings[2] );
+        t_cont = t_title +
+          '.\r\n' + trim( t_strings[3] ) +
+          '.\r\n' + trim( t_strings[0] ) +
+          '. ' + trim( t_strings[1] ) +
+          '. [' + ID[1] + ']\r\n';
+      }
+      DEBUG && console.log(t_cont);
+      b = page_d.createElement('div');
+      b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
+        + '<img title="copy to clipboard" src="' + clippy_file
+        + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
+      b.onclick = function () {
+        chrome.extension.sendRequest({t_cont: t_cont});
+      };
+      c = page_d.createElement('span');
+      c.style.cssText = 'border-left:3px #cccccc solid;padding-left:3px;font-size:10px;';
+      c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '"></span>';
+      if (t(zone)[num].className === 'rprt') {
         t(zone)[num + 3].appendChild(b);
+        t(zone)[num + 4].appendChild(c);
+      } else { // display with abstract
+        t(zone)[num + 1].appendChild(b);
+        t(zone)[num + 5].appendChild(c);
       }
       pmids += ',' + ID[1];
+      a_proxy({a_pmid: ID[1], a_title: t_title});
     }
   }
 }
@@ -177,7 +192,7 @@ function run() {
     DEBUG && console.log(err);
   }
   for (i = 0; i < t('div').length; i += 1) {
-    if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') { //  && t('div')[i].className !== 'abstract'
+    if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') {
       getPmid('div', i);
     } else if (!search_term && t('div')[i].className === 'print_term') {
       z = t('div')[i].textContent;
@@ -201,10 +216,10 @@ if (!noRun) {
   run();
 }
 
-function alert_dev(apikey) {
-  if (apikey && apikey !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
+function alert_dev(req_key) {
+  if (req_key && req_key !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
    var oXHR = new XMLHttpRequest();
-   oXHR.open('POST', 'http://0.pl4.me/?action=alert_dev&pmid=1&apikey=' + apikey, true);
+   oXHR.open('POST', 'http://0.pl4.me/?action=alert_dev&pmid=1&apikey=' + req_key, true);
    oXHR.onreadystatechange = function (oEvent) {
      if (oXHR.readyState === 4) {
        if (oXHR.status === 200) {
@@ -222,6 +237,7 @@ function alert_dev(apikey) {
 
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
+    DEBUG && console.log(request);
     var r, p, pmid, div, div_html, i, j, k, S, styles, peaks,
       bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ';
     if (request.js_base_uri) {
@@ -246,7 +262,9 @@ chrome.extension.onRequest.addListener(
         '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">the Paper Link</a>' +
         '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
-      t('h2')[title_pos].onclick = alert_dev(uneval(request.tpl), title_pos);
+      t('h2')[title_pos].onclick = function () {
+        alert_dev( uneval_trim(request.tpl) );
+      };
       sendResponse({});
       return;
     } else if (request.js_key && request.js_base) {
@@ -268,21 +286,11 @@ chrome.extension.onRequest.addListener(
         if (request.g_num === '1' && request.g_link === '1') {
           $('citedBy' + request.pmid).innerText = 'trying';
         } else if (request.g_num === '0' && request.g_link === '0') {
-          if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
-            $('citedBy' + request.pmid).innerText = 'Oops, I failed. Is it a very recent publication?';
-          } else {
-            $('citedBy' + request.pmid).innerText = 'failed';
-          }
+          $('citedBy' + request.pmid).innerHTML = '<i>Really? No one cited it yet. Is it a very recent publication?</i>';
         } else if (request.g_num && request.g_link) {
-          if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
-            $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
-              + uneval_trim(request.g_link) + '">' + uneval_trim(request.g_num)
-              + ' times (in Google Scholar)</a>';
-          } else {
-            $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
-              + uneval_trim(request.g_link) + '">cited# ' + uneval_trim(request.g_num)
-              + '</a>';
-          }
+          $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
+            + uneval_trim(request.g_link) + '">' + uneval_trim(request.g_num)
+            + ' times (in Google Scholar)</a>';
         }
       } catch (err) {
         DEBUG && console.log(err);
@@ -329,7 +337,7 @@ chrome.extension.onRequest.addListener(
       //GM_addStyle(styles);
     }
     if (request.pubmeder) {
-      bookmark_div += '<span id="thepaperlink_saveAll onclick="saveIt_pubmeder(\'' +
+      bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
         pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
         uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
     } else {
@@ -393,14 +401,14 @@ chrome.extension.onRequest.addListener(
       $(r.item[i].pmid).appendChild(div);
       if ($('thepaperlink_hidden' + pmid)) {
         $('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
-          var eventData = this.innerText,
+          var eventData = this.textContent,
             pmid = this.id.substr(19),
             pdf = $('thepaperlink_pdf' + pmid).href,
             no_email_span = $('thepaperlink_save' + pmid).className;
           if ( (' ' + no_email_span + ' ').indexOf(' no_email ') > -1 ) {
-            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl, no_email: 1});
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: apikey, no_email: 1});
           } else {
-            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: request.tpl, no_email: 0});
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: apikey, no_email: 0});
             try {
               $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
             } catch (err) {
