@@ -21,19 +21,21 @@ var DEBUG = false,
 function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
-  rev_proxy = localStorage.getItem('rev_proxy');
-  base = 'https://pubget-hrd.appspot.com';
-  pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
-  pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   if (req_key === null) {
     req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
     //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
   }
+  rev_proxy = localStorage.getItem('rev_proxy');
+  base = 'https://pubget-hrd.appspot.com';
   if (rev_proxy === 'yes') {
     base = 'http://0.pl4.me';
   }
+  pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
+  pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   if (pubmeder_apikey !== null && pubmeder_email !== null) {
     pubmeder_ok = 1;
+  } else {
+    pubmeder_ok = 0;
   }
 }
 load_common_values();
@@ -215,6 +217,7 @@ function sendBinary(url, data, pmid) {
     xhr.sendAsBinary(data);
     return xhr.responseText;
   } catch (err) {
+    DEBUG && console.log(err);
     return null;
   }
 }
@@ -319,7 +322,7 @@ function getRequest(request, sender, callback) {
         $.post(base + '/',
           {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
           function (d) {
-            DEBUG && console.log(d);
+            DEBUG && console.log('post action email: ' + d);
           }
         ).error(function () {
           DEBUG && console.log('email failed again, save for later');
@@ -351,6 +354,8 @@ function getRequest(request, sender, callback) {
     DEBUG && console.log(request.t_cont);
   } else if (request.load_common_values) {
     load_common_values();
+  } else if (request.a_pmid && request.a_title) {
+    scholar_title( request.a_pmid, request.a_title );
   } else {
     DEBUG && console.log(request);
   }
@@ -406,6 +411,15 @@ if (old_id) {
 var load_try = 10, channel_token;
 
 function scholar_title(pmid, t) {
+  DEBUG && console.log('pmid: ' + pmid + ', title: ' + t);
+  var in_mem = localStorage.getItem('scholar_' + pmid);
+  if (in_mem) {
+    in_mem = in_mem.split(',', 3);
+    if (the_tabId) {
+      chrome.tabs.sendRequest(the_tabId, {pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]});
+    }
+    return;
+  }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
     + encodeURIComponent('"' + t + '"');
   if (the_tabId) {
@@ -421,13 +435,14 @@ function scholar_title(pmid, t) {
         g_num = />Cited by (\d+)</.exec(h[0]);
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
+          localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
           if (the_tabId) {
             chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
           }
           $.post(base + '/',
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
             function (d) {
-              DEBUG && console.log(d);
+              DEBUG && console.log('post g_num and g_link (empty is a success): ' + d);
             }
           );
           return;
@@ -468,7 +483,6 @@ function load_pusher() {
   var pusher = new Pusher('0ba83dd56d3312cc67c7'),
     myChannel = pusher.subscribe('server');
   myChannel.bind('broadcast', function (m) {
-    DEBUG && console.log(m);
     var d = JSON.parse(m.msg);
     DEBUG && console.log(d);
     if (d.action === 'title') {
@@ -482,7 +496,7 @@ $(document).ready(function () {
     $.post(base + '/mesh/create',
       {'apikey': apikey},
       function (d) {
-        DEBUG && console.log(d);
+        DEBUG && console.log('post /mesh/create: ' + d);
         channel_token = d;
         try {
           var ah = dd.createElement('script');
@@ -495,7 +509,7 @@ $(document).ready(function () {
         }
       }
     );
-  } else {
+  } else if (localStorage.getItem('ajax_citedBy') === 'yes') {
     try {
       var p = dd.createElement('script');
       p.setAttribute('type', 'text/javascript');
