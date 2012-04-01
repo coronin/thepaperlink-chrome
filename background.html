@@ -8,7 +8,11 @@
     <script type="text/javascript"><!--
 
 var DEBUG = false,
-  i, aKey, aVal,
+  i, aKey, aVal, channel_token,
+  scholar_count = 0,
+  scholar_run = 0,
+  scholar_queue = [],
+  load_try = 10,
   new_tabId = null,
   the_tabId = null,
   alldigi = /^\d+$/,
@@ -17,6 +21,7 @@ var DEBUG = false,
   init_found = localStorage.getItem('id_found') || '',
   apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
   pubmeder_ok = 0;
+  
 
 function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
@@ -50,12 +55,12 @@ function openNewTab(winId, url) {
       new_tabId = tab.id;
     });
   }
-  DEBUG && console.log('a new tab for you, #' + new_tabId);
+  DEBUG && console.log('>> a new tab for you, #' + new_tabId);
 }
 
 function genericOnClick(info, tab) {
-  DEBUG && console.log('info: ' + JSON.stringify(info));
-  DEBUG && console.log('tab: ' + JSON.stringify(tab));
+  DEBUG && console.log('info', JSON.stringify(info));
+  DEBUG && console.log('tab', JSON.stringify(tab));
   openNewTab(tab.windowId, 'http://www.thepaperlink.com');
 }
 
@@ -119,7 +124,7 @@ function save_visited_ID(new_id) {
 
 function saveIt_pubmeder(pmid) {
   if (pubmeder_ok === 0) {
-    DEBUG && console.log('no valid pubmeder credit');
+    DEBUG && console.log('>> no valid pubmeder credit');
     return;
   }
   var args = {'apikey' : pubmeder_apikey,
@@ -155,7 +160,7 @@ function eSearch(search_term, tabId) {
     },
     'xml'
   ).error(function () {
-    DEBUG && console.log('eSearch failed, do nothing');
+    DEBUG && console.log('>> eSearch failed, do nothing');
   });
 }
 
@@ -186,7 +191,7 @@ function sendBinary(url, data, pmid) {
       tmp = '',
       abView;
     if (data instanceof ArrayBuffer) {
-      DEBUG && console.log('ArrayBuffer, need View, assume Uint8Array');
+      DEBUG && console.log('>> ArrayBuffer, need View, assume Uint8Array');
       abView = new Uint8Array(data);
       if (abView.length < 1000) {
         return null;
@@ -200,9 +205,9 @@ function sendBinary(url, data, pmid) {
       data = postHead + tmp + postTail;
     }
     if (typeof XMLHttpRequest.prototype.sendAsBinary === 'function') {
-      DEBUG && console.log('built-in support sendAsBinary');
+      DEBUG && console.log('>> sendAsBinary support is built-in');
     } else {
-      DEBUG && console.log('define sendAsBinary');
+      DEBUG && console.log('>> define sendAsBinary');
       XMLHttpRequest.prototype.sendAsBinary = function (datastr) {
         function byteValue(x) {
           return x.charCodeAt(0) & 0xff;
@@ -284,7 +289,7 @@ function getRequest(request, sender, callback) {
     }
     reLoadOp();
   } else if (request.service && request.content) {
-    DEBUG && console.log(request.service + ': ' + request.content);
+    DEBUG && console.log(request.service, request.content);
     if (request.content.indexOf('error') < 0) {
       localStorage.setItem(request.service + '_status', 'success');
     } else {
@@ -295,7 +300,7 @@ function getRequest(request, sender, callback) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender.tab.id);
     } else {
-      DEBUG && console.log('do nothing to ' + request.sendID);
+      DEBUG && console.log('>> do nothing to sendID #' + request.sendID);
     }
     localStorage.setItem('tabId:' + sender.tab.id.toString(), request.sendID);
     if ( alldigi.test(request.sendID) ) {
@@ -308,24 +313,24 @@ function getRequest(request, sender, callback) {
       menu_generator();
       // just generated context menu
     } else {
-      DEBUG && console.log('no need to update context menu');
+      DEBUG && console.log('>> no need to update context menu');
     }
   } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
     DEBUG && console.log(request.pdf);
     var pdf_data = getBinary(request.pdf), msg;
-    DEBUG && console.log('ajax download ' + pdf_data + ', now uploading');
+    DEBUG && console.log('>> ajax download ' + pdf_data + ', now uploading');
     msg = sendBinary(request.upload_url, pdf_data, request.pmid);
-    DEBUG && console.log('response from server (if any) : ' + msg);
+    DEBUG && console.log('>> response from server (if any) : ' + msg);
     if (msg === null) {
-      DEBUG && console.log('email_pdf failed, just email the abstract');
+      DEBUG && console.log('>> email_pdf failed, just email the abstract');
       if (!request.no_email) {
         $.post(base + '/',
           {'pmid': request.pmid, 'apikey': request.apikey, 'action': 'email'},
           function (d) {
-            DEBUG && console.log('post action email: ' + d);
+            DEBUG && console.log('>> post /, action email: ' + d);
           }
         ).error(function () {
-          DEBUG && console.log('email failed again, save for later');
+          DEBUG && console.log('>> email failed again, save for later');
           var date = new Date();
           localStorage.setItem('email_' + request.apikey + '_' + request.pmid, date.getTime());
         });
@@ -355,7 +360,15 @@ function getRequest(request, sender, callback) {
   } else if (request.load_common_values) {
     load_common_values();
   } else if (request.a_pmid && request.a_title) {
-    scholar_title( request.a_pmid, request.a_title );
+    scholar_queue[2*scholar_count] = request.a_pmid;
+    scholar_queue[2*scholar_count + 1] = request.a_title;
+    scholar_count += 1;
+    queue_scholar_title();
+  } else if (request.reset_scholar_count) {
+    scholar_count = 0;
+    scholar_run = 0;
+    scholar_queue = [],
+    DEBUG && console.log('>> on-request reset scholar_count _run _queue');
   } else {
     DEBUG && console.log(request);
   }
@@ -370,9 +383,9 @@ $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
   dataType: 'text',
   timeout: 4000,
-  success: function() { DEBUG && console.log('Hi, you can access our secured server directly.'); },
+  success: function() { DEBUG && console.log('>> directly access our secured server'); },
   error: function() {
-    DEBUG && console.log('error? force rev_proxy');
+    DEBUG && console.log('>> error? force rev_proxy');
     localStorage.setItem('rev_proxy', 'yes');
     rev_proxy = 'yes';
     base = 'http://0.pl4.me';
@@ -407,11 +420,28 @@ if (old_id) {
   localStorage.setItem('id_found', init_found + ' ' + old_id);
 }
 
+////
 
-var load_try = 10, channel_token;
+function queue_scholar_title() {
+  setTimeout(do_scholar_title, 1250*scholar_run + 1);
+}
+
+function do_scholar_title() {
+  scholar_title(
+    scholar_queue[2*scholar_run], scholar_queue[2*scholar_run + 1]
+  );
+  scholar_run += 1;
+  if (scholar_run === scholar_count) {
+    scholar_count = 0;
+    scholar_run = 0;
+    scholar_queue = [],
+    DEBUG && console.log('>> self-reset scholar_count _run _queue');
+  }
+}
 
 function scholar_title(pmid, t) {
-  DEBUG && console.log('pmid: ' + pmid + ', title: ' + t);
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('title', t);
   var in_mem = localStorage.getItem('scholar_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 3);
@@ -442,7 +472,7 @@ function scholar_title(pmid, t) {
           $.post(base + '/',
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
             function (d) {
-              DEBUG && console.log('post g_num and g_link (empty is a success): ' + d);
+              DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
             }
           );
           return;
@@ -496,7 +526,7 @@ $(document).ready(function () {
     $.post(base + '/mesh/create',
       {'apikey': apikey},
       function (d) {
-        DEBUG && console.log('post /mesh/create: ' + d);
+        DEBUG && console.log('>> post /mesh/create: ' + d);
         channel_token = d;
         try {
           var ah = dd.createElement('script');
@@ -505,7 +535,7 @@ $(document).ready(function () {
           dd.body.appendChild(ah);
           load_goog_channel();
         } catch (err) {
-          DEBUG && console.log('goog_channel is bleeding: ' + err);
+          DEBUG && console.log('>> goog_channel is bleeding: ' + err);
         }
       }
     );
@@ -517,7 +547,7 @@ $(document).ready(function () {
       dd.body.appendChild(p);
       load_pusher();
     } catch (err) {
-      DEBUG && console.log('pusher is bleeding: ' + err);
+      DEBUG && console.log('>> pusher is bleeding: ' + err);
     }
   }
 });

@@ -40,7 +40,7 @@ function $(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(data) {
-  DEBUG && console.log('sendRequest to background.html');
+  DEBUG && console.log('>> sendRequest to background.html');
   chrome.extension.sendRequest(data);
 }
 
@@ -96,7 +96,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
   var ID = parse_id(page_body.textContent) || parse_id(page_body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && console.log('non-ncbi site, got ID ' + ID[1]);
+    DEBUG && console.log('>> non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   }
   noRun = 1;
@@ -142,7 +142,7 @@ function getPmid(zone, num) {
         chrome.extension.sendRequest({t_cont: t_cont});
       };
       c = page_d.createElement('span');
-      c.style.cssText = 'border-left:3px #cccccc solid;padding-left:3px;font-size:10px;';
+      c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
       c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '"></span>';
       if (t(zone)[num].className === 'rprt') {
         t(zone)[num + 3].appendChild(b);
@@ -191,6 +191,7 @@ function run() {
   } catch (err) {
     DEBUG && console.log(err);
   }
+  a_proxy({reset_scholar_count: 1});
   for (i = 0; i < t('div').length; i += 1) {
     if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') {
       getPmid('div', i);
@@ -269,7 +270,7 @@ chrome.extension.onRequest.addListener(
       return;
     } else if (request.js_key && request.js_base) {
       if (window.location.protocol !== 'https:') {
-        DEBUG && console.log('starting the js client');
+        DEBUG && console.log('>> starting the js client');
         localStorage.setItem('thePaperLink_pubget_js_key', request.js_key);
         localStorage.setItem('thePaperLink_pubget_js_base', request.js_base);
         if (!$('__tr_display')) {
@@ -287,6 +288,9 @@ chrome.extension.onRequest.addListener(
           $('citedBy' + request.pmid).innerText = 'trying';
         } else if (request.g_num === '0' && request.g_link === '0') {
           $('citedBy' + request.pmid).innerHTML = '<i>Really? No one cited it yet. Is it a very recent publication?</i>';
+          if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
+            $('citedBy' + request.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
+          }
         } else if (request.g_num && request.g_link) {
           $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
             + uneval_trim(request.g_link) + '">' + uneval_trim(request.g_num)
@@ -313,6 +317,9 @@ chrome.extension.onRequest.addListener(
       + '  padding: 2px 4px;'
       + '  border-radius: 4px;'
       + '  display: inline-block'
+      + '}'
+      + '.thepaperlink_Off {'
+      + '  display: none !important'
       + '}'
       + '.thepaperlink > a ,'
       + '.thepaperlink > span {'
@@ -394,7 +401,7 @@ chrome.extension.onRequest.addListener(
           pmid + '\',\'' + uneval_trim(request.tpl) + '\')">&hellip;</span>';
       }
       if (request.tpl && r.item[i].pdf) {
-        div_html += '<span style="display:none !important;" id="thepaperlink_hidden' +
+        div_html += '<span class="thepaperlink_Off" id="thepaperlink_hidden' +
           pmid + '"></span>';
       }
       div.innerHTML = div_html;
@@ -410,7 +417,7 @@ chrome.extension.onRequest.addListener(
           } else {
             a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: apikey, no_email: 0});
             try {
-              $('thepaperlink_D' + pmid).setAttribute('style', 'display:none');
+              $('thepaperlink_D' + pmid).setAttribute('class', 'thepaperlink_Off');
             } catch (err) {
               DEBUG && console.log(err);
             }
@@ -426,16 +433,16 @@ chrome.extension.onRequest.addListener(
     }
     if (pmidArray.length > 0 && onePage_calls < 10) {
       if (pmidArray.length === k) {
-        DEBUG && console.log('Got nothing; stopped. ' + k);
+        DEBUG && console.log('>> got nothing; stopped. ' + k);
       } else {
-        DEBUG && console.log('call for ' + k + ', not get ' + pmidArray.length);
+        DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
         t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           local_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
         a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
       }
     }
-    DEBUG && console.log('onePage_calls: ' + onePage_calls);
+    DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
     sendResponse({});
     return;
   }
