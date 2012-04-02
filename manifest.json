@@ -1,7 +1,7 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.4.0.1",
-  "minimum_chrome_version": "13",
+  "version": "0.4.0.2",
+  "minimum_chrome_version": "16",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "permissions": [
