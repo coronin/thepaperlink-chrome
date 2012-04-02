@@ -443,15 +443,19 @@ function scholar_title(pmid, t) {
   var in_mem = localStorage.getItem('scholar_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 3);
-    chrome.tabs.query({'active': true}, function (tab) {
-      chrome.tabs.sendRequest(tab.id, {pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]});
+    chrome.tabs.query({'active': true}, function (tabs) {
+      for (i = 0; i < tabs.length; i += 1) {
+        chrome.tabs.sendRequest(tabs[i].id, {pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]});
+      }
     });
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
     + encodeURIComponent('"' + t + '"');
-  chrome.tabs.query({'active': true}, function (tab) {
-    chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: '1', g_link: '1'});
+  chrome.tabs.query({'active': true}, function (tabs) {
+    for (i = 0; i < tabs.length; i += 1) {
+      chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: '1', g_link: '1'});
+    }
   });
   $.get(url,
     function (r) {
@@ -464,8 +468,10 @@ function scholar_title(pmid, t) {
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
           localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          chrome.tabs.query({'active': true}, function (tab) {
-            chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
+          chrome.tabs.query({'active': true}, function (tabs) {
+            for (i = 0; i < tabs.length; i += 1) {
+              chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
+            }
           });
           $.post(base + '/',
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
@@ -476,8 +482,10 @@ function scholar_title(pmid, t) {
           return;
         }
       }
-      chrome.tabs.query({'active': true}, function (tab) {
-        chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: '0', g_link: '0'});
+      chrome.tabs.query({'active': true}, function (tabs) {
+        for (i = 0; i < tabs.length; i += 1) {
+          chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: '0', g_link: '0'});
+        }
       });
     },
     'html'
