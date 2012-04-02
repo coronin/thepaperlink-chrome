@@ -14,13 +14,13 @@ var DEBUG = false,
   scholar_queue = [],
   load_try = 10,
   new_tabId = null,
-  the_tabId = null,
   alldigi = /^\d+$/,
   old_id = '',
   dd = document,
   init_found = localStorage.getItem('id_found') || '',
   apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
-  pubmeder_ok = 0;
+  pubmeder_ok = 0,
+  broadcast_loaded = 0;
   
 
 function load_common_values() {
@@ -369,15 +369,13 @@ function getRequest(request, sender, callback) {
     scholar_run = 0;
     scholar_queue = [],
     DEBUG && console.log('>> on-request reset scholar_count _run _queue');
+  } else if (request.load_broadcast && !broadcast_loaded) {
+    load_broadcast();
   } else {
     DEBUG && console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);
-
-chrome.tabs.onHighlighted.addListener(function (info) {
-  the_tabId = info.tabIds[0];
-});
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
@@ -445,16 +443,16 @@ function scholar_title(pmid, t) {
   var in_mem = localStorage.getItem('scholar_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 3);
-    if (the_tabId) {
-      chrome.tabs.sendRequest(the_tabId, {pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]});
-    }
+    chrome.tabs.query({'active': true}, function (tab) {
+      chrome.tabs.sendRequest(tab.id, {pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]});
+    });
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
     + encodeURIComponent('"' + t + '"');
-  if (the_tabId) {
-    chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: '1', g_link: '1'});
-  }
+  chrome.tabs.query({'active': true}, function (tab) {
+    chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: '1', g_link: '1'});
+  });
   $.get(url,
     function (r) {
       var reg = /<a[^<]+>Cited by \d+<\/a>/,
@@ -466,9 +464,9 @@ function scholar_title(pmid, t) {
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
           localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          if (the_tabId) {
-            chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
-          }
+          chrome.tabs.query({'active': true}, function (tab) {
+            chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: g_num[1], g_link: g_link[1]});
+          });
           $.post(base + '/',
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
             function (d) {
@@ -478,7 +476,9 @@ function scholar_title(pmid, t) {
           return;
         }
       }
-      chrome.tabs.sendRequest(the_tabId, {pmid: pmid, g_num: '0', g_link: '0'});
+      chrome.tabs.query({'active': true}, function (tab) {
+        chrome.tabs.sendRequest(tab.id, {pmid: pmid, g_num: '0', g_link: '0'});
+      });
     },
     'html'
   );
@@ -521,8 +521,8 @@ function load_pusher() {
   });
 }
 
-$(document).ready(function () {
-  if (localStorage.getItem('ajax_citedBy') === 'yes' && apikey) {
+function load_broadcast() {
+ if (apikey) {
     $.post(base + '/mesh/create',
       {'apikey': apikey},
       function (d) {
@@ -534,21 +534,29 @@ $(document).ready(function () {
           ah.setAttribute('src', base + '/_ah/channel/jsapi');
           dd.body.appendChild(ah);
           load_goog_channel();
+          broadcast_loaded = 1;
         } catch (err) {
           DEBUG && console.log('>> goog_channel is bleeding: ' + err);
         }
       }
     );
-  } else if (localStorage.getItem('ajax_citedBy') === 'yes') {
+  } else {
     try {
       var p = dd.createElement('script');
       p.setAttribute('type', 'text/javascript');
       p.setAttribute('src', 'https://d3dy5gmtp8yhk7.cloudfront.net/1.11/pusher.min.js');
       dd.body.appendChild(p);
       load_pusher();
+      broadcast_loaded = 1;
     } catch (err) {
       DEBUG && console.log('>> pusher is bleeding: ' + err);
     }
+  }
+}
+
+$(document).ready(function () {
+  if (localStorage.getItem('ajax_citedBy') === 'yes' && !broadcast_loaded) {
+    load_broadcast();
   }
 });
     //-->

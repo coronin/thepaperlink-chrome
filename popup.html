@@ -228,7 +228,7 @@ $('#ess').focus(function () {
   }
 });
 
-chrome.tabs.getSelected(undefined, function (tab) {
+chrome.tabs.query({'active': true}, function (tab) {
   chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
   chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
   var ID = localStorage.getItem('tabId:' + tab.id.toString()),
