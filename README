@@ -34,6 +34,7 @@ Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
 Change Log:
+ * v0.4.1 - solve trouble links locally
  * v0.4.0.2 - bug fix; no longer require a restart
  * v0.4.0 - "cited by" on PubMed
  * v0.3.9 - display "cited by" on http://www.thepaperlink.com
