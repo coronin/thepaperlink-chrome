@@ -437,6 +437,49 @@ function do_scholar_title() {
   }
 }
 
+function parse_url(pmid, url) {
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('url', url);
+  var in_mem = localStorage.getItem('url_' + pmid);
+  if (in_mem) {
+    in_mem = in_mem.split(',', 2);
+    chrome.tabs.query({'active': true}, function (tabs) {
+      for (i = 0; i < tabs.length; i += 1) {
+        chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: in_mem[1]});
+      }
+    });
+    return;
+  }
+  chrome.tabs.query({'active': true}, function (tabs) {
+    for (i = 0; i < tabs.length; i += 1) {
+      chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: '1'});
+    }
+  });
+  $.get(url,
+    function (r) {
+      var reg = /href="([^"]+)" target="newPdfWin"/,
+        h = reg.exec(r);
+      if (h && h.length) {
+        DEBUG && console.log(h);
+        localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
+        chrome.tabs.query({'active': true}, function (tabs) {
+          for (i = 0; i < tabs.length; i += 1) {
+            chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: h[1]});
+          }
+        });
+        $.post(base + '/',
+          {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]},
+          function (d) {
+            DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
+          }
+        );
+        return;
+      }
+    },
+    'html'
+  );
+}
+
 function scholar_title(pmid, t) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('title', t);
@@ -506,6 +549,8 @@ function load_goog_channel() {
     DEBUG && console.log(d);
     if (d.action === 'title') {
       scholar_title( d.pmid, d.title );
+    } else if (d.action === 'url') {
+      parse_url( d.pmid, d.url );
     }
   };
   //socket.onerror = onError;
@@ -525,6 +570,8 @@ function load_pusher() {
     DEBUG && console.log(d);
     if (d.action === 'title') {
       scholar_title( d.pmid, d.title );
+    } else if (d.action === 'url') {
+      parse_url( d.pmid, d.url );
     }
   });
 }

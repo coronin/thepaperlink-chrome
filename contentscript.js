@@ -301,6 +301,20 @@ chrome.extension.onRequest.addListener(
       }
       sendResponse({});
       return;
+    } else if (request.el_id && request.el_link) {
+      try {
+        if (request.el_link === '1') {
+          $(request.el_id).innerText = 'trying';
+        } else {
+          $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
+            + uneval_trim(request.el_link) +'">the file link</a>';
+          $('submitURL').innerText = '[try yours?]';
+        }
+      } catch (err) {
+        DEBUG && console.log(err);
+      }
+      sendResponse({});
+      return;
     }
     r = request.r;
     if (r.error) {
