@@ -303,12 +303,16 @@ chrome.extension.onRequest.addListener(
       return;
     } else if (request.el_id && request.el_link) {
       try {
-        if (request.el_link === '1') {
+        if (request.el_link === '1' && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
           $(request.el_id).innerText = 'trying';
         } else {
-          $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
-            + uneval_trim(request.el_link) +'">the file link</a>';
-          $('submitURL').innerText = '[try yours?]';
+          if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
+            $('thepaperlink' + request.el_id).innerText = 'pdf file';
+            $('thepaperlink' + request.el_id).href = uneval_trim(request.el_link);
+          } else {
+            $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
+              + uneval_trim(request.el_link) +'">the file link</a>';
+          }
         }
       } catch (err) {
         DEBUG && console.log(err);
@@ -382,6 +386,9 @@ chrome.extension.onRequest.addListener(
         div_html += '<a id="thepaperlink_pdf' + pmid +
           '" class="thepaperlink-green" href="' + p + uneval_trim(r.item[i].pdf) +
           '" target="_blank">direct&nbsp;pdf</a>';
+      } else if (r.item[i].pii) {
+        a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
+        div_html += '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
       }
       if (r.item[i].pmcid) {
         div_html += '<a id="thepaperlink_pmc' + pmid +
