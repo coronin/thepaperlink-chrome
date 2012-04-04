@@ -70,6 +70,9 @@
     </p>
   <p><input type="checkbox" id="ajax_citedBy" /> <b>Enable</b> the bleeding feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
     </p>
+  <p><input type="checkbox" id="ajax_pii_link" /> Testing: <b>enable</b> to solve missing links locally
+    </p>
+
   <p id="rev_proxy_content"></p>
   <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
     <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
@@ -153,6 +156,9 @@ $(document).ready(function () {
   if (localStorage.getItem('ajax_citedBy') === 'yes') {
     $('#ajax_citedBy').prop('checked', true);
   }
+  if (localStorage.getItem('ajax_pii_link') !== 'no') {
+    $('#ajax_pii_link').prop('checked', true);
+  }
   $('input').on('change', function () {
     $('#saveBtn').removeClass('Off');
     $('#saveBtn').parent().css('background', '#fff0f0');
@@ -212,6 +218,7 @@ function saveOptions() {
     new_tab = $('#new_tab').prop('checked'),
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
     ajax_citedBy = $('#ajax_citedBy').prop('checked'),
+    ajax_pii_link = $('#ajax_pii_link').prop('checked'),
     ezproxy_prefix = $('#ezproxy_login').val(),
     req_a = null,
     req_b = null;
@@ -246,6 +253,11 @@ function saveOptions() {
     chrome.extension.sendRequest({load_broadcast: 1});
   } else {
     localStorage.setItem('ajax_citedBy', 'no');
+  }
+  if (ajax_pii_link) {
+    localStorage.setItem('ajax_pii_link', 'yes');
+  } else {
+    localStorage.setItem('ajax_pii_link', 'no');
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);

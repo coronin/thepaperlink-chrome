@@ -20,8 +20,9 @@ var DEBUG = false,
   init_found = localStorage.getItem('id_found') || '',
   apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
   pubmeder_ok = 0,
-  broadcast_loaded = 0;
-  
+  broadcast_loaded = 0,
+  ajax_pii_link = 1;
+
 
 function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
@@ -41,6 +42,9 @@ function load_common_values() {
     pubmeder_ok = 1;
   } else {
     pubmeder_ok = 0;
+  }
+  if (localStorage.getItem('ajax_pii_link') === 'no') {
+    ajax_pii_link = 0;
   }
 }
 load_common_values();
@@ -371,6 +375,8 @@ function getRequest(request, sender, callback) {
     DEBUG && console.log('>> on-request reset scholar_count _run _queue');
   } else if (request.load_broadcast && !broadcast_loaded) {
     load_broadcast();
+  } else if (ajax_pii_link && request.pii_link && request.pii && request.pmid) {
+    parse_url( request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii );
   } else {
     DEBUG && console.log(request);
   }
@@ -445,14 +451,14 @@ function parse_url(pmid, url) {
     in_mem = in_mem.split(',', 2);
     chrome.tabs.query({'active': true}, function (tabs) {
       for (i = 0; i < tabs.length; i += 1) {
-        chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: in_mem[1]});
+        chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: in_mem[1]});
       }
     });
     return;
   }
   chrome.tabs.query({'active': true}, function (tabs) {
     for (i = 0; i < tabs.length; i += 1) {
-      chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: '1'});
+      chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: '1'});
     }
   });
   $.get(url,
@@ -464,7 +470,7 @@ function parse_url(pmid, url) {
         localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
         chrome.tabs.query({'active': true}, function (tabs) {
           for (i = 0; i < tabs.length; i += 1) {
-            chrome.tabs.sendRequest(tabs[i].id, {el_id: 'link_filled_by_local_js', el_link: h[1]});
+            chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: h[1]});
           }
         });
         $.post(base + '/',
@@ -551,6 +557,14 @@ function load_goog_channel() {
       scholar_title( d.pmid, d.title );
     } else if (d.action === 'url') {
       parse_url( d.pmid, d.url );
+    } else if (d.action === 'pdfLink_quick') {
+      chrome.tabs.query({'active': true}, function (tabs) {
+        for (i = 0; i < tabs.length; i += 1) {
+          chrome.tabs.sendRequest(tabs[i].id,
+            {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick}
+          );
+        }
+      });
     }
   };
   //socket.onerror = onError;
