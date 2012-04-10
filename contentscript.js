@@ -110,7 +110,7 @@ function getPmid(zone, num) {
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
-      if (t(zone)[num + 1].className === 'rprtnum') {
+      if (t(zone)[num + 1].className.indexOf('rprtnum') > -1) {
         t(zone)[num + 2].setAttribute('id', ID[1]);
       } else {
         t(zone)[num - 2].setAttribute('id', ID[1]);
