@@ -61,45 +61,6 @@ function parse_id(a) { // pubmeder code
   return ID;
 }
 
-if (page_url === 'http://www.thepaperlink.com/reg'
-    || page_url === 'http://www.thepaperlink.net/reg'
-    || page_url === 'http://thepaperlink.appspot.com/reg'
-    || page_url === 'http://pubget-hrd.appspot.com/reg'
-    || page_url === 'https://pubget-hrd.appspot.com/reg'
-    || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
-  var apikey = $('apikey').innerHTML,
-    cloud_op = $('cloud_op').innerHTML;
-  a_proxy({save_apikey: apikey, save_email: null});
-  a_proxy({save_cloud_op: cloud_op});
-  if ($('client_modify_it')) {
-    $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
-  }
-  noRun = 1;
-} else if (page_url === 'http://www.pubmeder.com/registration'
-    || page_url === 'http://pubmeder.appspot.com/registration'
-    || page_url === 'http://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'https://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
-  var email = $('currentUser').innerHTML,
-    apikey = $('apikey_pubmeder').innerHTML;
-  a_proxy({save_apikey: apikey, save_email: email});
-  noRun = 1;
-} else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
-  var content = $('r_content').innerHTML,
-    service = $('r_success').innerHTML;
-  a_proxy({service: service, content: content});
-  noRun = 1;
-} else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
-    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
-    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
-  var ID = parse_id(page_body.textContent) || parse_id(page_body.innerHTML);
-  if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && console.log('>> non-ncbi site, got ID ' + ID[1]);
-    a_proxy({sendID: ID[1]});
-  }
-  noRun = 1;
-}
-
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
@@ -210,10 +171,6 @@ function run() {
     get_Json(pmids);
   }
 }
-if (!noRun) {
-  a_proxy({loadExtraJs: 1});
-  run();
-}
 
 function alert_dev(req_key) {
   if (req_key && req_key !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
@@ -231,6 +188,53 @@ function alert_dev(req_key) {
   } else {
     alert('You have to be a registered user to be able to alert the developer.');
   }
+}
+
+
+if (page_url === 'http://www.thepaperlink.com/reg'
+    || page_url === 'http://www.thepaperlink.net/reg'
+    || page_url === 'http://thepaperlink.appspot.com/reg'
+    || page_url === 'http://pubget-hrd.appspot.com/reg'
+    || page_url === 'https://pubget-hrd.appspot.com/reg'
+    || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
+  var apikey = $('apikey').innerHTML,
+    cloud_op = $('cloud_op').innerHTML;
+  a_proxy({save_apikey: apikey, save_email: null});
+  a_proxy({save_cloud_op: cloud_op});
+  if ($('client_modify_it')) {
+    $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
+  }
+  noRun = 1;
+} else if (page_url === 'http://www.pubmeder.com/registration'
+    || page_url === 'http://pubmeder.appspot.com/registration'
+    || page_url === 'http://pubmeder-hrd.appspot.com/registration'
+    || page_url === 'https://pubmeder-hrd.appspot.com/registration'
+    || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
+  var email = $('currentUser').innerHTML,
+    apikey = $('apikey_pubmeder').innerHTML;
+  a_proxy({save_apikey: apikey, save_email: email});
+  noRun = 1;
+} else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
+  var content = $('r_content').innerHTML,
+    service = $('r_success').innerHTML;
+  a_proxy({service: service, content: content});
+  noRun = 1;
+} else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
+    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
+    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
+  var ID = parse_id(page_body.textContent) || parse_id(page_body.innerHTML);
+  if (ID !== null && ID[1] !== '999999999') {
+    DEBUG && console.log('>> non-ncbi site, got ID ' + ID[1]);
+    a_proxy({sendID: ID[1]});
+  }
+  noRun = 1;
+}
+if ($('_thepaperlink_client_status')) {
+  $('_thepaperlink_client_status').innerHTML = '1';
+}
+if (!noRun) {
+  a_proxy({loadExtraJs: 1});
+  run();
 }
 
 

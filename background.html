@@ -76,7 +76,7 @@ function selectOnClick(info, tab) {
     url = 'http://www.thepaperlink.com/?q=' + info.selectionText;
   }
   if (new_tabId && new_tab === 'no') {
-    chrome.tabs.query({'windowId': tab.windowID}, function (tabs) {
+    chrome.tabs.query({windowId: tab.windowID}, function (tabs) {
       for (i = 0; i < tabs.length; i += 1) {
         if (new_tabId === tabs[i].id) {
           chrome.tabs.update(new_tabId, {url: url, active: true});
@@ -194,7 +194,7 @@ function sendBinary(aB, pmid, upload, no_email) {
       postTail = '\r\n--' + boundary + '--',
       abView = new Uint8Array(aB),
       post_data = postHead;
-    console.log('__ ajax download ' + abView.length + ', prepare uploading');
+    console.log('__ download the file size ' + abView.length + ', prepare uploading');
     if (abView.length < 1000) {
       return;
     }
@@ -217,12 +217,12 @@ function sendBinary(aB, pmid, upload, no_email) {
     }
     xhr.open('POST', upload, true);
     xhr.onload = function () {
-      console.log('__ request status from server : ' + xhr.status);
+      console.log('__ upload the file to the server with status: ' + xhr.status);
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
         if (!no_email) {
           email_abstract(apikey, pmid);
-        } 
+        }
       }
     };
     xhr.setRequestHeader("Content-Type", contentType);
@@ -247,7 +247,7 @@ function getBinary(file, pmid, upload, no_email) {
 
 function reLoadOp() {
   var urlOp = chrome.extension.getURL('options.html');
-  chrome.tabs.query({'url': urlOp}, function (tabs) {
+  chrome.tabs.query({url: urlOp}, function (tabs) {
     for (i = 1; i < tabs.length; i += 1) {
       chrome.tabs.update(tabs[i].id, {url: urlOp, active: false});
     }
@@ -361,8 +361,9 @@ function getRequest(request, sender, callback) {
   } else if (request.load_common_values) {
     load_common_values();
   } else if (request.a_pmid && request.a_title) {
-    scholar_queue[2*scholar_count] = request.a_pmid;
-    scholar_queue[2*scholar_count + 1] = request.a_title;
+    scholar_queue[3*scholar_count] = request.a_pmid;
+    scholar_queue[3*scholar_count + 1] = request.a_title;
+    scholar_queue[3*scholar_count + 2] = sender.tab.id;
     scholar_count += 1;
     queue_scholar_title();
   } else if (request.reset_scholar_count) {
@@ -373,7 +374,7 @@ function getRequest(request, sender, callback) {
   } else if (request.load_broadcast && !broadcast_loaded) {
     load_broadcast();
   } else if (ajax_pii_link && request.pii_link && request.pii && request.pmid) {
-    parse_url( request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii );
+    parse_url(request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii, sender.tab.id);
   } else {
     DEBUG && console.log(request);
   }
@@ -423,10 +424,11 @@ function queue_scholar_title() {
 }
 
 function do_scholar_title() {
-  var pmid = scholar_queue[2*scholar_run],
-    t = scholar_queue[2*scholar_run + 1];
+  var pmid = scholar_queue[3*scholar_run],
+    t = scholar_queue[3*scholar_run + 1],
+    tabId = scholar_queue[3*scholar_run + 2];
   scholar_run += 1;
-  scholar_title(pmid, t);
+  scholar_title(pmid, t, tabId);
   if (scholar_run === scholar_count) {
     scholar_count = 0;
     scholar_run = 0;
@@ -435,24 +437,16 @@ function do_scholar_title() {
   }
 }
 
-function parse_url(pmid, url) {
+function parse_url(pmid, url, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('url', url);
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
-    chrome.tabs.query({'active': true}, function (tabs) {
-      for (i = 0; i < tabs.length; i += 1) {
-        chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: in_mem[1]});
-      }
-    });
+    chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: in_mem[1]});
     return;
   }
-  chrome.tabs.query({'active': true}, function (tabs) {
-    for (i = 0; i < tabs.length; i += 1) {
-      chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: 1});
-    }
-  });
+  chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: 1});
   $.get(url,
     function (r) {
       var reg = /href="([^"]+)" target="newPdfWin"/,
@@ -460,11 +454,7 @@ function parse_url(pmid, url) {
       if (h && h.length) {
         DEBUG && console.log(h);
         localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
-        chrome.tabs.query({'active': true}, function (tabs) {
-          for (i = 0; i < tabs.length; i += 1) {
-            chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: h[1]});
-          }
-        });
+        chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: h[1]});
         $.post(base + '/',
           {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]},
           function (d) {
@@ -480,29 +470,21 @@ function parse_url(pmid, url) {
   });
 }
 
-function scholar_title(pmid, t) {
+function scholar_title(pmid, t, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('title', t);
   var in_mem = localStorage.getItem('scholar_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 3);
-    chrome.tabs.query({'active': true}, function (tabs) {
-      for (i = 0; i < tabs.length; i += 1) {
-        chrome.tabs.sendRequest(tabs[i].id, {
-          g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
-        });
-      }
+    chrome.tabs.sendRequest(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
     });
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq='
     + encodeURIComponent('"' + t + '"');
-  chrome.tabs.query({'active': true}, function (tabs) {
-    for (i = 0; i < tabs.length; i += 1) {
-      chrome.tabs.sendRequest(tabs[i].id, {
-        g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
-      });
-    }
+  chrome.tabs.sendRequest(tabId, {
+    g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
   });
   $.get(url,
     function (r) {
@@ -515,12 +497,8 @@ function scholar_title(pmid, t) {
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
           localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          chrome.tabs.query({'active': true}, function (tabs) {
-            for (i = 0; i < tabs.length; i += 1) {
-              chrome.tabs.sendRequest(tabs[i].id, {
-                g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
-              });
-            }
+          chrome.tabs.sendRequest(tabId, {
+            g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
           });
           $.post(base + '/',
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
@@ -531,23 +509,15 @@ function scholar_title(pmid, t) {
           return;
         }
       }
-      chrome.tabs.query({'active': true}, function (tabs) {
-        for (i = 0; i < tabs.length; i += 1) {
-          chrome.tabs.sendRequest(tabs[i].id, {
-            g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-          });
-        }
+      chrome.tabs.sendRequest(tabId, {
+        g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
       });
     },
     'html'
   ).error(function () {
     DEBUG && console.log('>> scholar_title failed');
-    chrome.tabs.query({'active': true}, function (tabs) {
-      for (i = 0; i < tabs.length; i += 1) {
-        chrome.tabs.sendRequest(tabs[i].id, {
-          g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-        });
-      }
+    chrome.tabs.sendRequest(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
   });
 }
@@ -565,17 +535,23 @@ function load_goog_channel() {
     var d = JSON.parse(m.data);
     DEBUG && console.log(d);
     if (d.action === 'title') {
-      scholar_title( d.pmid, d.title );
-    } else if (d.action === 'url') {
-      parse_url( d.pmid, d.url );
-    } else if (d.action === 'pdfLink_quick') {
-      chrome.tabs.query({'active': true}, function (tabs) {
-        for (i = 0; i < tabs.length; i += 1) {
-          chrome.tabs.sendRequest(tabs[i].id,
-            {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick}
-          );
+      chrome.tabs.query({active: true, currentWindow: true},
+        function (tabs) {
+          scholar_title(d.pmid, d.title, tabs[0].id);
         }
-      });
+      );
+    } else if (d.action === 'url') {
+      chrome.tabs.query({active: true, currentWindow: true},
+        function (tabs) {
+          parse_url(d.pmid, d.url, tabs[0].id);
+        }
+      );
+    } else if (d.action === 'pdfLink_quick') {
+      chrome.tabs.query({active: true, currentWindow: true},
+        function (tabs) {
+          chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick});
+        }
+      );
     }
   };
   //socket.onerror = onError;
@@ -594,9 +570,17 @@ function load_pusher() {
     var d = JSON.parse(m.msg);
     DEBUG && console.log(d);
     if (d.action === 'title') {
-      scholar_title( d.pmid, d.title );
+      chrome.tabs.query({active: true, currentWindow: true},
+        function (tabs) {
+          scholar_title(d.pmid, d.title, tabs[0].id);
+        }
+      );
     } else if (d.action === 'url') {
-      parse_url( d.pmid, d.url );
+      chrome.tabs.query({active: true, currentWindow: true},
+        function (tabs) {
+          parse_url(d.pmid, d.url, tabs[0].id);
+        }
+      );
     }
   });
 }
