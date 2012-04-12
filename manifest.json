@@ -9,9 +9,7 @@
     "tabs",
     "clipboardWrite",
     "https://www.ncbi.nlm.nih.gov/*",
-    "https://thepaperlink.appspot.com/*",
     "https://pubget-hrd.appspot.com/*",
-    "https://pubmeder.appspot.com/*",
     "https://pubmeder-hrd.appspot.com/*",
     "http://*/*"
   ],
@@ -31,9 +29,7 @@
   "content_scripts": [ {
     "matches": [
       "https://www.ncbi.nlm.nih.gov/*",
-      "https://thepaperlink.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
-      "https://pubmeder.appspot.com/*",
       "https://pubmeder-hrd.appspot.com/*",
       "http://*/*"
     ],
