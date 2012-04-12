@@ -201,9 +201,6 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     cloud_op = $('cloud_op').innerHTML;
   a_proxy({save_apikey: apikey, save_email: null});
   a_proxy({save_cloud_op: cloud_op});
-  if ($('client_modify_it')) {
-    $('client_modify_it').innerHTML = 'the browser you are using now is all set for that';
-  }
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
@@ -230,7 +227,10 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 }
 if ($('_thepaperlink_client_status')) {
-  $('_thepaperlink_client_status').innerHTML = '1';
+  $('_thepaperlink_client_status').innerHTML = chrome.extension.getURL('options.html');
+}
+if ($('_thepaperlink_client_modify_it')) {
+  $('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
   a_proxy({loadExtraJs: 1});
