@@ -12,7 +12,7 @@ var DEBUG = false;
   page_d = document,
   page_url = page_d.URL,
   page_body = page_d.body,
-  local_gif = chrome.extension.getURL('loadingLine.gif'),
+  loading_gif = chrome.extension.getURL('loadingLine.gif'),
   clippy_file = chrome.extension.getURL('clippyIt.png'),
   pmids = '',
   pmidArray = [],
@@ -161,7 +161,7 @@ function get_Json(pmids) {
   var i, div,
     need_insert = 1,
     url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
-    loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + local_gif + '" width="16" height="11" alt="loading" />';
+    loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -246,7 +246,7 @@ chrome.extension.onRequest.addListener(
         peaks = page_d.createElement('script');
         peaks.setAttribute('type', 'text/javascript');
         peaks.setAttribute('src', request.js_base_uri + '/jss?y=' + (Math.random()));
-        page_body.appendChild(peaks);
+        page_d.body.appendChild(peaks);
       }
       sendResponse({});
       return;
@@ -277,16 +277,16 @@ chrome.extension.onRequest.addListener(
           var jsClient = page_d.createElement('script');
           jsClient.setAttribute('type', 'text/javascript');
           jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
-          page_body.appendChild(jsClient);
+          page_d.body.appendChild(jsClient);
         }
       } else { alert('this is a secure page, js client not working yet'); }
       sendResponse({});
       return;
     } else if (request.pmid && request.g_num && request.g_link) {
       try {
-        if (request.g_num === '1' && request.g_link === '1') {
+        if (request.g_num === 1 && request.g_link === 1) {
           $('citedBy' + request.pmid).innerText = 'trying';
-        } else if (request.g_num === '0' && request.g_link === '0') {
+        } else if (request.g_num === 0 && request.g_link === 0) {
           $('citedBy' + request.pmid).innerHTML = '<i>Really? No one cited it yet. Is it a very recent publication?</i>';
           if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
             $('citedBy' + request.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
@@ -303,7 +303,7 @@ chrome.extension.onRequest.addListener(
       return;
     } else if (request.el_id && request.el_link) {
       try {
-        if (request.el_link === '1' && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
+        if (request.el_link === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
           $(request.el_id).innerText = 'trying';
         } else {
           if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
@@ -358,7 +358,7 @@ chrome.extension.onRequest.addListener(
       S = page_d.createElement('style');
       S.type = 'text/css';
       S.appendChild(page_d.createTextNode(styles));
-      page_body.appendChild(S);
+      page_d.body.appendChild(S);
       //GM_addStyle(styles);
     }
     if (request.pubmeder) {
@@ -426,7 +426,8 @@ chrome.extension.onRequest.addListener(
           pmid + '"></span>';
       }
       div.innerHTML = div_html;
-      $(r.item[i].pmid).appendChild(div);
+      $(pmid).appendChild(div);
+
       if ($('thepaperlink_hidden' + pmid)) {
         $('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
           var eventData = this.textContent,
@@ -445,6 +446,7 @@ chrome.extension.onRequest.addListener(
           }
         });
       }
+
       k = pmidArray.length;
       for (j = 0; j < k; j += 1) {
         if (pmid === pmidArray[j]) {
@@ -458,7 +460,7 @@ chrome.extension.onRequest.addListener(
       } else {
         DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
         t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
-          local_gif + '" width="16" height="11" alt="loading" />';
+          loading_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
         a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
       }
