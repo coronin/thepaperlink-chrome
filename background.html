@@ -322,9 +322,9 @@ function getRequest(request, sender, callback) {
   } else if (request.upload_url && request.pdf && request.pmid && request.apikey) {
     DEBUG && console.log(request.pdf);
     var pdf_data = getBinary(request.pdf), msg;
-    DEBUG && console.log('>> ajax download ' + pdf_data + ', now uploading');
+    console.log('__ ajax download ' + pdf_data.length + ', now uploading');
     msg = sendBinary(request.upload_url, pdf_data, request.pmid);
-    DEBUG && console.log('>> response from server (if any) : ' + msg);
+    console.log('__ response from server (if any) : ' + msg);
     if (msg === null) {
       DEBUG && console.log('>> email_pdf failed, just email the abstract');
       if (!request.no_email) {
@@ -458,7 +458,7 @@ function parse_url(pmid, url) {
   }
   chrome.tabs.query({'active': true}, function (tabs) {
     for (i = 0; i < tabs.length; i += 1) {
-      chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: '1'});
+      chrome.tabs.sendRequest(tabs[i].id, {el_id: '_pdf' + pmid, el_link: 1});
     }
   });
   $.get(url,
@@ -503,7 +503,7 @@ function scholar_title(pmid, t) {
     + encodeURIComponent('"' + t + '"');
   chrome.tabs.query({'active': true}, function (tabs) {
     for (i = 0; i < tabs.length; i += 1) {
-      chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: '1', g_link: '1'});
+      chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: 1, g_link: 1});
     }
   });
   $.get(url,
@@ -533,7 +533,7 @@ function scholar_title(pmid, t) {
       }
       chrome.tabs.query({'active': true}, function (tabs) {
         for (i = 0; i < tabs.length; i += 1) {
-          chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: '0', g_link: '0'});
+          chrome.tabs.sendRequest(tabs[i].id, {pmid: pmid, g_num: 0, g_link: 0});
         }
       });
     },
