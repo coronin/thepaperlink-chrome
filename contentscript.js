@@ -64,7 +64,6 @@ function parse_id(a) { // pubmeder code
 if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.net/reg'
     || page_url === 'http://thepaperlink.appspot.com/reg'
-    || page_url === 'https://thepaperlink.appspot.com/reg'
     || page_url === 'http://pubget-hrd.appspot.com/reg'
     || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
@@ -78,7 +77,6 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
-    || page_url === 'https://pubmeder.appspot.com/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
@@ -282,7 +280,7 @@ chrome.extension.onRequest.addListener(
       } else { alert('this is a secure page, js client not working yet'); }
       sendResponse({});
       return;
-    } else if (request.pmid && request.g_num && request.g_link) {
+    } else if (request.g_scholar) {
       try {
         if (request.g_num === 1 && request.g_link === 1) {
           $('citedBy' + request.pmid).innerText = 'trying';
@@ -305,7 +303,7 @@ chrome.extension.onRequest.addListener(
       try {
         if (request.el_link === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
           $(request.el_id).innerText = 'trying';
-        } else {
+        } else if (request.el_link) {
           if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
             $('thepaperlink' + request.el_id).innerText = 'pdf file';
             $('thepaperlink' + request.el_id).href = uneval_trim(request.el_link);
@@ -321,10 +319,14 @@ chrome.extension.onRequest.addListener(
       return;
     }
     r = request.r;
-    if (r.error) {
+    if (r && r.error) {
       t('h2')[title_pos].innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
         uneval(r.error) + '</span>';
+      sendResponse({});
+      return;
+    }
+    if (!r || !r.count) {
       sendResponse({});
       return;
     }
@@ -435,9 +437,9 @@ chrome.extension.onRequest.addListener(
             pdf = $('thepaperlink_pdf' + pmid).href,
             no_email_span = $('thepaperlink_save' + pmid).className;
           if ( (' ' + no_email_span + ' ').indexOf(' no_email ') > -1 ) {
-            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: apikey, no_email: 1});
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, no_email: 1});
           } else {
-            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, apikey: apikey, no_email: 0});
+            a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, no_email: 0});
             try {
               $('thepaperlink_D' + pmid).setAttribute('class', 'thepaperlink_Off');
             } catch (err) {
