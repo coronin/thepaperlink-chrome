@@ -29,7 +29,7 @@ function load_common_values() {
   req_key = apikey;
   if (req_key === null) {
     req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
-    //chrome.tabs.create({ url: chrome.extension.getURL("/options.html") });
+    //chrome.tabs.create({ url: chrome.extension.getURL("options.html") });
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
