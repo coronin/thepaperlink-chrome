@@ -19,7 +19,7 @@
 
   <h1>"the Paper Link" for PubMed - Google Chrome</h1>
 
-  <h3 style="color:red">"the Paper Link" API &ndash; required</h3>
+  <h3 style="color:#9f0000">"the Paper Link" API &ndash; required</h3>
   <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
     <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
@@ -68,7 +68,8 @@
     </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input type="checkbox" id="ajax_citedBy" /> <b>Enable</b> the bleeding feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
+  <p><input type="checkbox" id="ws_items" /> Testing: <b>enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
+    <br/>your status on the website should be <u id="ws_items_status"></u>.
     </p>
   <p><input type="checkbox" id="ajax_pii_link" /> Testing: <b>enable</b> to solve missing links locally
     </p>
@@ -102,8 +103,10 @@ $(document).ready(function () {
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" onclick="rest_key(1)">[x]</span>');
     $('.thepaperlink_a').css('display', 'none');
+    $('#ws_items_status').text('login');
   } else {
     $('#thepaperlink_apikey').html('<input type="text" value="" size="40" id="thepaperlink_apikey" />');
+    $('#ws_items_status').text('logout');
   }
   if (b_key) {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
@@ -153,8 +156,8 @@ $(document).ready(function () {
   if (localStorage.getItem('contextMenu_shown') === 'no') {
     $('#contextMenu_shown').prop('checked', true);
   }
-  if (localStorage.getItem('ajax_citedBy') === 'yes') {
-    $('#ajax_citedBy').prop('checked', true);
+  if (localStorage.getItem('ws_items') === 'yes') {
+    $('#ws_items').prop('checked', true);
   }
   if (localStorage.getItem('ajax_pii_link') !== 'no') {
     $('#ajax_pii_link').prop('checked', true);
@@ -217,7 +220,7 @@ function saveOptions() {
     co_pubmed = $('#co_pubmed').prop('checked'),
     new_tab = $('#new_tab').prop('checked'),
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
-    ajax_citedBy = $('#ajax_citedBy').prop('checked'),
+    ws_items = $('#ws_items').prop('checked'),
     ajax_pii_link = $('#ajax_pii_link').prop('checked'),
     ezproxy_prefix = $('#ezproxy_login').val(),
     req_a = null,
@@ -248,11 +251,11 @@ function saveOptions() {
       chrome.extension.sendRequest({menu_display: 1});
     }
   }
-  if (ajax_citedBy) {
-    localStorage.setItem('ajax_citedBy', 'yes');
+  if (ws_items) {
+    localStorage.setItem('ws_items', 'yes');
     chrome.extension.sendRequest({load_broadcast: 1});
   } else {
-    localStorage.setItem('ajax_citedBy', 'no');
+    localStorage.setItem('ws_items', 'no');
   }
   if (ajax_pii_link) {
     localStorage.setItem('ajax_pii_link', 'yes');

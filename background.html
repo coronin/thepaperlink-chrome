@@ -8,7 +8,7 @@
     <script type="text/javascript"><!--
 
 var DEBUG = false,
-  i, aKey, aVal, channel_token,
+  i, aKey, aVal, ws,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
@@ -173,8 +173,8 @@ function email_abstract(a, b) {
   $.post(base + '/',
     {'apikey': a, 'pmid': b, 'action': 'email'},
     function (d) {
-      localStorage.removeItem(aKey);
       DEBUG && console.log('>> post /, action email: ' + d);
+      localStorage.removeItem(aKey);
     }
   ).error(function () {
     DEBUG && console.log('>> email failed, save for later');
@@ -248,10 +248,9 @@ function getBinary(file, pmid, upload, no_email) {
 function reLoadOp() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
-    for (i = 1; i < tabs.length; i += 1) {
-      chrome.tabs.update(tabs[i].id, {url: urlOp, active: false});
+    for (i = 0; i < tabs.length; i += 1) {
+      chrome.tabs.update(tabs[i].id, {url: urlOp});
     }
-    chrome.tabs.update(tabs[0].id, {url: urlOp, active: true});
   });
 }
 
@@ -351,13 +350,13 @@ function getRequest(request, sender, callback) {
       localStorage.setItem('douban_status', 'success');
     }
   } else if (request.t_cont) {
+    DEBUG && console.log(request.t_cont);
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
     holder.value = request.t_cont;
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';
-    DEBUG && console.log(request.t_cont);
   } else if (request.load_common_values) {
     load_common_values();
   } else if (request.a_pmid && request.a_title) {
@@ -367,11 +366,15 @@ function getRequest(request, sender, callback) {
     scholar_count += 1;
     queue_scholar_title();
   } else if (request.reset_scholar_count) {
+    DEBUG && console.log('>> on-request reset scholar_count _run _queue');
     scholar_count = 0;
     scholar_run = 0;
-    scholar_queue = [],
-    DEBUG && console.log('>> on-request reset scholar_count _run _queue');
-  } else if (request.load_broadcast && !broadcast_loaded) {
+    scholar_queue = [];
+  } else if (request.load_broadcast) {
+    broadcast_loaded = 0;
+    if (ws) {
+      ws.close();
+    }
     load_broadcast();
   } else if (ajax_pii_link && request.pii_link && request.pii && request.pmid) {
     parse_url(request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii, sender.tab.id);
@@ -430,10 +433,10 @@ function do_scholar_title() {
   scholar_run += 1;
   scholar_title(pmid, t, tabId);
   if (scholar_run === scholar_count) {
+    DEBUG && console.log('>> self-reset scholar_count _run _queue');
     scholar_count = 0;
     scholar_run = 0;
-    scholar_queue = [],
-    DEBUG && console.log('>> self-reset scholar_count _run _queue');
+    scholar_queue = [];
   }
 }
 
@@ -521,104 +524,82 @@ function scholar_title(pmid, t, tabId) {
   });
 }
 
-function load_goog_channel() {
-  if (typeof goog === 'undefined' && load_try > 0) {
-    load_try -= 1;
-    setTimeout(load_goog_channel, 1000);
-    return;
-  }
-  var channel = new goog.appengine.Channel(channel_token),
-    socket = channel.open();
-  //socket.onopen = onOpened;
-  socket.onmessage = function (m) {
-    var d = JSON.parse(m.data);
-    DEBUG && console.log(d);
-    if (d.action === 'title') {
-      chrome.tabs.query({active: true, currentWindow: true},
-        function (tabs) {
-          scholar_title(d.pmid, d.title, tabs[0].id);
-        }
-      );
-    } else if (d.action === 'url') {
-      chrome.tabs.query({active: true, currentWindow: true},
-        function (tabs) {
-          parse_url(d.pmid, d.url, tabs[0].id);
-        }
-      );
-    } else if (d.action === 'pdfLink_quick') {
-      chrome.tabs.query({active: true, currentWindow: true},
-        function (tabs) {
-          chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick});
-        }
-      );
-    }
-  };
-  //socket.onerror = onError;
-  //socket.onclose = onClose;
-}
-
-function load_pusher() {
-  if (typeof Pusher === 'undefined' && load_try > 0) {
-    load_try -= 1;
-    setTimeout(load_pusher, 1000);
-    return;
-  }
-  var pusher = new Pusher('0ba83dd56d3312cc67c7'),
-    myChannel = pusher.subscribe('server');
-  myChannel.bind('broadcast', function (m) {
-    var d = JSON.parse(m.msg);
-    DEBUG && console.log(d);
-    if (d.action === 'title') {
-      chrome.tabs.query({active: true, currentWindow: true},
-        function (tabs) {
-          scholar_title(d.pmid, d.title, tabs[0].id);
-        }
-      );
-    } else if (d.action === 'url') {
-      chrome.tabs.query({active: true, currentWindow: true},
-        function (tabs) {
-          parse_url(d.pmid, d.url, tabs[0].id);
-        }
-      );
-    }
-  });
-}
-
 function load_broadcast() {
- if (apikey) {
-    $.post(base + '/mesh/create',
-      {'apikey': apikey},
-      function (d) {
-        DEBUG && console.log('>> post /mesh/create: ' + d);
-        channel_token = d;
-        try {
-          var ah = dd.createElement('script');
-          ah.setAttribute('type', 'text/javascript');
-          ah.setAttribute('src', base + '/_ah/channel/jsapi');
-          dd.body.appendChild(ah);
-          load_goog_channel();
-          broadcast_loaded = 1;
-        } catch (err) {
-          DEBUG && console.log('>> goog_channel is bleeding: ' + err);
-        }
-      }
-    );
-  } else {
-    try {
-      var p = dd.createElement('script');
-      p.setAttribute('type', 'text/javascript');
-      p.setAttribute('src', 'https://d3dy5gmtp8yhk7.cloudfront.net/1.11/pusher.min.js');
-      dd.body.appendChild(p);
-      load_pusher();
-      broadcast_loaded = 1;
-    } catch (err) {
-      DEBUG && console.log('>> pusher is bleeding: ' + err);
+  var _self = this;
+  this.start = function () {
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
+    if (!window.WebSocket) {
+      return;
     }
+    ws = new WebSocket('ws://husband.jit.su:80');
+
+    ws.onopen = function () {
+      DEBUG && console.log('>> ws is established');
+      broadcast_loaded = 1;
+      ws.send('{"apikey":"' + req_key + '"}');
+    };
+
+    ws.onclose = function () {
+      if (broadcast_loaded === 1) {
+        console.log('__ server comminucation lost, reconnecting...');
+        load_try -= 1;
+        clearTimeout(_self.refresh);
+        if (load_try < 0) {
+          DEBUG && console.log('>> ws is broken');
+          broadcast_loaded = 0;
+          return;
+        }
+        setTimeout(_self.start, 3000);
+      } else {
+        DEBUG && console.log('>> ws is closed');
+      }
+    };
+    //setInterval(function() {
+    //  if (ws.readyState !== 1) {
+    //    console.log('__ unable to comminucate with the WebSocket server');
+    //  }
+    //}, 3000);
+
+    ws.onerror = function (err) {
+      DEBUG && console.log('>> ws error: ' + err);
+    };
+
+    ws.onmessage = function (message) {
+      try {
+        var d = JSON.parse(message.data);
+        DEBUG && console.log(d);
+        if (d.apikey === req_key && d.action) {
+          if (d.action === 'title') {
+            chrome.tabs.query({active: true, currentWindow: true},
+              function (tabs) {
+                scholar_title(d.pmid, d.title, tabs[0].id);
+              }
+            );
+          } else if (d.action === 'url') {
+            chrome.tabs.query({active: true, currentWindow: true},
+              function (tabs) {
+                parse_url(d.pmid, d.url, tabs[0].id);
+              }
+            );
+          } else if (d.action === 'pdfLink_quick') {
+            chrome.tabs.query({active: true, currentWindow: true},
+              function (tabs) {
+                chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick});
+              }
+            );
+          }
+        }
+      } catch (err) {
+        DEBUG && console.log('>> json parse error: ' + message.data);
+        return;
+      }
+    };
   }
+  _self.start();
 }
 
 $(document).ready(function () {
-  if (localStorage.getItem('ajax_citedBy') === 'yes' && !broadcast_loaded) {
+  if (localStorage.getItem('ws_items') === 'yes' && !broadcast_loaded) {
     load_broadcast();
   }
 });
