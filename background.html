@@ -234,8 +234,8 @@ function sendBinary(aB, pmid, upload, no_email) {
 
 function getBinary(file, pmid, upload, no_email) {
   var xhr = new XMLHttpRequest();
-  xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
   xhr.open('GET', file, true);
+  xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
   xhr.onload = function () {
     var aB = xhr.response; // not xhr.responseText
     if (aB) {
@@ -461,7 +461,6 @@ function parse_url(pmid, url, tabId) {
             DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
           }
         );
-        return;
       }
     },
     'html'
