@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "minimum_chrome_version": "16",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -9,6 +9,8 @@
     "tabs",
     "clipboardWrite",
     "https://www.ncbi.nlm.nih.gov/*",
+    "https://thepaperlink.appspot.com/*",
+    "https://pubmeder.appspot.com/*",
     "https://pubget-hrd.appspot.com/*",
     "https://pubmeder-hrd.appspot.com/*",
     "http://*/*"
@@ -29,6 +31,8 @@
   "content_scripts": [ {
     "matches": [
       "https://www.ncbi.nlm.nih.gov/*",
+      "https://thepaperlink.appspot.com/*",
+      "https://pubmeder.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "https://pubmeder-hrd.appspot.com/*",
       "http://*/*"

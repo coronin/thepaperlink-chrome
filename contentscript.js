@@ -11,7 +11,6 @@ var DEBUG = false;
   noRun = 0,
   page_d = document,
   page_url = page_d.URL,
-  page_body = page_d.body,
   loading_gif = chrome.extension.getURL('loadingLine.gif'),
   clippy_file = chrome.extension.getURL('clippyIt.png'),
   pmids = '',
@@ -194,6 +193,7 @@ function alert_dev(req_key) {
 if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.net/reg'
     || page_url === 'http://thepaperlink.appspot.com/reg'
+    || page_url === 'https://thepaperlink.appspot.com/reg'
     || page_url === 'http://pubget-hrd.appspot.com/reg'
     || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
@@ -204,6 +204,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder.appspot.com/registration'
+    || page_url === 'https://pubmeder.appspot.com/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
@@ -219,7 +220,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
-  var ID = parse_id(page_body.textContent) || parse_id(page_body.innerHTML);
+  var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
     DEBUG && console.log('>> non-ncbi site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
