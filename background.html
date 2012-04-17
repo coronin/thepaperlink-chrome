@@ -24,6 +24,22 @@ var DEBUG = false,
   ajax_pii_link = 1;
 
 
+function get_ws_address() {
+  $.getJSON('http://cail.jit.su', function (d) {
+    $.post('http://www.thepaperlink.com/',
+      {'pmid':'1', 'title':'WEBSOCKET_SERVER', 'ip':d['x-forwarded-for']},
+      function (ws_d) {
+        DEBUG && console.log('>> get_ws_address: ' + ws_d);
+        localStorage.setItem('ws_address', ws_d);
+      }
+    ).error(function () {
+      DEBUG && console.log('>> get_ws_address, step 2 error');
+    });
+  }).error(function() {
+    DEBUG && console.log('>> get_ws_address, step 1 error');
+  });
+}
+
 function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
@@ -387,14 +403,14 @@ chrome.extension.onRequest.addListener(getRequest);
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',
   dataType: 'text',
-  timeout: 4000,
-  success: function() { DEBUG && console.log('>> directly access our secured server'); },
-  error: function() {
-    DEBUG && console.log('>> error? force rev_proxy');
-    localStorage.setItem('rev_proxy', 'yes');
-    rev_proxy = 'yes';
-    base = 'http://0.pl4.me';
-  }
+  timeout: 4000
+}).success(function() {
+  DEBUG && console.log('>> directly access our secured server');
+}).error(function() {
+  DEBUG && console.log('>> error? force rev_proxy');
+  localStorage.setItem('rev_proxy', 'yes');
+  rev_proxy = 'yes';
+  base = 'http://0.pl4.me';
 });
 
 for (i = 0; i < localStorage.length; i += 1) {
@@ -531,7 +547,9 @@ function load_broadcast() {
     if (!window.WebSocket) {
       return;
     }
-    ws = new WebSocket('ws://husband.jit.su:80');
+    ws = new WebSocket('ws://' +
+      (localStorage.getItem('ws_address') || 'husband.jit.su')
+    );
 
     ws.onopen = function () {
       DEBUG && console.log('>> ws is established');
@@ -600,6 +618,7 @@ function load_broadcast() {
 
 $(document).ready(function () {
   if (localStorage.getItem('ws_items') === 'yes' && !broadcast_loaded) {
+    get_ws_address();
     load_broadcast();
   }
 });
