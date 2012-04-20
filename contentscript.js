@@ -110,7 +110,9 @@ function getPmid(zone, num) {
         t(zone)[num + 5].appendChild(c);
       }
       pmids += ',' + ID[1];
-      a_proxy({a_pmid: ID[1], a_title: t_title});
+      if (a.indexOf('- in process') < 0) {
+        a_proxy({a_pmid: ID[1], a_title: t_title});
+      }
     }
   }
 }
