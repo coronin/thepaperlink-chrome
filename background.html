@@ -261,6 +261,19 @@ function getBinary(file, pmid, upload, no_email) {
   xhr.send(null);
 }
 
+function dropbox_it(pmid, pdf, apikey) {
+  $.ajax({
+    url: base + '/file/new',
+    dataType: 'jsonp',
+    data: {'apikey': apikey, 'no_email': 1},
+    //async: false,
+  }).success(function (upload_url) {
+    getBinary(pdf, pmid, upload_url, 1);
+  }).error(function () {
+    DEBUG && console.log('>> dropbox_it failed: ' + pdf);
+  });
+}
+
 function reLoadOp() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
@@ -605,6 +618,8 @@ function load_broadcast() {
                 chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick});
               }
             );
+          } else if (d.action === 'dropbox_it') {
+            dropbox_it(d.pmid, d.pdf, d.apikey);
           }
         }
       } catch (err) {
