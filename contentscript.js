@@ -81,7 +81,7 @@ function getPmid(zone, num) {
           '.\r\n' + trim( t_strings[1] ) +
           '.\r\n' + trim( t_strings[2] ) +
           '. ' + trim( t_strings[3] ) +
-          '. [' + ID[1] + ']\r\n';
+          '. [PMID:' + ID[1] + ']\r\n';
       } else{
         t_strings = a.split('.');
         t_title = trim( t_strings[2] );
@@ -89,7 +89,7 @@ function getPmid(zone, num) {
           '.\r\n' + trim( t_strings[3] ) +
           '.\r\n' + trim( t_strings[0] ) +
           '. ' + trim( t_strings[1] ) +
-          '. [' + ID[1] + ']\r\n';
+          '. [PMID:' + ID[1] + ']\r\n';
       }
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
@@ -99,18 +99,21 @@ function getPmid(zone, num) {
       b.onclick = function () {
         chrome.extension.sendRequest({t_cont: t_cont});
       };
-      c = page_d.createElement('span');
-      c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
-      c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '"></span>';
       if (t(zone)[num].className === 'rprt') {
         t(zone)[num + 3].appendChild(b);
-        t(zone)[num + 4].appendChild(c);
       } else { // display with abstract
         t(zone)[num + 1].appendChild(b);
-        t(zone)[num + 5].appendChild(c);
       }
       pmids += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
+        c = page_d.createElement('span');
+        c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
+        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '"></span>';
+        if (t(zone)[num].className === 'rprt') {
+          t(zone)[num + 4].appendChild(c);
+        } else { // display with abstract
+          t(zone)[num + 5].appendChild(c);
+        }
         a_proxy({a_pmid: ID[1], a_title: t_title});
       }
     }
