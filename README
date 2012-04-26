@@ -34,7 +34,8 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
- * v0.4.3.4 - bug fix
+ * v0.4.3.4 - handle ws better, handle housekeeping better
+ * v0.4.3.3 - bug fix
  * v0.4.3.2 - web site "save it" will save to Dropbox (if connected)
  * v0.4.3.1 - automatic update WebSocket server address
  * v0.4.3 - use WebSocket to accept broadcasting
