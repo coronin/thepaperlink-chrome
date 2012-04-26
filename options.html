@@ -68,7 +68,7 @@
     </p>
   <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input type="checkbox" id="ws_items" /> Testing: <b>enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
+  <p><input type="checkbox" id="ws_items" /> <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
     <br/>your status on the website should be <u id="ws_items_status"></u>.
     </p>
   <p><input type="checkbox" id="ajax_pii_link" /> Testing: <b>enable</b> to solve missing links locally
@@ -156,7 +156,7 @@ $(document).ready(function () {
   if (localStorage.getItem('contextMenu_shown') === 'no') {
     $('#contextMenu_shown').prop('checked', true);
   }
-  if (localStorage.getItem('ws_items') === 'yes') {
+  if (localStorage.getItem('ws_items') !== 'no') {
     $('#ws_items').prop('checked', true);
   }
   if (localStorage.getItem('ajax_pii_link') !== 'no') {
