@@ -9,6 +9,7 @@
 
 var DEBUG = false,
   i, aKey, aVal, ws,
+  ws_addr = localStorage.getItem('ws_address') || 'husband.jit.su',
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
@@ -21,7 +22,13 @@ var DEBUG = false,
   apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
   pubmeder_ok = 0,
   broadcast_loaded = 0,
-  ajax_pii_link = 1;
+  ajax_pii_link = 1,
+  currentTime = new Date(),
+  year = currentTime.getFullYear(),
+  month = currentTime.getMonth() + 1,
+  day = currentTime.getDate(),
+  date_str = 'day_' + year + '_' + month + '_' + day,
+  last_date = localStorage.getItem('last_date_str') || '';
 
 
 function get_ws_address() {
@@ -31,6 +38,15 @@ function get_ws_address() {
       function (ws_d) {
         DEBUG && console.log('>> get_ws_address: ' + ws_d);
         localStorage.setItem('ws_address', ws_d);
+        if (ws_d !== ws_addr) {
+          ws_addr = ws_d;
+          if (ws) {
+            ws.close();
+            broadcast_loaded = 0;
+          }
+          DEBUG && console.log('>> connect to the new ws server');
+          load_broadcast();
+        }
       }
     ).error(function () {
       DEBUG && console.log('>> get_ws_address, step 2 error');
@@ -426,25 +442,32 @@ $.ajax({
   base = 'http://0.pl4.me';
 });
 
-for (i = 0; i < localStorage.length; i += 1) {
-  aKey = localStorage.key(i);
-  if (aKey && aKey.substr(0,6) === 'tabId:') {
-    aVal = localStorage.getItem(aKey);
-    if ( alldigi.test(aVal) ) {
-      if (aVal !== '999999999' && init_found.indexOf(aVal) === -1) {
-        old_id += ' ' + aVal;
+if (last_date !== date_str) {
+  localStorage.setItem('last_date_str', date_str);
+  DEBUG && console.log('>> a new day! start with some housekeeping tasks');
+  for (i = 0; i < localStorage.length; i += 1) {
+    aKey = localStorage.key(i);
+    if (aKey && aKey.substr(0,6) === 'tabId:') {
+      aVal = localStorage.getItem(aKey);
+      if ( alldigi.test(aVal) ) {
+        if (aVal !== '999999999' && init_found.indexOf(aVal) === -1) {
+          old_id += ' ' + aVal;
+        }
+        localStorage.removeItem(aKey);
       }
+    } else if (aKey && aKey.substr(0,6) === 'email_') {
+      aVal = aKey.split('_');
+      email_abstract(aVal[1], aVal[2]);
+    } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
+      aVal = aKey.split('_');
+      localStorage.removeItem(aKey);
+      saveIt_pubmeder(aVal[1]);
+    } else if (aKey && aKey.substr(0,8) === 'scholar_') {
       localStorage.removeItem(aKey);
     }
-  } else if (aKey && aKey.substr(0,6) === 'email_') {
-    aVal = aKey.split('_');
-    email_abstract(aVal[1], aVal[2]);
-  } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
-    aVal = aKey.split('_');
-    localStorage.removeItem(aKey);
-    saveIt_pubmeder(aVal[1]);
   }
 }
+
 if (old_id) {
   localStorage.setItem('id_found', init_found + ' ' + old_id);
 }
@@ -560,9 +583,7 @@ function load_broadcast() {
     if (!window.WebSocket) {
       return;
     }
-    ws = new WebSocket('ws://' +
-      (localStorage.getItem('ws_address') || 'husband.jit.su')
-    );
+    ws = new WebSocket('ws://' + ws_addr);
 
     ws.onopen = function () {
       DEBUG && console.log('>> ws is established');
@@ -583,6 +604,7 @@ function load_broadcast() {
         setTimeout(_self.start, 3000);
       } else {
         DEBUG && console.log('>> ws is closed');
+        return;
       }
     };
     //setInterval(function() {
@@ -593,6 +615,7 @@ function load_broadcast() {
 
     ws.onerror = function (err) {
       DEBUG && console.log('>> ws error: ' + err);
+      return;
     };
 
     ws.onmessage = function (message) {
@@ -624,7 +647,6 @@ function load_broadcast() {
         }
       } catch (err) {
         DEBUG && console.log('>> json parse error: ' + message.data);
-        return;
       }
     };
   }
@@ -632,9 +654,9 @@ function load_broadcast() {
 }
 
 $(document).ready(function () {
-  if (localStorage.getItem('ws_items') === 'yes' && !broadcast_loaded) {
-    get_ws_address();
+  if (!broadcast_loaded && localStorage.getItem('ws_items') !== 'no') {
     load_broadcast();
+    get_ws_address();
   }
 });
     //-->
