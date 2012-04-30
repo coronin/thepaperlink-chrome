@@ -156,7 +156,7 @@ $(document).ready(function () {
   if (localStorage.getItem('contextMenu_shown') === 'no') {
     $('#contextMenu_shown').prop('checked', true);
   }
-  if (localStorage.getItem('ws_items') !== 'no') {
+  if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
   }
   if (localStorage.getItem('ajax_pii_link') !== 'no') {

@@ -516,7 +516,9 @@ function parse_url(pmid, url, tabId) {
             DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
           }
         );
+        return;
       }
+      chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: '#'});
     },
     'html'
   ).error(function () {
@@ -654,7 +656,7 @@ function load_broadcast() {
 }
 
 $(document).ready(function () {
-  if (!broadcast_loaded && localStorage.getItem('ws_items') !== 'no') {
+  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
     load_broadcast();
     get_ws_address();
   }
