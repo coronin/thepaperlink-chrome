@@ -315,8 +315,13 @@ chrome.extension.onRequest.addListener(
           $(request.el_id).innerText = 'trying';
         } else if (request.el_link) {
           if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
-            $('thepaperlink' + request.el_id).innerText = 'pdf file';
-            $('thepaperlink' + request.el_id).href = uneval_trim(request.el_link);
+            var e = $('thepaperlink' + request.el_id);
+            if (request.el_link === '#') {
+              e.parentNode.removeChild(e);
+            } else {
+              e.innerText = 'pdf file';
+              e.href = uneval_trim(request.el_link);
+            }
           } else {
             $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
               + uneval_trim(request.el_link) +'">the file link</a>';
