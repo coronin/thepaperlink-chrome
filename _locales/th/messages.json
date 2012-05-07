@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Link กระดาษสำหรับ PubMed",
+    "description": "The title displayed in the web store."
+  },
+  "appDesc": {
+    "message": "เพิ่มลิงก์ PDF โดยตรง; แสดง F1000 คะแนนปัจจัยที่มีผลกระทบต่อ, Peaks และอื่น ๆ ... (โดย Liang Cai สำหรับ Google Chrome)", 
+    "description":"The description displayed in the web store."
+  }
+}

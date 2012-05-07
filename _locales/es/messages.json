@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "el enlace del papel de PubMed",
+    "description": "The title displayed in the web store."
+  },
+  "appDesc": {
+    "message": "Agregar enlace PDF directo, pantalla F1000 resultados, factor de impacto, picos y mucho más ... (por Liang Cai, para Google Chrome)", 
+    "description":"The description displayed in the web store."
+  }
+}

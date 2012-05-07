@@ -108,7 +108,7 @@ function getPmid(zone, num) {
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
-        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '"></span>';
+        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">waiting</span>';
         if (t(zone)[num].className === 'rprt') {
           t(zone)[num + 4].appendChild(c);
         } else { // display with abstract
@@ -300,32 +300,34 @@ chrome.extension.onRequest.addListener(
             $('citedBy' + request.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
           }
         } else if (request.g_num && request.g_link) {
-          $('citedBy' + request.pmid).innerHTML = '<a target="_blank" href="http://scholar.google.com'
-            + uneval_trim(request.g_link) + '">' + uneval_trim(request.g_num)
-            + ' times (in Google Scholar)</a>';
+          $('citedBy' + request.pmid).innerHTML = uneval_trim(request.g_num)
+            + ' times <a target="_blank" href="http://scholar.google.com'
+            + uneval_trim(request.g_link) + '">(in Google Scholar)</a>';
         }
       } catch (err) {
         DEBUG && console.log(err);
       }
       sendResponse({});
       return;
-    } else if (request.el_id && request.el_link) {
+    } else if (request.el_id && request.el_data) {
       try {
-        if (request.el_link === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
-          $(request.el_id).innerText = 'trying';
-        } else if (request.el_link) {
+        if (request.el_data && request.el_data.indexOf('://') > -1) {
           if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
             var e = $('thepaperlink' + request.el_id);
-            if (request.el_link === '#') {
+            if (request.el_data === '://') {
               e.parentNode.removeChild(e);
             } else {
               e.innerText = 'pdf file';
-              e.href = uneval_trim(request.el_link);
+              e.href = uneval_trim(request.el_data);
             }
           } else {
             $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
-              + uneval_trim(request.el_link) +'">the file link</a>';
+              + uneval_trim(request.el_data) +'">the file link</a>';
           }
+        } else if (request.el_data === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
+          $(request.el_id).innerText = 'trying';
+        } else {
+          $(request.el_id).innerText = request.el_data;
         }
       } catch (err) {
         DEBUG && console.log(err);
@@ -392,9 +394,19 @@ chrome.extension.onRequest.addListener(
     }
     for (i = 0; i < r.count; i += 1) {
       pmid = uneval_trim(r.item[i].pmid);
+      k = pmidArray.length;
+      for (j = 0; j < k; j += 1) {
+        if (pmid === pmidArray[j]) {
+          pmidArray = pmidArray.slice(0, j).concat(pmidArray.slice(j + 1, k));
+        }
+      }
+      if ($('pl4me_' + pmid)) {
+        continue;
+      }
       div = page_d.createElement('div');
       div.className = 'thepaperlink';
-      div_html = '<a class="thepaperlink-home" href="http://www.thepaperlink.com/?q=pmid:' +
+      div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
+        '" href="http://www.thepaperlink.com/?q=pmid:' +
         pmid + '" target="_blank">the Paper Link</a>: ';
       if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
         div_html += '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
@@ -406,6 +418,12 @@ chrome.extension.onRequest.addListener(
       } else if (r.item[i].pii) {
         a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
         div_html += '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+        var s1 = $('citedBy' + pmid),
+          s2 = page_d.createElement('span');
+        s2.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
+          p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
+          uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
+        s1.parentNode.appendChild(s2);
       }
       if (r.item[i].pmcid) {
         div_html += '<a id="thepaperlink_pmc' + pmid +
@@ -462,13 +480,6 @@ chrome.extension.onRequest.addListener(
             }
           }
         });
-      }
-
-      k = pmidArray.length;
-      for (j = 0; j < k; j += 1) {
-        if (pmid === pmidArray[j]) {
-          pmidArray = pmidArray.slice(0, j).concat(pmidArray.slice(j + 1, k));
-        }
       }
     }
     if (pmidArray.length > 0 && onePage_calls < 10) {

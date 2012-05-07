@@ -462,7 +462,7 @@ if (last_date !== date_str) {
       aVal = aKey.split('_');
       localStorage.removeItem(aKey);
       saveIt_pubmeder(aVal[1]);
-    } else if (aKey && aKey.substr(0,8) === 'scholar_') {
+    } else if (aKey && (aKey.substr(0,8) === 'scholar_' || aKey.substr(0,7) === 'scopus_')) {
       localStorage.removeItem(aKey);
     }
   }
@@ -498,27 +498,41 @@ function parse_url(pmid, url, tabId) {
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
-    chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: in_mem[1]});
+    chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: in_mem[1]});
+    in_mem = localStorage.getItem('scopus_' + pmid);
+    if (in_mem) {
+      in_mem = in_mem.split(',', 2);
+      chrome.tabs.sendRequest(tabId, {el_id: 'pl4_scopus' + pmid, el_data: in_mem[1]});
+    }
     return;
   }
-  chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: 1});
+  chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: 1});
   $.get(url,
     function (r) {
       var reg = /href="([^"]+)" target="newPdfWin"/,
-        h = reg.exec(r);
+        reg2 = /Cited by in Scopus \((\d+)\)/i,
+        h = reg.exec(r),
+        h2 = reg2.exec(r),
+        args;
       if (h && h.length) {
         DEBUG && console.log(h);
+        args = {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]};
+        if (h2 && h2.length) {
+          DEBUG && console.log(h2);
+          args.scopus_n = h2[1];
+          localStorage.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
+          chrome.tabs.sendRequest(tabId, {el_id: 'pl4_scopus' + pmid, el_data: h2[1]});
+        }
         localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
-        chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: h[1]});
-        $.post(base + '/',
-          {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]},
+        chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: h[1]});
+        $.post(base + '/', args,
           function (d) {
             DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
           }
         );
         return;
       }
-      chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_link: '#'});
+      chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
     },
     'html'
   ).error(function () {
@@ -640,7 +654,7 @@ function load_broadcast() {
           } else if (d.action === 'pdfLink_quick') {
             chrome.tabs.query({active: true, currentWindow: true},
               function (tabs) {
-                chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_link: d.pdfLink_quick});
+                chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
               }
             );
           } else if (d.action === 'dropbox_it') {
