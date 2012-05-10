@@ -1,7 +1,7 @@
 ATTENTION: Please visit the Options page (Tools - Extensions ...) to unleash the power of this extension.
 
 
-the Paper Link for PubMed
+the Paper Link for PubMed (limited)
 --------
 In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more! It is built based on publicly available information from NLM / NCBI / NIH, and other sources.
 
@@ -14,69 +14,8 @@ Detailed enhancement includes:
  * Email PDF file to yourself
  * Extract PMID on any webpage
 
-This extension is built using API from http://www.pubmeder.com, http://www.thepaperlink.com and PubMed eUtils.
-
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
 
-For Firefox, please use the following:
- + from https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/
-
-For Safari, please use the following:
- + http://www.thepaperlink.com/static/thepaperlink.safariextz
-
-For Mobile Devices:
- + visit www.thepaperlink.com on your mobile device: iPhone, Android, iPod Touch, iPad, etc
-
-One more thing - we have a js client for "the Paper Link", working in all web browsers.
- + http://www.thepaperlink.com/js/ ( shorten URL http://pl4.me/js/ or http://0.pl4.me/js/ )
- + instruction for the js client is at http://en.dogeno.us/?p=7567
-
-
-Change Log:
- * v0.4.4 - cited by Scopus
- * v0.4.3.5 - bug fix
- * v0.4.3.4 - handle ws better, handle housekeeping better
- * v0.4.3.3 - bug fix
- * v0.4.3.2 - web site "save it" will save to Dropbox (if connected)
- * v0.4.3.1 - automatic update WebSocket server address
- * v0.4.3 - use WebSocket to accept broadcasting
- * v0.4.2 - better handle on active tabs
- * v0.4.1.2 - bug fix
- * v0.4.1 - solve missing links locally
- * v0.4.0.2 - bug fix; no longer require a restart
- * v0.4.0 - "cited by" on PubMed
- * v0.3.9 - display "cited by" on http://www.thepaperlink.com
- * v0.3.8 - clipboardWrite without Flash
- * v0.3.7.5 - bug fix
- * v0.3.7.4 - safer innerHTML
- * v0.3.7.3 - ajax error handle
- * v0.3.7.2 - better pubmeder support
- * v0.3.7.1 - support ezproxy prefix
- * v0.3.7 - automatically enable the reverse proxy; jQuery 1.7.1
- * v0.3.6.3 - "save it" to www.douban.com
- * v0.3.6.2 - bug fix
- * v0.3.6 - "pubmeder it" changed to "save it", option page update
- * v0.3.5.2 - option to disable the context menu
- * v0.3.5.1 - context menu for page
- * v0.3.5 - context menu for selected text
- * v0.3.4.1 - bug fix (Options page)
- * v0.3.4 - bug fix (single no-repeat call, insert title_pos, multi-tab); update to jQuery 1.6.3
- * v0.3.3.3 - change js url, bug fix (swf display)
- * v0.3.3.2 - bug fix (reverse proxy)
- * v0.3.3.1 - fix bad compressed v0.3.1 package
- * v0.3.1 - bug fix; option to disable some function when PubMed-er is installed; update to jQuery 1.6.2
- * v0.3.0 - bug fix; use reverse proxy domains; popup from pubmeder
- * v0.2.9 - copy to clipboard, report error
- * v0.2.8 - "email it" will try to attach the PDF file (Chrome Only); UI tweak
- ** with v0.2.8 release, you can email the PubMed abstract with PDF attached to yourself. Details about this feature is at http://en.dogeno.us/?p=7601 . To achieve this, I have to change the access permission of the extension.
- * v0.2.7 - lousy fix json fetch error (update to jQuery 1.5.2)
- * v0.2.6 - better "pubmeder it / pubmeder all" bookmarking
- * v0.2.5 - option page update
- * v0.2.4 - option page ui improved, "Peaks" full functional
- * v0.2.3 - test using "Peaks" api
- * v0.2.2 - add https support
- * v0.2.1 - bug fix
- * v0.2.0 - two-hit for fast data fetching
- * v0.1.2 - "pubmeder all" for users of http://www.pubmeder.com
- * v0.1.1 - first public version
+Full version is https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko
+Versions of limited and full are matched
