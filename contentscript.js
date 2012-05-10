@@ -20,6 +20,11 @@ var DEBUG = false;
   search_term = '',
   onePage_calls = 0;
 
+/* limited version, full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
+limited = page_d.createElement('div');
+limited.innerHTML = '<div id="thePaperLink_chrome_limited"></div>';
+page_d.body.appendChild(limited);
+
 
 if (typeof window.uneval === 'undefined') {
   window.uneval = function (a) {
