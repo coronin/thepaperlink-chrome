@@ -32,7 +32,7 @@ var DEBUG = false,
 
 
 function get_ws_address() {
-  $.getJSON('http://cail.jit.su', function (d) {
+  $.getJSON('http://cail.jit.su/', function (d) {
     $.post('http://www.thepaperlink.com/',
       {'pmid':'1', 'title':'WEBSOCKET_SERVER', 'ip':d['x-forwarded-for']},
       function (ws_d) {
