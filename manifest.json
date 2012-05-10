@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.4.4.1",
+  "version": "0.4.4",
   "minimum_chrome_version": "16",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -8,12 +8,8 @@
     "contextMenus",
     "tabs",
     "clipboardWrite",
-    "https://www.ncbi.nlm.nih.gov/*",
-    "https://thepaperlink.appspot.com/*",
-    "https://pubmeder.appspot.com/*",
-    "https://pubget-hrd.appspot.com/*",
-    "https://pubmeder-hrd.appspot.com/*",
-    "http://*/*"
+    "http://www.ncbi.nlm.nih.gov/*",
+    "https://www.ncbi.nlm.nih.gov/*"
   ],
   "icons": {
     "128": "128.png",
@@ -30,12 +26,8 @@
   },
   "content_scripts": [ {
     "matches": [
-      "https://www.ncbi.nlm.nih.gov/*",
-      "https://thepaperlink.appspot.com/*",
-      "https://pubmeder.appspot.com/*",
-      "https://pubget-hrd.appspot.com/*",
-      "https://pubmeder-hrd.appspot.com/*",
-      "http://*/*"
+      "http://www.ncbi.nlm.nih.gov/*",
+      "https://www.ncbi.nlm.nih.gov/*"
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
