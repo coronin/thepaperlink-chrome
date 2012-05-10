@@ -9,7 +9,13 @@
     "tabs",
     "clipboardWrite",
     "http://www.ncbi.nlm.nih.gov/*",
-    "https://www.ncbi.nlm.nih.gov/*"
+    "https://www.ncbi.nlm.nih.gov/*",
+    "http://cail.jit.su/",
+    "https://pubget-hrd.appspot.com/static/humans.txt",
+    "https://pubget-hrd.appspot.com/api*",
+    "http://0.pl4.me/api*",
+    "http://scholar.google.com/*",
+    "http://linkinghub.elsevier.com/retrieve/pii/*"
   ],
   "icons": {
     "128": "128.png",
