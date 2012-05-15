@@ -1,4 +1,4 @@
-ATTENTION: Please visit the Options page (Tools - Extensions ...) to unleash the power of this extension.
+ATTENTION: If you are concerned about the "Your data on all websites" permission request, you can install the limited version at https://chrome.google.com/webstore/detail/emdponcknibglcjeidbemionclljooao , which will not have the features to either email PDF to yourself or to parse non-PubMed pages.
 
 
 the Paper Link for PubMed
@@ -14,9 +14,9 @@ Detailed enhancement includes:
  * Email PDF file to yourself
  * Extract PMID on any webpage
 
-This extension is built using API from http://www.pubmeder.com, http://www.thepaperlink.com and PubMed eUtils.
-
-Source of this extension is at https://github.com/coronin/thepaperlink-chrome
+- This extension is built using APIs from http://www.thepaperlink.com, http://www.pubmeder.com and PubMed eUtils.
+- Source of this extension is at https://github.com/coronin/thepaperlink-chrome
+- Please visit the Options page (Tools - Extensions ...) to unleash the power of this extension.
 
 
 For Firefox, please use the following:
@@ -34,6 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
+ * v0.4.4.1 - bug fix
  * v0.4.4 - cited by Scopus
  * v0.4.3.5 - bug fix
  * v0.4.3.4 - handle ws better, handle housekeeping better
