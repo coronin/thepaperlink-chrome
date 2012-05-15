@@ -16,7 +16,6 @@ var DEBUG = false;
   pmids = '',
   pmidArray = [],
   old_title = '',
-  title_pos = 0,
   search_term = '',
   onePage_calls = 0;
 
@@ -94,7 +93,7 @@ function getPmid(zone, num) {
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
-        + '<img title="copy to clipboard" src="' + clippy_file
+        + '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file
         + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
       b.onclick = function () {
         chrome.extension.sendRequest({t_cont: t_cont});
@@ -107,7 +106,7 @@ function getPmid(zone, num) {
       pmids += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
-        c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
+        c.style.cssText = 'border-left:6px #fccccc solid;padding-left:6px;font-size:11px;';
         c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">waiting</span>';
         if (t(zone)[num].className === 'rprt') {
           t(zone)[num + 4].appendChild(c);
@@ -121,7 +120,7 @@ function getPmid(zone, num) {
 }
 
 function get_Json(pmids) {
-  var i, div,
+  var i, ele,
     need_insert = 1,
     url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
     loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
@@ -131,17 +130,19 @@ function get_Json(pmids) {
     url += '&apikey=';
   }
   for (i = 0; i < t('h2').length; i += 1) {
-    if (t('h2')[i].className === 'result_count') {
-      old_title = t('h2')[i].innerHTML;
-      title_pos = i;
+    ele = t('h2')[i];
+    if (ele.className === 'result_count') {
       need_insert = 0;
-      t('h2')[i].innerHTML = old_title + loading_span;
+      ele.setAttribute('id', 'pl4_title');
+      old_title = ele.innerHTML;
+      ele.innerHTML = old_title + loading_span;
     }
   }
   if (need_insert) {
-    div = page_d.createElement('h2');
-    div.innerHTML = loading_span;
-    $('messagearea').appendChild(div);
+    ele = page_d.createElement('h2');
+    ele.innerHTML = loading_span;
+    ele.setAttribute('id', 'pl4_title');
+    $('messagearea').appendChild(ele);
   }
   onePage_calls += 1;
   a_proxy({url: url});
@@ -265,13 +266,13 @@ chrome.extension.onRequest.addListener(
       if (!search_term) {
         search_term = localStorage.getItem('thePaperLink_ID');
       }
-      t('h2')[title_pos].innerHTML = old_title +
+      $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">Error! Try ' +
         '<button onclick="window.location.reload()">reload</button> or ' +
         '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">the Paper Link</a>' +
         '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
-      t('h2')[title_pos].onclick = function () {
+      $('pl4_title').onclick = function () {
         alert_dev( uneval_trim(request.tpl) );
       };
       sendResponse({});
@@ -337,7 +338,7 @@ chrome.extension.onRequest.addListener(
     }
     r = request.r;
     if (r && r.error) {
-      t('h2')[title_pos].innerHTML = old_title +
+      $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
         uneval(r.error) + '</span>';
       sendResponse({});
@@ -372,6 +373,12 @@ chrome.extension.onRequest.addListener(
       + '  color: grey;'
       + '  text-decoration: none;'
       + '  cursor: pointer'
+      + '}'
+      + 'img.pl4_clippy {'
+      + '  opacity: 0.4'
+      + '}'
+      + 'img.pl4_clippy:hover {'
+      + '  opacity: 1.0'
       + '}';
     if (!$('css_loaded')) {
       S = page_d.createElement('style');
@@ -388,9 +395,9 @@ chrome.extension.onRequest.addListener(
       bookmark_div += 'Wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
     }
     if (old_title) {
-      t('h2')[title_pos].innerHTML = old_title + bookmark_div;
+      $('pl4_title').innerHTML = old_title + bookmark_div;
     } else {
-      t('h2')[title_pos].innerHTML = '';
+      $('pl4_title').innerHTML = '';
     }
     for (i = 0; i < r.count; i += 1) {
       pmid = uneval_trim(r.item[i].pmid);
@@ -487,7 +494,7 @@ chrome.extension.onRequest.addListener(
         DEBUG && console.log('>> got nothing; stopped. ' + k);
       } else {
         DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
-        t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
+        $('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
         a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
