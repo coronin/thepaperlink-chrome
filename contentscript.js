@@ -248,7 +248,7 @@ if (!noRun) {
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     DEBUG && console.log(request);
-    var r, p, pmid, div, div_html, i, j, k, S, styles, peaks,
+    var r, p, pmid, div, div_html, i, j, k, S, styles, peaks, s2,
       bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ';
     if (request.js_base_uri) {
       if (!$('paperlink2_display')) {
@@ -425,12 +425,6 @@ chrome.extension.onRequest.addListener(
       } else if (r.item[i].pii) {
         a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
         div_html += '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
-        var s1 = $('citedBy' + pmid),
-          s2 = page_d.createElement('span');
-        s2.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
-          p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
-          uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
-        s1.parentNode.appendChild(s2);
       }
       if (r.item[i].pmcid) {
         div_html += '<a id="thepaperlink_pmc' + pmid +
@@ -445,6 +439,13 @@ chrome.extension.onRequest.addListener(
         div_html += '<a id="thepaperlink_doi' + pmid +
           '" href="' + p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
           uneval_trim(r.item[i].pii) + '" target="_blank">publisher</a>';
+      }
+      if (r.item[i].pii && $('citedBy' + pmid)) {
+        s2 = page_d.createElement('span');
+        s2.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
+          p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
+          uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
+        $('citedBy' + pmid).parentNode.appendChild(s2);
       }
       if (r.item[i].f_v && r.item[i].fid) {
         div_html += '<a id="thepaperlink_f' + pmid +
