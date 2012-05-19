@@ -34,7 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
- * v0.4.4.1 - bug fix
+ * v0.4.4.2 - bug fix
  * v0.4.4 - cited by Scopus
  * v0.4.3.5 - bug fix
  * v0.4.3.4 - handle ws better, handle housekeeping better
