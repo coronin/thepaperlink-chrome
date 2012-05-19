@@ -92,9 +92,9 @@ function getPmid(zone, num) {
       }
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
-      b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
-        + '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file
-        + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
+      b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
+        '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
+        '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
       b.onclick = function () {
         chrome.extension.sendRequest({t_cont: t_cont});
       };
@@ -301,9 +301,9 @@ chrome.extension.onRequest.addListener(
             $('citedBy' + request.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
           }
         } else if (request.g_num && request.g_link) {
-          $('citedBy' + request.pmid).innerHTML = uneval_trim(request.g_num)
-            + ' times <a target="_blank" href="http://scholar.google.com'
-            + uneval_trim(request.g_link) + '">(in Google Scholar)</a>';
+          $('citedBy' + request.pmid).innerHTML = uneval_trim(request.g_num) +
+            ' times <a target="_blank" href="http://scholar.google.com' +
+            uneval_trim(request.g_link) + '">(in Google Scholar)</a>';
         }
       } catch (err) {
         DEBUG && console.log(err);
@@ -322,8 +322,8 @@ chrome.extension.onRequest.addListener(
               e.href = uneval_trim(request.el_data);
             }
           } else {
-            $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
-              + uneval_trim(request.el_data) +'">the file link</a>';
+            $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="' +
+              uneval_trim(request.el_data) +'">the file link</a>';
           }
         } else if (request.el_data === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
           $(request.el_id).innerText = 'trying';
@@ -349,37 +349,37 @@ chrome.extension.onRequest.addListener(
       return;
     }
     p = uneval_trim(request.p);
-    styles = '.thepaperlink {'
-      + '  background: #e0ecf1;'
-      + '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;'
-      + '  padding: 2px 4px;'
-      + '  border-radius: 4px;'
-      + '  display: inline-block'
-      + '}'
-      + '.thepaperlink_Off {'
-      + '  display: none !important'
-      + '}'
-      + '.thepaperlink > a ,'
-      + '.thepaperlink > span {'
-      + '  margin: 0 6px'
-      + '}'
-      + 'a.thepaperlink-green {'
-      + '  color: green'
-      + '}'
-      + 'a.thepaperlink-red {'
-      + '  color: red'
-      + '}'
-      + '.thepaperlink-home {'
-      + '  color: grey;'
-      + '  text-decoration: none;'
-      + '  cursor: pointer'
-      + '}'
-      + 'img.pl4_clippy {'
-      + '  opacity: 0.4'
-      + '}'
-      + 'img.pl4_clippy:hover {'
-      + '  opacity: 1.0'
-      + '}';
+    styles = '.thepaperlink {' +
+      '  background: #e0ecf1;' +
+      '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
+      '  padding: 2px 4px;' +
+      '  border-radius: 4px;' +
+      '  display: inline-block' +
+      '}' +
+      '.thepaperlink_Off {' +
+      '  display: none !important' +
+      '}' +
+      '.thepaperlink > a ,' +
+      '.thepaperlink > span {' +
+      '  margin: 0 6px' +
+      '}' +
+      'a.thepaperlink-green {' +
+      '  color: green' +
+      '}' +
+      'a.thepaperlink-red {' +
+      '  color: red' +
+      '}' +
+      '.thepaperlink-home {' +
+      '  color: grey;' +
+      '  text-decoration: none;' +
+      '  cursor: pointer' +
+      '}' +
+      'img.pl4_clippy {' +
+      '  opacity: 0.4' +
+      '}' +
+      'img.pl4_clippy:hover {' +
+      '  opacity: 1.0' +
+      '}';
     if (!$('css_loaded')) {
       S = page_d.createElement('style');
       S.type = 'text/css';
