@@ -197,11 +197,6 @@ function alert_dev(req_key) {
 
 
 if (page_url === 'http://www.thepaperlink.com/reg'
-    || page_url === 'http://www.thepaperlink.net/reg'
-    || page_url === 'http://thepaperlink.appspot.com/reg'
-    || page_url === 'https://thepaperlink.appspot.com/reg'
-    || page_url === 'http://pubget-hrd.appspot.com/reg'
-    || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML,
     cloud_op = $('cloud_op').innerHTML;
