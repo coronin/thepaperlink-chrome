@@ -26,6 +26,7 @@
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
     <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
+    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you could alert yourself when just published articles match your interests [more details]
     </p>
 
   <h3>save it &mdash; archive what you read to the cloud</h3>
@@ -38,7 +39,7 @@
     </p>
 
   <p>2. Articles will also be saved to other cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a> first (step 0 above), and</span> have an existing account for the following service.
+    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a> first (step 0 above), and</span> have an existing account for those services.
     <br/><span style="color:#ccc">To disable the connection, remove "the Paper Link" app from related service's settings page.</span></p>
   <ul>
     <li><b>http://www.mendeley.com/</b>
@@ -53,13 +54,13 @@
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>]
         <br/><input style="display:none" type="text" value="" size="20" id="douban_status" />
       </li>
-    <li><b>http://www.dropbox.com/</b> (testing)
+    <li><b>http://www.dropbox.com/</b>
       &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>]
         <br/><input style="display:none" type="text" value="" size="20" id="dropbox_status" />
       </li>
   </ul>
 
-  <h3>Other Settings</h3>
+  <h3>other settings</h3>
 
   <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
     <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
@@ -72,11 +73,11 @@
   <p><input type="checkbox" id="ws_items" /> <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
     <br/>your status on the website should be <u id="ws_items_status"></u>.
     </p>
-  <p><input type="checkbox" id="ajax_pii_link" /> Testing: <b>enable</b> to solve missing links locally
+  <p><input type="checkbox" id="ajax_pii_link" /> <b>Enable</b> to solve missing PDF links locally
     </p>
 
   <p id="rev_proxy_content"></p>
-  <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
+  <p>If your institute uses ezproxy, input the {prefix} <input type="text" value="" size="40" id="ezproxy_login" /> ,
     <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
     </p>
 
