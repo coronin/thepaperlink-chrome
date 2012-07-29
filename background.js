@@ -21,6 +21,9 @@ var DEBUG = false,
   date_str = 'day_' + year + '_' + month + '_' + day,
   last_date = localStorage.getItem('last_date_str') || '';
 
+function endsWith(str, suffix) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
 
 function get_ws_address() {
   $.getJSON('http://cail.jit.su/', function (d) {
@@ -422,8 +425,25 @@ function getRequest(request, sender, callback) {
     load_broadcast();
   } else if (ajax_pii_link && request.pii_link && request.pii && request.pmid) {
     parse_url(request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii, sender.tab.id);
+  } else if (request.search_term) {
+    if (request.search_result_count && request.search_result_count > 1) {
+      var terms = localStorage.getItem('past_search_terms'),
+        one_term_saved = localStorage.getItem(request.search_term);
+      if (!terms || terms.indexOf(request.search_term) < 0) {
+        if (!terms) { terms = ''; }
+        terms += request.search_term + '||';
+        localStorage.setItem('past_search_terms', terms);
+      }
+      if (one_term_saved) {
+        if (!endsWith(one_term_saved, '' + request.search_result_count)) {
+          localStorage.setItem(request.search_term, one_term_saved + '||' + request.search_result_count);
+        }
+      } else {
+        localStorage.setItem(request.search_term, request.search_result_count);
+      }
+    }
   } else {
-    DEBUG && console.log(request);
+    console.log(request);
   }
 }
 chrome.extension.onRequest.addListener(getRequest);

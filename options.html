@@ -4,90 +4,168 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <title>Options for "the Paper Link" for PubMed</title>
+  <link type="text/css" href="smoothness/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
+  <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="jquery.cookie.js"></script>
+  <script type="text/javascript" src="jquery-ui-1.8.22.custom.min.js"></script>
+  <script type="text/javascript" src="options.js"></script>
   <style type="text/css">
-    body{font-family:arial,sans-serif;font-size:62.5%;}
-    h1{font-size:2em;}
+    body{font-family:arial,sans-serif;font-size:62.5%;margin:50px;}
+    h3{color:#9f0000;}
+    p{line-height:1.5em}
+/*    h1{font-size:2em;}
     h3{font-size:1.6em;padding-top:20px;}
     p{font-size:1.3em;line-height:1.5em;text-indent:-1.6em;margin-left:40px;}
     li{font-size:1.3em;line-height:1.4em;padding-bottom:0.4em;}
+*/
     .Off{display:none !important;}
-    .keys{font-family:'Courier New',Courier,monospace;text-decoration:underline;background-color:#f9f9f9;}
+    .keys{font-family:'Courier New',Courier,monospace;text-decoration:underline;background:#f0f0f0;}
+    .bg_grey{background:#f0f0f0;}
+    #select_keywords{list-style-type:none;margin:0;padding:0;width:50%;}
+    #select_keywords .ui-selecting{background:#feca40;}
+	#select_keywords .ui-selected{background:#f39814;color:#ffffff;}
+	#select_keywords li{margin:5px 1px;padding:0.5em;font-size:1.25em;}
   </style>
-  <script type="text/javascript" src="jquery172.js"></script>
-  <script type="text/javascript" src="options.js"></script>
 </head>
 <body>
+<h1>"the Paper Link" for PubMed - Google Chrome</h1>
+<p>
+  <span style="font-family:'Palatino Linotype','Book Antiqua',Palatino,serif;font-size:1.5em;padding-left:2em;">search and get pdf link <em>now</em>
+    </span>
+  <span style="float:right;">&copy; 2010-12 &middot;
+    product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
+    <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a></span>
+  </p>
+<div id="option_tabs">
 
-  <h1>"the Paper Link" for PubMed - Google Chrome</h1>
+<ul>
+  <li><a href="#option_tabs-1">API</a></li>
+  <li><a href="#option_tabs-2">save it</a></li>
+  <li><a href="#option_tabs-3">settings</a></li>
+  <li><a href="#option_tabs-4">keywords searched</a></li>
+</ul>
 
-  <h3 style="color:#9f0000">"the Paper Link" API &ndash; required</h3>
-  <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
+<div id="option_tabs-1">
+  <h3>"the Paper Link" API &mdash; required by the extension</h3>
+  <p><span class="thepaperlink_a">visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your account for the service
     <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you could alert yourself when just published articles match your interests [more details]
     </p>
+  <ul>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      expandable icon "<b class="bg_grey">&hellip;</b>" will show on the bar for additional functions
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you will get more reliable response from our server, with much less error
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you will be able to save the articles you read to multiple services, via "<span style="cursor:pointer" id="save_it_tab">save it</span>"
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you could <span style="cursor:pointer" id="alert_tab">alert yourself</span> when just published articles match your interests
+      </li>
+  </ul>
+</div>
 
+<div id="option_tabs-2">
   <h3>save it &mdash; archive what you read to the cloud</h3>
-  <p>After enable any of the following, "<b style="background:#f0f0f0">save it</b>" will show on the bar for bookmarking.</p>
-
-  <p>1. By default, articles are saved to <b>http://www.pubmeder.com/</b>
-    &nbsp;&nbsp;[<a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>]
-    <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:2em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      after enable any of the following, "<b class="bg_grey">save it</b>" will show on the bar for bookmarking
+      </p>
+  </div></div>
+  <p>By default, articles are saved to <b>http://www.pubmeder.com/</b>
+    &rarr; <a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>
+    </p>
+  <p style="padding-left:2.5em;">
+    <a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
     <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> apikey : <span id="pubmeder_apikey"></span>
     </p>
-
-  <p>2. Articles will also be saved to other cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a> first (step 0 above), and</span> have an existing account for those services.
+  <hr/>
+  <p>Articles will also be saved to other cloud services, if enabled.
+    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a>, and</span> have existing accounts for those cloud services.
     <br/><span style="color:#ccc">To disable the connection, remove "the Paper Link" app from related service's settings page.</span></p>
   <ul>
     <li><b>http://www.mendeley.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=mendeley" id="mendeley_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="mendeley_status" />
+      <span style="padding:0 0.5em;" class="keys Off" id="mendeley_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=mendeley" id="mendeley_a">connect now</a>
       </li>
     <li><b>http://www.facebook.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="facebook_status" />
+      <span style="padding:0 0.5em;" class="keys Off" id="facebook_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>
       </li>
     <li><b>http://www.douban.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="douban_status" />
+      <span style="padding:0 0.5em;" class="keys Off" id="douban_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>
       </li>
     <li><b>http://www.dropbox.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="dropbox_status" />
+      <span style="padding:0 0.5em;" class="keys Off" id="dropbox_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>
       </li>
   </ul>
+</div>
 
-  <h3>other settings</h3>
+<div id="option_tabs-3">
+  <h3>the extension settings</h3>
+  <p><input type="checkbox" id="co_pubmed" />
+    Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
+    you could check here to <b>prevent</b> two icons shown in your address bar.
+    </p>
+  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
+      </p>
+  </div></div>
+  <p><input type="checkbox" id="new_tab" />
+    You could check here to <b>always open a new tab</b> when searching selected text,
+    rather than refresh the existing search tab.
+    </p>
+  <p><input type="checkbox" id="contextMenu_shown" />
+    You could check here to <b>disable</b> the context menu triggered by right mouse click.
+    </p>
+  <p><input type="checkbox" id="ajax_pii_link" />
+    <b>Enable</b> to solve missing PDF links locally.
+    </p>
+  <div class="ui-widget Off" id="ajax_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      only support the following publisher: <i>ScienceDirect</i>
+      </p>
+  </div></div>
+  <p><input type="checkbox" id="ws_items" />
+    <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
+    </p>
+  <div class="ui-widget Off" id="ws_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      your status on <a href="http://www.thepaperlink.com" rel="external">the website</a> should be "<span id="ws_items_status"></span>"</p>
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      you are using the server at ws://<span id="ws_server">husband.jit.su</span></p>
+  </div></div>
+  <p id="rev_proxy_content">
+    </p>
+  <p><input type="text" value="{prefix}" size="40" id="ezproxy_input" />
+    If your institute uses ezproxy, fill in the {prefix} please.
+    </p>
+  <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      the link <span style="color:#999;" class="bg_grey">http://a.b.c/d/e.pdf</span> will be rewrited to
+      <span class="bg_grey"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span>
+      </p>
+  </div></div>
+</div>
 
-  <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
-    <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
-    </p>
-  <p><input type="checkbox" id="new_tab" /> You could check here to <b>always open a new tab</b> when searching selected text,
-    <br/>rather than refresh the existing search tab.
-    </p>
-  <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
-    </p>
-  <p><input type="checkbox" id="ws_items" /> <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
-    <br/>your status on the website should be <u id="ws_items_status"></u>.
-    </p>
-  <p><input type="checkbox" id="ajax_pii_link" /> <b>Enable</b> to solve missing PDF links locally
-    </p>
+<div id="option_tabs-4">
+  <h3>keywords in PubMed you have searched</h3>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      you have to subscript the alert service on <a href="http://www.thepaperlink.com/alerts" rel="external">the website</a> to get notified
+      </p>
+  </div></div>
+  <ul id="select_keywords"></ul>
+</div>
 
-  <p id="rev_proxy_content"></p>
-  <p>If your institute uses ezproxy, input the {prefix} <input type="text" value="" size="40" id="ezproxy_login" /> ,
-    <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
-    </p>
-
-  <div style="background:#f0fff0;position:fixed;right:50px;top:50px;padding:20px">
-    <button id="saveBtn" class="Off">Save All Options</button>
-  </div>
-
-  <hr/>
-  <p>&copy; 2010-12 <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a> ;
-    <em>product of <a href="http://about.me/cail" rel="external">Liang Cai</a>, made in California</em>
-  </p>
+</div><!-- option_tabs -->
+<div class="ui-widget Off" id="save_widget"><div class="ui-state-error ui-corner-all" style="margin-top:1em;padding:0 0.7em;">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em;"></span>
+    You have changed the settings of the extension. Please <button id="saveBtn">save</button> it.</p>
+</div></div>
 </body>
 </html>

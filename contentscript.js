@@ -17,6 +17,7 @@ var DEBUG = false;
   pmidArray = [],
   old_title = '',
   search_term = '',
+  search_result_count = '',
   onePage_calls = 0;
 
 
@@ -135,6 +136,15 @@ function get_Json(pmids) {
       need_insert = 0;
       ele.setAttribute('id', 'pl4_title');
       old_title = ele.innerHTML;
+      search_result_count = ele.textContent;
+      if (search_result_count.indexOf(' of ') > 0) {
+        search_result_count = parseInt(search_result_count.split(' of ')[1], 10);
+      } else if (search_result_count.indexOf('Results: ') > -1) {
+        search_result_count = parseInt(search_result_count.substr(9, search_result_count.length), 10);
+      } else {
+        search_result_count = 0;
+      }
+      a_proxy({search_term: search_term, search_result_count: search_result_count});
       ele.innerHTML = old_title + loading_span;
     }
   }
