@@ -16,7 +16,7 @@ function eFetch(pmid) {
   var url, args = {'apikey' : 'ab25c21c079653919d9b53213ac8cc6e',
                        'db' : 'pubmed',
                        'id' : pmid};
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
     url = 'http://43.pl4.me/efetch';
   } else {
     url = 'https://entrezajax3.appspot.com/efetch';

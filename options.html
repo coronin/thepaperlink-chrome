@@ -12,19 +12,20 @@
   <style type="text/css">
     body{font-family:arial,sans-serif;font-size:62.5%;margin:50px;}
     h3{color:#9f0000;}
-    p{line-height:1.5em}
+    p{line-height:1.5em;}
+    li{padding:0.33em;}
 /*    h1{font-size:2em;}
     h3{font-size:1.6em;padding-top:20px;}
     p{font-size:1.3em;line-height:1.5em;text-indent:-1.6em;margin-left:40px;}
     li{font-size:1.3em;line-height:1.4em;padding-bottom:0.4em;}
 */
     .Off{display:none !important;}
-    .keys{font-family:'Courier New',Courier,monospace;text-decoration:underline;background:#f0f0f0;}
+    .keys{font-family:'Courier New',Courier,monospace;background:#f0f0f0;}
     .bg_grey{background:#f0f0f0;}
     #select_keywords{list-style-type:none;margin:0;padding:0;width:50%;}
     #select_keywords .ui-selecting{background:#feca40;}
-	#select_keywords .ui-selected{background:#f39814;color:#ffffff;}
-	#select_keywords li{margin:5px 1px;padding:0.5em;font-size:1.25em;}
+    #select_keywords .ui-selected{background:#f39814;color:#ffffff;}
+    #select_keywords li{margin:5px 1px;}
   </style>
 </head>
 <body>
@@ -47,6 +48,10 @@
 
 <div id="option_tabs-1">
   <h3>"the Paper Link" API &mdash; required by the extension</h3>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:2em;padding:0 0.7em;">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      you are accessing our server at <span id="api_server"></span></p>
+  </div></div>
   <p><span class="thepaperlink_a">visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your account for the service
     <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
     </p>
@@ -137,10 +142,11 @@
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
       your status on <a href="http://www.thepaperlink.com" rel="external">the website</a> should be "<span id="ws_items_status"></span>"</p>
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
-      you are using the server at ws://<span id="ws_server">husband.jit.su</span></p>
+      you are using the following server ws://<span id="ws_server">husband.jit.su</span> for real-time communication</p>
   </div></div>
   <p id="rev_proxy_content">
     </p>
+  <hr/>
   <p><input type="text" value="{prefix}" size="40" id="ezproxy_input" />
     If your institute uses ezproxy, fill in the {prefix} please.
     </p>
@@ -154,7 +160,7 @@
 
 <div id="option_tabs-4">
   <h3>keywords in PubMed you have searched</h3>
-  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.7em;">
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:2em;padding:0 0.7em;">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
       you have to subscript the alert service on <a href="http://www.thepaperlink.com/alerts" rel="external">the website</a> to get notified
       </p>
