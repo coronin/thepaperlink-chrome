@@ -190,7 +190,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key && req_key !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
    var oXHR = new XMLHttpRequest();
-   oXHR.open('POST', 'http://0.pl4.me/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+   oXHR.open('POST', 'http://www.thepaperlink.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
    oXHR.onreadystatechange = function (oEvent) {
      if (oXHR.readyState === 4) {
        if (oXHR.status === 200) {
@@ -201,7 +201,7 @@ function alert_dev(req_key) {
    };
    oXHR.send(null);
   } else {
-    alert('You have to be a registered user to be able to alert the developer.');
+    alert('\n you have to be a registered user to be able to alert the developer\n');
   }
 }
 
@@ -277,8 +277,11 @@ chrome.extension.onRequest.addListener(
         '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">the Paper Link</a>' +
         '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
-      $('pl4_title').onclick = function () {
-        alert_dev( uneval_trim(request.tpl) );
+      $('thepaperlink_alert').onclick = function () {
+        var answer = confirm('\ndo you want to alert the developer about this error?\n');
+        if (answer) {
+          alert_dev( uneval_trim(request.tpl) );
+        }
       };
       sendResponse({});
       return;
@@ -293,7 +296,7 @@ chrome.extension.onRequest.addListener(
           jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
           page_d.body.appendChild(jsClient);
         }
-      } else { alert('this is a secure page, js client not working yet'); }
+      } else { alert('\n this is a secure page, js client will not work\n'); }
       sendResponse({});
       return;
     } else if (request.g_scholar) {
@@ -397,7 +400,7 @@ chrome.extension.onRequest.addListener(
         pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
         uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
     } else {
-      bookmark_div += 'Wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
+      bookmark_div += 'Wanna save what you are reading? Try<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
     }
     if (old_title) {
       $('pl4_title').innerHTML = old_title + bookmark_div;

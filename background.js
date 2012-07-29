@@ -27,7 +27,7 @@ function endsWith(str, suffix) {
 
 function get_ws_address() {
   $.getJSON('http://cail.jit.su/', function (d) {
-    $.post('http://www.thepaperlink.com/',
+    $.post('http://0.pl4.me/',
       {'pmid':'1', 'title':'WEBSOCKET_SERVER', 'ip':d['x-forwarded-for']},
       function (ws_d) {
         DEBUG && console.log('>> get_ws_address: ' + ws_d);
@@ -61,6 +61,8 @@ function load_common_values() {
   base = 'https://pubget-hrd.appspot.com';
   if (rev_proxy === 'yes') {
     base = 'http://0.pl4.me';
+  } else if (localStorage.getItem('https_failed')) {
+    base = 'http://www.thepaperlink.com';
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
@@ -163,6 +165,8 @@ function saveIt_pubmeder(pmid) {
     url = 'https://pubmeder-hrd.appspot.com/input';
   if (rev_proxy === 'yes') {
     url = 'http://1.pl4.me/input';
+  } else if (localStorage.getItem('https_failed')) {
+    url = 'http://www.pubmeder.com/input';
   }
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
@@ -453,12 +457,14 @@ $.ajax({
   dataType: 'text',
   timeout: 4000
 }).success(function() {
-  DEBUG && console.log('>> directly access our secured server');
+  DEBUG && console.log('>> access the server via secure https');
+  localStorage.removeItem('https_failed');
 }).error(function() {
-  DEBUG && console.log('>> error? force rev_proxy');
-  localStorage.setItem('rev_proxy', 'yes');
-  rev_proxy = 'yes';
-  base = 'http://0.pl4.me';
+  DEBUG && console.log('>> access the server via http');
+  localStorage.setItem('https_failed', 1);
+  if (rev_proxy !== 'yes') {
+    base = 'http://www.thepaperlink.com';
+  }
 });
 
 if (last_date !== date_str) {
