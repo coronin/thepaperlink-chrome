@@ -1,6 +1,18 @@
 $(document).ready(function () {
   $(function () {
     $('a[rel="external"]').attr('target', '_blank');
+    $('#option_tabs').tabs({cookie: {expires: 1}});
+    $('button').button();
+  });
+
+  $('#ezproxy_input').focus(function () {
+    if (this.value === this.defaultValue) {
+      this.value = '';
+    }
+  }).blur(function () {
+    if (!this.value.length) {
+      this.value = this.defaultValue;
+    }
   });
 
   var a_key = localStorage.getItem('thepaperlink_apikey'),
@@ -22,44 +34,47 @@ $(document).ready(function () {
   if (b_key) {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
     $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_two">[x]</span>');
-    $('#pubmeder_a').text('visit the site');
+    $('#pubmeder_a').text('search those articles');
+    $('#pubmeder_a').attr('href', 'http://www.pubmeder.com/search');
   } else {
     $('#pubmeder_email').html('<input type="text" value="" size="40" id="pubmeder_email" />');
     $('#pubmeder_apikey').html('<input type="text" value="" size="40" id="pubmeder_apikey" />');
   }
   if (m_status) {
-    $('#mendeley_status').css('display', 'inline');
-    $('#mendeley_status').val('status: ' + m_status);
+    $('#mendeley_status').removeClass('Off');
+    $('#mendeley_status').text('status: ' + m_status);
     $('#mendeley_a').text('check connection');
   }
   if (f_status) {
-    $('#facebook_status').css('display', 'inline');
-    $('#facebook_status').val('status: ' + f_status);
+    $('#facebook_status').removeClass('Off');
+    $('#facebook_status').text('status: ' + f_status);
     $('#facebook_a').text('check connection');
   }
   if (d_status) {
-    $('#dropbox_status').css('display', 'inline');
-    $('#dropbox_status').val('status: ' + d_status);
+    $('#dropbox_status').removeClass('Off');
+    $('#dropbox_status').text('status: ' + d_status);
     $('#dropbox_a').text('check connection');
   }
   if (b_status) {
-    $('#douban_status').css('display', 'inline');
-    $('#douban_status').val('status: ' + b_status);
+    $('#douban_status').removeClass('Off');
+    $('#douban_status').text('status: ' + b_status);
     $('#douban_a').text('check connection');
   }
   if (ezproxy_prefix) {
+    $('#ezproxy_input').val(ezproxy_prefix);
     $('#ezproxy_prefix').text(ezproxy_prefix);
-    $('#ezproxy_login').val(ezproxy_prefix);
+    $('#ez_info').removeClass('Off');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
-      '<br/>It is slower, but more accessible.');
+      ' It is slower, but more accessible.');
   } else {
     $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-      '<br/>If you really want, you can <b>check to enable</b> the reverse proxy.');
+      ' If you really want to, you can <b>check to enable</b> the reverse proxy.');
   }
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);
+    $('#pubmeder_info').removeClass('Off');
   }
   if (localStorage.getItem('new_tab') === 'yes') {
     $('#new_tab').prop('checked', true);
@@ -69,20 +84,44 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
+    if (localStorage.getItem('ws_address')) {
+      $('#ws_server').text( localStorage.getItem('ws_address') );
+    }
+    $('#ws_info').removeClass('Off');
   }
   if (localStorage.getItem('ajax_pii_link') !== 'no') {
     $('#ajax_pii_link').prop('checked', true);
+    $('#ajax_info').removeClass('Off');
   }
 
   $('input').on('change', function () {
-    $('#saveBtn').removeClass('Off');
-    $('#saveBtn').parent().css('background', '#fff0f0');
+    $('#save_widget').removeClass('Off');
   });
 
   $('#saveBtn').on('click', function() { saveOptions(); });
+  $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
+  $('#alert_tab').on('click', function() { $('#option_tabs').tabs('select', 3); });
 
   $('#reset_key_one').on('click', function() { reset_key(1); });
   $('#reset_key_two').on('click', function() { reset_key(2); });
+
+  if (localStorage.getItem('past_search_terms')) {
+    var terms = localStorage.getItem('past_search_terms').split('||'), i;
+    terms.pop();
+    for (i = 0; i < terms.length; i += 1) {
+      $('#select_keywords').append('<li class="ui-widget-content">' + terms[i] +
+        '<span style="padding-left:2em;">[' + localStorage.getItem(terms[i]) + ']</span></li>');
+    }
+    $('#select_keywords').parent().append('<textarea id="keywords_area"></textarea>');
+    $('#select_keywords').selectable({
+      stop: function() {
+        var a = $('#keywords_area').empty();
+        $('.ui-selected', this).each(function() {
+          a.append(this.textContent + '\n');
+        });
+      }
+    });
+  }
 });
 
 function reset_key(v) {
@@ -139,7 +178,7 @@ function saveOptions() {
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
     ws_items = $('#ws_items').prop('checked'),
     ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-    ezproxy_prefix = $('#ezproxy_login').val(),
+    ezproxy_prefix = $('#ezproxy_input').val(),
     req_a = null,
     req_b = null;
   if (rev_proxy) {
@@ -182,8 +221,11 @@ function saveOptions() {
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
   } else {
+    if (ezproxy_prefix === '{prefix}') {
+      ezproxy_prefix = '';
+    }
     if (ezproxy_prefix) {
-      alert('wrong format of the prefix.\nplease check with your librarian');
+      alert('wrong format of the {prefix}\nplease check with your librarian');
     }
     localStorage.setItem('ezproxy_prefix', '');
   }
@@ -193,7 +235,7 @@ function saveOptions() {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
       $('#thepaperlink_apikey').val('');
-      alert('Please provide a valid apikey to use this extension. Please visit http://www.thepaperlink.com/reg');
+      alert('Please provide a valid apikey to use the extension. Please visit http://www.thepaperlink.com/reg');
       return false;
     }
   }
