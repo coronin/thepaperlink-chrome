@@ -21,8 +21,19 @@ var DEBUG = false,
   date_str = 'day_' + year + '_' + month + '_' + day,
   last_date = localStorage.getItem('last_date_str') || '';
 
-function endsWith(str, suffix) {
-  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+function get_day() {
+  var d = new Date();
+  return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
+}
+
+function get_end_num(str, suffix) {
+  if (!str) { return 0; }
+  try {
+    return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
+  } catch (err) {
+    DEBUG && console.log('>> get_end_num: ' + err);
+    return 0;
+  }
 }
 
 function get_ws_address() {
@@ -77,7 +88,7 @@ function load_common_values() {
 }
 load_common_values();
 
-function openNewTab(winId, url) {
+function open_new_tab(winId, url) {
   if (winId) {
     chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
       new_tabId = tab.id;
@@ -90,13 +101,13 @@ function openNewTab(winId, url) {
   DEBUG && console.log('>> a new tab for you, #' + new_tabId);
 }
 
-function genericOnClick(info, tab) {
+function generic_on_click(info, tab) {
   DEBUG && console.log('info', JSON.stringify(info));
   DEBUG && console.log('tab', JSON.stringify(tab));
-  openNewTab(tab.windowId, 'http://www.thepaperlink.com');
+  open_new_tab(tab.windowId, 'http://www.thepaperlink.com');
 }
 
-function selectOnClick(info, tab) {
+function select_on_click(info, tab) {
   var url, new_tab = localStorage.getItem('new_tab');
   if ( alldigi.test(info.selectionText) ) {
     url = 'http://www.thepaperlink.com/_' + info.selectionText;
@@ -111,24 +122,24 @@ function selectOnClick(info, tab) {
           return;
         }
       }
-      openNewTab(tab.windowId, url);
+      open_new_tab(tab.windowId, url);
     });
   } else {
-    openNewTab(tab.windowId, url);
+    open_new_tab(tab.windowId, url);
   }
 }
 
-function callJsOnClick(info, tab) {
+function call_js_on_click(info, tab) {
   chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base + '/'});
 }
 
 function menu_generator() {
   chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'',
-    'contexts':['selection'], 'onclick': selectOnClick});
+    'contexts':['selection'], 'onclick': select_on_click});
   chrome.contextMenus.create({'title': 'Find ID on this page',
-    'contexts':['page'], 'onclick': callJsOnClick});
+    'contexts':['page'], 'onclick': call_js_on_click});
   chrome.contextMenus.create({'title': 'Visit the_Paper_Link',
-    'contexts':['page'], 'onclick': genericOnClick}); // , 'link', 'editable', 'image', 'video', 'audio'
+    'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
   chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
@@ -213,7 +224,7 @@ function email_abstract(a, b) {
   });
 }
 
-function sendBinary(aB, pmid, upload, no_email) {
+function send_binary(aB, pmid, upload, no_email) {
   try {
     var xhr = new XMLHttpRequest(),
       boundary = 'AJAX------------------------AJAX',
@@ -262,14 +273,14 @@ function sendBinary(aB, pmid, upload, no_email) {
   }
 }
 
-function getBinary(file, pmid, upload, no_email) {
+function get_binary(file, pmid, upload, no_email) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', file, true);
   xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
   xhr.onload = function () {
     var aB = xhr.response; // not xhr.responseText
     if (aB) {
-      sendBinary(aB, pmid, upload, no_email);
+      send_binary(aB, pmid, upload, no_email);
     }
   };
   xhr.send(null);
@@ -282,13 +293,13 @@ function dropbox_it(pmid, pdf, apikey) {
     data: {'apikey': apikey, 'no_email': 1},
     //async: false,
   }).success(function (upload_url) {
-    getBinary(pdf, pmid, upload_url, 1);
+    get_binary(pdf, pmid, upload_url, 1);
   }).error(function () {
     DEBUG && console.log('>> dropbox_it failed: ' + pdf);
   });
 }
 
-function reLoadOp() {
+function reLoad_options() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
     for (i = 0; i < tabs.length; i += 1) {
@@ -297,7 +308,7 @@ function reLoadOp() {
   });
 }
 
-function getRequest(request, sender, callback) {
+function get_request(request, sender, callback) {
   var m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
@@ -347,7 +358,7 @@ function getRequest(request, sender, callback) {
       apikey = request.save_apikey;
       req_key = apikey;
     }
-    reLoadOp();
+    reLoad_options();
   } else if (request.service && request.content) {
     DEBUG && console.log(request.service, request.content);
     if (request.content.indexOf('error') < 0) {
@@ -355,7 +366,7 @@ function getRequest(request, sender, callback) {
     } else {
       localStorage.setItem(request.service + '_status', 'error? try again please');
     }
-    reLoadOp();
+    reLoad_options();
   } else if (request.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender.tab.id);
@@ -377,7 +388,7 @@ function getRequest(request, sender, callback) {
     }
   } else if (request.upload_url && request.pdf && request.pmid && apikey) {
     DEBUG && console.log(request.pdf);
-    getBinary(request.pdf, request.pmid, request.upload_url, request.no_email);
+    get_binary(request.pdf, request.pmid, request.upload_url, request.no_email);
   } else if (request.save_cloud_op) {
     DEBUG && console.log(request.save_cloud_op);
     if (request.save_cloud_op.indexOf('mendeley') > -1) {
@@ -427,30 +438,44 @@ function getRequest(request, sender, callback) {
       ws.close();
     }
     load_broadcast();
-  } else if (ajax_pii_link && request.pii_link && request.pii && request.pmid) {
-    parse_url(request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii, sender.tab.id);
+  } else if (request.pii_link && request.pii && request.pmid) {
+    if (ajax_pii_link) {
+      parse_url(request.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + request.pii, sender.tab.id);
+    }
   } else if (request.search_term) {
     if (request.search_result_count && request.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
-        one_term_saved = localStorage.getItem(request.search_term);
+        one_term_saved = localStorage.getItem(request.search_term),
+        end_num = get_end_num(one_term_saved, ','),
+        digitals = get_day();
+      digitals.push(request.search_result_count);
       if (!terms || terms.indexOf(request.search_term) < 0) {
         if (!terms) { terms = ''; }
         terms += request.search_term + '||';
         localStorage.setItem('past_search_terms', terms);
       }
       if (one_term_saved) {
-        if (!endsWith(one_term_saved, '' + request.search_result_count)) {
-          localStorage.setItem(request.search_term, one_term_saved + '||' + request.search_result_count);
-        }
+        if (end_num && end_num !== request.search_result_count) {
+          localStorage.setItem(request.search_term, one_term_saved + '||' + digitals.join(','));
+          if (end_num > request.search_result_count) {
+            console.log('__ the search result count goes down: ' + request.search_term);
+            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&darr;'});
+          } else {
+            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&uarr;'});
+          }
+        } else {
+          if (end_num) {
+            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&equiv;'});
+        } }
       } else {
-        localStorage.setItem(request.search_term, request.search_result_count);
+        localStorage.setItem(request.search_term, digitals.join(','));
       }
     }
   } else {
     console.log(request);
   }
 }
-chrome.extension.onRequest.addListener(getRequest);
+chrome.extension.onRequest.addListener(get_request);
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt',

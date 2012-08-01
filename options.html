@@ -14,6 +14,8 @@
     h3{color:#9f0000;}
     p{line-height:1.5em;}
     li{padding:0.33em;}
+    input.settings{position:relative;top:2px;}
+    input.keywords{vertical-align:middle;}
 /*    h1{font-size:2em;}
     h3{font-size:1.6em;padding-top:20px;}
     p{font-size:1.3em;line-height:1.5em;text-indent:-1.6em;margin-left:40px;}
@@ -22,10 +24,7 @@
     .Off{display:none !important;}
     .keys{font-family:'Courier New',Courier,monospace;background:#f0f0f0;}
     .bg_grey{background:#f0f0f0;}
-    #select_keywords{list-style-type:none;margin:0;padding:0;width:50%;}
-    #select_keywords .ui-selecting{background:#feca40;}
-    #select_keywords .ui-selected{background:#f39814;color:#ffffff;}
-    #select_keywords li{margin:5px 1px;}
+    #keywords_list{list-style-type:none;}
   </style>
 </head>
 <body>
@@ -37,8 +36,15 @@
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
     <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a></span>
   </p>
+<div class="ui-widget Off" id="alert_v1"><div class="ui-state-error ui-corner-all" style="margin-bottom:1em;padding:0 0.7em;">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em;"></span>
+    Please provide a valid apikey for the Paper Link service. You can get it from <a href="http://www.thepaperlink.com/reg" rel="external">http://www.thepaperlink.com/reg</a></p>
+</div></div>
+<div class="ui-widget Off" id="alert_v2"><div class="ui-state-error ui-corner-all" style="margin-bottom:1em;padding:0 0.7em;">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em;"></span>
+    Please provide a valid apikey for the PubMed-er service. You can get it from <a href="http://www.pubmeder.com/registration" rel="external">http://www.pubmeder.com/registration</a></p>
+</div></div>
 <div id="option_tabs">
-
 <ul>
   <li><a href="#option_tabs-1">API</a></li>
   <li><a href="#option_tabs-2">save it</a></li>
@@ -51,6 +57,9 @@
   <div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:2em;padding:0 0.7em;">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
       you are accessing our server at <span id="api_server"></span></p>
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span>
+      get an idea? find a bug? please <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">let us know</a>,
+      or comment on <a href="http://en.dogeno.us/thepaperlink/" rel="external">http://en.dogeno.us/thepaperlink/</a></p>
   </div></div>
   <p><span class="thepaperlink_a">visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your account for the service
     <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
@@ -111,7 +120,7 @@
 
 <div id="option_tabs-3">
   <h3>the extension settings</h3>
-  <p><input type="checkbox" id="co_pubmed" />
+  <p><input class="settings" type="checkbox" id="co_pubmed" />
     Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
     you could check here to <b>prevent</b> two icons shown in your address bar.
     </p>
@@ -120,14 +129,14 @@
       <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
       </p>
   </div></div>
-  <p><input type="checkbox" id="new_tab" />
+  <p><input class="settings" type="checkbox" id="new_tab" />
     You could check here to <b>always open a new tab</b> when searching selected text,
     rather than refresh the existing search tab.
     </p>
-  <p><input type="checkbox" id="contextMenu_shown" />
+  <p><input class="settings" type="checkbox" id="contextMenu_shown" />
     You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input type="checkbox" id="ajax_pii_link" />
+  <p><input class="settings" type="checkbox" id="ajax_pii_link" />
     <b>Enable</b> to solve missing PDF links locally.
     </p>
   <div class="ui-widget Off" id="ajax_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
@@ -135,7 +144,7 @@
       only support the following publisher: <i>ScienceDirect</i>
       </p>
   </div></div>
-  <p><input type="checkbox" id="ws_items" />
+  <p><input class="settings" type="checkbox" id="ws_items" />
     <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
     </p>
   <div class="ui-widget Off" id="ws_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
@@ -147,7 +156,7 @@
   <p id="rev_proxy_content">
     </p>
   <hr/>
-  <p><input type="text" value="{prefix}" size="40" id="ezproxy_input" />
+  <p><input class="settings" type="text" value="{prefix}" size="40" id="ezproxy_input" />
     If your institute uses ezproxy, fill in the {prefix} please.
     </p>
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all" style="margin-bottom:1.5em;margin-top:-0.75em;padding:0 0.7em;">
@@ -165,7 +174,7 @@
       you have to subscript the alert service on <a href="http://www.thepaperlink.com/alerts" rel="external">the website</a> to get notified
       </p>
   </div></div>
-  <ul id="select_keywords"></ul>
+  <ul id="keywords_list"></ul>
 </div>
 
 </div><!-- option_tabs -->

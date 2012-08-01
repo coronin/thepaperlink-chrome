@@ -7,7 +7,7 @@
  * initial version, a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  */
 
-var DEBUG = false;
+var DEBUG = false,
   noRun = 0,
   page_d = document,
   page_url = page_d.URL,
@@ -253,17 +253,16 @@ if (!noRun) {
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     DEBUG && console.log(request);
-    var r, p, pmid, div, div_html, i, j, k, S, styles, peaks, s2,
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ';
     if (request.js_base_uri) {
       if (!$('paperlink2_display')) {
-        peaks = page_d.createElement('script');
+        var peaks = page_d.createElement('script');
         peaks.setAttribute('type', 'text/javascript');
         peaks.setAttribute('src', request.js_base_uri + '/jss?y=' + (Math.random()));
         page_d.body.appendChild(peaks);
       }
       sendResponse({});
       return;
+
     } else if (request.except) {
       if (!search_term) {
         search_term = page_url.split('/pubmed/')[1];
@@ -278,13 +277,14 @@ chrome.extension.onRequest.addListener(
         '" target="_blank">the Paper Link</a>' +
         '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
       $('thepaperlink_alert').onclick = function () {
-        var answer = confirm('\ndo you want to alert the developer about this error?\n');
+        var answer = confirm('\n do you want to alert the developer about this error?\n');
         if (answer) {
           alert_dev( uneval_trim(request.tpl) );
         }
       };
       sendResponse({});
       return;
+
     } else if (request.js_key && request.js_base) {
       if (window.location.protocol !== 'https:') {
         DEBUG && console.log('>> starting the js client');
@@ -299,6 +299,7 @@ chrome.extension.onRequest.addListener(
       } else { alert('\n this is a secure page, js client will not work\n'); }
       sendResponse({});
       return;
+
     } else if (request.g_scholar) {
       try {
         if (request.g_num === 1 && request.g_link === 1) {
@@ -318,6 +319,7 @@ chrome.extension.onRequest.addListener(
       }
       sendResponse({});
       return;
+
     } else if (request.el_id && request.el_data) {
       try {
         if (request.el_data && request.el_data.indexOf('://') > -1) {
@@ -343,8 +345,49 @@ chrome.extension.onRequest.addListener(
       }
       sendResponse({});
       return;
+    } else if (request.search_trend) {
+      var hook = $('myncbiusername').textContent;
+      $('myncbiusername').innerHTML = uneval_trim(request.search_trend) +
+        '&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
+      $('myncbiusername').style.display = 'inline';
+      sendResponse({});
+      return;
     }
-    r = request.r;
+
+    var p, pmid, div, div_html, i, j, k, insert_style, insert_span,
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ',
+      styles = '.thepaperlink {' +
+        '  background: #e0ecf1;' +
+        '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
+        '  padding: 2px 4px;' +
+        '  border-radius: 4px;' +
+        '  display: inline-block' +
+        '}' +
+        '.thepaperlink_Off {' +
+        '  display: none !important' +
+        '}' +
+        '.thepaperlink > a ,' +
+        '.thepaperlink > span {' +
+        '  margin: 0 6px' +
+        '}' +
+        'a.thepaperlink-green {' +
+        '  color: green' +
+        '}' +
+        'a.thepaperlink-red {' +
+        '  color: red' +
+        '}' +
+        '.thepaperlink-home {' +
+        '  color: grey;' +
+        '  text-decoration: none;' +
+        '  cursor: pointer' +
+        '}' +
+        'img.pl4_clippy {' +
+        '  opacity: 0.4' +
+        '}' +
+        'img.pl4_clippy:hover {' +
+        '  opacity: 1.0' +
+        '}',
+      r = request.r;
     if (r && r.error) {
       $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
@@ -357,42 +400,11 @@ chrome.extension.onRequest.addListener(
       return;
     }
     p = uneval_trim(request.p);
-    styles = '.thepaperlink {' +
-      '  background: #e0ecf1;' +
-      '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
-      '  padding: 2px 4px;' +
-      '  border-radius: 4px;' +
-      '  display: inline-block' +
-      '}' +
-      '.thepaperlink_Off {' +
-      '  display: none !important' +
-      '}' +
-      '.thepaperlink > a ,' +
-      '.thepaperlink > span {' +
-      '  margin: 0 6px' +
-      '}' +
-      'a.thepaperlink-green {' +
-      '  color: green' +
-      '}' +
-      'a.thepaperlink-red {' +
-      '  color: red' +
-      '}' +
-      '.thepaperlink-home {' +
-      '  color: grey;' +
-      '  text-decoration: none;' +
-      '  cursor: pointer' +
-      '}' +
-      'img.pl4_clippy {' +
-      '  opacity: 0.4' +
-      '}' +
-      'img.pl4_clippy:hover {' +
-      '  opacity: 1.0' +
-      '}';
     if (!$('css_loaded')) {
-      S = page_d.createElement('style');
-      S.type = 'text/css';
-      S.appendChild(page_d.createTextNode(styles));
-      page_d.body.appendChild(S);
+      insert_style = page_d.createElement('style');
+      insert_style.type = 'text/css';
+      insert_style.appendChild(page_d.createTextNode(styles));
+      page_d.body.appendChild(insert_style);
       //GM_addStyle(styles);
     }
     if (request.pubmeder) {
@@ -449,11 +461,11 @@ chrome.extension.onRequest.addListener(
           uneval_trim(r.item[i].pii) + '" target="_blank">publisher</a>';
       }
       if (r.item[i].pii && $('citedBy' + pmid)) {
-        s2 = page_d.createElement('span');
-        s2.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
+        insert_span = page_d.createElement('span');
+        insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
           p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
           uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
-        $('citedBy' + pmid).parentNode.appendChild(s2);
+        $('citedBy' + pmid).parentNode.appendChild(insert_span);
       }
       if (r.item[i].f_v && r.item[i].fid) {
         div_html += '<a id="thepaperlink_f' + pmid +
