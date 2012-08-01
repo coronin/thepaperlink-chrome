@@ -1,4 +1,2 @@
-UI: Core, Widget, Mouse
-Interactions: Selectable
+UI: Core, Widget
 Widgets: Button, Tabs
-Effects: Highlight
