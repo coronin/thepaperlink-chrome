@@ -1,139 +1,36 @@
-$(document).ready(function () {
-  $(function () {
-    $('a[rel="external"]').attr('target', '_blank');
-    $('#option_tabs').tabs({cookie: {expires: 1}});
-    $('button').button();
+function adjust_keywords() {
+  var keyword_selected = '';
+  $('input.keywords:checked').each(function () {
+    keyword_selected += this.id.replace(/,,/g, '"') + '\n';
   });
-
-  $('#ezproxy_input').focus(function () {
-    if (this.value === this.defaultValue) {
-      this.value = '';
-    }
-  }).blur(function () {
-    if (!this.value.length) {
-      this.value = this.defaultValue;
-    }
-  });
-
-  var a_key = localStorage.getItem('thepaperlink_apikey'),
-    b_key = localStorage.getItem('pubmeder_apikey'),
-    b_email = localStorage.getItem('pubmeder_email'),
-    m_status = localStorage.getItem('mendeley_status'),
-    f_status = localStorage.getItem('facebook_status'),
-    d_status = localStorage.getItem('dropbox_status'),
-    b_status = localStorage.getItem('douban_status'),
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
-
-  if (a_key) {
-    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
-    $('.thepaperlink_a').css('display', 'none');
-    $('#ws_items_status').text('login');
-    $.cookie('alert_v1', null);
+  if (keyword_selected) {
+    $('#keywords_area').text(keyword_selected);
+    $('#keywords_area').removeClass('Off');
+    $('#submit_keyword').removeClass('Off');
   } else {
-    $('#thepaperlink_apikey').html('<input class="settings" type="text" value="" size="40" id="thepaperlink_apikey_input" />');
-    $('#ws_items_status').text('logout');
+    $('#keywords_area').text('feature in development');
+    $('#keywords_area').addClass('Off');
+    $('#submit_keyword').addClass('Off');
   }
-  if (b_key) {
-    $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
-    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_two">[x]</span>');
-    $('#pubmeder_a').text('search those articles');
-    $('#pubmeder_a').attr('href', 'http://www.pubmeder.com/search');
-    $.cookie('alert_v2', null);
+}
+
+function toggle_checked(obj) {
+  if (obj.prop('checked')) {
+    obj.prop('checked', false);
   } else {
-    $('#pubmeder_email').html('<input class="settings" type="text" value="" size="40" id="pubmeder_email_input" />');
-    $('#pubmeder_apikey').html('<input class="settings" type="text" value="" size="40" id="pubmeder_apikey_input" />');
+    obj.prop('checked', true);
   }
-  if (m_status) {
-    $('#mendeley_status').removeClass('Off');
-    $('#mendeley_status').text('status: ' + m_status);
-    $('#mendeley_a').text('check connection');
-  }
-  if (f_status) {
-    $('#facebook_status').removeClass('Off');
-    $('#facebook_status').text('status: ' + f_status);
-    $('#facebook_a').text('check connection');
-  }
-  if (d_status) {
-    $('#dropbox_status').removeClass('Off');
-    $('#dropbox_status').text('status: ' + d_status);
-    $('#dropbox_a').text('check connection');
-  }
-  if (b_status) {
-    $('#douban_status').removeClass('Off');
-    $('#douban_status').text('status: ' + b_status);
-    $('#douban_a').text('check connection');
-  }
-  if (ezproxy_prefix) {
-    $('#ezproxy_input').val(ezproxy_prefix);
-    $('#ezproxy_prefix').text(ezproxy_prefix);
-    $('#ez_info').removeClass('Off');
-  }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
-      ' It is slower.');
-    $('#api_server').text('http://0.pl4.me');
-  } else if (localStorage.getItem('https_failed')) {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting too many errors, you could' +
-      ' <b>check to enable</b> the reverse proxy. It is more accessible.');
-    $('#api_server').text('http://www.thepaperlink.com');
-  } else {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-      ' If you really want to, you can <b>check to enable</b> the reverse proxy.');
-    $('#api_server').text('https://pubget-hrd.appspot.com');
-  }
-  if (localStorage.getItem('co_pubmed') === 'no') {
-    $('#co_pubmed').prop('checked', true);
-    $('#pubmeder_info').removeClass('Off');
-  }
-  if (localStorage.getItem('new_tab') === 'yes') {
-    $('#new_tab').prop('checked', true);
-  }
-  if (localStorage.getItem('contextMenu_shown') === 'no') {
-    $('#contextMenu_shown').prop('checked', true);
-  }
-  if (localStorage.getItem('ws_items') === 'yes') {
-    $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('ws_address')) {
-      $('#ws_server').text( localStorage.getItem('ws_address') );
-    }
-    $('#ws_info').removeClass('Off');
-  }
-  if (localStorage.getItem('ajax_pii_link') !== 'no') {
-    $('#ajax_pii_link').prop('checked', true);
-    $('#ajax_info').removeClass('Off');
-  }
+  adjust_keywords();
+}
 
-  $('input').on('change', function () {
-    $('#save_widget').removeClass('Off');
-  });
-
-  $('#saveBtn').on('click', function() { saveOptions(); });
-  $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
-  $('#alert_tab').on('click', function() { $('#option_tabs').tabs('select', 3); });
-
-  $('#reset_key_one').on('click', function() { reset_key(1); });
-  $('#reset_key_two').on('click', function() { reset_key(2); });
-
-  if (localStorage.getItem('past_search_terms')) {
-    var terms = localStorage.getItem('past_search_terms').split('||'), i;
-    terms.pop();
-    for (i = 0; i < terms.length; i += 1) {
-      if (localStorage.getItem(terms[i])) {
-        $('#keywords_list').append('<li><input class="keywords" type="checkbox" id="keywords" /> <span>' + terms[i] +
-          '</span>' + localStorage.getItem(terms[i]) + '</li>');
-    } }
-    $('#keywords_list').parent().append('<textarea id="keywords_area"></textarea>');
+function get_end_num(str, suffix) {
+  if (!str) { return 0; }
+  try {
+    return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
+  } catch (err) {
+    return 0;
   }
-
-  if ( $.cookie('alert_v1') ) {
-    $('#alert_v1').removeClass('Off');
-    $.cookie('alert_v1', null);
-  }
-  if ( $.cookie('alert_v2') ) {
-    $('#alert_v2').removeClass('Off');
-    $.cookie('alert_v2', null);
-  }
-});
+}
 
 function reset_key(v) {
   var answer = confirm('\n do you really want to rest the key?\n');
@@ -158,7 +55,7 @@ function valid_thepaperlink(ak) {
         localStorage.setItem('thepaperlink_apikey', ak);
         localStorage.setItem('a_apikey_gold', 1);
       } else {
-        $.cookie('alert_v1', 'oops', {expires: 1});
+        $.cookie('alert_v1', 'oops', {expires: 3});
       }
     },
     'json'
@@ -173,7 +70,7 @@ function valid_pubmeder(e,ak) {
         localStorage.setItem('pubmeder_email', e);
         localStorage.setItem('b_apikey_gold', 1);
       } else {
-        $.cookie('alert_v2', 'oops', {expires: 1});
+        $.cookie('alert_v2', 'oops', {expires: 3});
       }
     },
     'text'
@@ -283,3 +180,178 @@ function saveOptions() {
   }
   chrome.extension.sendRequest({load_common_values: 1});
 }
+
+$(document).ready(function () {
+  $('a[rel="external"]').attr('target', '_blank');
+  $('button').button();
+
+  if ( $.cookie('alert_v1') ) {
+    $('#alert_v1').removeClass('Off');
+    $.cookie('alert_v1', null);
+  }
+  if ( $.cookie('alert_v2') ) {
+    $('#alert_v2').removeClass('Off');
+    $.cookie('alert_v2', null);
+  }
+
+  $('#saveBtn').on('click', function() { saveOptions(); });
+  $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
+  $('#alert_tab').on('click', function() { $('#option_tabs').tabs('select', 3); });
+  $('#ezproxy_input').focus(function () {
+    if (this.value === this.defaultValue) {
+      this.value = '';
+    }
+  }).blur(function () {
+    if (!this.value.length) {
+      this.value = this.defaultValue;
+    }
+  });
+
+  var a_key = localStorage.getItem('thepaperlink_apikey'),
+    b_key = localStorage.getItem('pubmeder_apikey'),
+    b_email = localStorage.getItem('pubmeder_email'),
+    m_status = localStorage.getItem('mendeley_status'),
+    f_status = localStorage.getItem('facebook_status'),
+    d_status = localStorage.getItem('dropbox_status'),
+    b_status = localStorage.getItem('douban_status'),
+    ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
+
+  if (a_key) {
+    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
+    $('#reset_key_one').on('click', function() { reset_key(1); });
+    $('.thepaperlink_a').css('display', 'none');
+    $('#ws_items_status').text('login');
+    $.cookie('alert_v1', null);
+  } else {
+    $('#thepaperlink_apikey').html('<input class="settings" type="text" value="" size="40" id="thepaperlink_apikey_input" />');
+    $('#ws_items_status').text('logout');
+  }
+  if (b_key) {
+    $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
+    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_two">[x]</span>');
+    $('#reset_key_two').on('click', function() { reset_key(2); });
+    $('#pubmeder_a').text('search those articles');
+    $('#pubmeder_a').attr('href', 'http://www.pubmeder.com/search');
+    $.cookie('alert_v2', null);
+  } else {
+    $('#pubmeder_email').html('<input class="settings" type="text" value="" size="40" id="pubmeder_email_input" />');
+    $('#pubmeder_apikey').html('<input class="settings" type="text" value="" size="40" id="pubmeder_apikey_input" />');
+  }
+  if (m_status) {
+    $('#mendeley_status').removeClass('Off');
+    $('#mendeley_status').text('status: ' + m_status);
+    $('#mendeley_a').text('check connection');
+  }
+  if (f_status) {
+    $('#facebook_status').removeClass('Off');
+    $('#facebook_status').text('status: ' + f_status);
+    $('#facebook_a').text('check connection');
+  }
+  if (d_status) {
+    $('#dropbox_status').removeClass('Off');
+    $('#dropbox_status').text('status: ' + d_status);
+    $('#dropbox_a').text('check connection');
+  }
+  if (b_status) {
+    $('#douban_status').removeClass('Off');
+    $('#douban_status').text('status: ' + b_status);
+    $('#douban_a').text('check connection');
+  }
+  if (ezproxy_prefix) {
+    $('#ezproxy_input').val(ezproxy_prefix);
+    $('#ezproxy_prefix').text(ezproxy_prefix);
+    $('#ez_info').removeClass('Off');
+  }
+  if (localStorage.getItem('rev_proxy') === 'yes') {
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
+      ' It is slower.');
+    $('#api_server').text('http://0.pl4.me');
+  } else if (localStorage.getItem('https_failed')) {
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting too many errors, you could' +
+      ' <b>check to enable</b> the reverse proxy. It is more accessible.');
+    $('#api_server').text('http://www.thepaperlink.com');
+  } else {
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
+      ' If you really want to, you can <b>check to enable</b> the reverse proxy.');
+    $('#api_server').text('https://pubget-hrd.appspot.com');
+  }
+  if (localStorage.getItem('co_pubmed') === 'no') {
+    $('#co_pubmed').prop('checked', true);
+    $('#pubmeder_info').removeClass('Off');
+  }
+  if (localStorage.getItem('new_tab') === 'yes') {
+    $('#new_tab').prop('checked', true);
+  }
+  if (localStorage.getItem('contextMenu_shown') === 'no') {
+    $('#contextMenu_shown').prop('checked', true);
+  }
+  if (localStorage.getItem('ws_items') === 'yes') {
+    $('#ws_items').prop('checked', true);
+    if (localStorage.getItem('ws_address')) {
+      $('#ws_server').text( localStorage.getItem('ws_address') );
+    }
+    $('#ws_info').removeClass('Off');
+  }
+  if (localStorage.getItem('ajax_pii_link') !== 'no') {
+    $('#ajax_pii_link').prop('checked', true);
+    $('#ajax_info').removeClass('Off');
+  }
+
+  if (localStorage.getItem('past_search_terms')) {
+    var terms = localStorage.getItem('past_search_terms').split('||'),
+      t = '', i;
+    terms.pop();
+    for (i = 0; i < terms.length; i += 1) {
+      if (localStorage.getItem(terms[i])) {
+        t += '<li class="keywords_li"><input class="keywords" type="checkbox" id="' + terms[i].replace(/"/g, ',,') + '" /> <span>' + terms[i] +
+          '</span> <a href="#">' + get_end_num(localStorage.getItem(terms[i]), ',') + '</a></li>';
+    } }
+    if (t) {
+      var span_max = 0;
+      $('#keywords_list').append(t);
+      $('.keywords_li span').each(function () {
+        if ($(this).width() > span_max) {
+          span_max = $(this).width();
+        }
+      });
+      if (span_max > 300) {
+        span_max = 300;
+      }
+      $('.keywords_li span').each(function () {
+        $(this).width(span_max + 40);
+      });
+      $('#graph_trend').width( $('#keywords_list').width() - span_max - 160 );
+      $('#graph_trend').height( $('#keywords_list').height() + 10 );
+      $('input.keywords').on('change', function () {
+        adjust_keywords();
+      });
+      $('.keywords_li span').on('click', function() {
+        toggle_checked( $(this).parent().children('input') );
+      });
+      $('.keywords_li a').addClass('ui-button ui-state-default ui-corner-all');
+      $('.keywords_li a').on('click', function(e) {
+        e.preventDefault();
+        var term = $(this).parent().children('span').text(),
+          hist = localStorage.getItem(term),
+          hist_array = hist.split('||'),
+          j = 'search results count: ' + term + '\n----\n', k, l;
+        for (k = 0; k < hist_array.length; k += 1) {
+          l = hist_array[k].lastIndexOf(',');
+          j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
+        }
+        $('#graph_trend').html('<pre style="font-size:12px">' + j + '</pre>');
+        return false;
+      });
+      $('#submit_keyword').on('click', function() {
+
+        alert('feature in development');
+
+      });
+    }
+  }
+
+  $('#option_tabs').tabs({cookie: {expires: 9}});
+  $('input.settings').on('change', function () {
+    $('#save_widget').removeClass('Off');
+  });
+});

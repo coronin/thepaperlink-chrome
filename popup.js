@@ -35,9 +35,9 @@ function eFetch(pmid) {
       var ref_list = '<p class="moreAbout"><b><u>References</u>: </b>', j;
       for (j = 0; j < l.MedlineCitation.CommentsCorrectionsList.length; j += 1) {
         if (j === 0) {
-          ref_list += '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999;">$2</font>') + '</a>';
+          ref_list += '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
         } else {
-          ref_list += '; <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999;">$2</font>') + '</a>';
+          ref_list += '; <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
         }
       }
       ref_list += '</p>';
@@ -199,7 +199,7 @@ $(document).ready(function () {
   });
 
   $('#ess_input').keydown(function (event) {
-    if (event.keyCode == 13) {
+    if (event.keyCode === 13) {
       eSS( this.value );
     }
   });
