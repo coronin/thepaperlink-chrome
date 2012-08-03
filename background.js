@@ -5,6 +5,7 @@ var DEBUG = false,
   scholar_run = 0,
   scholar_queue = [],
   load_try = 10,
+  local_ip = '',
   new_tabId = null,
   alldigi = /^\d+$/,
   old_id = '',
@@ -36,37 +37,72 @@ function get_end_num(str, suffix) {
   }
 }
 
-function get_ws_address() {
-  $.getJSON('http://cail.jit.su/', function (d) {
-    $.post('http://0.pl4.me/',
-      {'pmid':'1', 'title':'WEBSOCKET_SERVER', 'ip':d['x-forwarded-for']},
-      function (ws_d) {
-        DEBUG && console.log('>> get_ws_address: ' + ws_d);
-        localStorage.setItem('ws_address', ws_d);
-        if (ws_d !== ws_addr) {
-          ws_addr = ws_d;
-          if (ws) {
-            ws.close();
-            broadcast_loaded = 0;
-          }
-          DEBUG && console.log('>> connect to the new ws server');
-          load_broadcast();
-        }
+function post_pl4me(v) {
+  var a = [], b = [];
+  a[0] = 'WEBSOCKET_SERVER';
+  b[0] = 'ws_address'; // localStorage key
+  a[1] = 'GUEST_APIKEY';
+  b[1] = 'thepaperlink_guest'; // localStorage key
+  if (!local_ip) {
+    return;
+  }
+  $.post('http://0.pl4.me/',
+    {'pmid':'1', 'title':a[v], 'ip':local_ip},
+    function (d) {
+      DEBUG && console.log('>> post_pl4me, ' + a[v] + ': ' + d);
+      localStorage.setItem(b[v], d);
+      if (v !== 1 && apikey === null) {
+        post_pl4me(1);
       }
-    ).error(function () {
-      DEBUG && console.log('>> get_ws_address, step 2 error');
-    });
-  }).error(function() {
-    DEBUG && console.log('>> get_ws_address, step 1 error');
+      if (v === 0 && d !== ws_addr) {
+        ws_addr = d;
+        if (ws) {
+          ws.close();
+          broadcast_loaded = 0;
+        }
+        DEBUG && console.log('>> connect to the new ws server');
+        load_broadcast();
+      }
+    }
+  ).error(function () {
+    DEBUG && console.log('>> post_pl4me, error');
   });
+}
+
+function get_local_ip() {
+  return $.getJSON('http://cail.jit.su/', function (d) {
+      local_ip = d['x-forwarded-for'];
+      DEBUG && console.log('>> get_local_ip: ' + local_ip);
+    }).error(function() {
+      DEBUG && console.log('>> get_local_ip error');
+    });
+}
+
+function get_server_data(v) {
+  var req;
+  if (!local_ip) {
+    req = get_local_ip();
+  }
+  if (req) {
+    $.when(req).then(function () {
+      post_pl4me(v);
+    });
+  } else {
+    post_pl4me(v);
+  }
 }
 
 function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
   if (req_key === null) {
-    req_key = 'G0oasfw0382Wd3oQ0l1LiWzE'; // temp apikey, may disabled in the future
-    //chrome.tabs.create({ url: chrome.extension.getURL("options.html") });
+    req_key = localStorage.getItem('thepaperlink_guest') || null;
+    if (req_key === null && load_try > -4) {
+      load_try -= 1;
+      get_server_data(1);
+      setTimeout(load_common_values, 5000);
+      return;
+    }
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
@@ -722,6 +758,6 @@ function load_broadcast() {
 $(document).ready(function () {
   if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
     load_broadcast();
-    get_ws_address();
+    get_server_data(0);
   }
 });

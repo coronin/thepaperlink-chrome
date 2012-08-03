@@ -188,7 +188,7 @@ function run() {
 }
 
 function alert_dev(req_key) {
-  if (req_key && req_key !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
+  if (req_key) {
    var oXHR = new XMLHttpRequest();
    oXHR.open('POST', 'http://www.thepaperlink.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
    oXHR.onreadystatechange = function (oEvent) {
@@ -345,10 +345,11 @@ chrome.extension.onRequest.addListener(
       }
       sendResponse({});
       return;
+
     } else if (request.search_trend) {
       var hook = $('myncbiusername').textContent;
-      $('myncbiusername').innerHTML = uneval_trim(request.search_trend) +
-        '&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
+      $('myncbiusername').innerHTML = '<span style="color:yellow">' + uneval_trim(request.search_trend) +
+        '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
       $('myncbiusername').style.display = 'inline';
       sendResponse({});
       return;
@@ -412,7 +413,7 @@ chrome.extension.onRequest.addListener(
         pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
         uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
     } else {
-      bookmark_div += 'Wanna save what you are reading? Try<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
+      bookmark_div += 'save what you are reading? try<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
     }
     if (old_title) {
       $('pl4_title').innerHTML = old_title + bookmark_div;
