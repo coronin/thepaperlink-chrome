@@ -7,7 +7,7 @@
  * initial version, a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  */
 
-var DEBUG = false;
+var DEBUG = false,
   noRun = 0,
   page_d = document,
   page_url = page_d.URL,
@@ -16,8 +16,8 @@ var DEBUG = false;
   pmids = '',
   pmidArray = [],
   old_title = '',
-  title_pos = 0,
   search_term = '',
+  search_result_count = '',
   onePage_calls = 0;
 
 /* limited version, full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
@@ -98,9 +98,9 @@ function getPmid(zone, num) {
       }
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
-      b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">'
-        + '<img title="copy to clipboard" src="' + clippy_file
-        + '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
+      b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
+        '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
+        '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
       b.onclick = function () {
         chrome.extension.sendRequest({t_cont: t_cont});
       };
@@ -112,7 +112,7 @@ function getPmid(zone, num) {
       pmids += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
-        c.style.cssText = 'border-left:4px #fccccc solid;padding-left:4px;padding-right:4px;font-size:11px;';
+        c.style.cssText = 'border-left:6px #fccccc solid;padding-left:6px;font-size:11px;';
         c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">waiting</span>';
         if (t(zone)[num].className === 'rprt') {
           t(zone)[num + 4].appendChild(c);
@@ -126,7 +126,7 @@ function getPmid(zone, num) {
 }
 
 function get_Json(pmids) {
-  var i, div,
+  var i, ele,
     need_insert = 1,
     url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
     loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
@@ -136,17 +136,28 @@ function get_Json(pmids) {
     url += '&apikey=';
   }
   for (i = 0; i < t('h2').length; i += 1) {
-    if (t('h2')[i].className === 'result_count') {
-      old_title = t('h2')[i].innerHTML;
-      title_pos = i;
+    ele = t('h2')[i];
+    if (ele.className === 'result_count') {
       need_insert = 0;
-      t('h2')[i].innerHTML = old_title + loading_span;
+      ele.setAttribute('id', 'pl4_title');
+      old_title = ele.innerHTML;
+      search_result_count = ele.textContent;
+      if (search_result_count.indexOf(' of ') > 0) {
+        search_result_count = parseInt(search_result_count.split(' of ')[1], 10);
+      } else if (search_result_count.indexOf('Results: ') > -1) {
+        search_result_count = parseInt(search_result_count.substr(9, search_result_count.length), 10);
+      } else {
+        search_result_count = 0;
+      }
+      a_proxy({search_term: search_term, search_result_count: search_result_count});
+      ele.innerHTML = old_title + loading_span;
     }
   }
   if (need_insert) {
-    div = page_d.createElement('h2');
-    div.innerHTML = loading_span;
-    $('messagearea').appendChild(div);
+    ele = page_d.createElement('h2');
+    ele.innerHTML = loading_span;
+    ele.setAttribute('id', 'pl4_title');
+    $('messagearea').appendChild(ele);
   }
   onePage_calls += 1;
   a_proxy({url: url});
@@ -182,9 +193,9 @@ function run() {
 }
 
 function alert_dev(req_key) {
-  if (req_key && req_key !== 'G0oasfw0382Wd3oQ0l1LiWzE') {
+  if (req_key) {
    var oXHR = new XMLHttpRequest();
-   oXHR.open('POST', 'http://0.pl4.me/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+   oXHR.open('POST', 'http://www.thepaperlink.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
    oXHR.onreadystatechange = function (oEvent) {
      if (oXHR.readyState === 4) {
        if (oXHR.status === 200) {
@@ -195,17 +206,12 @@ function alert_dev(req_key) {
    };
    oXHR.send(null);
   } else {
-    alert('You have to be a registered user to be able to alert the developer.');
+    alert('\n you have to be a registered user to be able to alert the developer\n');
   }
 }
 
 
 if (page_url === 'http://www.thepaperlink.com/reg'
-    || page_url === 'http://www.thepaperlink.net/reg'
-    || page_url === 'http://thepaperlink.appspot.com/reg'
-    || page_url === 'https://thepaperlink.appspot.com/reg'
-    || page_url === 'http://pubget-hrd.appspot.com/reg'
-    || page_url === 'https://pubget-hrd.appspot.com/reg'
     || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML,
     cloud_op = $('cloud_op').innerHTML;
@@ -252,17 +258,16 @@ if (!noRun) {
 chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     DEBUG && console.log(request);
-    var r, p, pmid, div, div_html, i, j, k, S, styles, peaks,
-      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ';
     if (request.js_base_uri) {
       if (!$('paperlink2_display')) {
-        peaks = page_d.createElement('script');
+        var peaks = page_d.createElement('script');
         peaks.setAttribute('type', 'text/javascript');
         peaks.setAttribute('src', request.js_base_uri + '/jss?y=' + (Math.random()));
         page_d.body.appendChild(peaks);
       }
       sendResponse({});
       return;
+
     } else if (request.except) {
       if (!search_term) {
         search_term = page_url.split('/pubmed/')[1];
@@ -270,17 +275,21 @@ chrome.extension.onRequest.addListener(
       if (!search_term) {
         search_term = localStorage.getItem('thePaperLink_ID');
       }
-      t('h2')[title_pos].innerHTML = old_title +
+      $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">Error! Try ' +
         '<button onclick="window.location.reload()">reload</button> or ' +
         '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">the Paper Link</a>' +
         '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
-      t('h2')[title_pos].onclick = function () {
-        alert_dev( uneval_trim(request.tpl) );
+      $('thepaperlink_alert').onclick = function () {
+        var answer = confirm('\n do you want to alert the developer about this error?\n');
+        if (answer) {
+          alert_dev( uneval_trim(request.tpl) );
+        }
       };
       sendResponse({});
       return;
+
     } else if (request.js_key && request.js_base) {
       if (window.location.protocol !== 'https:') {
         DEBUG && console.log('>> starting the js client');
@@ -292,9 +301,10 @@ chrome.extension.onRequest.addListener(
           jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
           page_d.body.appendChild(jsClient);
         }
-      } else { alert('this is a secure page, js client not working yet'); }
+      } else { alert('\n this is a secure page, js client will not work\n'); }
       sendResponse({});
       return;
+
     } else if (request.g_scholar) {
       try {
         if (request.g_num === 1 && request.g_link === 1) {
@@ -305,15 +315,16 @@ chrome.extension.onRequest.addListener(
             $('citedBy' + request.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
           }
         } else if (request.g_num && request.g_link) {
-          $('citedBy' + request.pmid).innerHTML = uneval_trim(request.g_num)
-            + ' times <a target="_blank" href="http://scholar.google.com'
-            + uneval_trim(request.g_link) + '">(in Google Scholar)</a>';
+          $('citedBy' + request.pmid).innerHTML = uneval_trim(request.g_num) +
+            ' times <a target="_blank" href="http://scholar.google.com' +
+            uneval_trim(request.g_link) + '">(in Google Scholar)</a>';
         }
       } catch (err) {
         DEBUG && console.log(err);
       }
       sendResponse({});
       return;
+
     } else if (request.el_id && request.el_data) {
       try {
         if (request.el_data && request.el_data.indexOf('://') > -1) {
@@ -326,8 +337,8 @@ chrome.extension.onRequest.addListener(
               e.href = uneval_trim(request.el_data);
             }
           } else {
-            $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="'
-              + uneval_trim(request.el_data) +'">the file link</a>';
+            $(request.el_id).innerHTML = '&raquo; <a target="_blank" href="' +
+              uneval_trim(request.el_data) +'">the file link</a>';
           }
         } else if (request.el_data === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
           $(request.el_id).innerText = 'trying';
@@ -339,10 +350,52 @@ chrome.extension.onRequest.addListener(
       }
       sendResponse({});
       return;
+
+    } else if (request.search_trend) {
+      var hook = $('myncbiusername').textContent;
+      $('myncbiusername').innerHTML = '<span style="color:yellow">' + uneval_trim(request.search_trend) +
+        '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
+      $('myncbiusername').style.display = 'inline';
+      sendResponse({});
+      return;
     }
-    r = request.r;
+
+    var p, pmid, div, div_html, i, j, k, insert_style, insert_span,
+      bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ',
+      styles = '.thepaperlink {' +
+        '  background: #e0ecf1;' +
+        '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
+        '  padding: 2px 4px;' +
+        '  border-radius: 4px;' +
+        '  display: inline-block' +
+        '}' +
+        '.thepaperlink_Off {' +
+        '  display: none !important' +
+        '}' +
+        '.thepaperlink > a ,' +
+        '.thepaperlink > span {' +
+        '  margin: 0 6px' +
+        '}' +
+        'a.thepaperlink-green {' +
+        '  color: green' +
+        '}' +
+        'a.thepaperlink-red {' +
+        '  color: red' +
+        '}' +
+        '.thepaperlink-home {' +
+        '  color: grey;' +
+        '  text-decoration: none;' +
+        '  cursor: pointer' +
+        '}' +
+        'img.pl4_clippy {' +
+        '  opacity: 0.4' +
+        '}' +
+        'img.pl4_clippy:hover {' +
+        '  opacity: 1.0' +
+        '}',
+      r = request.r;
     if (r && r.error) {
-      t('h2')[title_pos].innerHTML = old_title +
+      $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
         uneval(r.error) + '</span>';
       sendResponse({});
@@ -353,36 +406,11 @@ chrome.extension.onRequest.addListener(
       return;
     }
     p = uneval_trim(request.p);
-    styles = '.thepaperlink {'
-      + '  background: #e0ecf1;'
-      + '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;'
-      + '  padding: 2px 4px;'
-      + '  border-radius: 4px;'
-      + '  display: inline-block'
-      + '}'
-      + '.thepaperlink_Off {'
-      + '  display: none !important'
-      + '}'
-      + '.thepaperlink > a ,'
-      + '.thepaperlink > span {'
-      + '  margin: 0 6px'
-      + '}'
-      + 'a.thepaperlink-green {'
-      + '  color: green'
-      + '}'
-      + 'a.thepaperlink-red {'
-      + '  color: red'
-      + '}'
-      + '.thepaperlink-home {'
-      + '  color: grey;'
-      + '  text-decoration: none;'
-      + '  cursor: pointer'
-      + '}';
     if (!$('css_loaded')) {
-      S = page_d.createElement('style');
-      S.type = 'text/css';
-      S.appendChild(page_d.createTextNode(styles));
-      page_d.body.appendChild(S);
+      insert_style = page_d.createElement('style');
+      insert_style.type = 'text/css';
+      insert_style.appendChild(page_d.createTextNode(styles));
+      page_d.body.appendChild(insert_style);
       //GM_addStyle(styles);
     }
     if (request.pubmeder) {
@@ -390,12 +418,12 @@ chrome.extension.onRequest.addListener(
         pmids + '\',\'' + uneval_trim(request.save_key) + '\',\'' +
         uneval_trim(request.save_email) + '\')">pubmeder&nbsp;all</span></div>';
     } else {
-      bookmark_div += 'Wanna save what you are reading? Login<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
+      bookmark_div += 'save what you are reading? try<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
     }
     if (old_title) {
-      t('h2')[title_pos].innerHTML = old_title + bookmark_div;
+      $('pl4_title').innerHTML = old_title + bookmark_div;
     } else {
-      t('h2')[title_pos].innerHTML = '';
+      $('pl4_title').innerHTML = '';
     }
     for (i = 0; i < r.count; i += 1) {
       pmid = uneval_trim(r.item[i].pmid);
@@ -423,12 +451,6 @@ chrome.extension.onRequest.addListener(
       } else if (r.item[i].pii) {
         a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
         div_html += '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
-        var s1 = $('citedBy' + pmid),
-          s2 = page_d.createElement('span');
-        s2.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
-          p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
-          uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
-        s1.parentNode.appendChild(s2);
       }
       if (r.item[i].pmcid) {
         div_html += '<a id="thepaperlink_pmc' + pmid +
@@ -443,6 +465,13 @@ chrome.extension.onRequest.addListener(
         div_html += '<a id="thepaperlink_doi' + pmid +
           '" href="' + p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
           uneval_trim(r.item[i].pii) + '" target="_blank">publisher</a>';
+      }
+      if (r.item[i].pii && $('citedBy' + pmid)) {
+        insert_span = page_d.createElement('span');
+        insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
+          p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
+          uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
+        $('citedBy' + pmid).parentNode.appendChild(insert_span);
       }
       if (r.item[i].f_v && r.item[i].fid) {
         div_html += '<a id="thepaperlink_f' + pmid +
@@ -492,7 +521,7 @@ chrome.extension.onRequest.addListener(
         DEBUG && console.log('>> got nothing; stopped. ' + k);
       } else {
         DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
-        t('h2')[title_pos].innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
+        $('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
         onePage_calls += 1;
         a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});

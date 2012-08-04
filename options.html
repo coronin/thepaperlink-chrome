@@ -4,327 +4,186 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <title>Options for "the Paper Link" for PubMed</title>
+  <link type="text/css" href="smoothness/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
+  <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="jquery.cookie.js"></script>
+  <script type="text/javascript" src="jquery-ui-1.8.22.custom.min.js"></script>
+  <script type="text/javascript" src="options.js"></script>
   <style type="text/css">
-    body{font-family:arial,sans-serif;font-size:62.5%;}
-    h1{font-size:2em;}
-    h3{font-size:1.6em;padding-top:20px;}
-    p{font-size:1.3em;line-height:1.5em;text-indent:-1.6em;margin-left:40px;}
-    li{font-size:1.3em;line-height:1.4em;padding-bottom:0.4em;}
-    .Off{display:none !important;}
-    .keys{font-family:'Courier New',Courier,monospace;text-decoration:underline;background-color:#f9f9f9;}
+    body {font-family:arial,sans-serif;font-size:62.5%;margin:50px}
+    h3 {color:#9f0000}
+    p {line-height:1.5em}
+    li {padding:0.33em}
+    input.settings {position:relative;top:2px}
+    input.keywords {vertical-align:middle}
+    .Off {display:none !important}
+    .keys {font-family:'Courier New',Courier,monospace;background:#f0f0f0}
+    .bg_grey {background:#f0f0f0}
+    .logo_font {font-family:'Palatino Linotype','Book Antiqua',Palatino,serif;font-size:1.5em;padding-left:2em}
+    .padding_sides {padding:0 0.7em}
+    #keywords_list {list-style-type:none}
+    .keywords_li:hover {background:#fcfaf1}
+    .keywords_li span {display:inline-block;cursor:pointer;vertical-align:middle}
+    .keywords_li a {padding:0 5px;position:relative;top:3px}
   </style>
-  <script type="text/javascript" src="jquery172.js"></script>
 </head>
 <body>
+<h1>"the Paper Link" for PubMed - Google Chrome</h1>
+<p>
+  <span class="logo_font">search and get pdf link <em>now</em>
+    </span>
+  <span style="float:right">&copy; 2010-12 &middot;
+    product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
+    <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a></span>
+  </p>
+<div class="ui-widget Off" id="alert_v1"><div class="ui-state-error ui-corner-all padding_sides" style="margin-bottom:1em">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
+    please provide a valid apikey for the Paper Link service; you can get it from <a href="http://www.thepaperlink.com/reg" rel="external">http://www.thepaperlink.com/reg</a></p>
+</div></div>
+<div class="ui-widget Off" id="alert_v2"><div class="ui-state-error ui-corner-all padding_sides" style="margin-bottom:1em">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
+    please provide a valid apikey for the PubMed-er service; you can get it from <a href="http://www.pubmeder.com/registration" rel="external">http://www.pubmeder.com/registration</a></p>
+</div></div>
+<div id="option_tabs">
+<ul>
+  <li><a href="#option_tabs-1">API</a></li>
+  <li><a href="#option_tabs-2">save it</a></li>
+  <li><a href="#option_tabs-3">settings</a></li>
+  <li><a href="#option_tabs-4">keywords searched</a></li>
+</ul>
 
-  <h1>"the Paper Link" for PubMed - Google Chrome</h1>
-
-  <h3 style="color:#9f0000">"the Paper Link" API &ndash; required</h3>
-  <p><span class="thepaperlink_a">0. visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your own key for the service
-    <br/></span><a style="text-decoration:none;" rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - expandable icon "<b style="background:#f0f0f0">&hellip;</b>" will show on the bar for extra function
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will get more reliable response from our server, with much less error
-    <br/><i style="color:#ccc" class="thepaperlink_a">once enabled</i> - you will be able to save the articles you read to multiple service
+<div id="option_tabs-1">
+  <h3>"the Paper Link" API &mdash; required by the extension</h3>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      you are accessing our server at <span id="api_server"></span></p>
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      get an idea? find a bug? please <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">let us know</a>,
+      or comment on <a href="http://en.dogeno.us/thepaperlink/" rel="external">http://en.dogeno.us/thepaperlink/</a></p>
+  </div></div>
+  <p><span class="thepaperlink_a">visit <a rel="external" href="http://www.thepaperlink.com/reg">http://www.thepaperlink.com/reg</a> to activate your account for the service
+    <br/></span><a rel="external" href="http://www.thepaperlink.com">the Paper Link</a> apikey : <span id="thepaperlink_apikey"></span>
     </p>
+  <ul>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      expandable icon "<b class="bg_grey">&hellip;</b>" will show on the bar for additional functions
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you will get more reliable response from our server, with much less error
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you will be able to save the articles you read to multiple services, via "<span style="cursor:pointer" id="save_it_tab">save it</span>"
+      </li>
+    <li><i style="color:#ccc" class="thepaperlink_a">once enabled -</i>
+      you could <span style="cursor:pointer" id="alert_tab">alert yourself</span> when just published articles match your interests
+      </li>
+  </ul>
+</div>
 
+<div id="option_tabs-2">
   <h3>save it &mdash; archive what you read to the cloud</h3>
-  <p>After enable any of the following, "<b style="background:#f0f0f0">save it</b>" will show on the bar for bookmarking.</p>
-
-  <p>1. By default, articles are saved to <b>http://www.pubmeder.com/</b>
-    &nbsp;&nbsp;[<a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>]
-    <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
-    <br/><a style="text-decoration:none;" rel="external" href="http://www.pubmeder.com">PubMed-er</a> apikey : <span id="pubmeder_apikey"></span>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      after enable any of the following, "<b class="bg_grey">save it</b>" will show on the bar for bookmarking
+      </p>
+  </div></div>
+  <p>By default, articles are saved to <b>http://www.pubmeder.com/</b>
+    &rarr; <a rel="external" href="http://www.pubmeder.com/registration" id="pubmeder_a">connect now</a>
     </p>
-
-  <p>2. Articles will also be saved to other cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a> first (step 0 above), and</span> have an existing account for the following service.
+  <p style="padding-left:2.5em">
+    <a rel="external" href="http://www.pubmeder.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
+    <br/><a rel="external" href="http://www.pubmeder.com">PubMed-er</a> apikey : <span id="pubmeder_apikey"></span>
+    </p>
+  <hr/>
+  <p>Articles will also be saved to other cloud services, if enabled.
+    <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a>, and</span> have existing accounts for those cloud services.
     <br/><span style="color:#ccc">To disable the connection, remove "the Paper Link" app from related service's settings page.</span></p>
   <ul>
     <li><b>http://www.mendeley.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=mendeley" id="mendeley_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="mendeley_status" />
+      <span class="padding_sides keys Off" id="mendeley_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=mendeley" id="mendeley_a">connect now</a>
       </li>
     <li><b>http://www.facebook.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="facebook_status" />
+      <span class="padding_sides keys Off" id="facebook_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=facebook" id="facebook_a">connect now</a>
       </li>
     <li><b>http://www.douban.com/</b>
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="douban_status" />
+      <span class="padding_sides keys Off" id="douban_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=douban" id="douban_a">connect now</a>
       </li>
-    <li><b>http://www.dropbox.com/</b> (testing)
-      &nbsp;&nbsp;[<a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>]
-        <br/><input style="display:none" type="text" value="" size="20" id="dropbox_status" />
+    <li><b>http://www.dropbox.com/</b>
+      <span class="padding_sides keys Off" id="dropbox_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>
       </li>
   </ul>
+</div>
 
-  <h3>Other Settings</h3>
-
-  <p><input type="checkbox" id="co_pubmed" /> Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
-    <br/>you could check here to <b>prevent</b> two icons shown in your address bar.
+<div id="option_tabs-3">
+  <h3>the extension settings</h3>
+  <p><input class="settings" type="checkbox" id="co_pubmed" />
+    Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
+    you could check here to <b>prevent</b> two icons shown in your address bar.
     </p>
-  <p><input type="checkbox" id="new_tab" /> You could check here to <b>always open a new tab</b> when searching selected text,
-    <br/>rather than refresh the existing search tab.
+  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
+      </p>
+  </div></div>
+  <p><input class="settings" type="checkbox" id="new_tab" />
+    You could check here to <b>always open a new tab</b> when searching selected text,
+    rather than refresh the existing search tab.
     </p>
-  <p><input type="checkbox" id="contextMenu_shown" /> You could check here to <b>disable</b> the context menu triggered by right mouse click.
+  <p><input class="settings" type="checkbox" id="contextMenu_shown" />
+    You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input type="checkbox" id="ws_items" /> <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>,
-    <br/>your status on the website should be <u id="ws_items_status"></u>.
+  <p><input class="settings" type="checkbox" id="ajax_pii_link" />
+    <b>Enable</b> to solve missing PDF links locally.
     </p>
-  <p><input type="checkbox" id="ajax_pii_link" /> Testing: <b>enable</b> to solve missing links locally
+  <div class="ui-widget Off" id="ajax_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      only support the following publisher: <i>ScienceDirect</i>
+      </p>
+  </div></div>
+  <p><input class="settings" type="checkbox" id="ws_items" />
+    <b>Enable</b> the <span style="color:red">bleeding</span> feature - display "cited by" count on <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a>.
     </p>
-
-  <p id="rev_proxy_content"></p>
-  <p>If your institute uses ezproxy, input the prefix <input type="text" value="" size="40" id="ezproxy_login" /> ,
-    <br/>then the link <span style="color:#999;background:#f0f0f0">http://a.b.c/d/e.pdf</span> will be rewrited to <span style="background:#f0f0f0"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span> for you.
+  <div class="ui-widget Off" id="ws_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      your status on <a href="http://www.thepaperlink.com" rel="external">the website</a> should be "<span id="ws_items_status"></span>"</p>
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      you are using the following server ws://<span id="ws_server">husband.jit.su</span> for real-time communication</p>
+  </div></div>
+  <p id="rev_proxy_content">
     </p>
-
-  <div style="background:#f0fff0;position:fixed;right:50px;top:50px;padding:20px"><button id="saveBtn" class="Off" onclick="saveOptions()">Save All Options</button></div>
-
   <hr/>
-  <p>&copy; 2010-12 <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a> ;
-    <em>product of <a href="http://about.me/cail" rel="external">Liang Cai</a>, made in California</em>
-  </p>
+  <p><input class="settings" type="text" value="{prefix}" size="40" id="ezproxy_input" />
+    If your institute uses ezproxy, fill in the {prefix} please.
+    </p>
+  <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      the link <span style="color:#999" class="bg_grey">http://a.b.c/d/e.pdf</span> will be rewrited to
+      <span class="bg_grey"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span>
+      </p>
+  </div></div>
+</div>
 
-<script type="text/javascript"><!--
+<div id="option_tabs-4">
+  <h3>keywords in PubMed you have searched</h3>
+  <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      you have to subscript the alert service on <a href="http://www.thepaperlink.com/alerts" rel="external">the website</a> to get notified
+      </p>
+  </div></div>
+  <div id="graph_trend" style="float:right;background:#ffffff"></div>
+  <ul id="keywords_list"></ul>
+  <textarea class="Off" id="keywords_area" rows="4" cols="40"></textarea>
+  <button style="float:left" class="Off" id="submit_keyword">submit</button>
+</div>
 
-$(document).ready(function () {
-  $(function () {
-    $('a[rel="external"]').attr('target', '_blank');
-  });
-  var a_key = localStorage.getItem('thepaperlink_apikey'),
-    b_key = localStorage.getItem('pubmeder_apikey'),
-    b_email = localStorage.getItem('pubmeder_email'),
-    m_status = localStorage.getItem('mendeley_status'),
-    f_status = localStorage.getItem('facebook_status'),
-    d_status = localStorage.getItem('dropbox_status'),
-    b_status = localStorage.getItem('douban_status'),
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
-  if (a_key) {
-    $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" onclick="rest_key(1)">[x]</span>');
-    $('.thepaperlink_a').css('display', 'none');
-    $('#ws_items_status').text('login');
-  } else {
-    $('#thepaperlink_apikey').html('<input type="text" value="" size="40" id="thepaperlink_apikey" />');
-    $('#ws_items_status').text('logout');
-  }
-  if (b_key) {
-    $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
-    $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" onclick="rest_key(2)">[x]</span>');
-    $('#pubmeder_a').text('visit the site');
-  } else {
-    $('#pubmeder_email').html('<input type="text" value="" size="40" id="pubmeder_email" />');
-    $('#pubmeder_apikey').html('<input type="text" value="" size="40" id="pubmeder_apikey" />');
-  }
-  if (m_status) {
-    $('#mendeley_status').css('display', 'inline');
-    $('#mendeley_status').val('status: ' + m_status);
-    $('#mendeley_a').text('check connection');
-  }
-  if (f_status) {
-    $('#facebook_status').css('display', 'inline');
-    $('#facebook_status').val('status: ' + f_status);
-    $('#facebook_a').text('check connection');
-  }
-  if (d_status) {
-    $('#dropbox_status').css('display', 'inline');
-    $('#dropbox_status').val('status: ' + d_status);
-    $('#dropbox_a').text('check connection');
-  }
-  if (b_status) {
-    $('#douban_status').css('display', 'inline');
-    $('#douban_status').val('status: ' + b_status);
-    $('#douban_a').text('check connection');
-  }
-  if (ezproxy_prefix) {
-    $('#ezproxy_prefix').text(ezproxy_prefix);
-    $('#ezproxy_login').val(ezproxy_prefix);
-  }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
-      '<br/>It is slower, but more accessible. 推荐中国用户使用');
-  } else {
-    $('#rev_proxy_content').html('<input type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-      '<br/>If you really want, you can <b>check to enable</b> the reverse proxy.');
-  }
-  if (localStorage.getItem('co_pubmed') === 'no') {
-    $('#co_pubmed').prop('checked', true);
-  }
-  if (localStorage.getItem('new_tab') === 'yes') {
-    $('#new_tab').prop('checked', true);
-  }
-  if (localStorage.getItem('contextMenu_shown') === 'no') {
-    $('#contextMenu_shown').prop('checked', true);
-  }
-  if (localStorage.getItem('ws_items') === 'yes') {
-    $('#ws_items').prop('checked', true);
-  }
-  if (localStorage.getItem('ajax_pii_link') !== 'no') {
-    $('#ajax_pii_link').prop('checked', true);
-  }
-  $('input').on('change', function () {
-    $('#saveBtn').removeClass('Off');
-    $('#saveBtn').parent().css('background', '#fff0f0');
-  });
-});
-
-function rest_key(v) {
-  var answer = confirm('\ndo you really want to rest the key?\n');
-  if (answer) {
-    if (v === 1) {
-      localStorage.removeItem('thepaperlink_apikey');
-      localStorage.removeItem('a_apikey_gold');
-    } else if (v === 2) {
-      localStorage.removeItem('pubmeder_apikey');
-      localStorage.removeItem('pubmeder_email');
-      localStorage.removeItem('b_apikey_gold');
-    }
-    location.reload();
-    chrome.extension.sendRequest({load_common_values: 1});
-  }
-}
-
-function valid_thepaperlink(ak) {
-  return $.get('http://0.pl4.me/api?validate=' + ak,
-    function (txt) {
-      if (txt === 'valid') {
-        localStorage.setItem('thepaperlink_apikey', ak);
-        localStorage.setItem('a_apikey_gold', 1);
-      } else {
-        $('#thepaperlink_apikey').val('');
-        alert('Please provide a valid apikey. Please visit http://www.thepaperlink.com/reg');
-      }
-    },
-    'json'
-  );
-}
-
-function valid_pubmeder(e,ak) {
-  return $.get('http://1.pl4.me/input?pmid=999999999&apikey=' + ak + '&email=' + e,
-    function (txt) {
-      if (txt === 'correct') {
-        localStorage.setItem('pubmeder_apikey', ak);
-        localStorage.setItem('pubmeder_email', e);
-        localStorage.setItem('b_apikey_gold', 1);
-      } else {
-        $('#pubmeder_apikey').val('');
-        alert('Please provide a valid apikey. Please visit http://www.pubmeder.com/registration');
-      }
-    },
-    'text'
-  );
-}
-
-function saveOptions() {
-  var rev_proxy = $('#rev_proxy').prop('checked'),
-    co_pubmed = $('#co_pubmed').prop('checked'),
-    new_tab = $('#new_tab').prop('checked'),
-    contextMenu_shown = $('#contextMenu_shown').prop('checked'),
-    ws_items = $('#ws_items').prop('checked'),
-    ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-    ezproxy_prefix = $('#ezproxy_login').val(),
-    req_a = null,
-    req_b = null;
-  if (rev_proxy) {
-    localStorage.setItem('rev_proxy', 'yes');
-  } else {
-    localStorage.setItem('rev_proxy', 'no');
-  }
-  if (co_pubmed) {
-    localStorage.setItem('co_pubmed', 'no');
-  } else {
-    localStorage.setItem('co_pubmed', 'yes');
-  }
-  if (new_tab) {
-    localStorage.setItem('new_tab', 'yes');
-  } else {
-    localStorage.setItem('new_tab', 'no');
-  }
-  if (contextMenu_shown) {
-    localStorage.setItem('contextMenu_shown', 'no');
-    localStorage.removeItem('contextMenu_on');
-    chrome.contextMenus.removeAll();
-  } else {
-    localStorage.setItem('contextMenu_shown', 'yes');
-    if (!localStorage.getItem('contextMenu_on')) {
-      localStorage.setItem('contextMenu_on', 1);
-      chrome.extension.sendRequest({menu_display: 1});
-    }
-  }
-  if (ws_items) {
-    localStorage.setItem('ws_items', 'yes');
-    chrome.extension.sendRequest({load_broadcast: 1});
-  } else {
-    localStorage.setItem('ws_items', 'no');
-  }
-  if (ajax_pii_link) {
-    localStorage.setItem('ajax_pii_link', 'yes');
-  } else {
-    localStorage.setItem('ajax_pii_link', 'no');
-  }
-  if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
-    localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
-  } else {
-    if (ezproxy_prefix) {
-      alert('wrong format of the prefix.\nplease check with your librarian');
-    }
-    localStorage.setItem('ezproxy_prefix', '');
-  }
-
-  if ( !localStorage.getItem('a_apikey_gold') ) {
-    var accessApi = $('#thepaperlink_apikey').val();
-    if (accessApi.length === 32) {
-      req_a = valid_thepaperlink(accessApi);
-    } else if (accessApi) {
-      $('#thepaperlink_apikey').val('');
-      alert('Please provide a valid apikey to use this extension. Please visit http://www.thepaperlink.com/reg');
-      return false;
-    }
-  }
-  if ( !localStorage.getItem('b_apikey_gold') ) {
-    var userEmail = $('#pubmeder_email').val(),
-      email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
-      userApi = $('#pubmeder_apikey').val();
-    if (userEmail && !email_filter.test(userEmail)) {
-      alert('Please provide a valid email address');
-      $('#pubmeder_email').val('');
-      $('#pubmeder_email').focus();
-      return false;
-    } else if (userEmail && (!userApi || userApi.length !== 32)) {
-      alert('Please provide a valid apikey. Please visit http://www.pubmeder.com/registration');
-      $('#pubmeder_apikey').val('');
-      $('#pubmeder_apikey').focus();
-      return false;
-    } else if (userEmail && userApi.length === 32) {
-      req_b = valid_pubmeder(userEmail, userApi);
-    }
-  }
-
-  if (req_a) {
-    $.when(req_a).then(function () {
-        if (localStorage.getItem('a_apikey_gold')) {
-          location.reload();
-        }
-    });
-  } else if (req_b) {
-    $.when(req_b).then(function () {
-        if (localStorage.getItem('b_apikey_gold')) {
-          location.reload();
-        }
-    });
-  } else if (req_a && req_b) {
-    $.when(req_a, req_b).then(function () {
-        if (localStorage.getItem('a_apikey_gold') && localStorage.getItem('b_apikey_gold')) {
-          location.reload();
-        }
-    });
-  } else {
-    location.reload();
-  }
-
-  chrome.extension.sendRequest({load_common_values: 1});
-}
-//-->
-</script>
+</div><!-- option_tabs -->
+<div class="ui-widget Off" id="save_widget"><div class="ui-state-error ui-corner-all padding_sides" style="margin-top:1em">
+  <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
+    you have changed the settings of the extension, please <button id="saveBtn">save</button></p>
+</div></div>
 </body>
 </html>

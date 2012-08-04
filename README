@@ -1,6 +1,3 @@
-ATTENTION: Please visit the Options page (Tools - Extensions ...) to unleash the power of this extension.
-
-
 the Paper Link for PubMed (limited)
 --------
 In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more! It is built based on publicly available information from NLM / NCBI / NIH, and other sources.
@@ -11,11 +8,10 @@ Detailed enhancement includes:
  * External pages related to the article
  * Faculty 1000 score and link to its comment page
  * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://2.thepaperlink.com/static/peaks.html)
- * Email PDF file to yourself
+ * Email PDF file to yourself (only in FULL version)
  * Extract PMID on any webpage
 
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
 
-
-Full version is https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko
-Versions of limited and full are matched
+FULL version is https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko
+Versions of limited and FULL are matched
