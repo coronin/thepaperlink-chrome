@@ -23,7 +23,7 @@ For Firefox, please use the following:
  + from https://addons.mozilla.org/en-US/firefox/addon/thepaperlinkforpubmed/
 
 For Safari, please use the following:
- + http://www.thepaperlink.com/static/thepaperlink.safariextz
+ + https://github.com/coronin/thepaperlink-safari/raw/master/thepaperlink.safariextz
 
 For Mobile Devices:
  + visit www.thepaperlink.com on your mobile device: iPhone, Android, iPod Touch, iPad, etc
@@ -34,7 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
- * v0.5 - improved option page
+ * v0.5.0 - improved option page, bug fix
  * v0.4.5.1 - bug fix
  * v0.4.5 - manifest v2
  * v0.4.4.2 - bug fix
