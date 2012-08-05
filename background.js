@@ -170,11 +170,11 @@ function call_js_on_click(info, tab) {
 }
 
 function menu_generator() {
-  chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'',
+  chrome.contextMenus.create({'title': 'Search the Paper Link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
   chrome.contextMenus.create({'title': 'Find ID on this page',
     'contexts':['page'], 'onclick': call_js_on_click});
-  chrome.contextMenus.create({'title': 'Visit the_Paper_Link',
+  chrome.contextMenus.create({'title': 'Visit the Paper Link',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
@@ -230,7 +230,7 @@ function saveIt_pubmeder(pmid) {
 }
 
 function eSearch(search_term, tabId) {
-  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   $.get(url,
     function (xml) {
       var pmid = $(xml).find('Id');
@@ -297,7 +297,7 @@ function send_binary(aB, pmid, upload, no_email) {
       console.log('__ upload the file to the server with status: ' + xhr.status);
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
-        if (!no_email) {
+        if (!no_email && apikey) {
           email_abstract(apikey, pmid);
         }
       }
@@ -322,11 +322,11 @@ function get_binary(file, pmid, upload, no_email) {
   xhr.send(null);
 }
 
-function dropbox_it(pmid, pdf, apikey) {
+function dropbox_it(pmid, pdf, k) {
   $.ajax({
     url: base + '/file/new',
     dataType: 'jsonp',
-    data: {'apikey': apikey, 'no_email': 1},
+    data: {'apikey': k, 'no_email': 1},
     //async: false,
   }).success(function (upload_url) {
     get_binary(pdf, pmid, upload_url, 1);
@@ -424,7 +424,11 @@ function get_request(request, sender, callback) {
     }
   } else if (request.upload_url && request.pdf && request.pmid && apikey) {
     DEBUG && console.log(request.pdf);
-    get_binary(request.pdf, request.pmid, request.upload_url, request.no_email);
+    if (request.pdf.substr(0,7).toLowerCase() === 'http://') {
+      get_binary(request.pdf, request.pmid, request.upload_url, request.no_email);
+    } else if (!request.no_email) {
+      email_abstract(apikey, request.pmid);
+    }
   } else if (request.save_cloud_op) {
     DEBUG && console.log(request.save_cloud_op);
     if (request.save_cloud_op.indexOf('mendeley') > -1) {
@@ -743,7 +747,7 @@ function load_broadcast() {
                 chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
               }
             );
-          } else if (d.action === 'dropbox_it') {
+          } else if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
             dropbox_it(d.pmid, d.pdf, d.apikey);
           }
         }
