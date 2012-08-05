@@ -84,6 +84,7 @@ function saveOptions() {
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
     ws_items = $('#ws_items').prop('checked'),
     ajax_pii_link = $('#ajax_pii_link').prop('checked'),
+    pubmed_limit = $('#pubmed_limit').val(),
     ezproxy_prefix = $('#ezproxy_input').val(),
     req_a = null,
     req_b = null;
@@ -123,6 +124,16 @@ function saveOptions() {
     localStorage.setItem('ajax_pii_link', 'yes');
   } else {
     localStorage.setItem('ajax_pii_link', 'no');
+  }
+  if (pubmed_limit) {
+    try {
+      var a = parseInt(pubmed_limit, 10);
+      if (a && a !== 10) {
+        localStorage.setItem('pubmed_limit', a);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
@@ -278,6 +289,11 @@ $(document).ready(function () {
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);
     $('#pubmeder_info').removeClass('Off');
+  } else {
+    $('#pubmeder_span').html(' (your search in popup widget has a max limit of <input class="settings" type="text" value="10" size="1" id="pubmed_limit" />)');
+    if (localStorage.getItem('pubmed_limit')) {
+      $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
+    }
   }
   if (localStorage.getItem('new_tab') === 'yes') {
     $('#new_tab').prop('checked', true);

@@ -120,15 +120,6 @@
 
 <div id="option_tabs-3">
   <h3>the extension settings</h3>
-  <p><input class="settings" type="checkbox" id="co_pubmed" />
-    Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
-    you could check here to <b>prevent</b> two icons shown in your address bar.
-    </p>
-  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
-    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
-      </p>
-  </div></div>
   <p><input class="settings" type="checkbox" id="new_tab" />
     You could check here to <b>always open a new tab</b> when searching selected text,
     rather than refresh the existing search tab.
@@ -136,6 +127,14 @@
   <p><input class="settings" type="checkbox" id="contextMenu_shown" />
     You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
+  <p><input class="settings" type="checkbox" id="co_pubmed" />
+    Disable the function overlap with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a><span id="pubmeder_span"></span>.
+    </p>
+  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
+      </p>
+  </div></div>
   <p><input class="settings" type="checkbox" id="ajax_pii_link" />
     <b>Enable</b> to solve missing PDF links locally.
     </p>

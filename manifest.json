@@ -7,7 +7,7 @@
   ],
 
   "name": "__MSG_appName__",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "minimum_chrome_version": "18",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -16,11 +16,10 @@
     "contextMenus",
     "tabs",
     "clipboardWrite",
-    "https://www.ncbi.nlm.nih.gov/*",
-    "https://thepaperlink.appspot.com/*",
-    "https://pubmeder.appspot.com/*",
+    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
     "https://pubget-hrd.appspot.com/*",
-    "https://pubmeder-hrd.appspot.com/*",
+    "https://pubmeder-hrd.appspot.com/input",
+    "https://entrezajax3.appspot.com/efetch",
     "http://*/*"
   ],
   "background": {
@@ -41,8 +40,6 @@
   "content_scripts": [ {
     "matches": [
       "https://www.ncbi.nlm.nih.gov/*",
-      "https://thepaperlink.appspot.com/*",
-      "https://pubmeder.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "https://pubmeder-hrd.appspot.com/*",
       "http://*/*"
