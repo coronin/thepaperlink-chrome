@@ -105,7 +105,7 @@ function eFetch(pmid) {
     }
 
     $('.moreAbout').on('click', function () { hideMore(); });
-  }).error(function () {
+  }).fail(function () {
     $('.loadIcon').addClass('Off');
     $('<div/>').html('<p>I am sorry. Nothing I can do with PMID:' + pmid + '</p>').appendTo('#result');
   });
@@ -165,7 +165,7 @@ function eSummary(term) {
       $('#result').removeClass('Off');
     },
     'xml'
-  ).error(function () {
+  ).fail(function () {
     $('#result').html('I am very sorry, but I failed. Try later?');
   });
 }
@@ -180,7 +180,7 @@ function eSS(search_term) {
       eSummary(WebEnv);
     },
     'xml'
-  ).error(function () {
+  ).fail(function () {
     $('#result').html('Sorry, I failed. Try later?');
   });
 }

@@ -273,6 +273,10 @@ $(document).ready(function () {
     $('#ezproxy_prefix').text(ezproxy_prefix);
     $('#ez_info').removeClass('Off');
   }
+  if (localStorage.getItem('alert_outdated')) {
+    $('.alert_outdated').removeClass('Off');
+    localStorage.removeItem('alert_outdated');
+  }
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
       ' It is slower.');
@@ -303,8 +307,8 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('ws_address')) {
-      $('#ws_server').text( localStorage.getItem('ws_address') );
+    if (localStorage.getItem('websocket_server')) {
+      $('#websocket_server').text( localStorage.getItem('websocket_server') );
     }
     $('#ws_info').removeClass('Off');
   }
@@ -355,7 +359,7 @@ $(document).ready(function () {
           l = hist_array[k].lastIndexOf(',');
           j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
         }
-        $('#graph_trend').html('<pre style="font-size:12px">' + j + '</pre>');
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j + '</pre>');
         return false;
       });
       $('#submit_keyword').on('click', function() {
