@@ -340,8 +340,8 @@ $(document).ready(function () {
       $('.keywords_li span').each(function () {
         $(this).width(span_max + 40);
       });
-      $('#graph_trend').width( $('#keywords_list').width() - span_max - 160 );
-      $('#graph_trend').height( $('#keywords_list').height() + 10 );
+      $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
+      $('#graph_trend').height( $('#keywords_list').height() + 25 );
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
@@ -359,13 +359,21 @@ $(document).ready(function () {
           l = hist_array[k].lastIndexOf(',');
           j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
         }
-        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j + '</pre>');
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j + '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>');
+        $('#delete_term_log').on('click', function () {
+          var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          if (answer) {
+            localStorage.removeItem(term);
+            location.reload();
+          }
+        });
         return false;
       });
       $('#submit_keyword').on('click', function() {
-
-        alert('feature in development');
-
+        chrome.tabs.create({
+          url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+          active: true
+        });
       });
     }
   }

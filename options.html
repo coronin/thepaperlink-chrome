@@ -23,8 +23,9 @@
     .padding_sides {padding:0 0.7em}
     #keywords_list {list-style-type:none}
     .keywords_li:hover {background:#fcfaf1}
-    .keywords_li span {display:inline-block;cursor:pointer;vertical-align:middle}
+    .keywords_li span {display:inline-block;overflow:hidden;cursor:pointer;vertical-align:middle}
     .keywords_li a {padding:0 5px;position:relative;top:3px}
+    #delete_term_log {cursor:pointer;text-decoration:underline;color:#ccc}
   </style>
 </head>
 <body>
@@ -175,7 +176,7 @@
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
   <ul id="keywords_list"></ul>
-  <textarea class="Off" id="keywords_area" rows="4" cols="40"></textarea>
+  <textarea class="Off" name="patterns" id="keywords_area" rows="4" cols="40"></textarea>
   <button style="float:left" class="Off" id="submit_keyword">submit</button>
 </div>
 
