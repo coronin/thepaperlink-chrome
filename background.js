@@ -534,7 +534,7 @@ function get_request(request, sender, callback) {
 chrome.extension.onRequest.addListener(get_request);
 
 $.ajax({
-  url: 'https://pubget-hrd.appspot.com/static/humans.txt',
+  url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=1',
   dataType: 'text',
   timeout: 4000
 }).done(function() {
