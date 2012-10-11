@@ -1,6 +1,6 @@
 var DEBUG = false,
   i, aKey, aVal, ws,
-  ws_addr = localStorage.getItem('websocket_server') || 'husband.jit.su',
+  ws_addr = localStorage.getItem('websocket_server') || 'pl4.me:8081',
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
@@ -81,7 +81,7 @@ function post_pl4me(v) {
 }
 
 function get_local_ip() {
-  return $.getJSON('http://cail.jit.su/', function (d) {
+  return $.getJSON('http://pl4.me:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
       DEBUG && console.log('>> get_local_ip: ' + local_ip);
     }).fail(function() {
