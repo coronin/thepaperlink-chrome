@@ -105,18 +105,22 @@ function eFetch(pmid) {
     }
 
     $('.moreAbout').on('click', function () { hideMore(); });
-  }).error(function () {
+  }).fail(function () {
+    $('.loadIcon').addClass('Off');
     $('<div/>').html('<p>I am sorry. Nothing I can do with PMID:' + pmid + '</p>').appendTo('#result');
   });
 }
 
 function eSummary(term) {
   var webenvCheck = /[a-zA-Z]/,
+    limit = localStorage.getItem('pubmed_limit') || '10',
     urll = '';
   if (webenvCheck.test(term)) {
-    urll = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=12&query_key=1&webenv=' + term;
+    urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
+      limit + '&query_key=1&webenv=' + term;
   } else {
-    urll = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&id=' + term;
+    urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
+      limit + '&id=' + term;
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $.get(urll,
@@ -161,13 +165,13 @@ function eSummary(term) {
       $('#result').removeClass('Off');
     },
     'xml'
-  ).error(function () {
+  ).fail(function () {
     $('#result').html('I am very sorry, but I failed. Try later?');
   });
 }
 
 function eSS(search_term) {
-  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
+  var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $('#result').removeClass('Off');
   $.get(url,
@@ -176,7 +180,7 @@ function eSS(search_term) {
       eSummary(WebEnv);
     },
     'xml'
-  ).error(function () {
+  ).fail(function () {
     $('#result').html('Sorry, I failed. Try later?');
   });
 }
