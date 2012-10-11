@@ -1,9 +1,10 @@
 var DEBUG = false,
   i, aKey, aVal, ws,
-  ws_addr = localStorage.getItem('ws_address') || 'husband.jit.su',
+  ws_addr = localStorage.getItem('websocket_server') || 'pl4.me:8081',
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
+  loading_pl4me = false,
   load_try = 10,
   local_ip = '',
   new_tabId = null,
@@ -38,47 +39,62 @@ function get_end_num(str, suffix) {
 }
 
 function post_pl4me(v) {
-  var a = [], b = [];
+  var a = [], version = 'Chrome_v0.5.1';
   a[0] = 'WEBSOCKET_SERVER';
-  b[0] = 'ws_address'; // localStorage key
   a[1] = 'GUEST_APIKEY';
-  b[1] = 'thepaperlink_guest'; // localStorage key
   if (!local_ip) {
     return;
   }
   $.post('http://0.pl4.me/',
-    {'pmid':'1', 'title':a[v], 'ip':local_ip},
+    {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
     function (d) {
-      DEBUG && console.log('>> post_pl4me, ' + a[v] + ': ' + d);
-      localStorage.setItem(b[v], d);
-      if (v !== 1 && apikey === null) {
+      DEBUG && console.log('>> post_pl4me, ' + a[v]);
+      DEBUG && console.log(d);
+      if (d.websocket_server) {
+        localStorage.setItem('websocket_server', d.websocket_server);
+        if (v === 0 && d.websocket_server !== ws_addr) {
+          ws_addr = d.websocket_server;
+          if (ws) {
+            ws.close();
+            broadcast_loaded = 0;
+          }
+          DEBUG && console.log('>> connect to the new ws server');
+          load_broadcast();
+        }
+      }
+      if (d.guest_apikey) {
+        localStorage.setItem('guest_apikey', d.guest_apikey);
+      } else if (v !== 1 && apikey === null) {
         post_pl4me(1);
       }
-      if (v === 0 && d !== ws_addr) {
-        ws_addr = d;
-        if (ws) {
-          ws.close();
-          broadcast_loaded = 0;
-        }
-        DEBUG && console.log('>> connect to the new ws server');
-        load_broadcast();
+      if (d.chrome && d.chrome !== version) {
+        localStorage.setItem('alert_outdated', 1);
+      } else if (version === d.chrome) {
+        localStorage.removeItem('alert_outdated');
       }
-    }
-  ).error(function () {
+    }, 'json'
+  ).fail(function () {
     DEBUG && console.log('>> post_pl4me, error');
+  }).always(function() {
+    loading_pl4me = false;
   });
 }
 
 function get_local_ip() {
-  return $.getJSON('http://cail.jit.su/', function (d) {
+  return $.getJSON('http://pl4.me:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
       DEBUG && console.log('>> get_local_ip: ' + local_ip);
-    }).error(function() {
+    }).fail(function() {
       DEBUG && console.log('>> get_local_ip error');
     });
 }
 
 function get_server_data(v) {
+  if (!loading_pl4me) {
+    loading_pl4me = true;
+  } else {
+    return;
+  }
   var req;
   if (!local_ip) {
     req = get_local_ip();
@@ -96,7 +112,7 @@ function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
   if (req_key === null) {
-    req_key = localStorage.getItem('thepaperlink_guest') || null;
+    req_key = localStorage.getItem('guest_apikey') || null;
     if (req_key === null && load_try > -4) {
       load_try -= 1;
       get_server_data(1);
@@ -170,11 +186,11 @@ function call_js_on_click(info, tab) {
 }
 
 function menu_generator() {
-  chrome.contextMenus.create({'title': 'Search the_Paper_Link for \'%s\'',
+  chrome.contextMenus.create({'title': 'Search the Paper Link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
   chrome.contextMenus.create({'title': 'Find ID on this page',
     'contexts':['page'], 'onclick': call_js_on_click});
-  chrome.contextMenus.create({'title': 'Visit the_Paper_Link',
+  chrome.contextMenus.create({'title': 'Visit the Paper Link',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
@@ -223,14 +239,14 @@ function saveIt_pubmeder(pmid) {
       localStorage.setItem('id_history', pre_history);
       localStorage.setItem('id_found', '');
     }
-  }).error(function () {
+  }).fail(function () {
     var date = new Date();
     localStorage.setItem('pubmed_' + pmid, date.getTime());
   });
 }
 
 function eSearch(search_term, tabId) {
-  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   $.get(url,
     function (xml) {
       var pmid = $(xml).find('Id');
@@ -240,7 +256,7 @@ function eSearch(search_term, tabId) {
       }
     },
     'xml'
-  ).error(function () {
+  ).fail(function () {
     DEBUG && console.log('>> eSearch failed, do nothing');
   });
 }
@@ -253,7 +269,7 @@ function email_abstract(a, b) {
       DEBUG && console.log('>> post /, action email: ' + d);
       localStorage.removeItem(aKey);
     }
-  ).error(function () {
+  ).fail(function () {
     DEBUG && console.log('>> email failed, save for later');
     var date = new Date();
     localStorage.setItem(aKey, date.getTime());
@@ -297,7 +313,7 @@ function send_binary(aB, pmid, upload, no_email) {
       console.log('__ upload the file to the server with status: ' + xhr.status);
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
-        if (!no_email) {
+        if (!no_email && apikey) {
           email_abstract(apikey, pmid);
         }
       }
@@ -322,15 +338,15 @@ function get_binary(file, pmid, upload, no_email) {
   xhr.send(null);
 }
 
-function dropbox_it(pmid, pdf, apikey) {
+function dropbox_it(pmid, pdf, k) {
   $.ajax({
     url: base + '/file/new',
     dataType: 'jsonp',
-    data: {'apikey': apikey, 'no_email': 1},
+    data: {'apikey': k, 'no_email': 1},
     //async: false,
-  }).success(function (upload_url) {
+  }).done(function (upload_url) {
     get_binary(pdf, pmid, upload_url, 1);
-  }).error(function () {
+  }).fail(function () {
     DEBUG && console.log('>> dropbox_it failed: ' + pdf);
   });
 }
@@ -376,7 +392,7 @@ function get_request(request, sender, callback) {
         chrome.tabs.sendRequest(sender.tab.id,
           {except:1, tpl:apikey});
       }
-    }).error(function () {
+    }).fail(function () {
       chrome.tabs.sendRequest(sender.tab.id,
         {except:1, tpl:apikey});
     });
@@ -424,7 +440,11 @@ function get_request(request, sender, callback) {
     }
   } else if (request.upload_url && request.pdf && request.pmid && apikey) {
     DEBUG && console.log(request.pdf);
-    get_binary(request.pdf, request.pmid, request.upload_url, request.no_email);
+    if (request.pdf.substr(0,7).toLowerCase() === 'http://') {
+      get_binary(request.pdf, request.pmid, request.upload_url, request.no_email);
+    } else if (!request.no_email) {
+      email_abstract(apikey, request.pmid);
+    }
   } else if (request.save_cloud_op) {
     DEBUG && console.log(request.save_cloud_op);
     if (request.save_cloud_op.indexOf('mendeley') > -1) {
@@ -514,13 +534,13 @@ function get_request(request, sender, callback) {
 chrome.extension.onRequest.addListener(get_request);
 
 $.ajax({
-  url: 'https://pubget-hrd.appspot.com/static/humans.txt',
+  url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=1',
   dataType: 'text',
   timeout: 4000
-}).success(function() {
+}).done(function() {
   DEBUG && console.log('>> access the server via secure https');
   localStorage.removeItem('https_failed');
-}).error(function() {
+}).fail(function() {
   DEBUG && console.log('>> access the server via http');
   localStorage.setItem('https_failed', 1);
   if (rev_proxy !== 'yes') {
@@ -621,7 +641,7 @@ function parse_url(pmid, url, tabId) {
       chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
     },
     'html'
-  ).error(function () {
+  ).fail(function () {
     DEBUG && console.log('>> parse_url failed, do nothing');
   });
 }
@@ -670,7 +690,7 @@ function scholar_title(pmid, t, tabId) {
       });
     },
     'html'
-  ).error(function () {
+  ).fail(function () {
     DEBUG && console.log('>> scholar_title failed');
     chrome.tabs.sendRequest(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
@@ -743,7 +763,7 @@ function load_broadcast() {
                 chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
               }
             );
-          } else if (d.action === 'dropbox_it') {
+          } else if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
             dropbox_it(d.pmid, d.pdf, d.apikey);
           }
         }

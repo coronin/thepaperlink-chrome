@@ -7,7 +7,7 @@
   ],
 
   "name": "__MSG_appName__",
-  "version": "0.5.0",
+  "version": "0.5.3",
   "minimum_chrome_version": "18",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -16,14 +16,15 @@
     "contextMenus",
     "tabs",
     "clipboardWrite",
-    "http://www.ncbi.nlm.nih.gov/*",
     "https://www.ncbi.nlm.nih.gov/*",
-    "http://cail.jit.su/",
     "https://pubget-hrd.appspot.com/static/humans.txt",
     "https://pubget-hrd.appspot.com/api*",
-    "http://0.pl4.me/api*",
     "http://scholar.google.com/*",
-    "http://linkinghub.elsevier.com/retrieve/pii/*"
+    "http://www.ncbi.nlm.nih.gov/*",
+    "http://linkinghub.elsevier.com/retrieve/pii/*",
+    "http://0.pl4.me/api*",
+    "http://pl4.me:8081",
+    "http://pl4.me:8089"
   ],
   "background": {
     "page": "background.html"

@@ -84,6 +84,7 @@ function saveOptions() {
     contextMenu_shown = $('#contextMenu_shown').prop('checked'),
     ws_items = $('#ws_items').prop('checked'),
     ajax_pii_link = $('#ajax_pii_link').prop('checked'),
+    pubmed_limit = $('#pubmed_limit').val(),
     ezproxy_prefix = $('#ezproxy_input').val(),
     req_a = null,
     req_b = null;
@@ -123,6 +124,16 @@ function saveOptions() {
     localStorage.setItem('ajax_pii_link', 'yes');
   } else {
     localStorage.setItem('ajax_pii_link', 'no');
+  }
+  if (pubmed_limit) {
+    try {
+      var a = parseInt(pubmed_limit, 10);
+      if (a && a !== 10) {
+        localStorage.setItem('pubmed_limit', a);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
@@ -262,6 +273,10 @@ $(document).ready(function () {
     $('#ezproxy_prefix').text(ezproxy_prefix);
     $('#ez_info').removeClass('Off');
   }
+  if (localStorage.getItem('alert_outdated')) {
+    $('.alert_outdated').removeClass('Off');
+    localStorage.removeItem('alert_outdated');
+  }
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
       ' It is slower.');
@@ -278,6 +293,11 @@ $(document).ready(function () {
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);
     $('#pubmeder_info').removeClass('Off');
+  } else {
+    $('#pubmeder_span').html(' (your search in popup widget has a max limit of <input class="settings" type="text" value="10" size="1" id="pubmed_limit" />)');
+    if (localStorage.getItem('pubmed_limit')) {
+      $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
+    }
   }
   if (localStorage.getItem('new_tab') === 'yes') {
     $('#new_tab').prop('checked', true);
@@ -287,8 +307,8 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('ws_address')) {
-      $('#ws_server').text( localStorage.getItem('ws_address') );
+    if (localStorage.getItem('websocket_server')) {
+      $('#websocket_server').text( localStorage.getItem('websocket_server') );
     }
     $('#ws_info').removeClass('Off');
   }
@@ -320,8 +340,8 @@ $(document).ready(function () {
       $('.keywords_li span').each(function () {
         $(this).width(span_max + 40);
       });
-      $('#graph_trend').width( $('#keywords_list').width() - span_max - 160 );
-      $('#graph_trend').height( $('#keywords_list').height() + 10 );
+      $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
+      $('#graph_trend').height( $('#keywords_list').height() + 25 );
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
@@ -339,13 +359,21 @@ $(document).ready(function () {
           l = hist_array[k].lastIndexOf(',');
           j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
         }
-        $('#graph_trend').html('<pre style="font-size:12px">' + j + '</pre>');
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j + '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>');
+        $('#delete_term_log').on('click', function () {
+          var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          if (answer) {
+            localStorage.removeItem(term);
+            location.reload();
+          }
+        });
         return false;
       });
       $('#submit_keyword').on('click', function() {
-
-        alert('feature in development');
-
+        chrome.tabs.create({
+          url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+          active: true
+        });
       });
     }
   }

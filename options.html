@@ -4,10 +4,10 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <title>Options for "the Paper Link" for PubMed</title>
-  <link type="text/css" href="smoothness/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
-  <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+  <link type="text/css" href="smoothness/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
+  <script type="text/javascript" src="jquery-1.8.0.min.js"></script>
   <script type="text/javascript" src="jquery.cookie.js"></script>
-  <script type="text/javascript" src="jquery-ui-1.8.22.custom.min.js"></script>
+  <script type="text/javascript" src="jquery-ui-1.8.23.custom.min.js"></script>
   <script type="text/javascript" src="options.js"></script>
   <style type="text/css">
     body {font-family:arial,sans-serif;font-size:62.5%;margin:50px}
@@ -23,8 +23,9 @@
     .padding_sides {padding:0 0.7em}
     #keywords_list {list-style-type:none}
     .keywords_li:hover {background:#fcfaf1}
-    .keywords_li span {display:inline-block;cursor:pointer;vertical-align:middle}
+    .keywords_li span {display:inline-block;overflow:hidden;cursor:pointer;vertical-align:middle}
     .keywords_li a {padding:0 5px;position:relative;top:3px}
+    #delete_term_log {cursor:pointer;text-decoration:underline;color:#ccc}
   </style>
 </head>
 <body>
@@ -120,15 +121,6 @@
 
 <div id="option_tabs-3">
   <h3>the extension settings</h3>
-  <p><input class="settings" type="checkbox" id="co_pubmed" />
-    Due to slightly overlapping function with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>,
-    you could check here to <b>prevent</b> two icons shown in your address bar.
-    </p>
-  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
-    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
-      </p>
-  </div></div>
   <p><input class="settings" type="checkbox" id="new_tab" />
     You could check here to <b>always open a new tab</b> when searching selected text,
     rather than refresh the existing search tab.
@@ -136,6 +128,14 @@
   <p><input class="settings" type="checkbox" id="contextMenu_shown" />
     You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
+  <p><input class="settings" type="checkbox" id="co_pubmed" />
+    Disable the function overlap with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a><span id="pubmeder_span"></span>.
+    </p>
+  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
+      </p>
+  </div></div>
   <p><input class="settings" type="checkbox" id="ajax_pii_link" />
     <b>Enable</b> to solve missing PDF links locally.
     </p>
@@ -151,7 +151,7 @@
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       your status on <a href="http://www.thepaperlink.com" rel="external">the website</a> should be "<span id="ws_items_status"></span>"</p>
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      you are using the following server ws://<span id="ws_server">husband.jit.su</span> for real-time communication</p>
+      you are using the following server ws://<span id="websocket_server">pl4.me:8081</span> for real-time communication</p>
   </div></div>
   <p id="rev_proxy_content">
     </p>
@@ -176,11 +176,15 @@
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
   <ul id="keywords_list"></ul>
-  <textarea class="Off" id="keywords_area" rows="4" cols="40"></textarea>
+  <textarea class="Off" name="patterns" id="keywords_area" rows="4" cols="40"></textarea>
   <button style="float:left" class="Off" id="submit_keyword">submit</button>
 </div>
 
 </div><!-- option_tabs -->
+<div class="ui-widget Off alert_outdated"><div class="ui-state-error ui-corner-all padding_sides" style="margin-top:1em">
+  <p class=""><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+    the extension you are using is outdated, please update it at <a href="https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko" rel="external">Chrome web store</a></p>
+</div></div>
 <div class="ui-widget Off" id="save_widget"><div class="ui-state-error ui-corner-all padding_sides" style="margin-top:1em">
   <p><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
     you have changed the settings of the extension, please <button id="saveBtn">save</button></p>

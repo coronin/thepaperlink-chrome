@@ -219,8 +219,6 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   a_proxy({save_cloud_op: cloud_op});
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
-    || page_url === 'http://pubmeder.appspot.com/registration'
-    || page_url === 'https://pubmeder.appspot.com/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
@@ -455,7 +453,7 @@ chrome.extension.onRequest.addListener(
       if (r.item[i].pmcid) {
         div_html += '<a id="thepaperlink_pmc' + pmid +
           '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
-          uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlinkClient" target="_blank">open&nbsp;access</a>';
+          uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlink_chrome" target="_blank">open&nbsp;access</a>';
       }
       if (r.item[i].doi) {
         div_html += '<a id="thepaperlink_doi' + pmid +
