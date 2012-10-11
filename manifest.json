@@ -22,9 +22,10 @@
     "http://scholar.google.com/*",
     "http://www.ncbi.nlm.nih.gov/*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
+    "http://www.thepaperlink.com/api*",
     "http://0.pl4.me/api*",
-    "http://pl4.me:8081",
-    "http://pl4.me:8089"
+    "http://pl4.me:8081/",
+    "http://pl4.me:8089/"
   ],
   "background": {
     "page": "background.html"
