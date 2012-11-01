@@ -357,7 +357,7 @@ $(document).ready(function () {
         $(this).width(span_max + 40);
       });
       $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
-      $('#graph_trend').height( $('#keywords_list').height() + 25 );
+      //$('#graph_trend').height( $('#keywords_list').height() + 25 );
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
@@ -370,14 +370,20 @@ $(document).ready(function () {
         var term = $(this).parent().children('span').text(),
           hist = localStorage.getItem(term),
           hist_array = hist.split('||'),
+          tt = $('#graph_trend').offset().top - 25,
           j = 'search results count: ' + term + '\n----\n', k, l;
         for (k = 0; k < hist_array.length; k += 1) {
           l = hist_array[k].lastIndexOf(',');
           j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
         }
-        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j +
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
           '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
           '<span id="search_term_again">search now</span>');
+        if (window.pageYOffset > tt) {
+          $('#graph_trend').css('padding-top', window.pageYOffset - tt);
+        } else {
+          $('#graph_trend').css('padding-top', 0);
+        }
         $('#delete_term_log').on('click', function () {
           var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
