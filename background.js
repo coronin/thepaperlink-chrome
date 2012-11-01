@@ -406,6 +406,10 @@ function get_request(request, sender, callback) {
     }).fail(function () {
       chrome.tabs.sendRequest(sender.tab.id,
         {except:1, tpl:apikey});
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
     });
   } else if (request.save_apikey) {
     if (request.save_email) {
@@ -546,7 +550,7 @@ function get_request(request, sender, callback) {
 chrome.extension.onRequest.addListener(get_request);
 
 $.ajax({
-  url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=1',
+  url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
   dataType: 'text',
   timeout: 4000
 }).done(function() {
