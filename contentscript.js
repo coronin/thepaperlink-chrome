@@ -82,14 +82,23 @@ function getPmid(zone, num) {
           '.\r\n' + trim( t_strings[2] ) +
           '. ' + trim( t_strings[3] ) +
           '. [PMID:' + ID[1] + ']\r\n';
-      } else{
+      } else{ // display with abstract
         t_strings = a.split('.');
-        t_title = trim( t_strings[2] );
-        t_cont = t_title +
-          '.\r\n' + trim( t_strings[3] ) +
-          '.\r\n' + trim( t_strings[0] ) +
-          '. ' + trim( t_strings[1] ) +
-          '. [PMID:' + ID[1] + ']\r\n';
+        if (t_strings[2].indexOf('Epub') > -1) {
+          t_title = trim( t_strings[3] );
+          t_cont = t_title +
+            '.\r\n' + trim( t_strings[4] ) +
+            '.\r\n' + trim( t_strings[0] ) +
+            '. ' + trim( t_strings[1] ) +
+            '. [PMID:' + ID[1] + ']\r\n';
+        } else {
+          t_title = trim( t_strings[2] );
+          t_cont = t_title +
+            '.\r\n' + trim( t_strings[3] ) +
+            '.\r\n' + trim( t_strings[0] ) +
+            '. ' + trim( t_strings[1] ) +
+            '. [PMID:' + ID[1] + ']\r\n';
+        }
       }
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');

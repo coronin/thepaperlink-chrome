@@ -28,7 +28,8 @@ function get_day() {
   return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
 }
 
-function get_end_num(str, suffix) {
+function get_end_num(str) {
+  var suffix = ',';
   if (!str) { return 0; }
   try {
     return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
@@ -39,7 +40,7 @@ function get_end_num(str, suffix) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.5.1';
+  var a = [], version = 'Chrome_v0.5.4';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -50,27 +51,31 @@ function post_pl4me(v) {
     function (d) {
       DEBUG && console.log('>> post_pl4me, ' + a[v]);
       DEBUG && console.log(d);
-      if (d.websocket_server) {
-        localStorage.setItem('websocket_server', d.websocket_server);
-        if (v === 0 && d.websocket_server !== ws_addr) {
-          ws_addr = d.websocket_server;
-          if (ws) {
-            ws.close();
-            broadcast_loaded = 0;
+      if (d) {
+        if (d.websocket_server) {
+          localStorage.setItem('websocket_server', d.websocket_server);
+          if (v === 0 && d.websocket_server !== ws_addr) {
+            ws_addr = d.websocket_server;
+            if (ws) {
+              ws.close();
+              broadcast_loaded = 0;
+            }
+            DEBUG && console.log('>> connect to the new ws server');
+            load_broadcast();
           }
-          DEBUG && console.log('>> connect to the new ws server');
-          load_broadcast();
         }
-      }
-      if (d.guest_apikey) {
-        localStorage.setItem('guest_apikey', d.guest_apikey);
-      } else if (v !== 1 && apikey === null) {
-        post_pl4me(1);
-      }
-      if (d.chrome && d.chrome !== version) {
-        localStorage.setItem('alert_outdated', 1);
-      } else if (version === d.chrome) {
-        localStorage.removeItem('alert_outdated');
+        if (d.guest_apikey) {
+          localStorage.setItem('guest_apikey', d.guest_apikey);
+        } else if (v !== 1 && apikey === null) {
+          post_pl4me(1);
+        }
+        if (d.chrome && d.chrome !== version) {
+          localStorage.setItem('alert_outdated', 1);
+        } else if (version === d.chrome) {
+          localStorage.removeItem('alert_outdated');
+        }
+      } else {
+        console.log('__ empty from 0.pl4.me');
       }
     }, 'json'
   ).fail(function () {
@@ -140,13 +145,13 @@ function load_common_values() {
 }
 load_common_values();
 
-function open_new_tab(winId, url) {
+function open_new_tab(winId, i, url) {
   if (winId) {
-    chrome.tabs.create({windowId: winId, url: url, active: true}, function (tab) {
+    chrome.tabs.create({index: i, windowId: winId, url: url, active: true}, function (tab) {
       new_tabId = tab.id;
     });
   } else {
-    chrome.tabs.create({url: url, active: true}, function (tab) {
+    chrome.tabs.create({index: i, url: url, active: true}, function (tab) {
       new_tabId = tab.id;
     });
   }
@@ -156,7 +161,7 @@ function open_new_tab(winId, url) {
 function generic_on_click(info, tab) {
   DEBUG && console.log('info', JSON.stringify(info));
   DEBUG && console.log('tab', JSON.stringify(tab));
-  open_new_tab(tab.windowId, 'http://www.thepaperlink.com');
+  open_new_tab(tab.windowId, tab.index, 'http://www.thepaperlink.com');
 }
 
 function select_on_click(info, tab) {
@@ -174,10 +179,10 @@ function select_on_click(info, tab) {
           return;
         }
       }
-      open_new_tab(tab.windowId, url);
+      open_new_tab(tab.windowId, 999, url);
     });
   } else {
-    open_new_tab(tab.windowId, url);
+    open_new_tab(tab.windowId, tab.index, url);
   }
 }
 
@@ -196,7 +201,13 @@ function menu_generator() {
     'contexts':['page']});
   chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
     'onclick': function () {
-      chrome.tabs.create({url: chrome.extension.getURL('options.html'), active: true});
+      chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.create({
+          index: tabs[0].index,
+          url: chrome.extension.getURL('options.html'),
+          active: true
+        });
+      });
   } });
 }
 if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -502,12 +513,13 @@ function get_request(request, sender, callback) {
     if (request.search_result_count && request.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
         one_term_saved = localStorage.getItem(request.search_term),
-        end_num = get_end_num(one_term_saved, ','),
+        end_num = get_end_num(one_term_saved),
         digitals = get_day();
       digitals.push(request.search_result_count);
       if (!terms || terms.indexOf(request.search_term) < 0) {
         if (!terms) { terms = ''; }
-        terms += request.search_term + '||';
+        terms += request.search_term.toLowerCase().
+          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ') + '||';
         localStorage.setItem('past_search_terms', terms);
       }
       if (one_term_saved) {
