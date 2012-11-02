@@ -23,7 +23,8 @@ function toggle_checked(obj) {
   adjust_keywords();
 }
 
-function get_end_num(str, suffix) {
+function get_end_num(str) {
+  var suffix = ',';
   if (!str) { return 0; }
   try {
     return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
@@ -319,12 +320,27 @@ $(document).ready(function () {
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),
-      t = '', i;
+      t = '', i, a, b, c = [];
     terms.pop();
-    for (i = 0; i < terms.length; i += 1) {
-      if (localStorage.getItem(terms[i])) {
-        t += '<li class="keywords_li"><input class="keywords" type="checkbox" id="' + terms[i].replace(/"/g, ',,') + '" /> <span>' + terms[i] +
-          '</span> <a href="#">' + get_end_num(localStorage.getItem(terms[i]), ',') + '</a></li>';
+    for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
+      b = localStorage.getItem(terms[i]);
+      if (b) {
+        a = terms[i].toLowerCase().
+          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
+        if (a !== terms[i]) {
+          localStorage.setItem(a, b);
+          localStorage.removeItem(terms[i]);
+        }
+        if (c[a] && get_end_num(c[a]) >= get_end_num(b)) {
+          localStorage.removeItem(terms[i]);
+        } else if (c[a]) { // get_end_num  c[a] < b
+          console.log('count should only increase "' + a + '"');
+        } else {
+          c.push({key:a, value:b});
+          t += '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
+            a.replace(/"/g, ',,') + '" /> <span>' + a +
+            '</span> <a href="#">' + get_end_num(b) + '</a></li>';
+        }
     } }
     if (t) {
       var span_max = 0;
@@ -341,7 +357,7 @@ $(document).ready(function () {
         $(this).width(span_max + 40);
       });
       $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
-      $('#graph_trend').height( $('#keywords_list').height() + 25 );
+      //$('#graph_trend').height( $('#keywords_list').height() + 25 );
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
@@ -354,12 +370,20 @@ $(document).ready(function () {
         var term = $(this).parent().children('span').text(),
           hist = localStorage.getItem(term),
           hist_array = hist.split('||'),
+          tt = $('#graph_trend').offset().top - 25,
           j = 'search results count: ' + term + '\n----\n', k, l;
         for (k = 0; k < hist_array.length; k += 1) {
           l = hist_array[k].lastIndexOf(',');
           j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
         }
-        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:-0.5em">' + j + '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>');
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
+          '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
+          '<span id="search_term_again">search now</span>');
+        if (window.pageYOffset > tt) {
+          $('#graph_trend').css('padding-top', window.pageYOffset - tt);
+        } else {
+          $('#graph_trend').css('padding-top', 0);
+        }
         $('#delete_term_log').on('click', function () {
           var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
@@ -367,12 +391,24 @@ $(document).ready(function () {
             location.reload();
           }
         });
+        $('#search_term_again').on('click', function () {
+          chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.create({
+              index: tabs[0].index,
+              url: 'http://www.ncbi.nlm.nih.gov/pubmed?term=' + term,
+              active: true
+            });
+          });
+        });
         return false;
       });
       $('#submit_keyword').on('click', function() {
-        chrome.tabs.create({
-          url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
-          active: true
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+          chrome.tabs.create({
+            index: tabs[0].index,
+            url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+            active: true
+          });
         });
       });
     }
