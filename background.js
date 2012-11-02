@@ -516,14 +516,15 @@ function get_request(request, sender, callback) {
   } else if (request.search_term) {
     if (request.search_result_count && request.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
-        one_term_saved = localStorage.getItem(request.search_term),
+        term_lower = request.search_term.toLowerCase().
+          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
+        one_term_saved = localStorage.getItem(term_lower),
         end_num = get_end_num(one_term_saved),
         digitals = get_day();
       digitals.push(request.search_result_count);
-      if (!terms || terms.indexOf(request.search_term) < 0) {
+      if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
-        terms += request.search_term.toLowerCase().
-          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ') + '||';
+        terms += term_lower + '||';
         localStorage.setItem('past_search_terms', terms);
       }
       if (one_term_saved) {

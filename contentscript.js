@@ -63,7 +63,7 @@ function parse_id(a) { // pubmeder code
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, c, t_cont, t_strings, t_test, t_title;
+    ID, b, c, t_cont, t_strings, t_title, t_head;
   DEBUG && console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -83,15 +83,26 @@ function getPmid(zone, num) {
           '. ' + trim( t_strings[3] ) +
           '. [PMID:' + ID[1] + ']\r\n';
       } else{ // display with abstract
-        t_strings = a.split('.');
-        if (t_strings[2].indexOf('Epub') > -1) {
-          t_title = trim( t_strings[3] );
+        if (a.indexOf('Epub ') > 0) {
+          t_head = a.split('Epub ');
+          t_strings = t_head[1].replace('].', '.').replace(']', '.').split('.');
+          t_head = t_head[0].split('.');
+          t_title = trim( t_strings[1] );
           t_cont = t_title +
-            '.\r\n' + trim( t_strings[4] ) +
-            '.\r\n' + trim( t_strings[0] ) +
-            '. ' + trim( t_strings[1] ) +
+            '.\r\n' + trim( t_strings[2] ) +
+            '.\r\n' + trim( t_head[0] ) +
+            '. ' + trim( t_head[1] ) +
             '. [PMID:' + ID[1] + ']\r\n';
+        } else if (a.indexOf('doi: ') > 0) {
+          t_head = a.split('doi: ');
+          t_strings = t_head[1].replace( /^\S+\.([a-z]+)\s/i, '$1 ' ).split('.');
+          t_title = trim( t_strings[0] );
+          t_cont = t_title +
+            '.\r\n' + trim( t_strings[1] ) +
+            '.\r\n' + trim( t_head[0] ) +
+            ' [PMID:' + ID[1] + ']\r\n';
         } else {
+          t_strings = a.split('.');
           t_title = trim( t_strings[2] );
           t_cont = t_title +
             '.\r\n' + trim( t_strings[3] ) +
