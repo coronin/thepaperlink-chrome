@@ -1,6 +1,6 @@
 var DEBUG = false,
   i, aKey, aVal, ws,
-  ws_addr = localStorage.getItem('websocket_server') || 'pl4.me:8081',
+  ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
@@ -40,7 +40,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.5.4';
+  var a = [], version = 'Chrome_v0.5.5';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -86,7 +86,7 @@ function post_pl4me(v) {
 }
 
 function get_local_ip() {
-  return $.getJSON('http://pl4.me:8089/', function (d) {
+  return $.getJSON('http://node.pl4.me:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
       DEBUG && console.log('>> get_local_ip: ' + local_ip);
     }).fail(function() {
