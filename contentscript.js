@@ -494,7 +494,7 @@ chrome.extension.onRequest.addListener(
       if (r.item[i].f_v && r.item[i].fid) {
         div_html += '<a id="thepaperlink_f' + pmid +
           '" class="thepaperlink-red" href="' + p + 'http://f1000.com/' +
-          uneval_trim(r.item[i].fid) + '" target="_blank">f1000&nbsp;score&nbsp;' +
+          uneval_trim(r.item[i].fid) + '" target="_blank">f1000&nbsp;star&nbsp;' +
           uneval_trim(r.item[i].f_v) + '</a>';
       }
       if (request.pubmeder || request.cloud_op) {
