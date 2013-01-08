@@ -226,6 +226,8 @@ $(document).ready(function () {
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
     b_status = localStorage.getItem('douban_status'),
+    g_status = localStorage.getItem('googledrive_status'),
+    s_status = localStorage.getItem('skydrive_status'),
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
 
   if (a_key) {
@@ -268,6 +270,16 @@ $(document).ready(function () {
     $('#douban_status').removeClass('Off');
     $('#douban_status').text('status: ' + b_status);
     $('#douban_a').text('check connection');
+  }
+  if (g_status) {
+    $('#googledrive_status').removeClass('Off');
+    $('#googledrive_status').text('status: ' + g_status);
+    $('#googledrive_a').text('check connection');
+  }
+  if (s_status) {
+    $('#skydrive_status').removeClass('Off');
+    $('#skydrive_status').text('status: ' + s_status);
+    $('#skydrive_a').text('check connection');
   }
   if (ezproxy_prefix) {
     $('#ezproxy_input').val(ezproxy_prefix);
