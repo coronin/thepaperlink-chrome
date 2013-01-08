@@ -34,6 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
+ * v0.5.6 - support Google Drive and Sky Drive, bug fix
  * v0.5.5 - new server, node.pl4.me
  * v0.5.4 - bug fix, ui improve
  * v0.5.3 - ws on pl4.me:8081

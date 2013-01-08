@@ -40,7 +40,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.5.5';
+  var a = [], version = 'Chrome_v0.5.6';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -376,6 +376,8 @@ function get_request(request, sender, callback) {
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
     b_status = localStorage.getItem('douban_status'),
+    g_status = localStorage.getItem('googledrive_status'),
+    s_status = localStorage.getItem('skydrive_status'),
     cloud_op = '',
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   if (m_status && m_status === 'success') {
@@ -389,6 +391,12 @@ function get_request(request, sender, callback) {
   }
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
+  }
+  if (g_status && g_status === 'success') {
+    cloud_op += 'g';
+  }
+  if (s_status && s_status === 'success') {
+    cloud_op += 's';
   }
   if (request.loadExtraJs) {
     chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
@@ -473,6 +481,12 @@ function get_request(request, sender, callback) {
     }
     if (request.save_cloud_op.indexOf('douban') > -1) {
       localStorage.setItem('douban_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('googledrive') > -1) {
+      localStorage.setItem('googledrive_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('skydrive') > -1) {
+      localStorage.setItem('skydrive_status', 'success');
     }
   } else if (request.t_cont) {
     DEBUG && console.log(request.t_cont);
