@@ -40,7 +40,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.5.5';
+  var a = [], version = 'Chrome_v0.6.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -193,8 +193,8 @@ function call_js_on_click(info, tab) {
 function menu_generator() {
   chrome.contextMenus.create({'title': 'Search the Paper Link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
-  chrome.contextMenus.create({'title': 'Find ID on this page',
-    'contexts':['page'], 'onclick': call_js_on_click});
+  //chrome.contextMenus.create({'title': 'Find ID on this page',
+  //  'contexts':['page'], 'onclick': call_js_on_click});
   chrome.contextMenus.create({'title': 'Visit the Paper Link',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
@@ -376,6 +376,8 @@ function get_request(request, sender, callback) {
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
     b_status = localStorage.getItem('douban_status'),
+    g_status = localStorage.getItem('googledrive_status'),
+    s_status = localStorage.getItem('skydrive_status'),
     cloud_op = '',
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   if (m_status && m_status === 'success') {
@@ -389,6 +391,12 @@ function get_request(request, sender, callback) {
   }
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
+  }
+  if (g_status && g_status === 'success') {
+    cloud_op += 'g';
+  }
+  if (s_status && s_status === 'success') {
+    cloud_op += 's';
   }
   if (request.loadExtraJs) {
     chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
@@ -474,6 +482,12 @@ function get_request(request, sender, callback) {
     if (request.save_cloud_op.indexOf('douban') > -1) {
       localStorage.setItem('douban_status', 'success');
     }
+    if (request.save_cloud_op.indexOf('googledrive') > -1) {
+      localStorage.setItem('googledrive_status', 'success');
+    }
+    if (request.save_cloud_op.indexOf('skydrive') > -1) {
+      localStorage.setItem('skydrive_status', 'success');
+    }
   } else if (request.t_cont) {
     DEBUG && console.log(request.t_cont);
     var holder = dd.getElementById('clippy_t');
@@ -544,6 +558,31 @@ function get_request(request, sender, callback) {
         localStorage.setItem(request.search_term, digitals.join(','));
       }
     }
+  } else if (request.from_f1000) {
+    var abc = request.from_f1000.split(','),
+      pmid = abc[0],
+      fid = abc[1],
+      f_v = abc[2],
+      args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
+    $.getJSON(base + '/api?a=chrome3&pmid=' + pmid + '&apikey=' + req_key, function (d) {
+      if (d && d.count === 1) {
+        chrome.tabs.sendRequest(sender.tab.id,
+          {to_f1000:pmid, pdf:d.item[0].pdf, slfo:d.item[0].slfo}
+        );
+        if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
+          $.post(base + '/', args,
+            function (d) {
+              DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
+            }
+          );
+        }
+      }
+    }).fail(function () {
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
+    });
   } else {
     console.log(request);
   }

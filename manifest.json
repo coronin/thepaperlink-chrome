@@ -7,7 +7,7 @@
   ],
 
   "name": "__MSG_appName__",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "minimum_chrome_version": "18",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -19,13 +19,14 @@
     "https://www.ncbi.nlm.nih.gov/*",
     "https://pubget-hrd.appspot.com/static/humans.txt",
     "https://pubget-hrd.appspot.com/api*",
+    "http://f1000.com/prime/*",
     "http://scholar.google.com/*",
     "http://www.ncbi.nlm.nih.gov/*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
     "http://www.thepaperlink.com/api*",
     "http://0.pl4.me/api*",
-    "http://pl4.me:8081/",
-    "http://pl4.me:8089/"
+    "http://node.pl4.me:8081/",
+    "http://node.pl4.me:8089/"
   ],
   "background": {
     "page": "background.html"
@@ -44,6 +45,8 @@
   },
   "content_scripts": [ {
     "matches": [
+      "http://f1000.com/prime/*",
+      "http://scholar.google.com/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*"
     ],
