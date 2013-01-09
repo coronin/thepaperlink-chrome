@@ -4,10 +4,10 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <title>Options for "the Paper Link" for PubMed</title>
-  <link type="text/css" href="smoothness/jquery-ui-1.9.1.custom.min.css" rel="stylesheet" />
-  <script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+  <link type="text/css" href="smoothness/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" />
+  <script type="text/javascript" src="jquery-1.8.3.min.js"></script>
   <script type="text/javascript" src="jquery.cookie.js"></script>
-  <script type="text/javascript" src="jquery-ui-1.9.1.custom.min.js"></script><!-- Button Tabs -->
+  <script type="text/javascript" src="jquery-ui-1.9.2.custom.min.js"></script><!-- Button Tabs -->
   <script type="text/javascript" src="options.js"></script>
   <style type="text/css">
     body {font-family:arial,sans-serif;font-size:62.5%;margin:50px}
@@ -33,7 +33,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v0.5.5 &copy; 2010-12 &middot;
+  <span style="float:right">v0.6.0 &copy; 2010-13 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
     <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a></span>
   </p>
@@ -116,6 +116,14 @@
       <span class="padding_sides keys Off" id="dropbox_status"></span>
       &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=dropbox" id="dropbox_a">connect now</a>
       </li>
+    <li><b>http://drive.google.com/</b>
+      <span class="padding_sides keys Off" id="googledrive_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=googledrive" id="googledrive_a">connect now</a>
+      </li>
+    <li><b>http://skydrive.live.com/</b>
+      <span class="padding_sides keys Off" id="skydrive_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=skydrive" id="skydrive_a">connect now</a>
+      </li>
   </ul>
 </div>
 
@@ -151,7 +159,7 @@
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       your status on <a href="http://www.thepaperlink.com" rel="external">the website</a> should be "<span id="ws_items_status"></span>"</p>
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      you are using the following server ws://<span id="websocket_server">pl4.me:8081</span> for real-time communication</p>
+      you are using the following server ws://<span id="websocket_server">node.pl4.me:8081</span> for real-time communication</p>
   </div></div>
   <p id="rev_proxy_content">
     </p>
