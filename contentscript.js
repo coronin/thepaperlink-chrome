@@ -21,8 +21,8 @@ var DEBUG = false,
   onePage_calls = 0;
 
 
-if (typeof window.uneval === 'undefined') {
-  window.uneval = function (a) {
+if (typeof uneval === 'undefined') {
+  uneval = function (a) {
     return ( JSON.stringify(a) ) || '';
   };
 }
@@ -41,6 +41,88 @@ function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 function a_proxy(data) {
   DEBUG && console.log('>> sendRequest to background.html');
   chrome.extension.sendRequest(data);
+}
+
+function process_f1000() {
+  var i, pmid = '',
+    f_v = 0,
+    fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
+  for (i = 0; i < t('div').length; i += 1) {
+    if (t('div')[i].className === 'abstract-doi-pmid') {
+      pmid = parseInt(t('div')[i].textContent.split('PMID:')[1], 10);
+    } else if (t('div')[i].className === 'articleFactor' && t('div')[i-1].id === 'article') {
+      f_v = parseInt(t('div')[i].textContent, 10);
+      // t('div')[i+3].setAttribute('id', '_thepaperlink_div'); // hidden tootip
+    }
+  }
+  if (pmid && f_v && fid) {
+    a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
+  } else {
+    DEBUG && console.log('>> process_f1000: ' +
+      pmid + ',' + fid + ',' + f_v);
+  }
+}
+
+function order_gs() {
+  var i, tobe = [], nodes = [],
+    lists = $('_thepaperlink_order_lists').textContent.split(';');
+  if ($('_thepaperlink_order_status').textContent === '0') {
+    if (lists[1] === lists[0]) {
+      tobe = lists[2].split(',');
+      $('_thepaperlink_order_status').textContent = '2';
+    } else {
+      tobe = lists[1].split(',');
+      $('_thepaperlink_order_status').textContent = '1';
+    }
+  } else if ($('_thepaperlink_order_status').textContent === '1') {
+    tobe = lists[2].split(',');
+    $('_thepaperlink_order_status').textContent = '2';
+  } else {
+    tobe = lists[0].split(',');
+    $('_thepaperlink_order_status').textContent = '0';
+  }
+  for (i = 0; i < tobe.length; i += 1) {
+    nodes.push( $('_thepaperlink_' + tobe[i]) );
+    $('gs_ccl').removeChild( $('_thepaperlink_' + tobe[i]) );
+  }
+  for (i = 0; i < nodes.length; i += 1) {
+    $('gs_ccl').insertBefore(nodes[i], $('_thepaperlink_pos0'));
+  }
+}
+
+function process_googlescholar() {
+  var i, j, tmp, nodes = $('gs_ccl').childNodes, a, b, c, d = [];
+  for (i = 0; i < nodes.length; i += 1) {
+    if (nodes[i].className === 'gs_alrt_btm') {
+      nodes[i].setAttribute('id', '_thepaperlink_pos0');
+      continue;
+    }
+    a = nodes[i].lastChild;
+    if (!a) { continue; }
+    for (j = 0; j < a.childNodes.length; j += 1) {
+      if (a.childNodes[j].className === 'gs_fl') {
+        b = a.childNodes[j].textContent; // class: gs_r -> gs_ri -> gs_fl
+        if (b.substr(0, 9) === 'Cited by ') {
+          c = parseInt(b.substr(9,7), 10);
+          nodes[i].setAttribute('id', '_thepaperlink_' + c);
+          d.push(c);
+        }
+        break;
+      }
+    }
+  }
+  if (d) {
+    tmp = page_d.createElement('div');
+    tmp.style.cssText = 'float:right;cursor:pointer';
+    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">[order the results, v' +
+     '<span id="_thepaperlink_order_status">0</span>]</span>' +
+     '<span id="_thepaperlink_order_lists" style="display:none">' +
+     d.join(',') + ';' +
+     d.sort(function(u,v){return v-u;}).join(',') + ';' +
+     d.sort(function(u,v){return u-v;}).join(',') + '</span>';
+    $('gs_ab_md').appendChild(tmp);
+    $('_thepaperlink_order_gs').onclick = function () { order_gs(); };
+  }
 }
 
 function parse_id(a) { // pubmeder code
@@ -246,12 +328,18 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     service = $('r_success').innerHTML;
   a_proxy({service: service, content: content});
   noRun = 1;
+} else if (page_url.indexOf('://f1000.com/prime/') > 0) {
+  process_f1000();
+  noRun = 1;
+} else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
+  process_googlescholar();
+  noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
   var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && console.log('>> non-ncbi site, got ID ' + ID[1]);
+    DEBUG && console.log('>> other site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   }
   noRun = 1;
@@ -407,6 +495,7 @@ chrome.extension.onRequest.addListener(
         '  opacity: 1.0' +
         '}',
       r = request.r;
+
     if (r && r.error) {
       $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
@@ -414,10 +503,38 @@ chrome.extension.onRequest.addListener(
       sendResponse({});
       return;
     }
+
+    if (request.to_f1000) {
+      pmid = request.to_f1000;
+      insert_style = page_d.createElement('style');
+      insert_style.type = 'text/css';
+      insert_style.appendChild(page_d.createTextNode(styles));
+      page_d.body.appendChild(insert_style);
+      div = page_d.createElement('div');
+      div.className = 'thepaperlink';
+      div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
+        '" href="http://www.thepaperlink.com/?q=pmid:' +
+        pmid + '" target="_blank">the Paper Link</a>: ';
+      if (request.slfo && request.slfo !== '~' && parseFloat(request.slfo) > 0) {
+        div_html += '<span>impact&nbsp;' + uneval_trim(request.slfo) + '</span>';
+      }
+      if (request.pdf) {
+        div_html += '<a id="thepaperlink_pdf' + pmid +
+          '" class="thepaperlink-green" href="' +
+          uneval_trim(request.p) + uneval_trim(request.pdf) +
+          '" target="_blank">direct&nbsp;pdf</a>';
+      }
+      div.innerHTML = div_html;
+      $('article').appendChild(div);
+      sendResponse({});
+      return;
+    }
+
     if (!r || !r.count) {
       sendResponse({});
       return;
     }
+
     p = uneval_trim(request.p);
     if (!$('css_loaded')) {
       insert_style = page_d.createElement('style');
