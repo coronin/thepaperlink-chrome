@@ -40,7 +40,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.5.6';
+  var a = [], version = 'Chrome_v0.6.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -558,6 +558,31 @@ function get_request(request, sender, callback) {
         localStorage.setItem(request.search_term, digitals.join(','));
       }
     }
+  } else if (request.from_f1000) {
+    var abc = request.from_f1000.split(','),
+      pmid = abc[0],
+      fid = abc[1],
+      f_v = abc[2],
+      args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
+    $.getJSON(base + '/api?a=chrome3&pmid=' + pmid + '&apikey=' + req_key, function (d) {
+      if (d && d.count === 1) {
+        chrome.tabs.sendRequest(sender.tab.id,
+          {to_f1000:pmid, pdf:d.item[0].pdf, slfo:d.item[0].slfo}
+        );
+        if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
+          $.post(base + '/', args,
+            function (d) {
+              DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
+            }
+          );
+        }
+      }
+    }).fail(function () {
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
+    });
   } else {
     console.log(request);
   }
