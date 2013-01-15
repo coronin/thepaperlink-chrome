@@ -1,3 +1,5 @@
+"use strict";
+
 function adjust_keywords() {
   var keyword_selected = '';
   $('input.keywords:checked').each(function () {

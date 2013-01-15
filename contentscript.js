@@ -1,5 +1,7 @@
+"use strict";
+
 /*
- * Copyright (c) 2012 Liang Cai . All rights reserved.  Use of this
+ * Copyright (c) 2013 Liang Cai . All rights reserved.  Use of this
  * source code is governed by a BSD-style license that can be found in the
  * LICENSE file.
  *
@@ -22,7 +24,7 @@ var DEBUG = false,
 
 
 if (typeof uneval === 'undefined') {
-  uneval = function (a) {
+  var uneval = function (a) {
     return ( JSON.stringify(a) ) || '';
   };
 }
@@ -360,6 +362,9 @@ chrome.extension.onRequest.addListener(
   function (request, sender, sendResponse) {
     DEBUG && console.log(request);
     if (request.js_base_uri) {
+      if (window.location.protocol === 'https:' && request.js_base_uri.substr(0,5) !== 'https') {
+        request.js_base_uri = 'https://pubget-hrd.appspot.com';
+      }
       if (!$('paperlink2_display')) {
         var peaks = page_d.createElement('script');
         peaks.setAttribute('type', 'text/javascript');
@@ -392,17 +397,18 @@ chrome.extension.onRequest.addListener(
       return;
 
     } else if (request.js_key && request.js_base) {
-      if (window.location.protocol !== 'https:') {
-        DEBUG && console.log('>> starting the js client');
-        localStorage.setItem('thePaperLink_pubget_js_key', request.js_key);
-        localStorage.setItem('thePaperLink_pubget_js_base', request.js_base);
-        if (!$('__tr_display')) {
-          var jsClient = page_d.createElement('script');
-          jsClient.setAttribute('type', 'text/javascript');
-          jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
-          page_d.body.appendChild(jsClient);
-        }
-      } else { alert('\n this is a secure page, js client will not work\n'); }
+      if (window.location.protocol === 'https:' && request.js_base.substr(0,5) !== 'https') {
+        request.js_base = 'https://pubget-hrd.appspot.com/';
+      }
+      DEBUG && console.log('>> starting the js client');
+      localStorage.setItem('thePaperLink_pubget_js_key', request.js_key);
+      localStorage.setItem('thePaperLink_pubget_js_base', request.js_base);
+      if (!$('__tr_display')) {
+        var jsClient = page_d.createElement('script');
+        jsClient.setAttribute('type', 'text/javascript');
+        jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
+        page_d.body.appendChild(jsClient);
+      }
       sendResponse({});
       return;
 

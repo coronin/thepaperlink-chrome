@@ -1,3 +1,5 @@
+"use strict";
+
 function hideMore() {
   $('.moreAbout').addClass('Off');
   $('.AbsButton').removeClass('Off');

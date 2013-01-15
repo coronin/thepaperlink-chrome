@@ -1,3 +1,5 @@
+"use strict";
+
 var DEBUG = false,
   i, aKey, aVal, ws,
   ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
@@ -40,7 +42,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.0';
+  var a = [], version = 'Chrome_v0.6.1';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -316,7 +318,8 @@ function send_binary(aB, pmid, upload, no_email) {
         }
         var ords = Array.prototype.map.call(datastr, byteValue);
         var ui8a = new Uint8Array(ords);
-        this.send(ui8a.buffer);
+        // this.send(ui8a.buffer); // Chrome 22, support ArrayBufferViews
+        this.send(ui8a);
       };
     }
     xhr.open('POST', upload, true);
@@ -755,80 +758,76 @@ function scholar_title(pmid, t, tabId) {
 }
 
 function load_broadcast() {
-  var _self = this;
-  this.start = function () {
-    window.WebSocket = window.WebSocket || window.MozWebSocket;
-    if (!window.WebSocket) {
-      return;
-    }
-    ws = new WebSocket('ws://' + ws_addr);
+  window.WebSocket = window.WebSocket || window.MozWebSocket;
+  if (!window.WebSocket) {
+    return;
+  }
+  ws = new WebSocket('ws://' + ws_addr);
 
-    ws.onopen = function () {
-      DEBUG && console.log('>> ws is established');
-      broadcast_loaded = 1;
-      ws.send('{"apikey":"' + req_key + '"}');
-    };
+  ws.onopen = function () {
+    DEBUG && console.log('>> ws is established');
+    broadcast_loaded = 1;
+    ws.send('{"apikey":"' + req_key + '"}');
+  };
 
-    ws.onclose = function () {
-      if (broadcast_loaded === 1) {
-        console.log('__ server comminucation lost, reconnecting...');
-        load_try -= 1;
-        clearTimeout(_self.refresh);
-        if (load_try < 0) {
-          DEBUG && console.log('>> ws is broken');
-          broadcast_loaded = 0;
-          return;
-        }
-        setTimeout(_self.start, 3000);
-      } else {
-        DEBUG && console.log('>> ws is closed');
+  ws.onclose = function () {
+    if (broadcast_loaded === 1) {
+      console.log('__ server comminucation lost, reconnecting...');
+      load_try -= 1;
+      clearTimeout(_self.refresh);
+      if (load_try < 0) {
+        DEBUG && console.log('>> ws is broken');
+        broadcast_loaded = 0;
         return;
       }
-    };
-    //setInterval(function() {
-    //  if (ws.readyState !== 1) {
-    //    console.log('__ unable to comminucate with the WebSocket server');
-    //  }
-    //}, 3000);
-
-    ws.onerror = function (err) {
-      DEBUG && console.log('>> ws error: ' + err);
+      setTimeout(_self.start, 3000);
+    } else {
+      DEBUG && console.log('>> ws is closed');
       return;
-    };
+    }
+  };
+  //setInterval(function() {
+  //  if (ws.readyState !== 1) {
+  //    console.log('__ unable to comminucate with the WebSocket server');
+  //  }
+  //}, 3000);
 
-    ws.onmessage = function (message) {
-      try {
-        var d = JSON.parse(message.data);
-        DEBUG && console.log(d);
-        if (d.apikey === req_key && d.action) {
-          if (d.action === 'title') {
-            chrome.tabs.query({active: true, currentWindow: true},
-              function (tabs) {
-                scholar_title(d.pmid, d.title, tabs[0].id);
-              }
-            );
-          } else if (d.action === 'url') {
-            chrome.tabs.query({active: true, currentWindow: true},
-              function (tabs) {
-                parse_url(d.pmid, d.url, tabs[0].id);
-              }
-            );
-          } else if (d.action === 'pdfLink_quick') {
-            chrome.tabs.query({active: true, currentWindow: true},
-              function (tabs) {
-                chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
-              }
-            );
-          } else if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
-            dropbox_it(d.pmid, d.pdf, d.apikey);
-          }
+  ws.onerror = function (err) {
+    DEBUG && console.log('>> ws error: ' + err);
+    return;
+  };
+
+  ws.onmessage = function (message) {
+    try {
+      var d = JSON.parse(message.data);
+      DEBUG && console.log(d);
+      if (d.apikey === req_key && d.action) {
+        if (d.action === 'title') {
+          chrome.tabs.query({active: true, currentWindow: true},
+            function (tabs) {
+              scholar_title(d.pmid, d.title, tabs[0].id);
+            }
+          );
+        } else if (d.action === 'url') {
+          chrome.tabs.query({active: true, currentWindow: true},
+            function (tabs) {
+              parse_url(d.pmid, d.url, tabs[0].id);
+            }
+          );
+        } else if (d.action === 'pdfLink_quick') {
+          chrome.tabs.query({active: true, currentWindow: true},
+            function (tabs) {
+              chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
+            }
+          );
+        } else if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
+          dropbox_it(d.pmid, d.pdf, d.apikey);
         }
-      } catch (err) {
-        DEBUG && console.log('>> json parse error: ' + message.data);
       }
-    };
-  }
-  _self.start();
+    } catch (err) {
+      DEBUG && console.log('>> json parse error: ' + message.data);
+    }
+  };
 }
 
 $(document).ready(function () {
