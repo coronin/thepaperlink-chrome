@@ -1,7 +1,7 @@
 "use strict";
 
 var DEBUG = false,
-  i, aKey, aVal, ws,
+  i, len, aKey, aVal, ws,
   ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
   scholar_count = 0,
   scholar_run = 0,
@@ -175,7 +175,7 @@ function select_on_click(info, tab) {
   }
   if (new_tabId && new_tab === 'no') {
     chrome.tabs.query({windowId: tab.windowID}, function (tabs) {
-      for (i = 0; i < tabs.length; i += 1) {
+      for (i = 0, len = tabs.length; i < len; i += 1) {
         if (new_tabId === tabs[i].id) {
           chrome.tabs.update(new_tabId, {url: url, active: true});
           return;
@@ -304,7 +304,7 @@ function send_binary(aB, pmid, upload, no_email) {
     if (abView.length < 1000) {
       return;
     }
-    for (i = 0; i < abView.length; i += 1) {
+    for (i = 0, len = abView.length; i < len; i += 1) {
       post_data += String.fromCharCode(abView[i] & 0xff);
     }
     post_data += postTail;
@@ -368,7 +368,7 @@ function dropbox_it(pmid, pdf, k) {
 function reLoad_options() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
-    for (i = 0; i < tabs.length; i += 1) {
+    for (i = 0, len = tabs.length; i < len; i += 1) {
       chrome.tabs.update(tabs[i].id, {url: urlOp});
     }
   });
@@ -610,7 +610,7 @@ $.ajax({
 if (last_date !== date_str) {
   localStorage.setItem('last_date_str', date_str);
   DEBUG && console.log('>> a new day! start with some housekeeping tasks');
-  for (i = 0; i < localStorage.length; i += 1) {
+  for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     if (aKey && aKey.substr(0,6) === 'tabId:') {
       aVal = localStorage.getItem(aKey);
