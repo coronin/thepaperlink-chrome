@@ -566,11 +566,25 @@ function get_request(request, sender, callback) {
       pmid = abc[0],
       fid = abc[1],
       f_v = abc[2],
-      args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
+      args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
+      extra = '', tmp;
     $.getJSON(base + '/api?a=chrome3&pmid=' + pmid + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
+        if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
+          tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
+          extra += tmp;
+        }
+        if (d.item[0].pdf) {
+          tmp = '<a class="thepaperlink-green" href="' +
+            ezproxy_prefix + d.item[0].pdf +
+            '" target="_blank">direct&nbsp;pdf</a>';
+          extra += tmp;
+        }
+        if (extra) {
+          extra = ': ' + extra;
+        }
         chrome.tabs.sendRequest(sender.tab.id,
-          {to_f1000:pmid, pdf:d.item[0].pdf, slfo:d.item[0].slfo}
+          {to_other_sites:'article', pmid:pmid, extra:extra}
         );
         if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
           $.post(base + '/', args,
@@ -579,6 +593,40 @@ function get_request(request, sender, callback) {
             }
           );
         }
+      }
+    }).fail(function () {
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
+    });
+  } else if (request.from_dxy) {
+    var pmid = request.from_dxy,
+      extra = '', tmp;
+    $.getJSON(base + '/api?a=chrome4&pmid=' + pmid + '&apikey=' + req_key, function (d) {
+      if (d && d.count === 1) {
+        if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
+          tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
+          extra += tmp;
+        }
+        if (d.item[0].pdf) {
+          tmp = '<a class="thepaperlink-green" href="' +
+            ezproxy_prefix + d.item[0].pdf +
+            '" target="_blank">direct&nbsp;pdf</a>';
+          extra += tmp;
+        }
+        if (d.item[0].f_v && d.item[0].fid) {
+          tmp = '<a class="thepaperlink-red" href="' + ezproxy_prefix + 'http://f1000.com/' +
+            d.item[0].fid + '" target="_blank">f1000&nbsp;star&nbsp;' +
+            d.item[0].f_v + '</a>';
+          extra += tmp;
+        }
+        if (extra) {
+          extra = ': ' + extra;
+        }
+        chrome.tabs.sendRequest(sender.tab.id,
+          {to_other_sites:'SFW', pmid:pmid, extra:extra}
+        );
       }
     }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {

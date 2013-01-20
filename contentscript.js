@@ -45,6 +45,14 @@ function a_proxy(data) {
   chrome.extension.sendRequest(data);
 }
 
+function process_dxy() {
+  var pmid = page_url.split('://pubmed.cn/')[1],
+    digi_pmid = parseInt(pmid, 10);
+  if (pmid && pmid === '' + digi_pmid && $('SFW').textContent.indexOf(pmid) > 0) {
+    a_proxy({from_dxy: pmid});
+  }
+}
+
 function process_f1000() {
   var i, len, pmid = '',
     f_v = 0,
@@ -342,6 +350,9 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
   process_googlescholar();
   noRun = 1;
+} else if (page_url.indexOf('://pubmed.cn/') > 0) {
+  process_dxy();
+  noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
@@ -516,29 +527,18 @@ chrome.extension.onRequest.addListener(
       return;
     }
 
-    if (request.to_f1000) {
-      pmid = request.to_f1000;
+    if (request.to_other_sites) {
       insert_style = page_d.createElement('style');
       insert_style.type = 'text/css';
       insert_style.appendChild(page_d.createTextNode(styles));
       page_d.body.appendChild(insert_style);
       div = page_d.createElement('div');
       div.className = 'thepaperlink';
-      div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
-        '" href="http://www.thepaperlink.com/?q=pmid:' +
-        pmid + '" target="_blank">the Paper Link</a>: ';
-      if (request.slfo && request.slfo !== '~' && parseFloat(request.slfo) > 0) {
-        tmp = '<span>impact&nbsp;' + uneval_trim(request.slfo) + '</span>';
-        div_html += tmp;
-      }
-      if (request.pdf) {
-        div_html += '<a id="thepaperlink_pdf' + pmid +
-          '" class="thepaperlink-green" href="' +
-          uneval_trim(request.p) + uneval_trim(request.pdf) +
-          '" target="_blank">direct&nbsp;pdf</a>';
-      }
+      div_html = '<a class="thepaperlink-home" href="http://www.thepaperlink.com/?q=pmid:' +
+        request.pmid + '" target="_blank">the Paper Link</a>';
+      div_html += request.extra;
       div.innerHTML = div_html;
-      $('article').appendChild(div);
+      $(request.to_other_sites).appendChild(div);
       sendResponse({});
       return;
     }
