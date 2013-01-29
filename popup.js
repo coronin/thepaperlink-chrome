@@ -1,3 +1,5 @@
+"use strict";
+
 function hideMore() {
   $('.moreAbout').addClass('Off');
   $('.AbsButton').removeClass('Off');
@@ -25,20 +27,21 @@ function eFetch(pmid) {
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
-    var l = d.result[0];
+    var l = d.result[0], tmp;
 
     if (l.MedlineCitation.Article.Abstract) {
       var abstract = '<p class="moreAbout"><b><u>Abstract</u>: </b>' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
     }
     if (l.MedlineCitation.CommentsCorrectionsList) {
-      var ref_list = '<p class="moreAbout"><b><u>References</u>: </b>', j;
-      for (j = 0; j < l.MedlineCitation.CommentsCorrectionsList.length; j += 1) {
+      var ref_list = '<p class="moreAbout"><b><u>References</u>: </b>', j, len;
+      for (j = 0, len = l.MedlineCitation.CommentsCorrectionsList.length; j < len; j += 1) {
         if (j === 0) {
-          ref_list += '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
+          tmp = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
         } else {
-          ref_list += '; <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
+          tmp = '; <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
         }
+        ref_list += tmp;
       }
       ref_list += '</p>';
       $('#abs_' + pmid).append(ref_list);
@@ -52,13 +55,14 @@ function eFetch(pmid) {
         ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
       }
       if (lsc > 0) {
-        var DataBank_list = '<p class="moreAbout"><b><u>PDB Files</u>: </b>', jm;
-        for (jm = 0; jm < ls.AccessionNumberList.length; jm += 1) {
-          if (jm === 0) {
-            DataBank_list += '<a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
+        var DataBank_list = '<p class="moreAbout"><b><u>PDB Files</u>: </b>', j, len;
+        for (j = 0, len = ls.AccessionNumberList.length; j < len; j += 1) {
+          if (j === 0) {
+            tmp = '<a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
           } else {
-            DataBank_list += '; <a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[jm] + '">' + ls.AccessionNumberList[jm] + '</a> ';
+            tmp = '; <a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
           }
+          DataBank_list += tmp;
         }
         DataBank_list += '</p>';
         $('#abs_' + pmid).append(DataBank_list);
@@ -66,39 +70,42 @@ function eFetch(pmid) {
     }
 
     if (l.MedlineCitation.Article.GrantList) {
-      var grant_list = '<p class="moreAbout"><b><u>Fund By</u>: </b>', jj;
-      for (jj = 0; jj < l.MedlineCitation.Article.GrantList.length; jj += 1) {
-        if (jj === 0) {
-          grant_list += l.MedlineCitation.Article.GrantList[jj].Agency + ': ' + l.MedlineCitation.Article.GrantList[jj].GrantID;
+      var grant_list = '<p class="moreAbout"><b><u>Fund By</u>: </b>', j, len;
+      for (j = 0, len = l.MedlineCitation.Article.GrantList.length; j < len; j += 1) {
+        if (j === 0) {
+          tmp = l.MedlineCitation.Article.GrantList[j].Agency + ': ' + l.MedlineCitation.Article.GrantList[j].GrantID;
         } else {
-          grant_list += '; ' + l.MedlineCitation.Article.GrantList[jj].Agency + ': ' + l.MedlineCitation.Article.GrantList[jj].GrantID;
+          tmp = '; ' + l.MedlineCitation.Article.GrantList[j].Agency + ': ' + l.MedlineCitation.Article.GrantList[j].GrantID;
         }
+        grant_list += tmp;
       }
       grant_list += '</p>';
       $('#abs_' + pmid).append(grant_list);
     }
 
     if (l.MedlineCitation.ChemicalList) {
-      var keyChem = '<p class="moreAbout"><b><u>Chemical</u>: </b>', jk;
-      for (jk = 0; jk < l.MedlineCitation.ChemicalList.length; jk += 1) {
-        if (jk === 0) {
-          keyChem += l.MedlineCitation.ChemicalList[jk].NameOfSubstance;
+      var keyChem = '<p class="moreAbout"><b><u>Chemical</u>: </b>', j, len;
+      for (j = 0, len = l.MedlineCitation.ChemicalList.length; j < len; j += 1) {
+        if (j === 0) {
+          tmp = l.MedlineCitation.ChemicalList[j].NameOfSubstance;
         } else {
-          keyChem += '; ' + l.MedlineCitation.ChemicalList[jk].NameOfSubstance;
+          tmp = '; ' + l.MedlineCitation.ChemicalList[j].NameOfSubstance;
         }
+        keyChem += tmp;
       }
       keyChem += '</p>';
       $('#abs_' + pmid).append(keyChem);
     }
 
     if (l.MedlineCitation.MeshHeadingList) {
-      var keyHead = '<p class="moreAbout"><b><u>Heading</u>: </b>', jl;
-      for (jl = 0; jl < l.MedlineCitation.MeshHeadingList.length; jl += 1) {
-        if (jl === 0) {
-          keyHead += l.MedlineCitation.MeshHeadingList[jl].DescriptorName;
+      var keyHead = '<p class="moreAbout"><b><u>Heading</u>: </b>', j, len;
+      for (j = 0, len = l.MedlineCitation.MeshHeadingList.length; j < len; j += 1) {
+        if (j === 0) {
+          tmp = l.MedlineCitation.MeshHeadingList[j].DescriptorName;
         } else {
-          keyHead += '; ' + l.MedlineCitation.MeshHeadingList[jl].DescriptorName;
+          tmp = '; ' + l.MedlineCitation.MeshHeadingList[j].DescriptorName;
         }
+        keyHead += tmp;
       }
       keyHead += '</p>';
       $('#abs_' + pmid).append(keyHead);
@@ -138,15 +145,18 @@ function eSummary(term) {
           Source = $(this).find('Item[Name="Source"]').text(),
           Volume = $(this).find('Item[Name="Volume"]').text(),
           Pages = $(this).find('Item[Name="Pages"]').text(),
-          esum_text;
+          esum_text,
+          tmp;
 
         a.each(function (j) {
           if (j === 0) {
             author_list = '<b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
           } else if (j === (a.length - 1)) {
-            author_list += ', <b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
+            tmp = ', <b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
+            author_list += tmp;
           } else {
-            author_list += ', ' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.';
+            tmp = ', ' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.';
+            author_list += tmp;
           }
         });
 

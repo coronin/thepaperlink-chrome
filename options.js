@@ -1,7 +1,10 @@
+"use strict";
+
 function adjust_keywords() {
   var keyword_selected = '';
   $('input.keywords:checked').each(function () {
-    keyword_selected += this.id.replace(/,,/g, '"') + '\n';
+    keyword_selected += this.id.replace(/,,/g, '"');
+    keyword_selected += '\n';
   });
   if (keyword_selected) {
     $('#keywords_area').text(keyword_selected);
@@ -236,6 +239,7 @@ $(document).ready(function () {
     $('.thepaperlink_a').css('display', 'none');
     $('#ws_items_status').text('login');
     $.cookie('alert_v1', null);
+    $('#cloud_op_info').addClass('Off');
   } else {
     $('#thepaperlink_apikey').html('<input class="settings" type="text" value="" size="40" id="thepaperlink_apikey_input" />');
     $('#ws_items_status').text('logout');
@@ -312,7 +316,7 @@ $(document).ready(function () {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
   }
-  if (localStorage.getItem('new_tab') === 'yes') {
+  if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
   }
   if (localStorage.getItem('contextMenu_shown') === 'no') {
@@ -332,7 +336,7 @@ $(document).ready(function () {
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),
-      t = '', i, a, b, c = [];
+      t = '', tmp, i, a, b, c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
@@ -349,9 +353,10 @@ $(document).ready(function () {
           console.log('count should only increase "' + a + '"');
         } else {
           c.push({key:a, value:b});
-          t += '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
+          tmp = '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
             a.replace(/"/g, ',,') + '" /> <span>' + a +
             '</span> <a href="#">' + get_end_num(b) + '</a></li>';
+          t += tmp;
         }
     } }
     if (t) {
@@ -383,10 +388,11 @@ $(document).ready(function () {
           hist = localStorage.getItem(term),
           hist_array = hist.split('||'),
           tt = $('#graph_trend').offset().top - 25,
-          j = 'search results count: ' + term + '\n----\n', k, l;
-        for (k = 0; k < hist_array.length; k += 1) {
+          j = 'search results count: ' + term + '\n----\n', k, len, l;
+        for (k = 0, len = hist_array.length; k < len; k += 1) {
           l = hist_array[k].lastIndexOf(',');
-          j += hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
+          tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
+          j += tmp;
         }
         $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
           '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
