@@ -1,7 +1,7 @@
 "use strict";
 
 var DEBUG = false,
-  i, len, aKey, aVal, ws,
+  i, len, aKey, aVal, ws, ws_timer,
   ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
   scholar_count = 0,
   scholar_run = 0,
@@ -120,12 +120,18 @@ function load_common_values() {
   req_key = apikey;
   if (req_key === null) {
     req_key = localStorage.getItem('guest_apikey') || null;
-    if (req_key === null && load_try > -4) {
+    if (req_key === null && load_try > -4 && window.navigator.onLine) {
       load_try -= 1;
       get_server_data(1);
       setTimeout(load_common_values, 5000);
       return;
     }
+    localStorage.removeItem('mendeley_status');
+    localStorage.removeItem('facebook_status');
+    localStorage.removeItem('dropbox_status');
+    localStorage.removeItem('douban_status');
+    localStorage.removeItem('googledrive_status');
+    localStorage.removeItem('skydrive_status');
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
@@ -809,8 +815,18 @@ function load_broadcast() {
   window.WebSocket = window.WebSocket || window.MozWebSocket;
   if (!window.WebSocket) {
     return;
+  } else if (!window.navigator.onLine) {
+    console.log('__ it is very possible that you are off the Internet...');
+    if (!ws_timer) {
+      ws_timer = setInterval(load_broadcast, 1800*1000);
+    }
+    return;
   }
+  clearInterval(ws_timer);
+  ws_timer = null;
   ws = new WebSocket('ws://' + ws_addr);
+
+  console.log(ws.readyState);
 
   ws.onopen = function () {
     DEBUG && console.log('>> ws is established');
@@ -818,27 +834,25 @@ function load_broadcast() {
     ws.send('{"apikey":"' + req_key + '"}');
   };
 
+  console.log(ws.readyState);
+
   ws.onclose = function () {
     if (broadcast_loaded === 1) {
       console.log('__ server comminucation lost, reconnecting...');
-      load_try -= 1;
-      clearTimeout(_self.refresh);
       if (load_try < 0) {
         DEBUG && console.log('>> ws is broken');
         broadcast_loaded = 0;
         return;
       }
-      setTimeout(_self.start, 3000);
+      if (window.navigator.onLine) {
+        load_try -= 1;
+      }
+      setTimeout(load_broadcast, 3000);
     } else {
       DEBUG && console.log('>> ws is closed');
-      return;
     }
+    return;
   };
-  //setInterval(function() {
-  //  if (ws.readyState !== 1) {
-  //    console.log('__ unable to comminucate with the WebSocket server');
-  //  }
-  //}, 3000);
 
   ws.onerror = function (err) {
     DEBUG && console.log('>> ws error: ' + err);

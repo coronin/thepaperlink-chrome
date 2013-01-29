@@ -239,6 +239,7 @@ $(document).ready(function () {
     $('.thepaperlink_a').css('display', 'none');
     $('#ws_items_status').text('login');
     $.cookie('alert_v1', null);
+    $('#cloud_op_info').addClass('Off');
   } else {
     $('#thepaperlink_apikey').html('<input class="settings" type="text" value="" size="40" id="thepaperlink_apikey_input" />');
     $('#ws_items_status').text('logout');
@@ -315,7 +316,7 @@ $(document).ready(function () {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
   }
-  if (localStorage.getItem('new_tab') === 'yes') {
+  if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
   }
   if (localStorage.getItem('contextMenu_shown') === 'no') {
