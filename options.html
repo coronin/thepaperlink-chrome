@@ -33,7 +33,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v0.6.0 &copy; 2010-13 &middot;
+  <span style="float:right">v0.6.2 &copy; 2010-13 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
     <a href="http://www.thepaperlink.com" rel="external">http://www.thepaperlink.com</a></span>
   </p>
@@ -99,6 +99,10 @@
   <p>Articles will also be saved to other cloud services, if enabled.
     <br/>You have to <span class="thepaperlink_a"><a rel="external" href="http://www.thepaperlink.com/reg">activate "the Paper Link"</a>, and</span> have existing accounts for those cloud services.
     <br/><span style="color:#ccc">To disable the connection, remove "the Paper Link" app from related service's settings page.</span></p>
+  <div class="ui-widget" id="cloud_op_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      "the Paper Link" API is required for the follow section ; please activate it in the API tab</p>
+  </div></div>
   <ul>
     <li><b>http://www.mendeley.com/</b>
       <span class="padding_sides keys Off" id="mendeley_status"></span>
@@ -183,7 +187,7 @@
       </p>
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
-  <ul id="keywords_list"></ul>
+  <ul id="keywords_list"><li></li></ul>
   <textarea class="Off" name="patterns" id="keywords_area" rows="4" cols="40"></textarea>
   <button style="float:left" class="Off" id="submit_keyword">submit</button>
 </div>
