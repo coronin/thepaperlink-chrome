@@ -314,7 +314,7 @@ function alert_dev(req_key) {
           DEBUG && console.log('Error', oXHR.statusText);
       }  }
     };
-    var timeout = setTimeout(function () {
+    setTimeout(function () {
       oXHR.abort();
     }, 60*1000); // 1-min timeout
     oXHR.send(null);
