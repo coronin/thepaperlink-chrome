@@ -42,7 +42,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.1';
+  var a = [], version = 'Chrome_v0.6.2';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -825,16 +825,13 @@ function load_broadcast() {
   clearInterval(ws_timer);
   ws_timer = null;
   ws = new WebSocket('ws://' + ws_addr);
-
-  console.log(ws.readyState);
+  // ws.readyState: 0 CONNECTING, 1 OPEN, 2 CLOSING, 3 CLOSED
 
   ws.onopen = function () {
     DEBUG && console.log('>> ws is established');
     broadcast_loaded = 1;
     ws.send('{"apikey":"' + req_key + '"}');
   };
-
-  console.log(ws.readyState);
 
   ws.onclose = function () {
     if (broadcast_loaded === 1) {

@@ -34,6 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
+ * v0.6.2 - fix server reconnect bug
  * v0.6.1 - js "use strict", bug fix on https pages
  * v0.6.0 - insert pdf link to F1000.com, order results in Google Scholar
  * v0.5.6 - support Google Drive and Sky Drive, bug fix
