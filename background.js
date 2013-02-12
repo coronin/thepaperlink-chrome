@@ -42,7 +42,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.2';
+  var a = [], version = 'Chrome_v0.6.3';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -349,6 +349,7 @@ function get_binary(file, pmid, upload, no_email) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', file, true);
   xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
+  // xhr.responseType = 'ArrayBufferViews'; // 2013-2-13
   xhr.onload = function () {
     var aB = xhr.response; // not xhr.responseText
     if (aB) {
@@ -359,14 +360,14 @@ function get_binary(file, pmid, upload, no_email) {
 }
 
 function dropbox_it(pmid, pdf, k) {
-  $.ajax({
-    url: base + '/file/new',
-    dataType: 'jsonp',
-    data: {'apikey': k, 'no_email': 1},
-    //async: false,
-  }).done(function (upload_url) {
-    get_binary(pdf, pmid, upload_url, 1);
-  }).fail(function () {
+  $.get(
+    base + '/file/new',
+    {'apikey': k, 'no_email': 1},
+    function (ul) {
+      get_binary(pdf, pmid, ul, 1);
+    },
+    'text'
+  ).fail(function () {
     DEBUG && console.log('>> dropbox_it failed: ' + pdf);
   });
 }
