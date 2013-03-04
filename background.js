@@ -349,7 +349,7 @@ function get_binary(file, pmid, upload, no_email) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', file, true);
   xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
-  // xhr.responseType = 'ArrayBufferViews'; // 2013-2-13
+  // 2013-2-13 'ArrayBufferViews' still error
   xhr.onload = function () {
     var aB = xhr.response; // not xhr.responseText
     if (aB) {
