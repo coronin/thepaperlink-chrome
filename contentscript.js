@@ -41,8 +41,8 @@ function $(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(data) {
-  DEBUG && console.log('>> sendRequest to background.html');
-  chrome.extension.sendRequest(data);
+  DEBUG && console.log('>> sendMessage to background.html');
+  chrome.extension.sendMessage(data);
 }
 
 function process_dxy() {
@@ -212,7 +212,7 @@ function getPmid(zone, num) {
         '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
         '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
       b.onclick = function () {
-        chrome.extension.sendRequest({t_cont: t_cont});
+        chrome.extension.sendMessage({t_cont: t_cont});
       };
       if (t(zone)[num].className === 'rprt') {
         t(zone)[num + 3].appendChild(b);
@@ -375,7 +375,7 @@ if (!noRun) {
 }
 
 
-chrome.extension.onRequest.addListener(
+chrome.extension.onMessage.addListener(
   function (request, sender, sendResponse) {
     DEBUG && console.log(request);
     if (request.js_base_uri) {

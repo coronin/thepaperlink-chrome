@@ -195,7 +195,7 @@ function select_on_click(info, tab) {
 }
 
 function call_js_on_click(info, tab) {
-  chrome.tabs.sendRequest(tab.id, {js_key: req_key, js_base: base + '/'});
+  chrome.tabs.sendMessage(tab.id, {js_key: req_key, js_base: base + '/'});
 }
 
 function menu_generator() {
@@ -409,20 +409,20 @@ function get_request(request, sender, callback) {
     cloud_op += 's';
   }
   if (request.loadExtraJs) {
-    chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
+    chrome.tabs.sendMessage(sender.tab.id, {js_base_uri:base});
   } else if (request.url) {
     $.getJSON(base + request.url + req_key, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
-        chrome.tabs.sendRequest(sender.tab.id,
+        chrome.tabs.sendMessage(sender.tab.id,
           {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
             cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
         );
       } else {
-        chrome.tabs.sendRequest(sender.tab.id,
+        chrome.tabs.sendMessage(sender.tab.id,
           {except:1, tpl:apikey});
       }
     }).fail(function () {
-      chrome.tabs.sendRequest(sender.tab.id,
+      chrome.tabs.sendMessage(sender.tab.id,
         {except:1, tpl:apikey});
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
@@ -512,7 +512,7 @@ function get_request(request, sender, callback) {
     var in_mem = localStorage.getItem('scholar_' + request.a_pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 3);
-      chrome.tabs.sendRequest(sender.tab.id, {
+      chrome.tabs.sendMessage(sender.tab.id, {
         g_scholar: 1, pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]
       });
     } else {
@@ -556,13 +556,13 @@ function get_request(request, sender, callback) {
           localStorage.setItem(request.search_term, one_term_saved + '||' + digitals.join(','));
           if (end_num > request.search_result_count) {
             console.log('__ the search result count goes down: ' + request.search_term);
-            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&darr;'});
+            chrome.tabs.sendMessage(sender.tab.id, {search_trend:'&darr;'});
           } else {
-            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&uarr;'});
+            chrome.tabs.sendMessage(sender.tab.id, {search_trend:'&uarr;'});
           }
         } else {
           if (end_num) {
-            chrome.tabs.sendRequest(sender.tab.id, {search_trend:'&equiv;'});
+            chrome.tabs.sendMessage(sender.tab.id, {search_trend:'&equiv;'});
         } }
       } else {
         localStorage.setItem(request.search_term, digitals.join(','));
@@ -590,7 +590,7 @@ function get_request(request, sender, callback) {
         if (extra) {
           extra = ': ' + extra;
         }
-        chrome.tabs.sendRequest(sender.tab.id,
+        chrome.tabs.sendMessage(sender.tab.id,
           {to_other_sites:'article', pmid:pmid, extra:extra}
         );
         if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
@@ -631,7 +631,7 @@ function get_request(request, sender, callback) {
         if (extra) {
           extra = ': ' + extra;
         }
-        chrome.tabs.sendRequest(sender.tab.id,
+        chrome.tabs.sendMessage(sender.tab.id,
           {to_other_sites:'SFW', pmid:pmid, extra:extra}
         );
       }
@@ -645,7 +645,7 @@ function get_request(request, sender, callback) {
     console.log(request);
   }
 }
-chrome.extension.onRequest.addListener(get_request);
+chrome.extension.onMessage.addListener(get_request);
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
@@ -718,15 +718,15 @@ function parse_url(pmid, url, tabId) {
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
-    chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: in_mem[1]});
+    chrome.tabs.sendMessage(tabId, {el_id: '_pdf' + pmid, el_data: in_mem[1]});
     in_mem = localStorage.getItem('scopus_' + pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 2);
-      chrome.tabs.sendRequest(tabId, {el_id: 'pl4_scopus' + pmid, el_data: in_mem[1]});
+      chrome.tabs.sendMessage(tabId, {el_id: 'pl4_scopus' + pmid, el_data: in_mem[1]});
     }
     return;
   }
-  chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: 1});
+  chrome.tabs.sendMessage(tabId, {el_id: '_pdf' + pmid, el_data: 1});
   $.get(url,
     function (r) {
       var reg = /href="([^"]+)" target="newPdfWin"/,
@@ -741,10 +741,10 @@ function parse_url(pmid, url, tabId) {
           DEBUG && console.log(h2);
           args.scopus_n = h2[1];
           localStorage.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
-          chrome.tabs.sendRequest(tabId, {el_id: 'pl4_scopus' + pmid, el_data: h2[1]});
+          chrome.tabs.sendMessage(tabId, {el_id: 'pl4_scopus' + pmid, el_data: h2[1]});
         }
         localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
-        chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: h[1]});
+        chrome.tabs.sendMessage(tabId, {el_id: '_pdf' + pmid, el_data: h[1]});
         $.post(base + '/', args,
           function (d) {
             DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
@@ -752,7 +752,7 @@ function parse_url(pmid, url, tabId) {
         );
         return;
       }
-      chrome.tabs.sendRequest(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
+      chrome.tabs.sendMessage(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
     },
     'html'
   ).fail(function () {
@@ -766,14 +766,14 @@ function scholar_title(pmid, t, tabId) {
   var in_mem = localStorage.getItem('scholar_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 3);
-    chrome.tabs.sendRequest(tabId, {
+    chrome.tabs.sendMessage(tabId, {
       g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
     });
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
     encodeURIComponent('"' + t + '"');
-  chrome.tabs.sendRequest(tabId, {
+  chrome.tabs.sendMessage(tabId, {
     g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
   });
   $.get(url,
@@ -787,7 +787,7 @@ function scholar_title(pmid, t, tabId) {
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
           localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          chrome.tabs.sendRequest(tabId, {
+          chrome.tabs.sendMessage(tabId, {
             g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
           });
           $.post(base + '/',
@@ -799,14 +799,14 @@ function scholar_title(pmid, t, tabId) {
           return;
         }
       }
-      chrome.tabs.sendRequest(tabId, {
+      chrome.tabs.sendMessage(tabId, {
         g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
       });
     },
     'html'
   ).fail(function () {
     DEBUG && console.log('>> scholar_title failed');
-    chrome.tabs.sendRequest(tabId, {
+    chrome.tabs.sendMessage(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
   });
@@ -877,7 +877,7 @@ function load_broadcast() {
         } else if (d.action === 'pdfLink_quick') {
           chrome.tabs.query({active: true, currentWindow: true},
             function (tabs) {
-              chrome.tabs.sendRequest(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
+              chrome.tabs.sendMessage(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
             }
           );
         } else if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
