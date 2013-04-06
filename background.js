@@ -19,14 +19,13 @@ var DEBUG = false,
   pubmeder_ok = 0,
   broadcast_loaded = 0,
   ajax_pii_link = 1,
-  currentTime = new Date(),
-  year = currentTime.getFullYear(),
-  month = currentTime.getMonth() + 1,
-  day = currentTime.getDate(),
-  date_str = 'day_' + year + '_' + month + '_' + day,
+  extension_load_date = new Date(),
+  date_str = 'day_' + extension_load_date.getFullYear() +
+    '_' + (extension_load_date.getMonth() + 1) +
+    '_' + extension_load_date.getDate(),
   last_date = localStorage.getItem('last_date_str') || '';
 
-function get_day() {
+function get_ymd() {
   var d = new Date();
   return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
 }
@@ -93,8 +92,7 @@ function get_local_ip() {
       local_ip = d['x-forwarded-for'];
       if (local_ip && !uid) {
         uid = local_ip + ':';
-        var d = new Date();
-        uid += d.getTime();
+        uid += extension_load_date.getTime();
         localStorage.setItem('ip_time_uid', uid);
       }
       DEBUG && console.log('>> get_local_ip: ' + local_ip);
@@ -555,7 +553,7 @@ function get_request(request, sender, sendResponse) {
           replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
         one_term_saved = localStorage.getItem(term_lower),
         end_num = get_end_num(one_term_saved),
-        digitals = get_day();
+        digitals = get_ymd();
       digitals.push(request.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
