@@ -3,6 +3,7 @@
 var DEBUG = false,
   i, len, aKey, aVal, ws, ws_timer,
   ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
+  uid = localStorage.getItem('ip_time_uid') || null,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
@@ -42,7 +43,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.3';
+  var a = [], version = 'Chrome_v0.6.4';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -90,6 +91,12 @@ function post_pl4me(v) {
 function get_local_ip() {
   return $.getJSON('http://node.pl4.me:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
+      if (local_ip && !uid) {
+        uid = local_ip + ':';
+        var d = new Date();
+        uid += d.getTime();
+        localStorage.setItem('ip_time_uid', uid);
+      }
       DEBUG && console.log('>> get_local_ip: ' + local_ip);
     }).fail(function() {
       DEBUG && console.log('>> get_local_ip error');
@@ -381,7 +388,7 @@ function reLoad_options() {
   });
 }
 
-function get_request(request, sender, callback) {
+function get_request(request, sender, sendResponse) {
   var m_status = localStorage.getItem('mendeley_status'),
     f_status = localStorage.getItem('facebook_status'),
     d_status = localStorage.getItem('dropbox_status'),
@@ -411,7 +418,11 @@ function get_request(request, sender, callback) {
   if (request.loadExtraJs) {
     chrome.tabs.sendRequest(sender.tab.id, {js_base_uri:base});
   } else if (request.url) {
-    $.getJSON(base + request.url + req_key, function (d) {
+    var request_url = base + request.url + req_key;
+    if (uid) {
+      request_url += '&uid=' + uid;
+    }
+    $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         chrome.tabs.sendRequest(sender.tab.id,
           {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
