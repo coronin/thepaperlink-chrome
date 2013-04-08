@@ -20,7 +20,9 @@ var DEBUG = false,
   old_title = '',
   search_term = '',
   search_result_count = '',
-  onePage_calls = 0;
+  onePage_calls = 0,
+  date = new Date(),
+  _port = chrome.runtime.connect({name: 'background_port'});
 
 
 if (typeof uneval === 'undefined') {
@@ -40,9 +42,10 @@ function $(d) { return page_d.getElementById(d); }
 
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
-function a_proxy(data) {
+function a_proxy(d) {
   DEBUG && console.log('>> sendRequest to background.html');
-  chrome.extension.sendRequest(data);
+  //chrome.extension.sendRequest(d);
+  _port.postMessage(d);
 }
 
 function process_dxy() {
@@ -211,8 +214,8 @@ function getPmid(zone, num) {
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
         '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
         '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
-      b.onclick = function () {
-        chrome.extension.sendRequest({t_cont: t_cont});
+      b.onclick = function () { // chrome.extension.sendRequest
+        a_proxy({t_cont: t_cont});
       };
       if (t(zone)[num].className === 'rprt') {
         t(zone)[num + 3].appendChild(b);
@@ -374,9 +377,7 @@ if (!noRun) {
   run();
 }
 
-
-chrome.extension.onRequest.addListener(get_request);
-function get_request(request, sender, sendResponse) {
+function get_request(request) {
   DEBUG && console.log(request);
   if (request.js_base_uri) {
     if (window.location.protocol === 'https:' && request.js_base_uri.substr(0,5) !== 'https') {
@@ -388,7 +389,7 @@ function get_request(request, sender, sendResponse) {
       peaks.setAttribute('src', request.js_base_uri + '/jss?y=' + (Math.random()));
       page_d.body.appendChild(peaks);
     }
-    sendResponse({});
+    //sendResponse({});
     return;
 
   } else if (request.except) {
@@ -410,7 +411,7 @@ function get_request(request, sender, sendResponse) {
         alert_dev( uneval_trim(request.tpl) );
       }
     };
-    sendResponse({});
+    //sendResponse({});
     return;
 
   } else if (request.js_key && request.js_base) {
@@ -426,7 +427,7 @@ function get_request(request, sender, sendResponse) {
       jsClient.setAttribute('src', request.js_base + 'js?y=' + (Math.random()));
       page_d.body.appendChild(jsClient);
     }
-    sendResponse({});
+    //sendResponse({});
     return;
 
   } else if (request.g_scholar) {
@@ -446,7 +447,7 @@ function get_request(request, sender, sendResponse) {
     } catch (err) {
       DEBUG && console.log(err);
     }
-    sendResponse({});
+    //sendResponse({});
     return;
 
   } else if (request.el_id && request.el_data) {
@@ -472,7 +473,7 @@ function get_request(request, sender, sendResponse) {
     } catch (err) {
       DEBUG && console.log(err);
     }
-    sendResponse({});
+    //sendResponse({});
     return;
 
   } else if (request.search_trend) {
@@ -480,7 +481,7 @@ function get_request(request, sender, sendResponse) {
     $('myncbiusername').innerHTML = '<span style="color:yellow">' + uneval_trim(request.search_trend) +
       '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
     $('myncbiusername').style.display = 'inline';
-    sendResponse({});
+    //sendResponse({});
     return;
   }
 
@@ -523,7 +524,7 @@ function get_request(request, sender, sendResponse) {
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
       uneval(r.error) + '</span>';
-    sendResponse({});
+    //sendResponse({});
     return;
   }
 
@@ -539,12 +540,12 @@ function get_request(request, sender, sendResponse) {
     div_html += request.extra;
     div.innerHTML = div_html;
     $(request.to_other_sites).appendChild(div);
-    sendResponse({});
+    //sendResponse({});
     return;
   }
 
   if (!r || !r.count) {
-    sendResponse({});
+    //sendResponse({});
     return;
   }
 
@@ -681,6 +682,9 @@ function get_request(request, sender, sendResponse) {
     }
   }
   DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
-  sendResponse({});
+  //sendResponse({});
   return;
 }
+//chrome.extension.onRequest.addListener(get_request);
+chrome.runtime.onMessage.addListener(get_request);
+_port.onMessage.addListener(get_request);
