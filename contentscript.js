@@ -49,10 +49,18 @@ function a_proxy(d) {
 }
 
 function process_dxy() {
-  var pmid = page_url.split('://pubmed.cn/')[1],
+  var i, len, ele,
+    pmid = page_url.split('://pubmed.cn/')[1],
     digi_pmid = parseInt(pmid, 10);
   if (pmid && pmid === '' + digi_pmid && $('SFW').textContent.indexOf(pmid) > 0) {
     a_proxy({from_dxy: pmid});
+  }
+  for (i = 0, len = t('div').length; i < len; i += 1) {
+    ele = t('div')[i];
+    if (ele.className === 'setting') {
+      ele.setAttribute('id', 'thepaperlink_bar');
+      break;
+    }
   }
 }
 
@@ -68,7 +76,7 @@ function process_f1000() {
       // t('div')[i+3].setAttribute('id', '_thepaperlink_div'); // hidden tootip
     }
   }
-  if (pmid && f_v && fid) {
+  if (pmid && f_v && fid) { // require valid f1000.com login
     a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
   } else {
     DEBUG && console.log('>> process_f1000: ' +
@@ -528,7 +536,7 @@ function get_request(msg) {
     return;
   }
 
-  if (msg.to_other_sites) {
+  if (msg.to_other_sites) { // dxy, f1000
     insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles));

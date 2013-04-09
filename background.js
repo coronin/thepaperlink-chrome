@@ -7,6 +7,7 @@ var DEBUG = false,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
+  scholar_valid_page_open = false,
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -23,8 +24,7 @@ var DEBUG = false,
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
     '_' + extension_load_date.getDate(),
-  last_date = localStorage.getItem('last_date_str') || '',
-  scholar_valid_page_open = false;
+  last_date = localStorage.getItem('last_date_str') || '';
 
 
 function get_ymd() {
@@ -648,7 +648,7 @@ function get_request(msg, _port) {
         if (extra) {
           extra = ': ' + extra;
         }
-        p_proxy(_port, {to_other_sites:'SFW', pmid:pmid, extra:extra});
+        p_proxy(_port, {to_other_sites:'thepaperlink_bar', pmid:pmid, extra:extra});
       }
     }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -888,7 +888,7 @@ function load_broadcast() {
       DEBUG && console.log(d);
       if (d.apikey === req_key && d.action) {
         chrome.tabs.query({active: true, currentWindow: true},
-          function (tabs) { // current tab and window is not perfect
+          function (tabs) { // current tab and window, not perfect
             if (d.action === 'title') {
               scholar_title(d.pmid, d.title, tabs[0].id);
             } else if (d.action === 'url') {
