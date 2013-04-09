@@ -358,7 +358,7 @@ $(document).ready(function () {
         } else if (c[a]) { // get_end_num  c[a] < b
           console.log('count should only increase "' + a + '"');
         } else {
-          c.push({key:a, value:b});
+          c.push( {key:a, value:b} );
           tmp = '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
             a.replace(/"/g, ',,') + '" /> <span>' + a +
             '</span> <a href="#">' + get_end_num(b) + '</a></li>';
