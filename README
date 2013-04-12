@@ -18,6 +18,8 @@ Versions of limited and FULL are matched
 
 =======
 Change Log:
+ * v0.6.4 - improve messaging
+ * v0.6.3 - fix non-HTTPS file upload bug
  * v0.6.2 - fix server reconnect bug
  * v0.6.1 - js "use strict", bug fix on https pages
  * v0.6.0 - insert pdf link to F1000.com, order results in Google Scholar

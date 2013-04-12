@@ -1,5 +1,7 @@
 "use strict";
 
+var _port = chrome.runtime.connect({name: 'background_port'});
+
 function adjust_keywords() {
   var keyword_selected = '';
   $('input.keywords:checked').each(function () {
@@ -48,7 +50,8 @@ function reset_key(v) {
       localStorage.removeItem('b_apikey_gold');
     }
     location.reload();
-    chrome.extension.sendRequest({load_common_values: 1});
+    //chrome.extension.sendRequest({load_common_values: 1});
+    _port.postMessage({load_common_values: 1});
   }
 }
 
@@ -115,12 +118,14 @@ function saveOptions() {
     localStorage.setItem('contextMenu_shown', 'yes');
     if (!localStorage.getItem('contextMenu_on')) {
       localStorage.setItem('contextMenu_on', 1);
-      chrome.extension.sendRequest({menu_display: 1});
+      //chrome.extension.sendRequest({menu_display: 1});
+      _port.postMessage({menu_display: 1});
     }
   }
   if (ws_items) {
     localStorage.setItem('ws_items', 'yes');
-    chrome.extension.sendRequest({load_broadcast: 1});
+    //chrome.extension.sendRequest({load_broadcast: 1});
+    _port.postMessage({load_broadcast: 1});
   } else {
     localStorage.setItem('ws_items', 'no');
   }
@@ -193,7 +198,8 @@ function saveOptions() {
   } else {
     location.reload();
   }
-  chrome.extension.sendRequest({load_common_values: 1});
+  //chrome.extension.sendRequest({load_common_values: 1});
+  _port.postMessage({load_common_values: 1});
 }
 
 $(document).ready(function () {
@@ -352,7 +358,7 @@ $(document).ready(function () {
         } else if (c[a]) { // get_end_num  c[a] < b
           console.log('count should only increase "' + a + '"');
         } else {
-          c.push({key:a, value:b});
+          c.push( {key:a, value:b} );
           tmp = '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
             a.replace(/"/g, ',,') + '" /> <span>' + a +
             '</span> <a href="#">' + get_end_num(b) + '</a></li>';
