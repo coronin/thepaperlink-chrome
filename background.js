@@ -44,7 +44,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.4';
+  var a = [], version = 'Chrome_v0.6.5';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -173,7 +173,7 @@ function open_new_tab(url, winId, idx) {
     new_tabId = tab.id;
     DEBUG && console.log('>> a new tab for you, #' + new_tabId);
     if (url === 'http://scholar.google.com/') {
-      chrome.tabs.reload();
+      setTimeout(chrome.tabs.reload, 3000);
     }
   });
 }
@@ -434,7 +434,7 @@ function get_request(msg, _port) {
     p_proxy(_port, {js_base_uri:base});
   } else if (msg.url) {
     var request_url = base + msg.url + req_key;
-    if (uid) {
+    if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
     $.getJSON(request_url, function (d) {
@@ -716,7 +716,10 @@ if (old_id) {
 ////
 
 function queue_scholar_title() {
-  setTimeout(do_scholar_title, 1250*scholar_run + 1);
+  setTimeout(
+    do_scholar_title,
+    1000*scholar_run + Math.floor(Math.random() * 1000)
+  );
 }
 
 function do_scholar_title() {
