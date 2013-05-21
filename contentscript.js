@@ -414,7 +414,7 @@ function get_request(msg) {
     }
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red">Error! Try ' +
-      '<button onclick="window.location.reload()">reload</button> or ' +
+      '<button onclick="window.location.reload(true)">reload</button> or ' +
       '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
       '" target="_blank">the Paper Link</a>' +
       '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';

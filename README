@@ -18,6 +18,7 @@ Versions of limited and FULL are matched
 
 =======
 Change Log:
+ * v0.6.5 - bug fix
  * v0.6.4 - improve messaging
  * v0.6.3 - fix non-HTTPS file upload bug
  * v0.6.2 - fix server reconnect bug
