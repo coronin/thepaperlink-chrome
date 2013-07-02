@@ -172,9 +172,6 @@ function open_new_tab(url, winId, idx) {
   chrome.tabs.create(tab_obj, function (tab) {
     new_tabId = tab.id;
     DEBUG && console.log('>> a new tab for you, #' + new_tabId);
-    if (url === 'http://scholar.google.com/') {
-      setTimeout(chrome.tabs.reload, 3000);
-    }
   });
 }
 
