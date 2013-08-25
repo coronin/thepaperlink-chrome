@@ -162,7 +162,11 @@ function saveOptions() {
     if (accessApi.length === 32) {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
-      alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
+      if (localStorage.getItem('rev_proxy') === 'yes') {
+        alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
+      } else {
+        alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
+      }
       $('#thepaperlink_apikey_input').focus();
       return false;
     }
@@ -176,7 +180,11 @@ function saveOptions() {
       $('#pubmeder_email_input').focus();
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
-      alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
+      if (localStorage.getItem('rev_proxy') === 'yes') {
+        alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
+      } else {
+        alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
+      }
       $('#pubmeder_apikey_input').focus();
       return false;
     } else if (userEmail && userApi.length === 32) {
@@ -254,8 +262,7 @@ $(document).ready(function () {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
     $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_two">[x]</span>');
     $('#reset_key_two').on('click', function() { reset_key(2); });
-    $('#pubmeder_a').text('search those articles');
-    $('#pubmeder_a').attr('href', 'http://www.pubmeder.com/search');
+    $('#pubmeder_a').text('OK');
     $.cookie('alert_v2', null);
   } else {
     $('#pubmeder_email').html('<input class="settings" type="text" value="" size="40" id="pubmeder_email_input" />');
@@ -303,9 +310,13 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
       ' It is slower.');
-    $('#api_server').text('http://0.pl4.me');
+    $('#api_server').text('http://www.zhaowenxian.com');
+    $('.reg_thepaperlink').text('http://www.zhaowenxian.com/reg');
+    $('.reg_thepaperlink').attr('href', 'http://www.zhaowenxian.com/reg');
+    $('.reg_pubmeder').text('http://1.zhaowenxian.com/registration');
+    $('.reg_pubmeder').attr('href', 'http://1.zhaowenxian.com/registration');
   } else if (localStorage.getItem('https_failed')) {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting too many errors,' +
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
       ' <b>check to enable</b> the reverse proxy to our service.');
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
@@ -428,11 +439,19 @@ $(document).ready(function () {
       });
       $('#submit_keyword').on('click', function() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-          chrome.tabs.create({
-            index: tabs[0].index,
-            url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
-            active: true
-          });
+          if (localStorage.getItem('rev_proxy') === 'yes') {
+            chrome.tabs.create({
+              index: tabs[0].index,
+              url: 'http://www.zhaowenxian.com/prospective?' + $('#keywords_area').serialize(),
+              active: true
+            });
+          } else {
+            chrome.tabs.create({
+              index: tabs[0].index,
+              url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+              active: true
+            });
+          }
         });
       });
     }

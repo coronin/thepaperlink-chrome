@@ -316,7 +316,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
-    oXHR.open('POST', 'http://www.thepaperlink.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+    oXHR.open('POST', 'http://0.pl4.me/?action=alert_dev&pmid=1&apikey=' + req_key, true);
     oXHR.onreadystatechange = function (oEvent) {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
@@ -336,7 +336,7 @@ function alert_dev(req_key) {
 
 
 if (page_url === 'http://www.thepaperlink.com/reg'
-    || page_url === 'http://0.pl4.me/reg') { // storage data for access the api server
+    || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML,
     cloud_op = $('cloud_op').innerHTML;
   a_proxy({save_apikey: apikey, save_email: null});
@@ -345,7 +345,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'http://1.pl4.me/registration') { // storage data for access the bookmark server
+    || page_url === 'http://1.zhaowenxian.com/registration') { // storage data for access the bookmark server
   var email = $('currentUser').innerHTML,
     apikey = $('apikey_pubmeder').innerHTML;
   a_proxy({save_apikey: apikey, save_email: email});
@@ -409,9 +409,9 @@ function get_request(msg) {
     }
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red">Error! ' +
-      'Have you tried our service via <a href="' +
-      chrome.extension.getURL('options.html') + '" target="_blank">the proxy</a>? ' +
-      'Try search on <a href="http://www.thepaperlink.com/?q=' + search_term +
+      'Try to access our service via <a href="' +
+      chrome.extension.getURL('options.html') + '" target="_blank">proxy</a>. ' +
+      'Try <a href="http://www.zhaowenxian.com/?q=' + search_term +
       '" target="_blank">our web site</a>.' +
       '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
     $('thepaperlink_alert').onclick = function () {
@@ -487,7 +487,7 @@ function get_request(msg) {
 
   } else if (msg.search_trend) {
     var hook = $('myncbiusername').textContent;
-    $('myncbiusername').innerHTML = '<span style="color:yellow">' + uneval_trim(msg.search_trend) +
+    $('myncbiusername').innerHTML = '<span style="color:yellow">' + msg.search_trend +
       '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
     $('myncbiusername').style.display = 'inline';
     //sendResponse({});
@@ -544,7 +544,7 @@ function get_request(msg) {
     page_d.body.appendChild(insert_style);
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" href="http://www.thepaperlink.com/?q=pmid:' +
+    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
       msg.pmid + '" target="_blank">the Paper Link</a>';
     div_html += msg.extra;
     div.innerHTML = div_html;
@@ -592,7 +592,7 @@ function get_request(msg) {
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
     div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
-      '" href="http://www.thepaperlink.com/?q=pmid:' +
+      '" href="' + msg.uri + '/?q=pmid:' +
       pmid + '" target="_blank">the Paper Link</a>: ';
     if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
