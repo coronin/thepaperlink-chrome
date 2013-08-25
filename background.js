@@ -660,7 +660,7 @@ function get_request(msg, _port) {
 }
 //chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onConnect.addListener(function (_port) {
-  console.assert(_port.name == 'background_port');
+  console.assert(_port.name === 'background_port');
   _port.onMessage.addListener(function (msg) {
     get_request(msg, _port);
   });
