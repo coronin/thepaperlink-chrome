@@ -663,15 +663,15 @@ function get_request(msg) {
     if ($('thepaperlink_hidden' + pmid)) {
       $('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
         var eventData = this.textContent,
-          pmid = this.id.substr(19),
-          pdf = $('thepaperlink_pdf' + pmid).href,
-          no_email_span = $('thepaperlink_save' + pmid).className;
+          evt_pmid = this.id.substr(19),
+          pdf = $('thepaperlink_pdf' + evt_pmid).href,
+          no_email_span = $('thepaperlink_save' + evt_pmid).className;
         if ( (' ' + no_email_span + ' ').indexOf(' no_email ') > -1 ) {
-          a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, no_email: 1});
+          a_proxy({upload_url: eventData, pdf: pdf, pmid: evt_pmid, no_email: 1});
         } else {
-          a_proxy({upload_url: eventData, pdf: pdf, pmid: pmid, no_email: 0});
+          a_proxy({upload_url: eventData, pdf: pdf, pmid: evt_pmid, no_email: 0});
           try {
-            $('thepaperlink_D' + pmid).setAttribute('class', 'thepaperlink_Off');
+            $('thepaperlink_D' + evt_pmid).setAttribute('class', 'thepaperlink_Off');
           } catch (err) {
             DEBUG && console.log(err);
           }
