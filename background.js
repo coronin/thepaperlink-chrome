@@ -2,7 +2,7 @@
 
 var DEBUG = false,
   i, len, aKey, aVal, ws, ws_timer,
-  ws_addr = localStorage.getItem('websocket_server') || 'node.pl4.me:8081',
+  ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081',
   uid = localStorage.getItem('ip_time_uid') || null,
   scholar_count = 0,
   scholar_run = 0,
@@ -44,7 +44,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.5';
+  var a = [], version = 'Chrome_v0.6.6';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -90,7 +90,7 @@ function post_pl4me(v) {
 }
 
 function get_local_ip() {
-  return $.getJSON('http://node.pl4.me:8089/', function (d) {
+  return $.getJSON('http://node.thepaperlink.com:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
       if (local_ip && !uid) {
         uid = local_ip + ':';
@@ -143,7 +143,7 @@ function load_common_values() {
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
   if (rev_proxy === 'yes') {
-    base = 'http://0.pl4.me';
+    base = 'http://www.zhaowenxian.com';
   } else if (localStorage.getItem('https_failed')) {
     base = 'http://www.thepaperlink.com';
   }
@@ -178,15 +178,16 @@ function open_new_tab(url, winId, idx) {
 function generic_on_click(info, tab) {
   DEBUG && console.log('info', JSON.stringify(info));
   DEBUG && console.log('tab', JSON.stringify(tab));
-  open_new_tab('http://www.thepaperlink.com', tab.windowId, tab.index);
+  open_new_tab(base, tab.windowId, tab.index);
 }
 
 function select_on_click(info, tab) {
-  var url, new_tab = localStorage.getItem('new_tab');
+  var url = base,
+    new_tab = localStorage.getItem('new_tab');
   if ( alldigi.test(info.selectionText) ) {
-    url = 'http://www.thepaperlink.com/_' + info.selectionText;
+    url += '/_' + info.selectionText;
   } else {
-    url = 'http://www.thepaperlink.com/?q=' + info.selectionText;
+    url += '/?q=' + info.selectionText;
   }
   if (new_tabId && new_tab === 'no') {
     chrome.tabs.query({windowId: tab.windowID}, function (tabs) {
@@ -606,7 +607,7 @@ function get_request(msg, _port) {
         if (extra) {
           extra = ': ' + extra;
         }
-        p_proxy(_port, {to_other_sites:'article', pmid:pmid, extra:extra});
+        p_proxy(_port, {to_other_sites:'article', uri:base, pmid:pmid, extra:extra});
         if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
           $.post(base + '/', args,
             function (d) {
@@ -645,7 +646,7 @@ function get_request(msg, _port) {
         if (extra) {
           extra = ': ' + extra;
         }
-        p_proxy(_port, {to_other_sites:'thepaperlink_bar', pmid:pmid, extra:extra});
+        p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
       }
     }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -659,7 +660,7 @@ function get_request(msg, _port) {
 }
 //chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onConnect.addListener(function (_port) {
-  console.assert(_port.name == 'background_port');
+  console.assert(_port.name === 'background_port');
   _port.onMessage.addListener(function (msg) {
     get_request(msg, _port);
   });
