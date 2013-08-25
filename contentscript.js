@@ -320,7 +320,7 @@ function alert_dev(req_key) {
     oXHR.onreadystatechange = function (oEvent) {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
-          $('thepaperlink_alert').innerHTML('&lt;!&gt; Just sent the alert.');
+          $('thepaperlink_alert').innerHTML = '&lt;!&gt; Just sent the alert.';
         } else {
           DEBUG && console.log('Error', oXHR.statusText);
       }  }
@@ -408,10 +408,11 @@ function get_request(msg) {
       search_term = localStorage.getItem('thePaperLink_ID');
     }
     $('pl4_title').innerHTML = old_title +
-      ' <span style="font-size:14px;font-weight:normal;color:red">Error! Try ' +
-      '<button onclick="window.location.reload(true)">reload</button> or ' +
-      '<b>Search</b> <a href="http://www.thepaperlink.com/?q=' + search_term +
-      '" target="_blank">the Paper Link</a>' +
+      ' <span style="font-size:14px;font-weight:normal;color:red">Error! ' +
+      'Have you tried our service via <a href="' +
+      chrome.extension.getURL('options.html') + '" target="_blank">the proxy</a>? ' +
+      'Try search on <a href="http://www.thepaperlink.com/?q=' + search_term +
+      '" target="_blank">our web site</a>.' +
       '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
     $('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');

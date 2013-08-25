@@ -305,12 +305,12 @@ $(document).ready(function () {
       ' It is slower.');
     $('#api_server').text('http://0.pl4.me');
   } else if (localStorage.getItem('https_failed')) {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting too many errors, you could' +
-      ' <b>check to enable</b> the reverse proxy. It is more accessible.');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting too many errors,' +
+      ' <b>check to enable</b> the reverse proxy to our service.');
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-      ' If you really want to, you can <b>check to enable</b> the reverse proxy.');
+      ' If you really want to, feel free to check to enable it.');
     $('#api_server').text('https://pubget-hrd.appspot.com');
   }
   if (localStorage.getItem('co_pubmed') === 'no') {
