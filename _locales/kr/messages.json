@@ -4,7 +4,7 @@
     "description": "The title displayed in the web store."
   },
   "appDesc": {
-    "message": "직접 PDF 파일 링크를 추가, 디스플레이 F1000 점수, 임팩트 팩터, 봉우리와 훨씬 더 ... (별로 Liang Cai, 구글 크롬의 경우)", 
+    "message": "직접 PDF 파일 링크를 추가, 디스플레이 F1000 점수, 임팩트 팩터, 봉우리와 훨씬 더 ... (별로 Liang Cai)", 
     "description":"The description displayed in the web store."
   }
 }

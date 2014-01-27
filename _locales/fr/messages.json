@@ -4,7 +4,7 @@
     "description": "The title displayed in the web store."
   },
   "appDesc": {
-    "message": "Ajouter directement le lien PDF, affichage des scores F1000, facteur d'impact, pics et beaucoup plus ... (par Liang Cai, pour Google Chrome)", 
+    "message": "Ajouter directement le lien PDF, affichage des scores F1000, facteur d'impact, pics et beaucoup plus ... (par Liang Cai)", 
     "description":"The description displayed in the web store."
   }
 }

@@ -4,7 +4,7 @@
     "description": "The title displayed in the web store."
   },
   "appDesc": {
-    "message": "PubMedの検索結果ページでは、PDFリンク、インパクトファクター、F1000コメント、著者の公開レコードを追加し、通常のWebページで、文学についての情報を抽出しようと示して （蔡亮 作品）", 
+    "message": "PubMedの検索結果ページでは、PDFリンク、インパクトファクター、F1000コメント、著者の公開レコードを追加し（蔡亮 作品）", 
     "description":"The description displayed in the web store."
   }
 }
