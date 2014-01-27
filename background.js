@@ -16,6 +16,7 @@ var DEBUG = false,
   old_id = '',
   dd = document,
   init_found = localStorage.getItem('id_found') || '',
+  guest_apikey = null,
   apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
   pubmeder_ok = 0,
   broadcast_loaded = 0,
@@ -44,7 +45,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v0.6.6';
+  var a = [], version = 'Chrome_v2.0.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -69,7 +70,7 @@ function post_pl4me(v) {
           }
         }
         if (d.guest_apikey) {
-          localStorage.setItem('guest_apikey', d.guest_apikey);
+          guest_apikey = d.guest_apikey;
         } else if (v !== 1 && apikey === null) {
           post_pl4me(1);
         }
@@ -126,7 +127,7 @@ function load_common_values() {
   apikey = localStorage.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
   if (req_key === null) {
-    req_key = localStorage.getItem('guest_apikey') || null;
+    req_key = guest_apikey;
     if (req_key === null && load_try > -4 && window.navigator.onLine) {
       load_try -= 1;
       get_server_data(1);
