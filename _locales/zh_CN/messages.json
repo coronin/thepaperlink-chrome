@@ -4,7 +4,7 @@
     "description": "The title displayed in the web store."
   },
   "appDesc": {
-    "message": "在 PubMed 搜索结果页面，添加 PDF 链接、影响因子、F1000评论、作者发表记录 等；在普通网页上，尝试提取文献并展示相关信息 （蔡亮 作品）", 
+    "message": "在 PubMed 搜索结果页面，添加 PDF 链接、影响因子、F1000评论、作者发表记录 等（蔡亮 作品）", 
     "description":"The description displayed in the web store."
   }
 }
