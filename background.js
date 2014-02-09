@@ -45,13 +45,13 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.0.0';
+  var a = [], version = 'Chrome_v2.0.1';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
     return;
   }
-  $.post('http://0.pl4.me/',
+  $.post('http://0.cail.cn/',
     {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
     function (d) {
       DEBUG && console.log('>> post_pl4me, ' + a[v]);
@@ -80,7 +80,7 @@ function post_pl4me(v) {
           localStorage.removeItem('alert_outdated');
         }
       } else {
-        console.log('__ empty from 0.pl4.me');
+        console.log('__ empty from 0.cail.cn');
       }
     }, 'json'
   ).fail(function () {
@@ -265,7 +265,7 @@ function saveIt_pubmeder(pmid) {
               'pmid' : pmid},
     url = 'https://pubmeder-hrd.appspot.com/input';
   if (rev_proxy === 'yes') {
-    url = 'http://1.pl4.me/input';
+    url = 'http://1.zhaowenxian.com/input';
   } else if (localStorage.getItem('https_failed')) {
     url = 'http://www.pubmeder.com/input';
   }
