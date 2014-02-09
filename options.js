@@ -56,7 +56,7 @@ function reset_key(v) {
 }
 
 function valid_thepaperlink(ak) {
-  return $.get('http://0.pl4.me/api?validate=' + ak,
+  return $.get('http://0.cail.cn/api?validate=' + ak,
     function (txt) {
       if (txt === 'valid') {
         localStorage.setItem('thepaperlink_apikey', ak);
@@ -70,7 +70,7 @@ function valid_thepaperlink(ak) {
 }
 
 function valid_pubmeder(e,ak) {
-  return $.get('http://1.pl4.me/input?pmid=999999999&apikey=' + ak + '&email=' + e,
+  return $.get('http://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
     function (txt) {
       if (txt === 'correct') {
         localStorage.setItem('pubmeder_apikey', ak);
