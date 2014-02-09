@@ -19,7 +19,7 @@ function eFetch(pmid) {
                        'db' : 'pubmed',
                        'id' : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'http://43.pl4.me/efetch';
+    url = 'http://43.zhaowenxian.com/efetch';
   } else {
     url = 'https://entrezajax3.appspot.com/efetch';
   }
@@ -58,9 +58,9 @@ function eFetch(pmid) {
         var DataBank_list = '<p class="moreAbout"><b><u>PDB Files</u>: </b>', j, len;
         for (j = 0, len = ls.AccessionNumberList.length; j < len; j += 1) {
           if (j === 0) {
-            tmp = '<a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
+            tmp = '<a target="_blank" href="http://j.cail.cn/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
           } else {
-            tmp = '; <a target="_blank" href="http://j.pl4.me/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
+            tmp = '; <a target="_blank" href="http://j.cail.cn/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
           }
           DataBank_list += tmp;
         }
