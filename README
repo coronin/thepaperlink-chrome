@@ -34,6 +34,7 @@ One more thing - we have a js client for "the Paper Link", working in all web br
 
 
 Change Log:
+ * v2.0.2 - bug fix
  * v2.0.1 - pl4.me expired
  * v2.0.0 - jump version
  * v0.6.6 - improve ui

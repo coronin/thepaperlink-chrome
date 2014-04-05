@@ -45,7 +45,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.0.1';
+  var a = [], version = 'Chrome_v2.0.2';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -402,37 +402,42 @@ function reLoad_options() {
 
 function get_request(msg, _port) {
   DEBUG && console.log(msg);
-  var sender_tab_id = _port.sender.tab.id,
-    m_status = localStorage.getItem('mendeley_status'),
-    f_status = localStorage.getItem('facebook_status'),
-    d_status = localStorage.getItem('dropbox_status'),
-    b_status = localStorage.getItem('douban_status'),
-    g_status = localStorage.getItem('googledrive_status'),
-    s_status = localStorage.getItem('skydrive_status'),
-    cloud_op = '',
+  var sender_tab_id = null,
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
-  if (m_status && m_status === 'success') {
-    cloud_op += 'm';
+  if (_port && _port.sender) {
+    sender_tab_id = _port.sender.tab.id;
   }
-  if (f_status && f_status === 'success') {
-    cloud_op += 'f';
-  }
-  if (d_status && d_status === 'success') {
-    cloud_op += 'd';
-  }
-  if (b_status && b_status === 'success') {
-    cloud_op += 'b';
-  }
-  if (g_status && g_status === 'success') {
-    cloud_op += 'g';
-  }
-  if (s_status && s_status === 'success') {
-    cloud_op += 's';
-  }
+  // respond to msg
   if (msg.loadExtraJs) {
     p_proxy(_port, {js_base_uri:base});
+
   } else if (msg.url) {
-    var request_url = base + msg.url + req_key;
+    var request_url = base + msg.url + req_key,
+      cloud_op = '',
+      m_status = localStorage.getItem('mendeley_status'),
+      f_status = localStorage.getItem('facebook_status'),
+      d_status = localStorage.getItem('dropbox_status'),
+      b_status = localStorage.getItem('douban_status'),
+      g_status = localStorage.getItem('googledrive_status'),
+      s_status = localStorage.getItem('skydrive_status');
+    if (m_status && m_status === 'success') {
+      cloud_op += 'm';
+    }
+    if (f_status && f_status === 'success') {
+      cloud_op += 'f';
+    }
+    if (d_status && d_status === 'success') {
+      cloud_op += 'd';
+    }
+    if (b_status && b_status === 'success') {
+      cloud_op += 'b';
+    }
+    if (g_status && g_status === 'success') {
+      cloud_op += 'g';
+    }
+    if (s_status && s_status === 'success') {
+      cloud_op += 's';
+    }
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
@@ -452,6 +457,7 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
   } else if (msg.save_apikey) {
     if (msg.save_email) {
       localStorage.setItem('pubmeder_apikey', msg.save_apikey);
@@ -467,6 +473,7 @@ function get_request(msg, _port) {
       req_key = apikey;
     }
     reLoad_options();
+
   } else if (msg.service && msg.content) {
     if (msg.content.indexOf('error') < 0) {
       localStorage.setItem(msg.service + '_status', 'success');
@@ -474,6 +481,7 @@ function get_request(msg, _port) {
       localStorage.setItem(msg.service + '_status', 'error? try again please');
     }
     reLoad_options();
+
   } else if (msg.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender_tab_id);
@@ -486,6 +494,7 @@ function get_request(msg, _port) {
     } else {
       eSearch(msg.sendID, sender_tab_id);
     }
+
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
       menu_generator();
@@ -493,12 +502,15 @@ function get_request(msg, _port) {
     } else {
       DEBUG && console.log('>> no need to update context menu');
     }
+
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {
     if (msg.pdf.substr(0,7).toLowerCase() === 'http://') {
       get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
+
     } else if (!msg.no_email) {
       email_abstract(apikey, msg.pmid);
     }
+
   } else if (msg.save_cloud_op) {
     if (msg.save_cloud_op.indexOf('mendeley') > -1) {
       localStorage.setItem('mendeley_status', 'success');
@@ -518,6 +530,7 @@ function get_request(msg, _port) {
     if (msg.save_cloud_op.indexOf('skydrive') > -1) {
       localStorage.setItem('skydrive_status', 'success');
     }
+
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
@@ -525,8 +538,10 @@ function get_request(msg, _port) {
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';
+
   } else if (msg.load_common_values) {
     load_common_values();
+
   } else if (msg.a_pmid && msg.a_title) {
     var in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
     if (in_mem) {
@@ -541,20 +556,24 @@ function get_request(msg, _port) {
       scholar_count += 1;
       queue_scholar_title();
     }
+
   } else if (msg.reset_scholar_count) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
+
   } else if (msg.load_broadcast) {
     broadcast_loaded = 0;
     if (ws) {
       ws.close();
     }
     load_broadcast();
+
   } else if (msg.pii_link && msg.pii && msg.pmid) {
     if (ajax_pii_link) {
       parse_url(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
+
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
@@ -586,6 +605,7 @@ function get_request(msg, _port) {
         localStorage.setItem(msg.search_term, digitals.join(','));
       }
     }
+
   } else if (msg.from_f1000) {
     var abc = msg.from_f1000.split(','),
       pmid = abc[0],
@@ -623,6 +643,7 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
   } else if (msg.from_dxy) {
     var pmid = msg.from_dxy,
       extra = '', tmp;
@@ -655,9 +676,14 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
+  } else if (msg.open_options) {
+    open_new_tab( chrome.extension.getURL('options.html') );
+
   } else {
     console.log(msg);
   }
+  // msg processed
 }
 //chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onConnect.addListener(function (_port) {
@@ -666,6 +692,12 @@ chrome.runtime.onConnect.addListener(function (_port) {
     get_request(msg, _port);
   });
 });
+chrome.runtime.onMessageExternal.addListener(
+  function (req, sender, sendResponse) {
+    get_request(req, null);
+    sendResponse({});
+  }
+);
 
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
