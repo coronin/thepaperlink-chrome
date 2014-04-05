@@ -375,7 +375,8 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 }
 if ($('_thepaperlink_client_status')) {
-  $('_thepaperlink_client_status').innerHTML = chrome.extension.getURL('options.html');
+  //$('_thepaperlink_client_status').innerHTML = chrome.extension.getURL('options.html');
+  $('_thepaperlink_client_status').innerHTML = chrome.runtime.id;
 }
 if ($('_thepaperlink_client_modify_it')) {
   $('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
@@ -409,8 +410,8 @@ function get_request(msg) {
     }
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red">Error! ' +
-      'Try to access our service via <a href="' +
-      chrome.extension.getURL('options.html') + '" target="_blank">proxy</a>. ' +
+      'Try to access our service via <span onclick="' +
+      'chrome.runtime.sendMessage(\'' + chrome.runtime.id + '\', {open_options: 1});" style="cursor:pointer">proxy</span>. ' +
       'Try <a href="http://www.zhaowenxian.com/?q=' + search_term +
       '" target="_blank">our web site</a>.' +
       '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';

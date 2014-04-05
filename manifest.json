@@ -1,16 +1,25 @@
 {
   "manifest_version": 2,
+  "name": "__MSG_appName__",
+  "version": "2.0.2",
+  "minimum_chrome_version": "29",
+  "description": "__MSG_appDesc__",
+  "default_locale": "en",
   "content_security_policy": "script-src 'self' https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
   ],
-
-  "name": "__MSG_appName__",
-  "version": "2.0.1",
-  "minimum_chrome_version": "21",
-  "description": "__MSG_appDesc__",
-  "default_locale": "en",
+  "externally_connectable": {
+    "ids": ["*"],
+    "matches": [
+      "http://www.thepaperlink.com/*",
+      "http://www.zhaowenxian.com/*",
+      "http://1.cail.cn/*",
+      "http://www.thepaperlink.net/*",
+      "https://pubget-hrd.appspot.com/*"
+    ]
+  },
   "permissions": [
     "background",
     "contextMenus",
