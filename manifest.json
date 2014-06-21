@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "minimum_chrome_version": "29",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -15,7 +15,7 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
-      "http://1.cail.cn/*",
+      "http://0.cail.cn/*",
       "http://www.thepaperlink.net/*",
       "https://pubget-hrd.appspot.com/*"
     ]
@@ -49,7 +49,7 @@
   "options_page": "options.html",
   "page_action": {
     "default_icon": "19grey.png",
-    "default_title": "the Paper Link for PubMed: click to display detailed info",
+    "default_title": "the paper link for PubMed: click to display detailed info",
     "default_popup" : "popup.html"
   },
   "content_scripts": [ {
