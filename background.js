@@ -45,7 +45,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.0.2';
+  var a = [], version = 'Chrome_v2.0.3';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -218,11 +218,11 @@ function call_js_on_click(info, tab) {
 }
 
 function menu_generator() {
-  chrome.contextMenus.create({'title': 'Search the Paper Link for \'%s\'',
+  chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
-  chrome.contextMenus.create({'title': 'Find ID on this page',
+  chrome.contextMenus.create({'title': 'find ID on this page',
     'contexts':['page'], 'onclick': call_js_on_click});
-  chrome.contextMenus.create({'title': 'Visit the Paper Link',
+  chrome.contextMenus.create({'title': 'visit the paper link',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
@@ -676,10 +676,8 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
-
-  } else if (msg.open_options) {
-    open_new_tab( chrome.extension.getURL('options.html') );
-
+  //} else if (msg.open_options) {
+  //  open_new_tab( chrome.extension.getURL('options.html') );
   } else {
     console.log(msg);
   }

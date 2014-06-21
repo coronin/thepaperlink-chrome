@@ -250,7 +250,7 @@ function get_Json(pmids) {
   var i, len, ele,
     need_insert = 1,
     url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
-    loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the Paper Link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+    loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the paper link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -409,12 +409,11 @@ function get_request(msg) {
       search_term = localStorage.getItem('thePaperLink_ID');
     }
     $('pl4_title').innerHTML = old_title +
-      ' <span style="font-size:14px;font-weight:normal;color:red">Error! ' +
-      'Try to access our service via <span onclick="' +
-      'chrome.runtime.sendMessage(\'' + chrome.runtime.id + '\', {open_options: 1});" style="cursor:pointer">proxy</span>. ' +
-      'Try <a href="http://www.zhaowenxian.com/?q=' + search_term +
-      '" target="_blank">our web site</a>.' +
-      '<span style="float:right;cursor:pointer" id="thepaperlink_alert">&lt;!&gt;</span></span>';
+      ' <span style="font-size:14px;font-weight:normal;color:red">Error' +
+      '<span style="cursor:pointer" id="thepaperlink_alert">!&nbsp;</span>' +
+      'Enable proxy by right click, Options/settings. ' +
+      '&para; <a href="http://www.zhaowenxian.com/?q=' + search_term +
+      '" target="_blank">the paper link</a></span>';
     $('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');
       if (answer) {
@@ -532,7 +531,7 @@ function get_request(msg) {
 
   if (r && r.error) {
     $('pl4_title').innerHTML = old_title +
-      ' <span style="font-size:14px;font-weight:normal;color:red">"the Paper Link" error ' +
+      ' <span style="font-size:14px;font-weight:normal;color:red">"the paper link" error ' +
       uneval(r.error) + '</span>';
     //sendResponse({});
     return;
@@ -546,7 +545,7 @@ function get_request(msg) {
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
     div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
-      msg.pmid + '" target="_blank">the Paper Link</a>';
+      msg.pmid + '" target="_blank">the paper link</a>';
     div_html += msg.extra;
     div.innerHTML = div_html;
     $(msg.to_other_sites).appendChild(div);
@@ -594,7 +593,7 @@ function get_request(msg) {
     div.className = 'thepaperlink';
     div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
       '" href="' + msg.uri + '/?q=pmid:' +
-      pmid + '" target="_blank">the Paper Link</a>: ';
+      pmid + '" target="_blank">the paper link</a>: ';
     if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;

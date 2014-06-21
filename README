@@ -1,7 +1,9 @@
-ATTENTION: If you are concerned about the "Your data on all websites" permission request, you can install the limited version at https://chrome.google.com/webstore/detail/emdponcknibglcjeidbemionclljooao , which will not have the features to either email PDF to yourself or to parse non-PubMed pages.
+ATTENTION:
+* One way to fix the access error: right click -> the paper link for PubMed -> Options -> settings, enable the last checkbox
+* If you are concerned about the "Your data on all websites" permission request, you can install the limited version at https://chrome.google.com/webstore/detail/emdponcknibglcjeidbemionclljooao , which will not have the features to either email PDF to yourself or to parse non-PubMed pages.
 
 
-the Paper Link for PubMed
+the paper link for PubMed
 --------
 In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more! It is built based on publicly available information from NLM / NCBI / NIH, and other sources.
 
@@ -28,12 +30,13 @@ For Safari, please use the following:
 For Mobile Devices:
  + visit www.thepaperlink.com on your mobile device: iPhone, Android, iPod Touch, iPad, etc
 
-One more thing - we have a js client for "the Paper Link", working in all web browsers.
+One more thing - we have a js client for "the paper link", working in all web browsers.
  + http://www.thepaperlink.com/js/ , http://www.zhaowenxian.com/js/
  + instruction for the js client is at http://en.dogeno.us/?p=7567
 
 
 Change Log:
+ * v2.0.3 - better annotation for "Error!"
  * v2.0.2 - bug fix
  * v2.0.1 - pl4.me expired
  * v2.0.0 - jump version

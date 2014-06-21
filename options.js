@@ -308,7 +308,7 @@ $(document).ready(function () {
     localStorage.removeItem('alert_outdated');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the Paper Link".' +
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the paper link".' +
       ' It is slower.');
     $('#api_server').text('http://www.zhaowenxian.com');
     $('.reg_thepaperlink').text('http://www.zhaowenxian.com/reg');
