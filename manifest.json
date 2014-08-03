@@ -33,9 +33,9 @@
     "http://www.ncbi.nlm.nih.gov/*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
     "http://www.thepaperlink.com/api*",
-    "http://0.pl4.me/api*",
-    "http://node.pl4.me:8081/",
-    "http://node.pl4.me:8089/"
+    "http://0.cail.cn/api*",
+    "http://node.thepaperlink.com:8081/",
+    "http://node.thepaperlink.com:8089/"
   ],
   "background": {
     "page": "background.html"
