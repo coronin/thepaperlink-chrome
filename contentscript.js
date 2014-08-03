@@ -221,6 +221,7 @@ function getPmid(zone, num) {
             '. ' + trim( t_strings[1] ) +
             '. [PMID:' + ID[1] + ']\r\n';
         }
+        t_cont = t_cont.replace('See comment in PubMed Commons below', '');
       }
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
