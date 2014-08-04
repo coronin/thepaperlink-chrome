@@ -36,6 +36,7 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
+ * v2.0.5 - support .aa.bb.edu type of ezproxy
  * v2.0.4 - PubMed Commons
  * v2.0.3 - better annotation for "Error!"
  * v2.0.2 - bug fix

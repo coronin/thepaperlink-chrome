@@ -25,6 +25,23 @@ var DEBUG = false,
   _port = chrome.runtime.connect({name: 'background_port'});
 
 
+function ez_format_link(p, url){
+  if (!p) return url;
+  if (p.substr(0,1) === '.') {
+    var i, ss = '', s = url.split('/');
+    for (i = 0; i < s.length; i += 1) {
+      ss += s[i];
+      if (i === 2) {
+        ss += p;
+      }
+      ss += '/';
+    }
+    return ss;
+  } else {
+    return (p + url);
+  }
+}
+
 if (typeof uneval === 'undefined') {
   var uneval = function (a) {
     return ( JSON.stringify(a) ) || '';
@@ -601,7 +618,8 @@ function get_request(msg) {
     }
     if (r.item[i].pdf) {
       tmp = '<a id="thepaperlink_pdf' + pmid +
-        '" class="thepaperlink-green" href="' + p + uneval_trim(r.item[i].pdf) +
+        '" class="thepaperlink-green" href="' +
+        ez_format_link(p, uneval_trim(r.item[i].pdf)) +
         '" target="_blank">direct&nbsp;pdf</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
@@ -617,26 +635,31 @@ function get_request(msg) {
     }
     if (r.item[i].doi) {
       tmp = '<a id="thepaperlink_doi' + pmid +
-        '" href="' + p + 'http://dx.doi.org/' + uneval_trim(r.item[i].doi) +
-        '" target="_blank">publisher</a>';
+        '" href="' + ez_format_link(p,
+          'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
+        ) + '" target="_blank">publisher</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_doi' + pmid +
-        '" href="' + p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
-        uneval_trim(r.item[i].pii) + '" target="_blank">publisher</a>';
+        '" href="' + ez_format_link(p,
+          'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+        ) + '" target="_blank">publisher</a>';
       div_html += tmp;
     }
     if (r.item[i].pii && $('citedBy' + pmid)) {
       insert_span = page_d.createElement('span');
       insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
-        p + 'http://linkinghub.elsevier.com/retrieve/pii/' +
-        uneval_trim(r.item[i].pii) + '" target="_blank">(in Scopus)</a>';
+        ez_format_link(p,
+          'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+        ) + '" target="_blank">(in Scopus)</a>';
       $('citedBy' + pmid).parentNode.appendChild(insert_span);
     }
     if (r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid +
-        '" class="thepaperlink-red" href="' + p + 'http://f1000.com/' +
-        uneval_trim(r.item[i].fid) + '" target="_blank">f1000&nbsp;star&nbsp;' +
+        '" class="thepaperlink-red" href="' +
+        ez_format_link(p,
+          'http://f1000.com/' + uneval_trim(r.item[i].fid)
+        ) + '" target="_blank">f1000&nbsp;star&nbsp;' +
         uneval_trim(r.item[i].f_v) + '</a>';
       div_html += tmp;
     }
