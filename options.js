@@ -146,6 +146,16 @@ function saveOptions() {
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
+  } else if (ezproxy_prefix && ezproxy_prefix.substr(0,1) === '.' && ezproxy_prefix.substr(1,1) !== '.') {
+    var ezproxy_endswith = ezproxy_prefix.substr(-3,3).toLowerCase();
+    if (ezproxy_endswith === 'edu' || ezproxy_endswith === 'net' || ezproxy_endswith === 'com' || ezproxy_endswith === 'org' || ezproxy_endswith === 'gov') {
+      localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
+    } else {
+      localStorage.setItem('ezproxy_prefix', '');
+      alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
+      $('#ezproxy_input').focus();
+      return false;
+    }
   } else {
     if (ezproxy_prefix === '{prefix}') {
       ezproxy_prefix = '';
@@ -300,8 +310,13 @@ $(document).ready(function () {
   }
   if (ezproxy_prefix) {
     $('#ezproxy_input').val(ezproxy_prefix);
-    $('#ezproxy_prefix').text(ezproxy_prefix);
     $('#ez_info').removeClass('Off');
+    $('.ezproxy_prefix').text(ezproxy_prefix);
+    if (ezproxy_prefix.substr(0,1) === '.') {
+      $('#ezproxy_demo').addClass('Off');
+    } else {
+      $('#ezproxy_demo_dot').addClass('Off');
+    }
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
