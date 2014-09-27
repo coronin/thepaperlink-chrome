@@ -13,19 +13,21 @@ function adjust_keywords() {
     $('#keywords_area').removeClass('Off');
     $('#submit_keyword').removeClass('Off');
   } else {
-    $('#keywords_area').text('feature in development');
+    $('#keywords_area').text('');
     $('#keywords_area').addClass('Off');
     $('#submit_keyword').addClass('Off');
   }
 }
 
-function toggle_checked(obj) {
+function toggle_checked(obj,q) {
   if (obj.prop('checked')) {
     obj.prop('checked', false);
   } else {
     obj.prop('checked', true);
   }
-  adjust_keywords();
+  if (!q) {
+    adjust_keywords();
+  }
 }
 
 function get_end_num(str) {
@@ -146,6 +148,16 @@ function saveOptions() {
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
+  } else if (ezproxy_prefix && ezproxy_prefix.substr(0,1) === '.' && ezproxy_prefix.substr(1,1) !== '.') {
+    var ezproxy_endswith = ezproxy_prefix.substr(-3,3).toLowerCase();
+    if (ezproxy_endswith === 'edu' || ezproxy_endswith === 'net' || ezproxy_endswith === 'com' || ezproxy_endswith === 'org' || ezproxy_endswith === 'gov') {
+      localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
+    } else {
+      localStorage.setItem('ezproxy_prefix', '');
+      alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
+      $('#ezproxy_input').focus();
+      return false;
+    }
   } else {
     if (ezproxy_prefix === '{prefix}') {
       ezproxy_prefix = '';
@@ -245,6 +257,7 @@ $(document).ready(function () {
     b_status = localStorage.getItem('douban_status'),
     g_status = localStorage.getItem('googledrive_status'),
     s_status = localStorage.getItem('skydrive_status'),
+    y_status = localStorage.getItem('baiduyun_status'),
     ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
 
   if (a_key) {
@@ -298,10 +311,20 @@ $(document).ready(function () {
     $('#skydrive_status').text('status: ' + s_status);
     $('#skydrive_a').text('check connection');
   }
+  if (y_status) {
+    $('#baiduyun_status').removeClass('Off');
+    $('#baiduyun_status').text('status: ' + y_status);
+    $('#baiduyun_a').text('check connection');
+  }
   if (ezproxy_prefix) {
     $('#ezproxy_input').val(ezproxy_prefix);
-    $('#ezproxy_prefix').text(ezproxy_prefix);
     $('#ez_info').removeClass('Off');
+    $('.ezproxy_prefix').text(ezproxy_prefix);
+    if (ezproxy_prefix.substr(0,1) === '.') {
+      $('#ezproxy_demo').addClass('Off');
+    } else {
+      $('#ezproxy_demo_dot').addClass('Off');
+    }
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
@@ -313,6 +336,7 @@ $(document).ready(function () {
     $('#api_server').text('http://www.zhaowenxian.com');
     $('.reg_thepaperlink').text('http://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'http://www.zhaowenxian.com/reg');
+    $('#alerts_thepaperlink').attr('href', 'http://www.zhaowenxian.com/alerts');
     $('.reg_pubmeder').text('http://1.zhaowenxian.com/registration');
     $('.reg_pubmeder').attr('href', 'http://1.zhaowenxian.com/registration');
   } else if (localStorage.getItem('https_failed')) {
@@ -384,12 +408,25 @@ $(document).ready(function () {
           span_max = $(this).width();
         }
       });
+      $('#keywords_list').append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
+      $('#toggle_all_keywords').on('click', function() {
+        $('.keywords').each(function () {
+          toggle_checked( $(this), 1 );
+        });
+        adjust_keywords();
+      });
+      $('#select_all_keywords').on('click', function() {
+        $('.keywords').prop('checked', true);
+        adjust_keywords();
+      });
       if (span_max > 300) {
         span_max = 300;
       }
       $('.keywords_li span').each(function () {
         $(this).width(span_max + 40);
       });
+      $('#keywords_area').width(span_max + 57);
       $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
       //$('#graph_trend').height( $('#keywords_list').height() + 25 );
       $('input.keywords').on('change', function () {
