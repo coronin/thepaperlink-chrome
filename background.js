@@ -28,6 +28,23 @@ var DEBUG = false,
   last_date = localStorage.getItem('last_date_str') || '';
 
 
+function ez_format_link(prefix, url){
+  if (!prefix) return url;
+  if (prefix.substr(0,1) === '.') {
+    var i, ss = '', s = url.split('/');
+    for (i = 0; i < s.length; i += 1) {
+      ss += s[i];
+      if (i === 2) {
+        ss += prefix;
+      }
+      ss += '/';
+    }
+    return ss;
+  } else {
+    return (prefix + url);
+  }
+}
+
 function get_ymd() {
   var d = new Date();
   return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
@@ -45,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.0.4';
+  var a = [], version = 'Chrome_v2.0.5';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -140,6 +157,7 @@ function load_common_values() {
     localStorage.removeItem('douban_status');
     localStorage.removeItem('googledrive_status');
     localStorage.removeItem('skydrive_status');
+    localStorage.removeItem('baiduyun_status');
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
@@ -419,7 +437,8 @@ function get_request(msg, _port) {
       d_status = localStorage.getItem('dropbox_status'),
       b_status = localStorage.getItem('douban_status'),
       g_status = localStorage.getItem('googledrive_status'),
-      s_status = localStorage.getItem('skydrive_status');
+      s_status = localStorage.getItem('skydrive_status'),
+      y_status = localStorage.getItem('baiduyun_status');
     if (m_status && m_status === 'success') {
       cloud_op += 'm';
     }
@@ -437,6 +456,9 @@ function get_request(msg, _port) {
     }
     if (s_status && s_status === 'success') {
       cloud_op += 's';
+    }
+    if (y_status && y_status === 'success') {
+      cloud_op += 'y';
     }
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
@@ -530,6 +552,9 @@ function get_request(msg, _port) {
     if (msg.save_cloud_op.indexOf('skydrive') > -1) {
       localStorage.setItem('skydrive_status', 'success');
     }
+    if (msg.save_cloud_op.indexOf('baiduyun') > -1) {
+      localStorage.setItem('baiduyun_status', 'success');
+    }
 
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
@@ -621,7 +646,7 @@ function get_request(msg, _port) {
         }
         if (d.item[0].pdf) {
           tmp = '<a class="thepaperlink-green" href="' +
-            ezproxy_prefix + d.item[0].pdf +
+            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
             '" target="_blank">direct&nbsp;pdf</a>';
           extra += tmp;
         }
@@ -655,14 +680,14 @@ function get_request(msg, _port) {
         }
         if (d.item[0].pdf) {
           tmp = '<a class="thepaperlink-green" href="' +
-            ezproxy_prefix + d.item[0].pdf +
+            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
             '" target="_blank">direct&nbsp;pdf</a>';
           extra += tmp;
         }
         if (d.item[0].f_v && d.item[0].fid) {
-          tmp = '<a class="thepaperlink-red" href="' + ezproxy_prefix + 'http://f1000.com/' +
-            d.item[0].fid + '" target="_blank">f1000&nbsp;star&nbsp;' +
-            d.item[0].f_v + '</a>';
+          tmp = '<a class="thepaperlink-red" href="' +
+            ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
+            '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
           extra += tmp;
         }
         if (extra) {
@@ -676,6 +701,22 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
+  } else if (msg.alert_dev) {
+    var failed_terms = localStorage.getItem('alert_dev') || '',
+        failed_times = 0;
+    if (failed_terms) {
+      failed_times = ( failed_terms.match(/","/g) ).length + 1;
+      if (failed_times % 5 === 3 && rev_proxy !== 'yes') {
+        rev_proxy = 'yes';
+        localStorage.setItem('rev_proxy', 'yes');
+        base = 'http://www.zhaowenxian.com';
+      }
+      localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
+    } else {
+      localStorage.setItem('alert_dev', '"' + msg.alert_dev + '"')
+    }
+
   //} else if (msg.open_options) {
   //  open_new_tab( chrome.extension.getURL('options.html') );
   } else {

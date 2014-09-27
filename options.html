@@ -33,7 +33,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v2.0.4 &copy; 2010-14 &middot;
+  <span style="float:right">v2.0.5 &copy; 2010-14 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; made in California &middot;
     <a href="http://www.thepaperlink.com" rel="external">www.thepaperlink.com</a> &middot;
     <a href="http://www.zhaowenxian.com" rel="external">www.zhaowenxian.com</a>
@@ -130,6 +130,10 @@
       <span class="padding_sides keys Off" id="skydrive_status"></span>
       &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=skydrive" id="skydrive_a">connect now</a>
       </li>
+    <li><b>http://pan.baidu.com/</b>
+      <span class="padding_sides keys Off" id="baiduyun_status"></span>
+      &rarr; <a rel="external" href="http://www.thepaperlink.com/oauth?v=baiduyun" id="baiduyun_a">connect now</a>
+      </li>
   </ul>
 </div>
 
@@ -178,7 +182,12 @@
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       the link <span style="color:#999" class="bg_grey">http://a.b.c/d/e.pdf</span> will be rewrited to
-      <span class="bg_grey"><span style="font-weight:bold" id="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span></span>
+      <span id="ezproxy_demo" class="bg_grey">
+        <span style="font-weight:bold" class="ezproxy_prefix">{prefix}</span><span style="color:#999">http://a.b.c/d/e.pdf</span>
+      </span>
+      <span id="ezproxy_demo_dot" class="bg_grey">
+        <span style="color:#999">http://a.b.c</span><span style="font-weight:bold" class="ezproxy_prefix">{prefix}</span><span style="color:#999">/d/e.pdf</span>
+      </span>
       </p>
   </div></div>
 </div>
@@ -187,13 +196,13 @@
   <h3>keywords in PubMed you have searched</h3>
   <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      you have to subscript the alert service on <a href="http://www.thepaperlink.com/alerts" rel="external">our website</a> to get notified
+      you have to subscript the alert service on <a id="alerts_thepaperlink" href="http://www.thepaperlink.com/alerts" rel="external">our website</a> to get notified
       </p>
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
   <ul id="keywords_list"><li></li></ul>
-  <textarea class="Off" name="patterns" id="keywords_area" rows="4" cols="40"></textarea>
-  <button style="float:left" class="Off" id="submit_keyword">submit</button>
+  <textarea class="Off" name="patterns" id="keywords_area" rows="4"></textarea>
+  <button style="vertical-align:top;margin-left:4px" class="Off" id="submit_keyword">submit</button>
 </div>
 
 </div><!-- option_tabs -->
