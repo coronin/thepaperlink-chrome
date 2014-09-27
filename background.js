@@ -157,6 +157,7 @@ function load_common_values() {
     localStorage.removeItem('douban_status');
     localStorage.removeItem('googledrive_status');
     localStorage.removeItem('skydrive_status');
+    localStorage.removeItem('baiduyun_status');
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
@@ -436,7 +437,8 @@ function get_request(msg, _port) {
       d_status = localStorage.getItem('dropbox_status'),
       b_status = localStorage.getItem('douban_status'),
       g_status = localStorage.getItem('googledrive_status'),
-      s_status = localStorage.getItem('skydrive_status');
+      s_status = localStorage.getItem('skydrive_status'),
+      y_status = localStorage.getItem('baiduyun_status');
     if (m_status && m_status === 'success') {
       cloud_op += 'm';
     }
@@ -454,6 +456,9 @@ function get_request(msg, _port) {
     }
     if (s_status && s_status === 'success') {
       cloud_op += 's';
+    }
+    if (y_status && y_status === 'success') {
+      cloud_op += 'y';
     }
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
@@ -546,6 +551,9 @@ function get_request(msg, _port) {
     }
     if (msg.save_cloud_op.indexOf('skydrive') > -1) {
       localStorage.setItem('skydrive_status', 'success');
+    }
+    if (msg.save_cloud_op.indexOf('baiduyun') > -1) {
+      localStorage.setItem('baiduyun_status', 'success');
     }
 
   } else if (msg.t_cont) {
@@ -693,6 +701,22 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
+  } else if (msg.alert_dev) {
+    var failed_terms = localStorage.getItem('alert_dev') || '',
+        failed_times = 0;
+    if (failed_terms) {
+      failed_times = ( failed_terms.match(/","/g) ).length + 1;
+      if (failed_times % 5 === 3 && rev_proxy !== 'yes') {
+        rev_proxy = 'yes';
+        localStorage.setItem('rev_proxy', 'yes');
+        base = 'http://www.zhaowenxian.com';
+      }
+      localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
+    } else {
+      localStorage.setItem('alert_dev', '"' + msg.alert_dev + '"')
+    }
+
   //} else if (msg.open_options) {
   //  open_new_tab( chrome.extension.getURL('options.html') );
   } else {

@@ -429,9 +429,10 @@ function get_request(msg) {
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red">Error' +
       '<span style="cursor:pointer" id="thepaperlink_alert">!&nbsp;</span>' +
-      'Enable proxy by right click, Options/settings. ' +
+      'Enable proxy by right click - Options - settings. ' +
       '&para; <a href="http://www.zhaowenxian.com/?q=' + search_term +
       '" target="_blank">the paper link</a></span>';
+    a_proxy({alert_dev: search_term});
     $('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');
       if (answer) {
