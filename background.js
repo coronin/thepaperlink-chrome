@@ -62,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.0.5';
+  var a = [], version = 'Chrome_v2.1.2';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -324,7 +324,7 @@ function email_abstract(a, b) {
     function (d) {
       DEBUG && console.log('>> post /, action email: ' + d);
       localStorage.removeItem(aKey);
-    }
+    }, 'json'
   ).fail(function () {
     DEBUG && console.log('>> email failed, save for later');
     var date = new Date();
@@ -658,7 +658,7 @@ function get_request(msg, _port) {
           $.post(base + '/', args,
             function (d) {
               DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
-            }
+            }, 'json'
           );
         }
       }
@@ -842,7 +842,7 @@ function parse_url(pmid, url, tabId) {
         $.post(base + '/', args,
           function (d) {
             DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
-          }
+          }, 'json'
         );
         return;
       }
@@ -888,7 +888,7 @@ function scholar_title(pmid, t, tabId) {
             {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
             function (d) {
               DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
-            }
+            }, 'json'
           );
           return;
         }
