@@ -244,7 +244,7 @@ function onLicenseUpdate(dt) {
   }
 }
 function onLicenseUpdateFailed(response) {
-  console.log('onLicenseUpdateFailed', response);
+  alert('onLicenseUpdateFailed', response);
 }
 function addProductToUI(product) {
   var row = $('<tr></tr>'),
@@ -294,7 +294,8 @@ function onSkuDetails(dt) {
     getLicenses();
   }
 }
-function onSkuDetailsFailed() {
+function onSkuDetailsFailed(dt) {
+  console.log(dt);
   $('#in-app-purchase').addClass('Off');
 }
 // IAP end
