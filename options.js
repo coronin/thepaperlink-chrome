@@ -224,6 +224,7 @@ function saveOptions() {
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
 function showLicense(license) { // @@@@
+  console.log('showLicense', license);
   var modal = $('#modalLicense');
   modal.find('.license').text( JSON.stringify(license, null, 2) );
   modal.modal('show');
@@ -237,14 +238,15 @@ function onActionButton(evt) {
   }
 }
 function onLicenseUpdate(dt) {
+  console.log('onLicenseUpdate', dt);
   var licenses = dt.response.details,
       count = licenses.length, i;
   for (i = 0; i < count; i++) {
     addLicenseDataToProduct( licenses[i] );
   }
 }
-function onLicenseUpdateFailed(response) {
-  alert('onLicenseUpdateFailed', response);
+function onLicenseUpdateFailed(dt) {
+  console.log('onLicenseUpdateFailed', dt);
 }
 function addProductToUI(product) {
   var row = $('<tr></tr>'),
@@ -266,12 +268,13 @@ function getLicenses() {
   });
 }
 function onPurchase(purchase) {
-  //var jwt = purchase.jwt,
-  //    cartId = purchase.request.cardId,
-  //    orderId = purchase.response.orderId;
+  console.log('onPurchase', purchase);
+  // purchase.request.cardId,
+  // purchase.response.orderId;
   getLicenses();
 }
 function onPurchaseFailed(purchase) {
+  console.log('onPurchaseFailed', purchase);
   alert('Purchase failed. ' + purchase.response.errorType);
 }
 function buyProduct(sku) {
@@ -286,6 +289,7 @@ function onSkuDetails(dt) {
   var products = dt.response.details.inAppProducts,
       count = products.length, i;
   if (count === 0) {
+    console.log('onSkuDetails', dt);
     $('#in-app-purchase').addClass('Off');
   } else {
     for (i = 0; i < count; i++) {
@@ -295,7 +299,7 @@ function onSkuDetails(dt) {
   }
 }
 function onSkuDetailsFailed(dt) {
-  console.log(dt);
+  console.log('onSkuDetailsFailed', dt);
   $('#in-app-purchase').addClass('Off');
 }
 // IAP end
