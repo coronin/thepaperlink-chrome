@@ -250,6 +250,7 @@ function onLicenseUpdateFailed(dt) {
 }
 function addProductToUI(product) {
   if (product.localeData[0].description === '@thepaperlink') {
+    $('#donate_info').removeClass('Off');
     $('#xxxx').text('If you enjoy using the extension and want to support its development, you can ');
     var butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('donate');
     $('#xxxx').append(butAct);
