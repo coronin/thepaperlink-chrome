@@ -224,6 +224,7 @@ function saveOptions() {
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
 function showLicense(license) { // @@@@
+  console.log('showLicense', license);
   var modal = $('#modalLicense');
   modal.find('.license').text( JSON.stringify(license, null, 2) );
   modal.modal('show');
@@ -237,23 +238,30 @@ function onActionButton(evt) {
   }
 }
 function onLicenseUpdate(dt) {
+  console.log('onLicenseUpdate', dt);
   var licenses = dt.response.details,
       count = licenses.length, i;
   for (i = 0; i < count; i++) {
     addLicenseDataToProduct( licenses[i] );
   }
 }
-function onLicenseUpdateFailed(response) {
-  console.log('onLicenseUpdateFailed', response);
+function onLicenseUpdateFailed(dt) {
+  console.log('onLicenseUpdateFailed', dt);
 }
 function addProductToUI(product) {
-  var row = $('<tr></tr>'),
-      colName = $('<td></td>').html('<b>' + product.localeData[0].title + '</b><br/><span style="color:#ccc">' + product.localeData[0].description + '</span>'),
-      colPrice = $('<td></td>').text('$' + parseInt( product.prices[0].valueMicros, 10 ) / 1000000),
-      butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('Purchase'),
-      colBut = $('<td></td>').append(butAct);
-  row.append(colName).append(colPrice).append(colBut);
-  $('#in-app-purchase').append(row);
+  if (product.localeData[0].description === '@thepaperlink') {
+    $('#xxxx').text('If you enjoy using the extension and want to support its development, you can ');
+    var butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('donate');
+    $('#xxxx').append(butAct);
+  } else {
+    var row = $('<tr></tr>'),
+        colName = $('<td></td>').html('<b>' + product.localeData[0].title + '</b><br/><span style="color:#ccc">' + product.localeData[0].description + '</span>'),
+        colPrice = $('<td></td>').text('$' + parseInt( product.prices[0].valueMicros, 10 ) / 1000000),
+        butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('Purchase'),
+        colBut = $('<td></td>').append(butAct);
+    row.append(colName).append(colPrice).append(colBut);
+    $('#in-app-purchase').append(row);
+  }
 }
 function addLicenseDataToProduct(license) {
   $('#IAP_' + license.sku).text('View license').data('license', license);
@@ -266,12 +274,13 @@ function getLicenses() {
   });
 }
 function onPurchase(purchase) {
-  //var jwt = purchase.jwt,
-  //    cartId = purchase.request.cardId,
-  //    orderId = purchase.response.orderId;
+  console.log('onPurchase', purchase);
+  // purchase.request.cardId,
+  // purchase.response.orderId;
   getLicenses();
 }
 function onPurchaseFailed(purchase) {
+  console.log('onPurchaseFailed', purchase);
   alert('Purchase failed. ' + purchase.response.errorType);
 }
 function buyProduct(sku) {
@@ -286,6 +295,7 @@ function onSkuDetails(dt) {
   var products = dt.response.details.inAppProducts,
       count = products.length, i;
   if (count === 0) {
+    console.log('onSkuDetails', dt);
     $('#in-app-purchase').addClass('Off');
   } else {
     for (i = 0; i < count; i++) {
@@ -294,7 +304,8 @@ function onSkuDetails(dt) {
     getLicenses();
   }
 }
-function onSkuDetailsFailed() {
+function onSkuDetailsFailed(dt) {
+  console.log('onSkuDetailsFailed', dt);
   $('#in-app-purchase').addClass('Off');
 }
 // IAP end
@@ -302,15 +313,6 @@ function onSkuDetailsFailed() {
 $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');
   $('button').button();
-
-  if ( $.cookie('alert_v1') ) {
-    $('#alert_v1').removeClass('Off');
-    $.cookie('alert_v1', null);
-  }
-  if ( $.cookie('alert_v2') ) {
-    $('#alert_v2').removeClass('Off');
-    $.cookie('alert_v2', null);
-  }
 
   $('#saveBtn').on('click', function() { saveOptions(); });
   $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
@@ -324,15 +326,17 @@ $(document).ready(function () {
       this.value = this.defaultValue;
     }
   });
-  $('#option_tabs').tabs({cookie: {expires: 9}});
+
+  if ( $.cookie('alert_v1') ) {
+    $('#alert_v1').removeClass('Off');
+    $.cookie('alert_v1', null);
+  }
+  if ( $.cookie('alert_v2') ) {
+    $('#alert_v2').removeClass('Off');
+    $.cookie('alert_v2', null);
+  }
   $('input.settings').on('change', function () {
     $('#save_widget').removeClass('Off');
-  });
-
-  google.payments.inapp.getSkuDetails({
-   'parameters': {'env': 'prod'},
-   'success': onSkuDetails,
-   'failure': onSkuDetailsFailed
   });
 
   var a_key = localStorage.getItem('thepaperlink_apikey'),
@@ -464,7 +468,8 @@ $(document).ready(function () {
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),
-      t = '', tmp, i, a, b, c = [];
+      tmp = $('#keywords_list'),
+      t = 0, i, a, b, c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
@@ -481,31 +486,20 @@ $(document).ready(function () {
           console.log('count should only increase "' + a + '"');
         } else {
           c.push( {key:a, value:b} );
-          tmp = '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
-            a.replace(/"/g, ',,') + '" /> <span>' + a +
-            '</span> <a href="#">' + get_end_num(b) + '</a></li>';
-          t += tmp;
+          tmp.append(
+            '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
+            a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
+            '</span> <a href="#">' + get_end_num(b) + '</a></li>'
+          );
+          t += 1;
         }
     } }
-    if (t) {
-      var span_max = 0;
-      $('#keywords_list').append(t);
+    if (t > 0) {
+      var span_max = 200;
       $('.keywords_li span').each(function () {
         if ($(this).width() > span_max) {
           span_max = $(this).width();
         }
-      });
-      $('#keywords_list').append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
-        '&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
-      $('#toggle_all_keywords').on('click', function() {
-        $('.keywords').each(function () {
-          toggle_checked( $(this), 1 );
-        });
-        adjust_keywords();
-      });
-      $('#select_all_keywords').on('click', function() {
-        $('.keywords').prop('checked', true);
-        adjust_keywords();
       });
       if (span_max > 300) {
         span_max = 300;
@@ -516,6 +510,20 @@ $(document).ready(function () {
       $('#keywords_area').width(span_max + 57);
       $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
       //$('#graph_trend').height( $('#keywords_list').height() + 25 );
+      if (t > 5) {
+        tmp.append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
+          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
+        $('#toggle_all_keywords').on('click', function() {
+          $('.keywords').each(function () {
+            toggle_checked( $(this), 1 );
+          });
+          adjust_keywords();
+        });
+        $('#select_all_keywords').on('click', function() {
+          $('.keywords').prop('checked', true);
+          adjust_keywords();
+        });
+      }
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
@@ -580,4 +588,11 @@ $(document).ready(function () {
       });
     }
   }
+
+  google.payments.inapp.getSkuDetails({
+   'parameters': {'env': 'prod'},
+   'success': onSkuDetails,
+   'failure': onSkuDetailsFailed
+  });
+  $('#option_tabs').tabs({cookie: {expires: 9}});
 });
