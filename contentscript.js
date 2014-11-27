@@ -338,7 +338,7 @@ function alert_dev(req_key) {
     oXHR.onreadystatechange = function (oEvent) {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
-          $('thepaperlink_alert').innerHTML = '&lt;!&gt; Just sent the alert.';
+          $('thepaperlink_alert').innerHTML = '&lt;!&gt; Alert sent.';
         } else {
           DEBUG && console.log('Error', oXHR.statusText);
       }  }
@@ -427,10 +427,9 @@ function get_request(msg) {
       search_term = localStorage.getItem('thePaperLink_ID');
     }
     $('pl4_title').innerHTML = old_title +
-      ' <span style="font-size:14px;font-weight:normal;color:red">Error' +
-      '<span style="cursor:pointer" id="thepaperlink_alert">!&nbsp;</span>' +
-      'Enable proxy by right click - Options - settings. ' +
-      '&para; <a href="http://www.zhaowenxian.com/?q=' + search_term +
+      ' <span style="font-size:14px;font-weight:normal;color:red;cursor:pointer" id="thepaperlink_alert">' +
+      'Error!&nbsp;</span><span style="font-size:12px;font-weight:normal;color:red>' + msg.except +
+      '&middot; <a href="http://www.zhaowenxian.com/?q=' + search_term +
       '" target="_blank">the paper link</a></span>';
     a_proxy({alert_dev: search_term});
     $('thepaperlink_alert').onclick = function () {
