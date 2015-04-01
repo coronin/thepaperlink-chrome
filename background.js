@@ -62,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.1.7';
+  var a = [], version = 'Chrome_v2.2.1';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -470,10 +470,18 @@ function get_request(msg, _port) {
             cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
         );
       } else {
-        p_proxy(_port, {except:1, tpl:apikey});
+        if (apikey) {
+          p_proxy(_port, {except:'JSON parse error.', tpl:apikey});
+        } else {
+          p_proxy(_port, {except:'Usage limits exceeded.', tpl:''});
+        }
       }
     }).fail(function () {
-      p_proxy(_port, {except:1, tpl:apikey});
+      if (apikey) {
+        p_proxy(_port, {except:'Data fetch error.', tpl:apikey});
+      } else {
+        p_proxy(_port, {except:'Guest usage limited.', tpl:''});
+      }
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
         base = 'http://www.thepaperlink.com';
@@ -559,7 +567,7 @@ function get_request(msg, _port) {
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
-    holder.value = msg.t_cont;
+    holder.value = msg.t_cont.replace(/\d\./g, '.').replace(/\d,/g, ',');
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';
