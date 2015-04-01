@@ -67,9 +67,8 @@ function a_proxy(d) {
 
 function process_dxy() {
   var i, len, ele,
-    pmid = page_url.split('://pubmed.cn/')[1],
-    digi_pmid = parseInt(pmid, 10);
-  if (pmid && pmid === '' + digi_pmid && $('SFW').textContent.indexOf(pmid) > 0) {
+    pmid = $('pmid').value;
+  if (pmid && pmid === '' + parseInt(pmid, 10)) {
     a_proxy({from_dxy: pmid});
   }
   for (i = 0, len = t('div').length; i < len; i += 1) {
@@ -85,10 +84,13 @@ function process_f1000() {
   var i, len, pmid = '',
     f_v = 0,
     fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
+  for (i = 0; i < t('meta').length; i += 1) {
+    if (t('meta')[i].getAttribute('name') === 'citation_pmid') {
+      pmid = t('meta')[i].getAttribute('content');
+    }
+  }
   for (i = 0, len = t('div').length; i < len; i += 1) {
-    if (t('div')[i].className === 'abstract-doi-pmid') {
-      pmid = parseInt(t('div')[i].textContent.split('PMID:')[1], 10);
-    } else if (t('div')[i].className === 'articleFactor' && t('div')[i-1].id === 'article') {
+    if (t('div')[i].className === 'articleFactor' && t('div')[i-1].id === 'article') {
       f_v = parseInt(t('div')[i].textContent, 10);
       // t('div')[i+3].setAttribute('id', '_thepaperlink_div'); // hidden tootip
     }
@@ -194,7 +196,7 @@ function getPmid(zone, num) {
       if (t(zone)[num + 1].className.indexOf('rprtnum') > -1) {
         t(zone)[num + 2].setAttribute('id', ID[1]);
       } else {
-        t(zone)[num - 2].setAttribute('id', ID[1]);
+        t(zone)[num - 3].setAttribute('id', ID[1]);
       }
       if (t(zone)[num].className === 'rprt') {
         t_cont = t(zone)[num + 2].textContent;
@@ -428,7 +430,7 @@ function get_request(msg) {
     }
     $('pl4_title').innerHTML = old_title +
       ' <span style="font-size:14px;font-weight:normal;color:red;cursor:pointer" id="thepaperlink_alert">' +
-      'Error!&nbsp;</span><span style="font-size:12px;font-weight:normal;color:red>' + msg.except +
+      'Error!&nbsp;</span><span style="font-size:12px;font-weight:normal;color:red">' + msg.except +
       '&middot; <a href="http://www.zhaowenxian.com/?q=' + search_term +
       '" target="_blank">the paper link</a></span>';
     a_proxy({alert_dev: search_term});
