@@ -193,55 +193,60 @@ function parse_id(a) { // pubmeder code
 function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
     regpmid = /PMID:\s(\d+)\s/,
-    ID, b, c, t_cont, t_strings, t_title, t_head;
+    ID, b, c, t_cont, t_strings, t_title, t_i;
   DEBUG && console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
       if (t(zone)[num + 1].className.indexOf('rprtnum') > -1) {
         t(zone)[num + 2].setAttribute('id', ID[1]);
-      } else {
+      } else { // abstract page
         t(zone)[num - 3].setAttribute('id', ID[1]);
       }
       if (t(zone)[num].className === 'rprt') {
-        t_cont = t(zone)[num + 2].textContent;
-        t_strings = t_cont.split(' [PubMed - ')[0].split('.');
+        t_strings = t(zone)[num + 2].textContent.split('Related citations')[0].split('.');
         t_title = trim( t_strings[0] );
         t_cont = t_title +
           '.\r\n' + trim( t_strings[1] ) +
-          '.\r\n' + trim( t_strings[2] ) +
-          '. ' + trim( t_strings[3] ) +
-          '. [PMID:' + ID[1] + ']\r\n';
-      } else{ // display with abstract
-        if (a.indexOf('Epub ') > 0) {
-          t_head = a.split('Epub ');
-          t_strings = t_head[1].replace('].', '.').replace(']', '.').split('.');
-          t_head = t_head[0].split('.');
-          t_title = trim( t_strings[1] );
-          t_cont = t_title +
-            '.\r\n' + trim( t_strings[2] ) +
-            '.\r\n' + trim( t_head[0] ) +
-            '. ' + trim( t_head[1] ) +
-            '. [PMID:' + ID[1] + ']\r\n';
-        } else if (a.indexOf('doi: ') > 0) {
-          t_head = a.split('doi: ');
-          t_strings = t_head[1].replace( /^\S+\.([a-z]+)\s/i, '$1 ' ).split('.');
-          t_title = trim( t_strings[0] );
-          t_cont = t_title +
-            '.\r\n' + trim( t_strings[1] ) +
-            '.\r\n' + trim( t_head[0] ) +
-            ' [PMID:' + ID[1] + ']\r\n';
+          '.\r\n' + trim( t_strings[2] ) + '. ';
+        if ( t_strings[3].indexOf(';') > 0 ) {
+          t_cont += trim( t_strings[3] ).replace(';', '; ') + '.';
         } else {
-          t_strings = a.split('.');
-          t_title = trim( t_strings[2] );
-          t_cont = t_title +
-            '.\r\n' + trim( t_strings[3] ) +
-            '.\r\n' + trim( t_strings[0] ) +
-            '. ' + trim( t_strings[1] ) +
-            '. [PMID:' + ID[1] + ']\r\n';
+          for (t_i = 3; t_i < t_strings.length; t_i += 1) {
+            if ( t_strings[t_i].indexOf('[Epub ahead') > -1 ) {
+              break;
+            }
+            t_cont += trim( t_strings[t_i] ) + '.';
+            if ( t_strings[t_i+1] && (
+                t_strings[t_i+1].substr(1,3) === 'pii' || t_strings[t_i+1].substr(1,3) === 'doi'
+                ) ) {
+              t_cont += ' ';
+            }
+          }
         }
-        t_cont = t_cont.replace('See comment in PubMed Commons below', '');
+      } else { // abstract page
+        t_strings = t(zone)[num+1].textContent.split('.');
+        t_title = trim( t('h1')[1].textContent );
+        t_cont = t_title +
+          '\r\n' + trim( t(zone)[num+2].textContent.replace(/\d\./g, '.').replace(/\d,/g, ',') ) +
+          '\r\n' + trim( t_strings[0] ) + '. ';
+        if ( t_strings[1].indexOf(';') > 0 ) {
+          t_cont += trim( t_strings[1] ).replace(';', '; ') + '.';
+        } else {
+          for (t_i = 1; t_i < t_strings.length; t_i += 1) {
+            if ( t_strings[t_i].indexOf('Epub ') > -1 ) {
+              break;
+            }
+            t_cont += trim( t_strings[t_i] ) + '.';
+            if ( t_strings[t_i+1] && (
+                t_strings[t_i+1].substr(1,3) === 'pii' || t_strings[t_i+1].substr(1,3) === 'doi'
+                ) ) {
+              t_cont += ' ';
+            }
+          }
+        }
       }
+      t_cont += ' [PMID:' + ID[1] + ']\r\n';
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
