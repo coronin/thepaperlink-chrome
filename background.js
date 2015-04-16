@@ -62,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.2.1';
+  var a = [], version = 'Chrome_v2.2.2';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -567,7 +567,7 @@ function get_request(msg, _port) {
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
-    holder.value = msg.t_cont.replace(/\d\./g, '.').replace(/\d,/g, ',');
+    holder.value = msg.t_cont;
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';

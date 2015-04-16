@@ -18,7 +18,8 @@ Versions of limited and FULL are matched
 
 =======
 Change Log:
- * v2.2.1 - fix single page display
+ * v2.2.2 - bug fix, single page citation extraction
+ * v2.2.1 - bug fix, single page the bar insertion
  * v2.2.0 - adjust error report
  * v2.1.* - in-app purchase
  * v2.0.5 - support .aa.bb.edu type of ezproxy, baiduyun, better keywords tab, etc
