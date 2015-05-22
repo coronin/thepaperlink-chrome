@@ -36,6 +36,7 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
+ * v2.2.3 - beta support http://or.nsfc.gov.cn
  * v2.2.2 - bug fix, single page citation extraction
  * v2.2.1 - bug fix, single page the bar insertion
  * v2.2.0 - adjust error report
