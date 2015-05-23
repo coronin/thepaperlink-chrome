@@ -62,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.2.3';
+  var a = [], version = 'Chrome_v2.3.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -713,13 +713,7 @@ function get_request(msg, _port) {
   } else if (msg.from_orNSFC) {
     var doi = msg.from_orNSFC,
       extra = '', tmp;
-    $.getJSON(base + '/api?a=chrome5&doi=' + doi + '&apikey=' + req_key, function (d) {
-
-console.log(doi);
-console.log(d);
-
-      // @@@@
-
+    $.getJSON(base + '/api?a=chrome5&doi=' + doi + '&prjID=' + msg.prjID + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
           tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
