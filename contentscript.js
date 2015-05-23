@@ -67,19 +67,28 @@ function a_proxy(d) {
 }
 
 function process_orNSFC() {
-  var i, len, ele, doi;
+  var i, len, ele, doi, prjID, b;
   for (i = 0, len = t('div').length; i < len; i += 1) {
     ele = t('div')[i];
-    if (ele.className === 'col-1' && ele.textContent === 'DOI') {
+    if (ele.className !== 'col-1')  continue;
+    if (ele.textContent === 'DOI') {
       doi = trim( t('div')[i+1].textContent );
       DEBUG && console.log('>>>>>>>>>> DOI on or.nsfc page: ' + doi);
-      if (doi && doipattern.test(doi)) {
-        a_proxy({from_orNSFC: doi});
-      }
-      break;
+      continue;
     }
+    if (ele.textContent === 'Project ID') {
+      prjID = trim( t('div')[i+1].textContent );
+      DEBUG && console.log('>>>>>>>>>> Project ID from or.nsfc: ' + prjID);
+      continue;
+    }
+    if (doi && prjID)  break;
   }
-  $('item-right').setAttribute('id', 'item-right thepaperlink_bar');
+  if (doi && doipattern.test(doi)) {
+    a_proxy({from_orNSFC: doi, prjID: prjID});
+    b = page_d.createElement('div');
+    b.innerHTML = '<div id="thepaperlink_bar" style="position:relative;top:-552px;float:right;z-index:999;font-size:90%;"></div>';
+    $('item-right').appendChild(b);
+  }
 }
 
 function process_dxy() {
