@@ -62,7 +62,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.2.2';
+  var a = [], version = 'Chrome_v2.3.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -681,6 +681,39 @@ function get_request(msg, _port) {
     var pmid = msg.from_dxy,
       extra = '', tmp;
     $.getJSON(base + '/api?a=chrome4&pmid=' + pmid + '&apikey=' + req_key, function (d) {
+      if (d && d.count === 1) {
+        if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
+          tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
+          extra += tmp;
+        }
+        if (d.item[0].pdf) {
+          tmp = '<a class="thepaperlink-green" href="' +
+            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
+            '" target="_blank">direct&nbsp;pdf</a>';
+          extra += tmp;
+        }
+        if (d.item[0].f_v && d.item[0].fid) {
+          tmp = '<a class="thepaperlink-red" href="' +
+            ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
+            '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
+          extra += tmp;
+        }
+        if (extra) {
+          extra = ': ' + extra;
+        }
+        p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+      }
+    }).fail(function () {
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
+    });
+
+  } else if (msg.from_orNSFC) {
+    var doi = msg.from_orNSFC,
+      extra = '', tmp;
+    $.getJSON(base + '/api?a=chrome5&doi=' + doi + '&prjID=' + msg.prjID + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
           tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
