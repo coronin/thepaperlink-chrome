@@ -15,6 +15,7 @@ var DEBUG = false,
   page_url = page_d.URL,
   loading_gif = chrome.extension.getURL('loadingLine.gif'),
   clippy_file = chrome.extension.getURL('clippyIt.png'),
+  doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9\.\/\)\(-]+\w)\s*\W?/,
   pmids = '',
   pmidArray = [],
   old_title = '',
@@ -68,6 +69,31 @@ function a_proxy(d) {
   DEBUG && console.log('>> sendRequest to background.html');
   //chrome.extension.sendRequest(d);
   _port.postMessage(d);
+}
+
+function process_orNSFC() {
+  var i, len, ele, doi, prjID, b;
+  for (i = 0, len = t('div').length; i < len; i += 1) {
+    ele = t('div')[i];
+    if (ele.className !== 'col-1')  continue;
+    if (ele.textContent === 'DOI') {
+      doi = trim( t('div')[i+1].textContent );
+      DEBUG && console.log('>>>>>>>>>> DOI on or.nsfc page: ' + doi);
+      continue;
+    }
+    if (ele.textContent === 'Project ID') {
+      prjID = trim( t('div')[i+1].textContent );
+      DEBUG && console.log('>>>>>>>>>> Project ID from or.nsfc: ' + prjID);
+      continue;
+    }
+    if (doi && prjID)  break;
+  }
+  if (doi && doipattern.test(doi)) {
+    a_proxy({from_orNSFC: doi, prjID: prjID});
+    b = page_d.createElement('div');
+    b.innerHTML = '<div id="thepaperlink_bar" style="position:relative;top:-552px;float:right;z-index:999;font-size:90%;"></div>';
+    $('item-right').appendChild(b);
+  }
 }
 
 function process_dxy() {
@@ -176,7 +202,6 @@ function process_googlescholar() {
 function parse_id(a) { // pubmeder code
   var regpmid = /pmid\s*:?\s*(\d+)\s*/i,
     regdoi = /doi\s*:?\s*/i,
-    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9\.\/\)\(-]+\w)\s*\W?/,
     regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
     ID = null;
   if (regpmid.test(a)) {
@@ -393,6 +418,9 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 } else if (page_url.indexOf('://pubmed.cn/') > 0) {
   process_dxy();
+  noRun = 1;
+} else if (page_url.indexOf('://or.nsfc.gov.cn/') > 0) {
+  process_orNSFC();
   noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1

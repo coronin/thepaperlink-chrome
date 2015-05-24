@@ -18,6 +18,7 @@ Versions of limited and FULL are matched
 
 =======
 Change Log:
+ * v2.3.0 - support http://or.nsfc.gov.cn
  * v2.2.2 - bug fix, single page citation extraction
  * v2.2.1 - bug fix, single page the bar insertion
  * v2.2.0 - adjust error report
