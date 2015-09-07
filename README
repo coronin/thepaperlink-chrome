@@ -35,7 +35,7 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
- * v2.4.1 - bug fix
+ * v2.4.2 - bug fix
  * v2.4.0 - options save bug fix, reduce google scholar check, abstract page single author bug, sci-hub.org
  * v2.3.0 - support http://or.nsfc.gov.cn
  * v2.2.2 - bug fix, single page citation extraction

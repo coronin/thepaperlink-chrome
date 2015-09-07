@@ -449,15 +449,15 @@ $(document).ready(function () {
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
       ' <b>check to enable</b> the reverse proxy to our service.');
-    $('#rev_proxy').on('change', function () {
-      $('#save_widget').removeClass('Off');
-    });
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
       ' If you really want to, feel free to check to enable it.');
     $('#api_server').text('https://pubget-hrd.appspot.com');
   }
+  $('#rev_proxy').on('change', function () {
+    $('#save_widget').removeClass('Off');
+  });
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);
     $('#pubmeder_info').removeClass('Off');
