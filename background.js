@@ -66,7 +66,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.4.1';
+  var a = [], version = 'Chrome_v2.4.2';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -963,6 +963,9 @@ function scholar_title(pmid, t, tabId) {
   if (scholar_once === 'yes' && scholar_fail_times > scholar_valid_page_open) {
     DEBUG && console.log('scholar_fail_times', scholar_fail_times);
     DEBUG && console.log('scholar_valid_page_open', scholar_valid_page_open);
+    b_proxy(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+    });
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
