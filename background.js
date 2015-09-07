@@ -7,7 +7,8 @@ var DEBUG = false,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
-  scholar_valid_page_open = false,
+  scholar_valid_page_open = 0,
+  scholar_once = localStorage.getItem('scholar_once') || null,
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -62,7 +63,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.3.0';
+  var a = [], version = 'Chrome_v2.4.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -945,8 +946,10 @@ function scholar_title(pmid, t, tabId) {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
     if (!scholar_valid_page_open) {
-      open_new_tab('http://scholar.google.com/');
-      scholar_valid_page_open = true;
+      if (scholar_once !== 'yes' || scholar_valid_page_open < 1) {
+        open_new_tab('http://scholar.google.com/');
+        scholar_valid_page_open += 1;
+      }
     }
   });
 }

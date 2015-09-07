@@ -462,10 +462,10 @@ function get_request(msg) {
       search_term = localStorage.getItem('thePaperLink_ID');
     }
     $('pl4_title').innerHTML = old_title +
-      ' <span style="font-size:14px;font-weight:normal;color:red;cursor:pointer" id="thepaperlink_alert">' +
-      'Error!&nbsp;</span><span style="font-size:12px;font-weight:normal;color:red">' + msg.except +
-      '&middot; <a href="http://www.zhaowenxian.com/?q=' + search_term +
-      '" target="_blank">the paper link</a></span>';
+      ' <span style="font-size:12px;font-weight:normal;color:red;background-color:yellow;cursor:pointer" id="thepaperlink_alert">' +
+      'Error!&nbsp;&nbsp;&nbsp;&nbsp;' + msg.except +
+      '<a href="http://www.zhaowenxian.com/?q=' + search_term +
+      '" target="_blank">[?]</a></span>';
     a_proxy({alert_dev: search_term});
     $('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');

@@ -32,10 +32,10 @@ For Mobile Devices:
 
 One more thing - we have a js client for "the paper link", working in all web browsers.
  + http://www.thepaperlink.com/js/ , http://www.zhaowenxian.com/js/
- + instruction for the js client is at http://blog.cail.cn/?p=7567
 
 
 Change Log:
+ * v2.4.0 - options save bug fix, reduce google scholar check, abstract page single author bug, sci-hub.org
  * v2.3.0 - support http://or.nsfc.gov.cn
  * v2.2.2 - bug fix, single page citation extraction
  * v2.2.1 - bug fix, single page the bar insertion
