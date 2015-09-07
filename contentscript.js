@@ -22,7 +22,6 @@ var DEBUG = false,
   search_term = '',
   search_result_count = '',
   onePage_calls = 0,
-  scihub_limits = 3,
   date = new Date(),
   _port = chrome.runtime.connect({name: 'background_port'});
 
@@ -674,21 +673,13 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (r.item[i].doi) {
-      if (scihub_limits > -1) {
-        scihub_limits -= 1;
-        a_proxy({pmid: pmid, doi: r.item[i].doi});
-        tmp = '<a id="thepaperlink_doi' + pmid +
-              '" href="' + ez_format_link(p,
-                'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-              ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
-              '" href="http://dx.doi.org.sci-hub.org/' + uneval_trim(r.item[i].doi) +
-              '" target="_blank">&#x20bd;</a>';
-      } else {
-        tmp = '<a id="thepaperlink_doi' + pmid +
-              '" href="' + ez_format_link(p,
-                'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-              ) + '" target="_blank">publisher</a>';
-      }
+      a_proxy({pmid: pmid, doi: r.item[i].doi});
+      tmp = '<a id="thepaperlink_doi' + pmid +
+            '" href="' + ez_format_link(p,
+              'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
+            ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
+            '" href="http://dx.doi.org.sci-hub.org/' + uneval_trim(r.item[i].doi) +
+            '" target="_blank">&#x20bd;</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_doi' + pmid +
