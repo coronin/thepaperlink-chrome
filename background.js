@@ -24,6 +24,7 @@ var DEBUG = false,
   broadcast_loaded = 0,
   ajax_pii_link = 1,
   scihub_link = 1,
+  scihub_limits = 3,
   extension_load_date = new Date(),
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
@@ -614,9 +615,9 @@ function get_request(msg, _port) {
     }
 
   } else if (msg.doi && msg.pmid) {
-    //if (scihub_link) {
+    if (scihub_link) {
       parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.org/' + msg.doi, sender_tab_id);
-    //}
+    }
 
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
@@ -867,6 +868,10 @@ function parse_scihub(pmid, url, tabId) {
     b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
     return;
   }
+  if (scihub_limits <= 0) {
+    return;
+  }
+  scihub_limits -= 1;
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
   $.get(url,
       function (r) {
