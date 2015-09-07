@@ -9,6 +9,7 @@ var DEBUG = false,
   scholar_queue = [],
   scholar_valid_page_open = 0,
   scholar_once = localStorage.getItem('scholar_once') || null,
+  scholar_fail_times = 0,
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -22,6 +23,7 @@ var DEBUG = false,
   pubmeder_ok = 0,
   broadcast_loaded = 0,
   ajax_pii_link = 1,
+  scihub_link = 1,
   extension_load_date = new Date(),
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
@@ -176,6 +178,9 @@ function load_common_values() {
   }
   if (localStorage.getItem('ajax_pii_link') === 'no') {
     ajax_pii_link = 0;
+  }
+  if (localStorage.getItem('scihub_link') === 'no') {
+    scihub_link = 0;
   }
 }
 load_common_values();
@@ -605,8 +610,13 @@ function get_request(msg, _port) {
 
   } else if (msg.pii_link && msg.pii && msg.pmid) {
     if (ajax_pii_link) {
-      parse_url(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
+      parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
+
+  } else if (msg.doi && msg.pmid) {
+    //if (scihub_link) {
+      parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.org/' + msg.doi, sender_tab_id);
+    //}
 
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
@@ -848,7 +858,40 @@ function do_scholar_title() {
   }
 }
 
-function parse_url(pmid, url, tabId) {
+function parse_scihub(pmid, url, tabId) {
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('url', url);
+  var in_mem = localStorage.getItem('scihub_' + pmid);
+  if (in_mem) {
+    in_mem = in_mem.split(',', 2);
+    b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
+    return;
+  }
+  b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
+  $.get(url,
+      function (r) {
+        var reg = /iframe src\s*=\s*"(\S+)"/i,
+            h = reg.exec(r),
+            args;
+        if (h && h.length) {
+          DEBUG && console.log(h);
+          args = {'apikey': req_key, 'pmid': pmid, 'scihub_link': h[1]};
+          localStorage.setItem('scihub_' + pmid, pmid + ',' + h[1]);
+          b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: h[1]});
+          $.post(base + '/', args,
+              function (d) {
+                DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
+              }, 'json'
+          );
+          return;
+        }
+        b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: '://'});
+      },
+      'html'
+  ).fail(function () { console.log('>> parse_scihub failed, do nothing'); });
+}
+
+function parse_pii(pmid, url, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('url', url);
   var in_mem = localStorage.getItem('url_' + pmid);
@@ -892,7 +935,7 @@ function parse_url(pmid, url, tabId) {
     },
     'html'
   ).fail(function () {
-    DEBUG && console.log('>> parse_url failed, do nothing');
+    DEBUG && console.log('>> parse_pii failed, do nothing');
   });
 }
 
@@ -905,6 +948,11 @@ function scholar_title(pmid, t, tabId) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
     });
+    return;
+  }
+  if (scholar_once === 'yes' && scholar_fail_times > scholar_valid_page_open) {
+    DEBUG && console.log('scholar_fail_times', scholar_fail_times);
+    DEBUG && console.log('scholar_valid_page_open', scholar_valid_page_open);
     return;
   }
   var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
@@ -945,6 +993,7 @@ function scholar_title(pmid, t, tabId) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
+    scholar_fail_times += 1;
     if (!scholar_valid_page_open) {
       if (scholar_once !== 'yes' || scholar_valid_page_open < 1) {
         open_new_tab('http://scholar.google.com/');
@@ -1009,7 +1058,7 @@ function load_broadcast() {
             if (d.action === 'title') {
               scholar_title(d.pmid, d.title, tabs[0].id);
             } else if (d.action === 'url') {
-              parse_url(d.pmid, d.url, tabs[0].id);
+              parse_pii(d.pmid, d.url, tabs[0].id);
             } else if (d.action === 'pdfLink_quick') {
               b_proxy(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
             }
