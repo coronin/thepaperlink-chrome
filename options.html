@@ -34,7 +34,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v2.3.0 &copy; 2010-15 &middot;
+  <span style="float:right">v2.4.0 &copy; 2010-15 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; California/Shanghai &middot;
     <a href="http://www.thepaperlink.com" rel="external">www.thepaperlink.com</a> &middot;
     <a href="http://www.zhaowenxian.com" rel="external">www.zhaowenxian.com</a>
@@ -62,8 +62,7 @@
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       you are accessing our service at <span id="api_server"></span></p>
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      get an idea? find a bug? please <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">let us know</a>,
-      or comment on <a href="http://blog.cail.cn/thepaperlink/" rel="external">http://blog.cail.cn/thepaperlink/</a></p>
+      get an idea? find a bug? please <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">let us know</a></p>
   </div></div>
   <p><span class="thepaperlink_a">visit <a class="reg_thepaperlink" href="http://www.thepaperlink.com/reg" rel="external">http://www.thepaperlink.com/reg</a> to activate your account for the service
     <br/></span>"the paper link" apikey : <span id="thepaperlink_apikey"></span>
@@ -164,7 +163,7 @@
       </p>
   </div></div>
   <p><input class="settings" type="checkbox" id="ws_items" />
-    <b>Enable</b> the bleeding feature - display "cited by" count on our website.
+    <b>Display</b> "cited by" count from Google Scholar on our website.
     </p>
   <div class="ui-widget Off" id="ws_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -173,9 +172,20 @@
       <a href="http://www.zhaowenxian.com" rel="external">www.zhaowenxian.com</a> should be "<span id="ws_items_status"></span>"</p>
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       you are using the following server ws://<span id="websocket_server">node.thepaperlink.com:8081</span> for real-time communication</p>
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      google scholar connection check; enable the following to check only once
+      <input class="settings" type="checkbox" id="scholar_once" /></p>
   </div></div>
   <p id="rev_proxy_content">
     </p>
+  <p><input class="settings" type="checkbox" id="scihub_link" />
+    <b>Enable</b> to fetch sci-hub.org PDF link on the abstract page.
+  </p>
+  <div class="ui-widget Off" id="scihub_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      still testing, features included: fetch page, extract link, download a local copy, if cloud then upload
+    </p>
+  </div></div>
   <hr/>
   <p><input class="settings" type="text" value="{prefix}" size="40" id="ezproxy_input" />
     If your institute uses ezproxy, fill in the {prefix} please.
