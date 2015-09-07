@@ -888,7 +888,9 @@ function parse_scihub(pmid, url, tabId) {
         b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: '://'});
       },
       'html'
-  ).fail(function () { console.log('>> parse_scihub failed, do nothing'); });
+  ).fail(function () {
+    DEBUG && console.log('>> parse_scihub failed, do nothing');
+  });
 }
 
 function parse_pii(pmid, url, tabId) {
