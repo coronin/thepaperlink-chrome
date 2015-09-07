@@ -66,7 +66,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.4.0';
+  var a = [], version = 'Chrome_v2.4.1';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -114,6 +114,9 @@ function post_pl4me(v) {
 function get_local_ip() {
   return $.getJSON('http://node.thepaperlink.com:8089/', function (d) {
       local_ip = d['x-forwarded-for'];
+      if (local_ip && local_ip.substr(0,7) === '::ffff:') {
+        local_ip = local_ip.split('::ffff:')[1];
+      }
       if (local_ip && !uid) {
         uid = local_ip + ':';
         uid += extension_load_date.getTime();
