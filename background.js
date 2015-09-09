@@ -7,8 +7,9 @@ var DEBUG = false,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
-  scholar_once = 0,
+  scholar_once = 1,
   scholar_no_more = 0,
+  scholar_limits = 3, // @@@@
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -30,10 +31,10 @@ var DEBUG = false,
     '_' + extension_load_date.getDate(),
   last_date = localStorage.getItem('last_date_str') || '';
 /* use localStorage directly:
-    ws_items
-    contextMenu_shown
-    new_tab
-    co_pubmed
+ *    ws_items
+ *    contextMenu_shown
+ *    new_tab
+ *    co_pubmed
  */
 
 function ez_format_link(prefix, url){
@@ -70,7 +71,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.4.2';
+  var a = [], version = 'Chrome_v2.4.3';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -170,13 +171,6 @@ function load_common_values() {
     localStorage.removeItem('skydrive_status');
     localStorage.removeItem('baiduyun_status');
   }
-  rev_proxy = localStorage.getItem('rev_proxy');
-  base = 'https://pubget-hrd.appspot.com';
-  if (rev_proxy === 'yes') {
-    base = 'http://www.zhaowenxian.com';
-  } else if (localStorage.getItem('https_failed')) {
-    base = 'http://www.thepaperlink.com';
-  }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   if (pubmeder_apikey !== null && pubmeder_email !== null) {
@@ -190,8 +184,21 @@ function load_common_values() {
   if (localStorage.getItem('scihub_link') === 'no') {
     scihub_link = 0;
   }
-  if (localStorage.getItem('scholar_once') === 'yes') {
+  if (localStorage.getItem('scholar_once') === 'no') {
+    scholar_once = 0;
+  } else {
+    scholar_limits = 1;
+  }
+  rev_proxy = localStorage.getItem('rev_proxy');
+  base = 'https://pubget-hrd.appspot.com';
+  if (rev_proxy === 'yes') {
+    base = 'http://www.zhaowenxian.com';
     scholar_once = 1;
+  } else if (localStorage.getItem('https_failed')) {
+    base = 'http://www.thepaperlink.com';
+  }
+  if (!scholar_once) {
+    scholar_no_more = 0;
   }
 }
 load_common_values();
@@ -863,17 +870,15 @@ function do_scholar_title() {
     t = scholar_queue[3*scholar_run + 1],
     tabId = scholar_queue[3*scholar_run + 2];
   scholar_run += 1;
-
-  // @@@@ DEBUG &&
-  console.log('call scholar_title() at', new Date());
-
-  scholar_title(pmid, t, tabId);
   if (scholar_run === scholar_count) {
     DEBUG && console.log('>> self-reset scholar_count _run _queue');
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
   }
+  // @@@@ DEBUG &&
+  console.log('call scholar_title() at', new Date());
+  scholar_title(pmid, t, tabId);
 }
 
 function scholar_title(pmid, t, tabId) {
@@ -923,7 +928,10 @@ function scholar_title(pmid, t, tabId) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
-    open_new_tab('http://scholar.google.com/');
+    if (scholar_limits > 0) {
+      scholar_limits -= 1;
+      open_new_tab('http://scholar.google.com/');
+    }
     if (scholar_once) {
       scholar_no_more = 1;
     }

@@ -41,7 +41,7 @@ function get_end_num(str) {
 }
 
 function reset_key(v) {
-  var answer = confirm('\n do you really want to rest the key?\n');
+  var answer = window.confirm('\n do you really want to rest the key?\n');
   if (answer) {
     if (v === 1) {
       localStorage.removeItem('thepaperlink_apikey');
@@ -96,11 +96,6 @@ function saveOptions() {
     ezproxy_prefix = $('#ezproxy_input').val(),
     req_a = null,
     req_b = null;
-  if (rev_proxy) {
-    localStorage.setItem('rev_proxy', 'yes');
-  } else {
-    localStorage.setItem('rev_proxy', 'no');
-  }
   if (co_pubmed) {
     localStorage.setItem('co_pubmed', 'no');
   } else {
@@ -135,6 +130,12 @@ function saveOptions() {
   } else {
     localStorage.setItem('scholar_once', 'no');
   }
+  if (rev_proxy) {
+    localStorage.setItem('rev_proxy', 'yes');
+    localStorage.setItem('scholar_once', 'yes');
+  } else {
+    localStorage.setItem('rev_proxy', 'no');
+  }
   if (ajax_pii_link) {
     localStorage.setItem('ajax_pii_link', 'yes');
   } else {
@@ -163,7 +164,7 @@ function saveOptions() {
       localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
     } else {
       localStorage.setItem('ezproxy_prefix', '');
-      alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
+      window.alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
       $('#ezproxy_input').focus();
       return false;
     }
@@ -172,7 +173,7 @@ function saveOptions() {
       ezproxy_prefix = '';
     }
     if (ezproxy_prefix) {
-      alert('\n wrong format of the {prefix}\n please check with your librarian\n');
+      window.alert('\n wrong format of the {prefix}\n please check with your librarian\n');
       $('#ezproxy_input').focus();
       return false;
     }
@@ -184,9 +185,9 @@ function saveOptions() {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
       } else {
-        alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
       }
       $('#thepaperlink_apikey_input').focus();
       return false;
@@ -197,14 +198,14 @@ function saveOptions() {
       email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
       userApi = $('#pubmeder_apikey_input').val().replace( /\s+/g, '' );
     if (userEmail && !email_filter.test(userEmail)) {
-      alert('\n please provide a valid email address\n');
+      window.alert('\n please provide a valid email address\n');
       $('#pubmeder_email_input').focus();
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
       } else {
-        alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
       }
       $('#pubmeder_apikey_input').focus();
       return false;
@@ -250,7 +251,7 @@ function onLicenseUpdate(dt) {
   console.log('onLicenseUpdate', dt);
   var licenses = dt.response.details,
       count = licenses.length, i;
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < count; i += 1) {
     addLicenseDataToProduct( licenses[i] );
   }
 }
@@ -278,9 +279,9 @@ function addLicenseDataToProduct(license) {
 }
 function getLicenses() {
   google.payments.inapp.getPurchases({
-    'parameters': {'env': 'prod'},
-    'success': onLicenseUpdate,
-    'failure': onLicenseUpdateFailed
+    parameters: {env: 'prod'},
+    success: onLicenseUpdate,
+    failure: onLicenseUpdateFailed
   });
 }
 function onPurchase(purchase) {
@@ -291,14 +292,14 @@ function onPurchase(purchase) {
 }
 function onPurchaseFailed(purchase) {
   console.log('onPurchaseFailed', purchase);
-  alert('Purchase failed. ' + purchase.response.errorType);
+  window.alert('Purchase failed. ' + purchase.response.errorType);
 }
 function buyProduct(sku) {
   google.payments.inapp.buy({
-    parameters: {'env': 'prod'},
-    'sku': sku,
-    'success': onPurchase,
-    'failure': onPurchaseFailed
+    parameters: {env: 'prod'},
+    sku: sku,
+    success: onPurchase,
+    failure: onPurchaseFailed
   });
 }
 function onSkuDetails(dt) {
@@ -308,7 +309,7 @@ function onSkuDetails(dt) {
     console.log('onSkuDetails', dt);
     $('#in-app-purchase').addClass('Off');
   } else {
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < count; i += 1) {
       addProductToUI( products[i] );
     }
     getLicenses();
@@ -446,6 +447,7 @@ $(document).ready(function () {
     $('#alerts_thepaperlink').attr('href', 'http://www.zhaowenxian.com/alerts');
     $('.reg_pubmeder').text('http://1.zhaowenxian.com/registration');
     $('.reg_pubmeder').attr('href', 'http://1.zhaowenxian.com/registration');
+    $('#scholar_once_info').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
       ' <b>check to enable</b> the reverse proxy to our service.');
@@ -466,6 +468,9 @@ $(document).ready(function () {
     if (localStorage.getItem('pubmed_limit')) {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
+    $('#pubmed_limit').on('change', function () {
+      $('#save_widget').removeClass('Off');
+    });
   }
   if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
@@ -475,7 +480,7 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('scholar_once') === 'yes') {
+    if (localStorage.getItem('scholar_once') !== 'no') {
       $('#scholar_once').prop('checked', true);
     }
     if (localStorage.getItem('websocket_server')) {
@@ -563,8 +568,9 @@ $(document).ready(function () {
           hist = localStorage.getItem(term),
           hist_array = hist.split('||'),
           tt = $('#graph_trend').offset().top - 25,
-          j = 'search results count: ' + term + '\n----\n', k, len, l;
-        for (k = 0, len = hist_array.length; k < len; k += 1) {
+          j = 'search results count: ' + term + '\n----\n', k, l,
+          len = hist_array.length;
+        for (k = 0; k < len; k += 1) {
           l = hist_array[k].lastIndexOf(',');
           tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
           j += tmp;
@@ -578,7 +584,7 @@ $(document).ready(function () {
           $('#graph_trend').css('padding-top', 0);
         }
         $('#delete_term_log').on('click', function () {
-          var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          var answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
             localStorage.removeItem(term);
             location.reload();
@@ -616,9 +622,9 @@ $(document).ready(function () {
   }
 
   google.payments.inapp.getSkuDetails({
-   'parameters': {'env': 'prod'},
-   'success': onSkuDetails,
-   'failure': onSkuDetailsFailed
+    parameters: {env: 'prod'},
+    success: onSkuDetails,
+    failure: onSkuDetailsFailed
   });
   $('#option_tabs').tabs({cookie: {expires: 9}});
 });
