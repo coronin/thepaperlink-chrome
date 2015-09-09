@@ -7,9 +7,8 @@ var DEBUG = false,
   scholar_count = 0,
   scholar_run = 0,
   scholar_queue = [],
-  scholar_valid_page_open = 0,
-  scholar_once = localStorage.getItem('scholar_once') || null,
-  scholar_fail_times = 0,
+  scholar_once = 0,
+  scholar_no_more = 0,
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -24,13 +23,18 @@ var DEBUG = false,
   broadcast_loaded = 0,
   ajax_pii_link = 1,
   scihub_link = 1,
-  scihub_limits = 3,
+  scihub_limits = 3, // @@@@
   extension_load_date = new Date(),
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
     '_' + extension_load_date.getDate(),
   last_date = localStorage.getItem('last_date_str') || '';
-
+/* use localStorage directly:
+    ws_items
+    contextMenu_shown
+    new_tab
+    co_pubmed
+ */
 
 function ez_format_link(prefix, url){
   if (!prefix) return url;
@@ -185,6 +189,9 @@ function load_common_values() {
   }
   if (localStorage.getItem('scihub_link') === 'no') {
     scihub_link = 0;
+  }
+  if (localStorage.getItem('scholar_once') === 'yes') {
+    scholar_once = 1;
   }
 }
 load_common_values();
@@ -592,7 +599,7 @@ function get_request(msg, _port) {
       p_proxy(_port, {
         g_scholar: 1, pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]
       });
-    } else {
+    } else if (!scholar_no_more) {
       scholar_queue[3*scholar_count] = msg.a_pmid;
       scholar_queue[3*scholar_count + 1] = msg.a_title;
       scholar_queue[3*scholar_count + 2] = sender_tab_id;
@@ -616,8 +623,11 @@ function get_request(msg, _port) {
     if (ajax_pii_link) {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
+    if (scihub_link) {
+      parse_scihub(msg.pmid, 'http://linkinghub.elsevier.com.sci-hub.org/retrieve/pii/' + msg.pii, sender_tab_id);
+    }
 
-  } else if (msg.doi && msg.pmid) {
+  } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (scihub_link) {
       parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.org/' + msg.doi, sender_tab_id);
     }
@@ -844,7 +854,7 @@ if (old_id) {
 function queue_scholar_title() {
   setTimeout(
     do_scholar_title,
-    1000*scholar_run + Math.floor(Math.random() * 1000)
+    1000*scholar_run + Math.floor(Math.random() * 10000)
   );
 }
 
@@ -853,6 +863,10 @@ function do_scholar_title() {
     t = scholar_queue[3*scholar_run + 1],
     tabId = scholar_queue[3*scholar_run + 2];
   scholar_run += 1;
+
+  // @@@@ DEBUG &&
+  console.log('call scholar_title() at', new Date());
+
   scholar_title(pmid, t, tabId);
   if (scholar_run === scholar_count) {
     DEBUG && console.log('>> self-reset scholar_count _run _queue');
@@ -860,6 +874,60 @@ function do_scholar_title() {
     scholar_run = 0;
     scholar_queue = [];
   }
+}
+
+function scholar_title(pmid, t, tabId) {
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('title', t);
+  if (scholar_no_more) {
+    b_proxy(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+    });
+    return;
+  }
+  var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
+    encodeURIComponent('"' + t + '"');
+  b_proxy(tabId, {
+    g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
+  });
+  $.get(url,
+    function (r) {
+      var reg = /<a[^<]+>Cited by \d+<\/a>/,
+        h = reg.exec(r),
+        g_num = [], g_link = [];
+      if (h && h.length) {
+        DEBUG && console.log(h);
+        g_num = />Cited by (\d+)</.exec(h[0]);
+        g_link = /href="([^"]+)"/.exec(h[0]);
+        if (g_num.length === 2 && g_link.length === 2) {
+          localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
+          b_proxy(tabId, {
+            g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
+          });
+          $.post(base + '/',
+            {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
+            function (d) {
+              DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
+            }, 'json'
+          );
+          return;
+        }
+      }
+      b_proxy(tabId, {
+        g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+      });
+    },
+    'html'
+  ).fail(function () {
+    DEBUG && console.log('>> scholar_title failed');
+    b_proxy(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+    });
+    open_new_tab('http://scholar.google.com/');
+    if (scholar_once) {
+      scholar_no_more = 1;
+    }
+  });
 }
 
 function parse_scihub(pmid, url, tabId) {
@@ -946,73 +1014,6 @@ function parse_pii(pmid, url, tabId) {
     'html'
   ).fail(function () {
     DEBUG && console.log('>> parse_pii failed, do nothing');
-  });
-}
-
-function scholar_title(pmid, t, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('title', t);
-  var in_mem = localStorage.getItem('scholar_' + pmid);
-  if (in_mem) {
-    in_mem = in_mem.split(',', 3);
-    b_proxy(tabId, {
-      g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
-    });
-    return;
-  }
-  if (scholar_once === 'yes' && scholar_fail_times > scholar_valid_page_open) {
-    DEBUG && console.log('scholar_fail_times', scholar_fail_times);
-    DEBUG && console.log('scholar_valid_page_open', scholar_valid_page_open);
-    b_proxy(tabId, {
-      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-    });
-    return;
-  }
-  var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
-    encodeURIComponent('"' + t + '"');
-  b_proxy(tabId, {
-    g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
-  });
-  $.get(url,
-    function (r) {
-      var reg = /<a[^<]+>Cited by \d+<\/a>/,
-        h = reg.exec(r),
-        g_num = [], g_link = [];
-      if (h && h.length) {
-        DEBUG && console.log(h);
-        g_num = />Cited by (\d+)</.exec(h[0]);
-        g_link = /href="([^"]+)"/.exec(h[0]);
-        if (g_num.length === 2 && g_link.length === 2) {
-          localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          b_proxy(tabId, {
-            g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
-          });
-          $.post(base + '/',
-            {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
-            function (d) {
-              DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
-            }, 'json'
-          );
-          return;
-        }
-      }
-      b_proxy(tabId, {
-        g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-      });
-    },
-    'html'
-  ).fail(function () {
-    DEBUG && console.log('>> scholar_title failed');
-    b_proxy(tabId, {
-      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-    });
-    scholar_fail_times += 1;
-    if (!scholar_valid_page_open) {
-      if (scholar_once !== 'yes' || scholar_valid_page_open < 1) {
-        open_new_tab('http://scholar.google.com/');
-        scholar_valid_page_open += 1;
-      }
-    }
   });
 }
 
