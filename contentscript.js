@@ -380,7 +380,7 @@ function alert_dev(req_key) {
     }, 60*1000); // 1-min timeout
     oXHR.send(null);
   } else {
-    alert('\n you have to be a registered user to be able to alert the developer\n');
+    window.alert('\n you have to be a registered user to be able to alert the developer\n');
   }
 }
 

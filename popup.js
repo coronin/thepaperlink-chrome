@@ -15,9 +15,9 @@ function eFetch(pmid) {
     return;
   }
   $('.loadIcon').removeClass('Off');
-  var url, args = {'apikey' : 'ab25c21c079653919d9b53213ac8cc6e',
-                       'db' : 'pubmed',
-                       'id' : pmid};
+  var url, args = {apikey : 'ab25c21c079653919d9b53213ac8cc6e',
+                       db : 'pubmed',
+                       id : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
     url = 'http://43.zhaowenxian.com/efetch';
   } else {
@@ -27,15 +27,16 @@ function eFetch(pmid) {
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
-    var l = d.result[0], tmp;
+    var l = d.result[0], tmp, j, len;
 
     if (l.MedlineCitation.Article.Abstract) {
       var abstract = '<p class="moreAbout"><b><u>Abstract</u>: </b>' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
     }
     if (l.MedlineCitation.CommentsCorrectionsList) {
-      var ref_list = '<p class="moreAbout"><b><u>References</u>: </b>', j, len;
-      for (j = 0, len = l.MedlineCitation.CommentsCorrectionsList.length; j < len; j += 1) {
+      var ref_list = '<p class="moreAbout"><b><u>References</u>: </b>';
+      len = l.MedlineCitation.CommentsCorrectionsList.length;
+      for (j = 0; j < len; j += 1) {
         if (j === 0) {
           tmp = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <font style="color:#999">$2</font>') + '</a>';
         } else {
@@ -55,8 +56,9 @@ function eFetch(pmid) {
         ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
       }
       if (lsc > 0) {
-        var DataBank_list = '<p class="moreAbout"><b><u>PDB Files</u>: </b>', j, len;
-        for (j = 0, len = ls.AccessionNumberList.length; j < len; j += 1) {
+        var DataBank_list = '<p class="moreAbout"><b><u>PDB Files</u>: </b>';
+        len = ls.AccessionNumberList.length;
+        for (j = 0; j < len; j += 1) {
           if (j === 0) {
             tmp = '<a target="_blank" href="http://j.cail.cn/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
           } else {
@@ -70,8 +72,9 @@ function eFetch(pmid) {
     }
 
     if (l.MedlineCitation.Article.GrantList) {
-      var grant_list = '<p class="moreAbout"><b><u>Fund By</u>: </b>', j, len;
-      for (j = 0, len = l.MedlineCitation.Article.GrantList.length; j < len; j += 1) {
+      var grant_list = '<p class="moreAbout"><b><u>Fund By</u>: </b>';
+      len = l.MedlineCitation.Article.GrantList.length;
+      for (j = 0; j < len; j += 1) {
         if (j === 0) {
           tmp = l.MedlineCitation.Article.GrantList[j].Agency + ': ' + l.MedlineCitation.Article.GrantList[j].GrantID;
         } else {
@@ -84,8 +87,9 @@ function eFetch(pmid) {
     }
 
     if (l.MedlineCitation.ChemicalList) {
-      var keyChem = '<p class="moreAbout"><b><u>Chemical</u>: </b>', j, len;
-      for (j = 0, len = l.MedlineCitation.ChemicalList.length; j < len; j += 1) {
+      var keyChem = '<p class="moreAbout"><b><u>Chemical</u>: </b>';
+      len = l.MedlineCitation.ChemicalList.length;
+      for (j = 0; j < len; j += 1) {
         if (j === 0) {
           tmp = l.MedlineCitation.ChemicalList[j].NameOfSubstance;
         } else {
@@ -98,8 +102,9 @@ function eFetch(pmid) {
     }
 
     if (l.MedlineCitation.MeshHeadingList) {
-      var keyHead = '<p class="moreAbout"><b><u>Heading</u>: </b>', j, len;
-      for (j = 0, len = l.MedlineCitation.MeshHeadingList.length; j < len; j += 1) {
+      var keyHead = '<p class="moreAbout"><b><u>Heading</u>: </b>';
+      len = l.MedlineCitation.MeshHeadingList.length;
+      for (j = 0; j < len; j += 1) {
         if (j === 0) {
           tmp = l.MedlineCitation.MeshHeadingList[j].DescriptorName;
         } else {
