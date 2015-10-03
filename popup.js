@@ -16,8 +16,8 @@ function eFetch(pmid) {
   }
   $('.loadIcon').removeClass('Off');
   var url, args = {apikey : 'ab25c21c079653919d9b53213ac8cc6e',
-                       db : 'pubmed',
-                       id : pmid};
+    db : 'pubmed',
+    id : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
     url = 'http://43.zhaowenxian.com/efetch';
   } else {
@@ -50,7 +50,7 @@ function eFetch(pmid) {
 
     if (l.MedlineCitation.Article.DataBankList) {
       var lsc = l.MedlineCitation.Article.DataBankList.length,
-        ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
+          ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
       while ((!ls || ls.DataBankName !== 'PDB') && lsc > 0) {
         lsc -= 1;
         ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
@@ -125,64 +125,64 @@ function eFetch(pmid) {
 
 function eSummary(term) {
   var webenvCheck = /[a-zA-Z]/,
-    limit = localStorage.getItem('pubmed_limit') || '10',
-    urll = '';
+      limit = localStorage.getItem('pubmed_limit') || '10',
+      urll = '';
   if (webenvCheck.test(term)) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
-      limit + '&query_key=1&webenv=' + term;
+        limit + '&query_key=1&webenv=' + term;
   } else {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
-      limit + '&id=' + term;
+        limit + '&id=' + term;
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $.get(urll,
-    function (xml) {
-      $('#result').html(''); // turn off loading
-      $(xml).find('DocSum').each(function () {
-        var a = $(this).find('Item[Name="Author"]'),
-          author_list,
-          pmc = $(this).find('Item[Name="pmc"]').text(),
-          doi = $(this).find('Item[Name="doi"]').text(),
-          pmid = $(this).find('Id').text(),
-          Title = $(this).find('Item[Name="Title"]').text(),
-          titleLin,
-          PubDate = $(this).find('Item[Name="PubDate"]').text(),
-          Source = $(this).find('Item[Name="Source"]').text(),
-          Volume = $(this).find('Item[Name="Volume"]').text(),
-          Pages = $(this).find('Item[Name="Pages"]').text(),
-          esum_text,
-          tmp;
+      function (xml) {
+        $('#result').html(''); // turn off loading
+        $(xml).find('DocSum').each(function () {
+          var a = $(this).find('Item[Name="Author"]'),
+              author_list,
+              pmc = $(this).find('Item[Name="pmc"]').text(),
+              doi = $(this).find('Item[Name="doi"]').text(),
+              pmid = $(this).find('Id').text(),
+              Title = $(this).find('Item[Name="Title"]').text(),
+              titleLin,
+              PubDate = $(this).find('Item[Name="PubDate"]').text(),
+              Source = $(this).find('Item[Name="Source"]').text(),
+              Volume = $(this).find('Item[Name="Volume"]').text(),
+              Pages = $(this).find('Item[Name="Pages"]').text(),
+              esum_text,
+              tmp;
 
-        a.each(function (j) {
-          if (j === 0) {
-            author_list = '<b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
-          } else if (j === (a.length - 1)) {
-            tmp = ', <b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
-            author_list += tmp;
+          a.each(function (j) {
+            if (j === 0) {
+              author_list = '<b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
+            } else if (j === (a.length - 1)) {
+              tmp = ', <b>' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.</b>';
+              author_list += tmp;
+            } else {
+              tmp = ', ' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.';
+              author_list += tmp;
+            }
+          });
+
+          if (pmc) {
+            titleLin = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pmc/articles/' + pmc + '/?tool=thepaperlink_chrome">' + Title + '</a> ';
+          } else if (doi) {
+            titleLin = '<a target="_blank" href="http://dx.doi.org/' + doi + '">' + Title + '</a> ';
           } else {
-            tmp = ', ' + $(this).text().replace(/ (\w)(\w)/g, ' $1.$2') + '.';
-            author_list += tmp;
+            titleLin = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pmid + '/?tool=thepaperlink_chrome">' + Title + '</a> ';
           }
+
+          esum_text = '<p class="eSum" id="' + pmid + '">' + author_list + ' (' + PubDate + '). ' + titleLin + Source + '.  <i>' + Volume + '</i>, ' + Pages + '<br/><button class="AbsButton" id="' + pmid + '"> More about </button><a id="pmid" target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pmid + '/?tool=thepaperlink_chrome">PMID:' + pmid + '</a> <img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
+          $('<div/>').html(esum_text).appendTo('#result');
         });
-
-        if (pmc) {
-          titleLin = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pmc/articles/' + pmc + '/?tool=thepaperlink_chrome">' + Title + '</a> ';
-        } else if (doi) {
-          titleLin = '<a target="_blank" href="http://dx.doi.org/' + doi + '">' + Title + '</a> ';
-        } else {
-          titleLin = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pmid + '/?tool=thepaperlink_chrome">' + Title + '</a> ';
-        }
-
-        esum_text = '<p class="eSum" id="' + pmid + '">' + author_list + ' (' + PubDate + '). ' + titleLin + Source + '.  <i>' + Volume + '</i>, ' + Pages + '<br/><button class="AbsButton" id="' + pmid + '"> More about </button><a id="pmid" target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + pmid + '/?tool=thepaperlink_chrome">PMID:' + pmid + '</a> <img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
-        $('<div/>').html(esum_text).appendTo('#result');
-      });
-      $('.AbsButton').on('click', function () { eFetch(this.id); });
-      $('#result').removeClass('Off');
-    },
-    'xml'
+        $('.AbsButton').on('click', function () { eFetch(this.id); });
+        $('#result').removeClass('Off');
+      },
+      'xml'
   ).fail(function () {
-    $('#result').html('I am very sorry, but I failed. Try later?');
-  });
+        $('#result').html('I am very sorry, but I failed. Try later?');
+      });
 }
 
 function eSS(search_term) {
@@ -190,14 +190,14 @@ function eSS(search_term) {
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $('#result').removeClass('Off');
   $.get(url,
-    function (xml) {
-      var WebEnv = $(xml).find('WebEnv').text();
-      eSummary(WebEnv);
-    },
-    'xml'
+      function (xml) {
+        var WebEnv = $(xml).find('WebEnv').text();
+        eSummary(WebEnv);
+      },
+      'xml'
   ).fail(function () {
-    $('#result').html('Sorry, I failed. Try later?');
-  });
+        $('#result').html('Sorry, I failed. Try later?');
+      });
 }
 
 $(document).ready(function () {
@@ -226,10 +226,10 @@ $(document).ready(function () {
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var tab = tabs[0],
-    ID = localStorage.getItem('tabId:' + tab.id.toString()),
-    dotCheck = /\./,
-    pmcCheck = /PMC/,
-    url_trim = tab.url.substr(7, 25);
+      ID = localStorage.getItem('tabId:' + tab.id.toString()),
+      dotCheck = /\./,
+      pmcCheck = /PMC/,
+      url_trim = tab.url.substr(7, 25);
   chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
   chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
   if (tab.url.substr(7, 26) !== url_trim) {
