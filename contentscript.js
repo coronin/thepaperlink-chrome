@@ -341,7 +341,7 @@ function run() {
   } catch (err) {
     DEBUG && console.log(err);
   }
-  a_proxy({reset_scholar_count: 1});
+  a_proxy({reset_counts: 1});
   for (i = 0, len = t('div').length; i < len; i += 1) {
     if (t('div')[i].className === 'rprt' || t('div')[i].className === 'rprt abstract') {
       getPmid('div', i);
