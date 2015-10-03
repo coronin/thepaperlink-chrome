@@ -227,7 +227,7 @@ function getPmid(zone, num) {
         t_strings = t(zone)[num + 2].textContent.split('Related citations')[0].split('.');
         t_title = trim( t_strings[0] );
         t_cont = t_title +
-          '.\r\n' + trim( t_strings[1] ) +
+          '.\r\n' + trim( t_strings[1].replace(/\d\./g, '.').replace(/\d,/g, ',') ) +
           '.\r\n' + trim( t_strings[2] ) + '. ';
         if ( t_strings[3].indexOf(';') > 0 ) {
           t_cont += trim( t_strings[3] ).replace(';', '; ') + '.';
