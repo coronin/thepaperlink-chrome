@@ -25,6 +25,7 @@ var DEBUG = false,
   ajax_pii_link = 1,
   scihub_link = 1,
   scihub_download = 0,
+  scihub_limits = 3, // @@@@
   extension_load_date = new Date(),
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
@@ -617,10 +618,11 @@ function get_request(msg, _port) {
       queue_scholar_title();
     }
 
-  } else if (msg.reset_scholar_count) {
+  } else if (msg.reset_counts) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
+    scihub_limits = 3; // @@@@
 
   } else if (msg.load_broadcast) {
     broadcast_loaded = 0;
@@ -946,9 +948,9 @@ function do_download_scihub(pmid, url) {
   chrome.downloads.download(
     {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
     function (d) {
-      console.log(d); }
+      console.log('downloadId', d); }
   )
-  if (apikey && localStorage.getItem('dropbox_status') === 'success') {
+  if (apikey && rev_proxy !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
     dropbox_it(pmid, url, apikey);
   }
 }
@@ -965,10 +967,10 @@ function parse_scihub(pmid, url, tabId) {
     }
     return;
   }
-  //if (scihub_limits <= 0) {
-  //  return;
-  //}
-  //scihub_limits -= 1;
+  if (scihub_limits <= 0) {
+    return;
+  }
+  scihub_limits -= 1;
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
   $.get(url,
       function (r) {
@@ -989,8 +991,13 @@ function parse_scihub(pmid, url, tabId) {
             do_download_scihub(pmid, h[1]);
           }
           return;
+        } else {
+          $.get('http://sci-hub.org/continue').after(function () {
+              $.get(url, function (r) {
+                console.log(r);
+              }); // @@@@
+          });
         }
-        b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: '://'});
       },
       'html'
   ).fail(function () {
