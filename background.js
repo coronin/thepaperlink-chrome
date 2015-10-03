@@ -947,7 +947,15 @@ function scholar_title(pmid, t, tabId) {
 function do_download_scihub(pmid, url) {
   var id = localStorage.getItem('downloadId_' + pmid);
   if (id) {
-    chrome.downloads.open( parseInt(id, 10) );
+    chrome.downloads.search({url: url},
+        function (item) {
+          DEBUG && console.log( 'filename', item[0].filename );
+          chrome.tabs.create({ // @@@@
+            url: 'file://' + item[0].filename,
+            active: false
+          });
+
+        } );
   } else {
     chrome.downloads.download(
         {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
@@ -998,9 +1006,9 @@ function parse_scihub(pmid, url, tabId) {
           }
           return;
         } else {
-          $.get('http://sci-hub.org/continue').after(function () {
+          $.get('http://sci-hub.org/continue').then(function () {
             $.get(url, function (r) {
-              console.log(r);
+              DEBUG && console.log(r);
             }); // @@@@
           });
         }
