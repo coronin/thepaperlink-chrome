@@ -92,6 +92,7 @@ function saveOptions() {
     scholar_once = $('#scholar_once').prop('checked'),
     ajax_pii_link = $('#ajax_pii_link').prop('checked'),
     scihub_link = $('#scihub_link').prop('checked'),
+    scihub_download = $('#scihub_download').prop('checked'),
     pubmed_limit = $('#pubmed_limit').val(),
     ezproxy_prefix = $('#ezproxy_input').val(),
     req_a = null,
@@ -132,7 +133,7 @@ function saveOptions() {
   }
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
-    localStorage.setItem('scholar_once', 'yes');
+    localStorage.setItem('scholar_once', 'yes'); // ws_items + route to google
   } else {
     localStorage.setItem('rev_proxy', 'no');
   }
@@ -143,8 +144,14 @@ function saveOptions() {
   }
   if (scihub_link) {
     localStorage.setItem('scihub_link', 'yes');
+    if (scihub_download) {
+      localStorage.setItem('scihub_download', 'yes');
+    } else {
+      localStorage.setItem('scihub_download', 'no');
+    }
   } else {
     localStorage.setItem('scihub_link', 'no');
+    localStorage.setItem('scihub_download', 'no');
   }
   if (pubmed_limit) {
     try {
@@ -495,6 +502,9 @@ $(document).ready(function () {
   if (localStorage.getItem('scihub_link') !== 'no') {
     $('#scihub_link').prop('checked', true);
     $('#scihub_info').removeClass('Off');
+    if (localStorage.getItem('scihub_download') === 'yes') {
+      $('#scihub_download').prop('checked', true);
+    }
   }
 
   if (localStorage.getItem('past_search_terms')) {
