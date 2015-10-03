@@ -9,7 +9,7 @@ var DEBUG = false,
   scholar_queue = [],
   scholar_once = 1,
   scholar_no_more = 0,
-  scholar_limits = 3, // @@@@
+  scholar_page_open_limits = 3,
   loading_pl4me = false,
   load_try = 10,
   local_ip = '',
@@ -187,7 +187,7 @@ function load_common_values() {
   if (localStorage.getItem('scholar_once') === 'no') {
     scholar_once = 0;
   } else {
-    scholar_limits = 1;
+    scholar_page_open_limits = 1;
   }
   rev_proxy = localStorage.getItem('rev_proxy');
   base = 'https://pubget-hrd.appspot.com';
@@ -240,7 +240,6 @@ function select_on_click(info, tab) {
           return;
         }
       }
-      open_new_tab(url, tab.windowId);
     });
   } else {
     open_new_tab(url, tab.windowId, tab.index);
@@ -790,8 +789,6 @@ function get_request(msg, _port) {
       localStorage.setItem('alert_dev', '"' + msg.alert_dev + '"')
     }
 
-  //} else if (msg.open_options) {
-  //  open_new_tab( chrome.extension.getURL('options.html') );
   } else {
     console.log(msg);
   }
@@ -928,11 +925,15 @@ function scholar_title(pmid, t, tabId) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
-    if (scholar_limits > 0) {
-      scholar_limits -= 1;
+    if ( parseInt(localStorage.getItem(date_str), 10) < 1 ) {
+      scholar_page_open_limits = 0;
+    }
+    if (scholar_page_open_limits > 0) {
+      scholar_page_open_limits -= 1;
+      localStorage.setItem(date_str, scholar_page_open_limits)
       open_new_tab('http://scholar.google.com/');
     }
-    if (scholar_once) {
+    if (scholar_once || scholar_page_open_limits === 0) {
       scholar_no_more = 1;
     }
   });
