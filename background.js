@@ -24,7 +24,7 @@ var DEBUG = false,
   broadcast_loaded = 0,
   ajax_pii_link = 1,
   scihub_link = 1,
-  scihub_limits = 3, // @@@@
+  scihub_download = 0,
   extension_load_date = new Date(),
   date_str = 'day_' + extension_load_date.getFullYear() +
     '_' + (extension_load_date.getMonth() + 1) +
@@ -71,7 +71,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.4.3';
+  var a = [], version = 'Chrome_v2.5.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -183,6 +183,10 @@ function load_common_values() {
   }
   if (localStorage.getItem('scihub_link') === 'no') {
     scihub_link = 0;
+  } else {
+    if (localStorage.getItem('scihub_download') === 'yes') {
+      scihub_download = 1;
+    }
   }
   if (localStorage.getItem('scholar_once') === 'no') {
     scholar_once = 0;
@@ -873,8 +877,7 @@ function do_scholar_title() {
     scholar_run = 0;
     scholar_queue = [];
   }
-  // @@@@ DEBUG &&
-  console.log('call scholar_title() at', new Date());
+  DEBUG && console.log('call scholar_title() at', new Date());
   scholar_title(pmid, t, tabId);
 }
 
@@ -939,6 +942,17 @@ function scholar_title(pmid, t, tabId) {
   });
 }
 
+function do_download_scihub(pmid, url) {
+  chrome.downloads.download(
+    {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
+    function (d) {
+      console.log(d); }
+  )
+  if (apikey && localStorage.getItem('dropbox_status') === 'success') {
+    dropbox_it(pmid, url, apikey);
+  }
+}
+
 function parse_scihub(pmid, url, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('url', url);
@@ -946,12 +960,15 @@ function parse_scihub(pmid, url, tabId) {
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
+    if (scihub_download) {
+      do_download_scihub(pmid, in_mem[1]);
+    }
     return;
   }
-  if (scihub_limits <= 0) {
-    return;
-  }
-  scihub_limits -= 1;
+  //if (scihub_limits <= 0) {
+  //  return;
+  //}
+  //scihub_limits -= 1;
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
   $.get(url,
       function (r) {
@@ -968,6 +985,9 @@ function parse_scihub(pmid, url, tabId) {
                 DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
               }, 'json'
           );
+          if (scihub_download) {
+            do_download_scihub(pmid, h[1]);
+          }
           return;
         }
         b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: '://'});
