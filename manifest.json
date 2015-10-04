@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.4.0",
-  "minimum_chrome_version": "29",
+  "version": "2.5.0",
+  "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
   "content_security_policy": "script-src 'self' https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
@@ -25,6 +25,7 @@
     "contextMenus",
     "tabs",
     "clipboardWrite",
+    "downloads",
     "https://www.ncbi.nlm.nih.gov/*",
     "https://pubget-hrd.appspot.com/static/humans.txt",
     "https://pubget-hrd.appspot.com/api*",
