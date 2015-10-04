@@ -386,6 +386,8 @@ function alert_dev(req_key) {
 
 
 if (page_url === 'http://www.thepaperlink.com/reg'
+    || page_url === 'http://www.thepaperlink.com/settings'
+    || page_url === 'http://www.zhaowenxian.com/settings'
     || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
   var apikey = $('apikey').innerHTML,
       cloud_op = $('cloud_op').innerHTML;
