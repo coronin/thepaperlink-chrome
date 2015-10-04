@@ -41,7 +41,7 @@ function get_end_num(str) {
 }
 
 function reset_key(v) {
-  var answer = confirm('\n do you really want to rest the key?\n');
+  var answer = window.confirm('\n do you really want to rest the key?\n');
   if (answer) {
     if (v === 1) {
       localStorage.removeItem('thepaperlink_apikey');
@@ -59,48 +59,44 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   return $.get('http://0.cail.cn/api?validate=' + ak,
-    function (txt) {
-      if (txt === 'valid') {
-        _port.postMessage({save_apikey: ak, save_email: null});
-      } else {
-        $.cookie('alert_v1', 'oops', {expires: 3});
-      }
-    },
-    'json'
+      function (txt) {
+        if (txt === 'valid') {
+          _port.postMessage({save_apikey: ak, save_email: null});
+        } else {
+          $.cookie('alert_v1', 'oops', {expires: 3});
+        }
+      },
+      'json'
   );
 }
 
 function valid_pubmeder(e,ak) {
   return $.get('http://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
-    function (txt) {
-      if (txt === 'correct') {
-        _port.postMessage({save_apikey: ak, save_email: e});
-      } else {
-        $.cookie('alert_v2', 'oops', {expires: 3});
-      }
-    },
-    'text'
+      function (txt) {
+        if (txt === 'correct') {
+          _port.postMessage({save_apikey: ak, save_email: e});
+        } else {
+          $.cookie('alert_v2', 'oops', {expires: 3});
+        }
+      },
+      'text'
   );
 }
 
 function saveOptions() {
   var rev_proxy = $('#rev_proxy').prop('checked'),
-    co_pubmed = $('#co_pubmed').prop('checked'),
-    new_tab = $('#new_tab').prop('checked'),
-    contextMenu_shown = $('#contextMenu_shown').prop('checked'),
-    ws_items = $('#ws_items').prop('checked'),
-    scholar_once = $('#scholar_once').prop('checked'),
-    ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-    scihub_link = $('#scihub_link').prop('checked'),
-    pubmed_limit = $('#pubmed_limit').val(),
-    ezproxy_prefix = $('#ezproxy_input').val(),
-    req_a = null,
-    req_b = null;
-  if (rev_proxy) {
-    localStorage.setItem('rev_proxy', 'yes');
-  } else {
-    localStorage.setItem('rev_proxy', 'no');
-  }
+      co_pubmed = $('#co_pubmed').prop('checked'),
+      new_tab = $('#new_tab').prop('checked'),
+      contextMenu_shown = $('#contextMenu_shown').prop('checked'),
+      ws_items = $('#ws_items').prop('checked'),
+      scholar_once = $('#scholar_once').prop('checked'),
+      ajax_pii_link = $('#ajax_pii_link').prop('checked'),
+      scihub_link = $('#scihub_link').prop('checked'),
+      scihub_download = $('#scihub_download').prop('checked'),
+      pubmed_limit = $('#pubmed_limit').val(),
+      ezproxy_prefix = $('#ezproxy_input').val(),
+      req_a = null,
+      req_b = null;
   if (co_pubmed) {
     localStorage.setItem('co_pubmed', 'no');
   } else {
@@ -135,6 +131,12 @@ function saveOptions() {
   } else {
     localStorage.setItem('scholar_once', 'no');
   }
+  if (rev_proxy) {
+    localStorage.setItem('rev_proxy', 'yes');
+    localStorage.setItem('scholar_once', 'yes'); // ws_items + route to google
+  } else {
+    localStorage.setItem('rev_proxy', 'no');
+  }
   if (ajax_pii_link) {
     localStorage.setItem('ajax_pii_link', 'yes');
   } else {
@@ -142,8 +144,14 @@ function saveOptions() {
   }
   if (scihub_link) {
     localStorage.setItem('scihub_link', 'yes');
+    if (scihub_download) {
+      localStorage.setItem('scihub_download', 'yes');
+    } else {
+      localStorage.setItem('scihub_download', 'no');
+    }
   } else {
     localStorage.setItem('scihub_link', 'no');
+    localStorage.setItem('scihub_download', 'no');
   }
   if (pubmed_limit) {
     try {
@@ -163,7 +171,7 @@ function saveOptions() {
       localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
     } else {
       localStorage.setItem('ezproxy_prefix', '');
-      alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
+      window.alert('\n dot {prefix} has to end with .edu .net .com .org .gov\n');
       $('#ezproxy_input').focus();
       return false;
     }
@@ -172,7 +180,7 @@ function saveOptions() {
       ezproxy_prefix = '';
     }
     if (ezproxy_prefix) {
-      alert('\n wrong format of the {prefix}\n please check with your librarian\n');
+      window.alert('\n wrong format of the {prefix}\n please check with your librarian\n');
       $('#ezproxy_input').focus();
       return false;
     }
@@ -184,9 +192,9 @@ function saveOptions() {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
       } else {
-        alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
       }
       $('#thepaperlink_apikey_input').focus();
       return false;
@@ -194,17 +202,17 @@ function saveOptions() {
   }
   if ( !localStorage.getItem('b_apikey_gold') ) {
     var userEmail = $('#pubmeder_email_input').val(),
-      email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
-      userApi = $('#pubmeder_apikey_input').val().replace( /\s+/g, '' );
+        email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
+        userApi = $('#pubmeder_apikey_input').val().replace( /\s+/g, '' );
     if (userEmail && !email_filter.test(userEmail)) {
-      alert('\n please provide a valid email address\n');
+      window.alert('\n please provide a valid email address\n');
       $('#pubmeder_email_input').focus();
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
       } else {
-        alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
       }
       $('#pubmeder_apikey_input').focus();
       return false;
@@ -250,7 +258,7 @@ function onLicenseUpdate(dt) {
   console.log('onLicenseUpdate', dt);
   var licenses = dt.response.details,
       count = licenses.length, i;
-  for (i = 0; i < count; i++) {
+  for (i = 0; i < count; i += 1) {
     addLicenseDataToProduct( licenses[i] );
   }
 }
@@ -278,9 +286,9 @@ function addLicenseDataToProduct(license) {
 }
 function getLicenses() {
   google.payments.inapp.getPurchases({
-    'parameters': {'env': 'prod'},
-    'success': onLicenseUpdate,
-    'failure': onLicenseUpdateFailed
+    parameters: {env: 'prod'},
+    success: onLicenseUpdate,
+    failure: onLicenseUpdateFailed
   });
 }
 function onPurchase(purchase) {
@@ -291,14 +299,14 @@ function onPurchase(purchase) {
 }
 function onPurchaseFailed(purchase) {
   console.log('onPurchaseFailed', purchase);
-  alert('Purchase failed. ' + purchase.response.errorType);
+  window.alert('Purchase failed. ' + purchase.response.errorType);
 }
 function buyProduct(sku) {
   google.payments.inapp.buy({
-    parameters: {'env': 'prod'},
-    'sku': sku,
-    'success': onPurchase,
-    'failure': onPurchaseFailed
+    parameters: {env: 'prod'},
+    sku: sku,
+    success: onPurchase,
+    failure: onPurchaseFailed
   });
 }
 function onSkuDetails(dt) {
@@ -308,7 +316,7 @@ function onSkuDetails(dt) {
     console.log('onSkuDetails', dt);
     $('#in-app-purchase').addClass('Off');
   } else {
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < count; i += 1) {
       addProductToUI( products[i] );
     }
     getLicenses();
@@ -350,16 +358,16 @@ $(document).ready(function () {
   });
 
   var a_key = localStorage.getItem('thepaperlink_apikey'),
-    b_key = localStorage.getItem('pubmeder_apikey'),
-    b_email = localStorage.getItem('pubmeder_email'),
-    m_status = localStorage.getItem('mendeley_status'),
-    f_status = localStorage.getItem('facebook_status'),
-    d_status = localStorage.getItem('dropbox_status'),
-    b_status = localStorage.getItem('douban_status'),
-    g_status = localStorage.getItem('googledrive_status'),
-    s_status = localStorage.getItem('skydrive_status'),
-    y_status = localStorage.getItem('baiduyun_status'),
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
+      b_key = localStorage.getItem('pubmeder_apikey'),
+      b_email = localStorage.getItem('pubmeder_email'),
+      m_status = localStorage.getItem('mendeley_status'),
+      f_status = localStorage.getItem('facebook_status'),
+      d_status = localStorage.getItem('dropbox_status'),
+      b_status = localStorage.getItem('douban_status'),
+      g_status = localStorage.getItem('googledrive_status'),
+      s_status = localStorage.getItem('skydrive_status'),
+      y_status = localStorage.getItem('baiduyun_status'),
+      ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
 
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
@@ -439,25 +447,26 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the paper link".' +
-      ' It is slower.');
+        ' It is slower.');
     $('#api_server').text('http://www.zhaowenxian.com');
     $('.reg_thepaperlink').text('http://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'http://www.zhaowenxian.com/reg');
     $('#alerts_thepaperlink').attr('href', 'http://www.zhaowenxian.com/alerts');
     $('.reg_pubmeder').text('http://1.zhaowenxian.com/registration');
     $('.reg_pubmeder').attr('href', 'http://1.zhaowenxian.com/registration');
+    $('#scholar_once_info').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
-      ' <b>check to enable</b> the reverse proxy to our service.');
-    $('#rev_proxy').on('change', function () {
-      $('#save_widget').removeClass('Off');
-    });
+        ' <b>check to enable</b> the reverse proxy to our service.');
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-      ' If you really want to, feel free to check to enable it.');
+        ' If you really want to, feel free to check to enable it.');
     $('#api_server').text('https://pubget-hrd.appspot.com');
   }
+  $('#rev_proxy').on('change', function () {
+    $('#save_widget').removeClass('Off');
+  });
   if (localStorage.getItem('co_pubmed') === 'no') {
     $('#co_pubmed').prop('checked', true);
     $('#pubmeder_info').removeClass('Off');
@@ -466,6 +475,9 @@ $(document).ready(function () {
     if (localStorage.getItem('pubmed_limit')) {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
+    $('#pubmed_limit').on('change', function () {
+      $('#save_widget').removeClass('Off');
+    });
   }
   if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
@@ -475,7 +487,7 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('scholar_once') === 'yes') {
+    if (localStorage.getItem('scholar_once') !== 'no') {
       $('#scholar_once').prop('checked', true);
     }
     if (localStorage.getItem('websocket_server')) {
@@ -490,18 +502,21 @@ $(document).ready(function () {
   if (localStorage.getItem('scihub_link') !== 'no') {
     $('#scihub_link').prop('checked', true);
     $('#scihub_info').removeClass('Off');
+    if (localStorage.getItem('scihub_download') === 'yes') {
+      $('#scihub_download').prop('checked', true);
+    }
   }
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),
-      tmp = $('#keywords_list'),
-      t = 0, i, a, b, c = [];
+        tmp = $('#keywords_list'),
+        t = 0, i, a, b, c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
       if (b) {
         a = terms[i].toLowerCase().
-          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
+            replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
         if (a !== terms[i]) {
           localStorage.setItem(a, b);
           localStorage.removeItem(terms[i]);
@@ -513,13 +528,13 @@ $(document).ready(function () {
         } else {
           c.push( {key:a, value:b} );
           tmp.append(
-            '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
-            a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
-            '</span> <a href="#">' + get_end_num(b) + '</a></li>'
+              '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
+              a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
+              '</span> <a href="#">' + get_end_num(b) + '</a></li>'
           );
           t += 1;
         }
-    } }
+      } }
     if (t > 0) {
       var span_max = 200;
       $('.keywords_li span').each(function () {
@@ -538,7 +553,7 @@ $(document).ready(function () {
       //$('#graph_trend').height( $('#keywords_list').height() + 25 );
       if (t > 5) {
         tmp.append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
-          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
+            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
         $('#toggle_all_keywords').on('click', function() {
           $('.keywords').each(function () {
             toggle_checked( $(this), 1 );
@@ -560,25 +575,26 @@ $(document).ready(function () {
       $('.keywords_li a').on('click', function(e) {
         e.preventDefault();
         var term = $(this).parent().children('span').text(),
-          hist = localStorage.getItem(term),
-          hist_array = hist.split('||'),
-          tt = $('#graph_trend').offset().top - 25,
-          j = 'search results count: ' + term + '\n----\n', k, len, l;
-        for (k = 0, len = hist_array.length; k < len; k += 1) {
+            hist = localStorage.getItem(term),
+            hist_array = hist.split('||'),
+            tt = $('#graph_trend').offset().top - 25,
+            j = 'search results count: ' + term + '\n----\n', k, l,
+            len = hist_array.length;
+        for (k = 0; k < len; k += 1) {
           l = hist_array[k].lastIndexOf(',');
           tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
           j += tmp;
         }
         $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
-          '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
-          '<span id="search_term_again">search now</span>');
+            '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
+            '<span id="search_term_again">search now</span>');
         if (window.pageYOffset > tt) {
           $('#graph_trend').css('padding-top', window.pageYOffset - tt);
         } else {
           $('#graph_trend').css('padding-top', 0);
         }
         $('#delete_term_log').on('click', function () {
-          var answer = confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          var answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
             localStorage.removeItem(term);
             location.reload();
@@ -616,9 +632,9 @@ $(document).ready(function () {
   }
 
   google.payments.inapp.getSkuDetails({
-   'parameters': {'env': 'prod'},
-   'success': onSkuDetails,
-   'failure': onSkuDetailsFailed
+    parameters: {env: 'prod'},
+    success: onSkuDetails,
+    failure: onSkuDetailsFailed
   });
   $('#option_tabs').tabs({cookie: {expires: 9}});
 });

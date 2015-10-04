@@ -1,36 +1,42 @@
 "use strict";
 
 var DEBUG = false,
-  i, len, aKey, aVal, ws, ws_timer,
-  ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081',
-  uid = localStorage.getItem('ip_time_uid') || null,
-  scholar_count = 0,
-  scholar_run = 0,
-  scholar_queue = [],
-  scholar_valid_page_open = 0,
-  scholar_once = localStorage.getItem('scholar_once') || null,
-  scholar_fail_times = 0,
-  loading_pl4me = false,
-  load_try = 10,
-  local_ip = '',
-  new_tabId = null,
-  alldigi = /^\d+$/,
-  old_id = '',
-  dd = document,
-  init_found = localStorage.getItem('id_found') || '',
-  guest_apikey = null,
-  apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
-  pubmeder_ok = 0,
-  broadcast_loaded = 0,
-  ajax_pii_link = 1,
-  scihub_link = 1,
-  scihub_limits = 3,
-  extension_load_date = new Date(),
-  date_str = 'day_' + extension_load_date.getFullYear() +
-    '_' + (extension_load_date.getMonth() + 1) +
-    '_' + extension_load_date.getDate(),
-  last_date = localStorage.getItem('last_date_str') || '';
-
+    i, len, aKey, aVal, ws, ws_timer,
+    ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081',
+    uid = localStorage.getItem('ip_time_uid') || null,
+    scholar_count = 0,
+    scholar_run = 0,
+    scholar_queue = [],
+    scholar_once = 1,
+    scholar_no_more = 0,
+    scholar_page_open_limits = 3,
+    loading_pl4me = false,
+    load_try = 10,
+    local_ip = '',
+    new_tabId = null,
+    alldigi = /^\d+$/,
+    old_id = '',
+    dd = document,
+    init_found = localStorage.getItem('id_found') || '',
+    guest_apikey = null,
+    apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
+    pubmeder_ok = 0,
+    broadcast_loaded = 0,
+    ajax_pii_link = 1,
+    scihub_link = 1,
+    scihub_download = 0,
+    scihub_limits = 3, // @@@@
+    extension_load_date = new Date(),
+    date_str = 'day_' + extension_load_date.getFullYear() +
+        '_' + (extension_load_date.getMonth() + 1) +
+        '_' + extension_load_date.getDate(),
+    last_date = localStorage.getItem('last_date_str') || '';
+/* use localStorage directly:
+ *    ws_items
+ *    contextMenu_shown
+ *    new_tab
+ *    co_pubmed
+ */
 
 function ez_format_link(prefix, url){
   if (!prefix) return url;
@@ -66,63 +72,66 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.4.0';
+  var a = [], version = 'Chrome_v2.5.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
     return;
   }
   $.post('http://0.cail.cn/',
-    {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
-    function (d) {
-      DEBUG && console.log('>> post_pl4me, ' + a[v]);
-      DEBUG && console.log(d);
-      if (d) {
-        if (d.websocket_server) {
-          localStorage.setItem('websocket_server', d.websocket_server);
-          if (v === 0 && d.websocket_server !== ws_addr) {
-            ws_addr = d.websocket_server;
-            if (ws) {
-              ws.close();
-              broadcast_loaded = 0;
+      {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
+      function (d) {
+        DEBUG && console.log('>> post_pl4me, ' + a[v]);
+        DEBUG && console.log(d);
+        if (d) {
+          if (d.websocket_server) {
+            localStorage.setItem('websocket_server', d.websocket_server);
+            if (v === 0 && d.websocket_server !== ws_addr) {
+              ws_addr = d.websocket_server;
+              if (ws) {
+                ws.close();
+                broadcast_loaded = 0;
+              }
+              DEBUG && console.log('>> connect to the new ws server');
+              load_broadcast();
             }
-            DEBUG && console.log('>> connect to the new ws server');
-            load_broadcast();
           }
+          if (d.guest_apikey) {
+            guest_apikey = d.guest_apikey;
+          } else if (v !== 1 && apikey === null) {
+            post_pl4me(1);
+          }
+          if (d.chrome && d.chrome !== version) {
+            localStorage.setItem('alert_outdated', 1);
+          } else if (version === d.chrome) {
+            localStorage.removeItem('alert_outdated');
+          }
+        } else {
+          console.log('__ empty from 0.cail.cn');
         }
-        if (d.guest_apikey) {
-          guest_apikey = d.guest_apikey;
-        } else if (v !== 1 && apikey === null) {
-          post_pl4me(1);
-        }
-        if (d.chrome && d.chrome !== version) {
-          localStorage.setItem('alert_outdated', 1);
-        } else if (version === d.chrome) {
-          localStorage.removeItem('alert_outdated');
-        }
-      } else {
-        console.log('__ empty from 0.cail.cn');
-      }
-    }, 'json'
+      }, 'json'
   ).fail(function () {
-    DEBUG && console.log('>> post_pl4me, error');
-  }).always(function() {
-    loading_pl4me = false;
-  });
+        DEBUG && console.log('>> post_pl4me, error');
+      }).always(function() {
+        loading_pl4me = false;
+      });
 }
 
 function get_local_ip() {
   return $.getJSON('http://node.thepaperlink.com:8089/', function (d) {
-      local_ip = d['x-forwarded-for'];
-      if (local_ip && !uid) {
-        uid = local_ip + ':';
-        uid += extension_load_date.getTime();
-        localStorage.setItem('ip_time_uid', uid);
-      }
-      DEBUG && console.log('>> get_local_ip: ' + local_ip);
-    }).fail(function() {
-      DEBUG && console.log('>> get_local_ip error');
-    });
+    local_ip = d['x-forwarded-for'];
+    if (local_ip && local_ip.substr(0,7) === '::ffff:') {
+      local_ip = local_ip.split('::ffff:')[1];
+    }
+    if (local_ip && !uid) {
+      uid = local_ip + ':';
+      uid += extension_load_date.getTime();
+      localStorage.setItem('ip_time_uid', uid);
+    }
+    DEBUG && console.log('>> get_local_ip: ' + local_ip);
+  }).fail(function() {
+    DEBUG && console.log('>> get_local_ip error');
+  });
 }
 
 function get_server_data(v) {
@@ -163,13 +172,6 @@ function load_common_values() {
     localStorage.removeItem('skydrive_status');
     localStorage.removeItem('baiduyun_status');
   }
-  rev_proxy = localStorage.getItem('rev_proxy');
-  base = 'https://pubget-hrd.appspot.com';
-  if (rev_proxy === 'yes') {
-    base = 'http://www.zhaowenxian.com';
-  } else if (localStorage.getItem('https_failed')) {
-    base = 'http://www.thepaperlink.com';
-  }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   if (pubmeder_apikey !== null && pubmeder_email !== null) {
@@ -182,6 +184,26 @@ function load_common_values() {
   }
   if (localStorage.getItem('scihub_link') === 'no') {
     scihub_link = 0;
+  } else {
+    if (localStorage.getItem('scihub_download') === 'yes') {
+      scihub_download = 1;
+    }
+  }
+  if (localStorage.getItem('scholar_once') === 'no') {
+    scholar_once = 0;
+  } else {
+    scholar_page_open_limits = 1;
+  }
+  rev_proxy = localStorage.getItem('rev_proxy');
+  base = 'https://pubget-hrd.appspot.com';
+  if (rev_proxy === 'yes') {
+    base = 'http://www.zhaowenxian.com';
+    scholar_once = 1;
+  } else if (localStorage.getItem('https_failed')) {
+    base = 'http://www.thepaperlink.com';
+  }
+  if (!scholar_once) {
+    scholar_no_more = 0;
   }
 }
 load_common_values();
@@ -209,7 +231,7 @@ function generic_on_click(info, tab) {
 
 function select_on_click(info, tab) {
   var url = base,
-    new_tab = localStorage.getItem('new_tab');
+      new_tab = localStorage.getItem('new_tab');
   if ( alldigi.test(info.selectionText) ) {
     url += '/_' + info.selectionText;
   } else {
@@ -223,7 +245,6 @@ function select_on_click(info, tab) {
           return;
         }
       }
-      open_new_tab(url, tab.windowId);
     });
   } else {
     open_new_tab(url, tab.windowId, tab.index);
@@ -260,7 +281,7 @@ function menu_generator() {
           active: true
         });
       });
-  } });
+    } });
 }
 if (localStorage.getItem('contextMenu_shown') !== 'no') {
   menu_generator();
@@ -286,9 +307,9 @@ function saveIt_pubmeder(pmid) {
     return;
   }
   var args = {'apikey' : pubmeder_apikey,
-              'email' : pubmeder_email,
-              'pmid' : pmid},
-    url = 'https://pubmeder-hrd.appspot.com/input';
+        'email' : pubmeder_email,
+        'pmid' : pmid},
+      url = 'https://pubmeder-hrd.appspot.com/input';
   if (rev_proxy === 'yes') {
     url = 'http://1.zhaowenxian.com/input';
   } else if (localStorage.getItem('https_failed')) {
@@ -311,45 +332,45 @@ function saveIt_pubmeder(pmid) {
 function eSearch(search_term, tabId) {
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   $.get(url,
-    function (xml) {
-      var pmid = $(xml).find('Id');
-      if (pmid.length === 1) {
-        localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
-        save_visited_ID( pmid.text() );
-      }
-    },
-    'xml'
+      function (xml) {
+        var pmid = $(xml).find('Id');
+        if (pmid.length === 1) {
+          localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
+          save_visited_ID( pmid.text() );
+        }
+      },
+      'xml'
   ).fail(function () {
-    DEBUG && console.log('>> eSearch failed, do nothing');
-  });
+        DEBUG && console.log('>> eSearch failed, do nothing');
+      });
 }
 
 function email_abstract(a, b) {
   var aKey = 'email_' + a + '_' + b;
   $.post(base + '/',
-    {'apikey': a, 'pmid': b, 'action': 'email'},
-    function (d) {
-      DEBUG && console.log('>> post /, action email: ' + d);
-      localStorage.removeItem(aKey);
-    }, 'json'
+      {'apikey': a, 'pmid': b, 'action': 'email'},
+      function (d) {
+        DEBUG && console.log('>> post /, action email: ' + d);
+        localStorage.removeItem(aKey);
+      }, 'json'
   ).fail(function () {
-    DEBUG && console.log('>> email failed, save for later');
-    var date = new Date();
-    localStorage.setItem(aKey, date.getTime());
-  });
+        DEBUG && console.log('>> email failed, save for later');
+        var date = new Date();
+        localStorage.setItem(aKey, date.getTime());
+      });
 }
 
 function send_binary(aB, pmid, upload, no_email) {
   try {
     var xhr = new XMLHttpRequest(),
-      boundary = 'AJAX------------------------AJAX',
-      contentType = "multipart/form-data; boundary=" + boundary,
-      postHead = '--' + boundary + '\r\n' +
-        'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
-        'Content-Type: application/octet-stream\r\n\r\n',
-      postTail = '\r\n--' + boundary + '--',
-      abView = new Uint8Array(aB),
-      post_data = postHead;
+        boundary = 'AJAX------------------------AJAX',
+        contentType = "multipart/form-data; boundary=" + boundary,
+        postHead = '--' + boundary + '\r\n' +
+            'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
+            'Content-Type: application/octet-stream\r\n\r\n',
+        postTail = '\r\n--' + boundary + '--',
+        abView = new Uint8Array(aB),
+        post_data = postHead;
     console.log('__ download the file size ' + abView.length + ', prepare uploading');
     if (abView.length < 1000) {
       return;
@@ -405,15 +426,15 @@ function get_binary(file, pmid, upload, no_email) {
 
 function dropbox_it(pmid, pdf, k) {
   $.get(
-    base + '/file/new',
-    {'apikey': k, 'no_email': 1},
-    function (ul) {
-      get_binary(pdf, pmid, ul, 1);
-    },
-    'text'
+      base + '/file/new',
+      {'apikey': k, 'no_email': 1},
+      function (ul) {
+        get_binary(pdf, pmid, ul, 1);
+      },
+      'text'
   ).fail(function () {
-    DEBUG && console.log('>> dropbox_it failed: ' + pdf);
-  });
+        DEBUG && console.log('>> dropbox_it failed: ' + pdf);
+      });
 }
 
 function reLoad_options() {
@@ -428,7 +449,7 @@ function reLoad_options() {
 function get_request(msg, _port) {
   DEBUG && console.log(msg);
   var sender_tab_id = null,
-    ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
+      ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   if (_port && _port.sender) {
     sender_tab_id = _port.sender.tab.id;
   }
@@ -438,14 +459,14 @@ function get_request(msg, _port) {
 
   } else if (msg.url) {
     var request_url = base + msg.url + req_key,
-      cloud_op = '',
-      m_status = localStorage.getItem('mendeley_status'),
-      f_status = localStorage.getItem('facebook_status'),
-      d_status = localStorage.getItem('dropbox_status'),
-      b_status = localStorage.getItem('douban_status'),
-      g_status = localStorage.getItem('googledrive_status'),
-      s_status = localStorage.getItem('skydrive_status'),
-      y_status = localStorage.getItem('baiduyun_status');
+        cloud_op = '',
+        m_status = localStorage.getItem('mendeley_status'),
+        f_status = localStorage.getItem('facebook_status'),
+        d_status = localStorage.getItem('dropbox_status'),
+        b_status = localStorage.getItem('douban_status'),
+        g_status = localStorage.getItem('googledrive_status'),
+        s_status = localStorage.getItem('skydrive_status'),
+        y_status = localStorage.getItem('baiduyun_status');
     if (m_status && m_status === 'success') {
       cloud_op += 'm';
     }
@@ -473,8 +494,8 @@ function get_request(msg, _port) {
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         p_proxy(_port,
-          {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-            cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
+            {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
+              cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
         );
       } else {
         if (apikey) {
@@ -589,7 +610,7 @@ function get_request(msg, _port) {
       p_proxy(_port, {
         g_scholar: 1, pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]
       });
-    } else {
+    } else if (!scholar_no_more) {
       scholar_queue[3*scholar_count] = msg.a_pmid;
       scholar_queue[3*scholar_count + 1] = msg.a_title;
       scholar_queue[3*scholar_count + 2] = sender_tab_id;
@@ -597,10 +618,11 @@ function get_request(msg, _port) {
       queue_scholar_title();
     }
 
-  } else if (msg.reset_scholar_count) {
+  } else if (msg.reset_counts) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
+    scihub_limits = 3; // @@@@
 
   } else if (msg.load_broadcast) {
     broadcast_loaded = 0;
@@ -613,8 +635,11 @@ function get_request(msg, _port) {
     if (ajax_pii_link) {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
+    if (scihub_link) {
+      parse_scihub(msg.pmid, 'http://linkinghub.elsevier.com.sci-hub.org/retrieve/pii/' + msg.pii, sender_tab_id);
+    }
 
-  } else if (msg.doi && msg.pmid) {
+  } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (scihub_link) {
       parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.org/' + msg.doi, sender_tab_id);
     }
@@ -622,11 +647,11 @@ function get_request(msg, _port) {
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
-        term_lower = msg.search_term.toLowerCase().
-          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
-        one_term_saved = localStorage.getItem(term_lower),
-        end_num = get_end_num(one_term_saved),
-        digitals = get_ymd();
+          term_lower = msg.search_term.toLowerCase().
+              replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
+          one_term_saved = localStorage.getItem(term_lower),
+          end_num = get_end_num(one_term_saved),
+          digitals = get_ymd();
       digitals.push(msg.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
@@ -645,7 +670,7 @@ function get_request(msg, _port) {
         } else {
           if (end_num) {
             p_proxy(_port, {search_trend:'&equiv;'});
-        } }
+          } }
       } else {
         localStorage.setItem(msg.search_term, digitals.join(','));
       }
@@ -653,11 +678,11 @@ function get_request(msg, _port) {
 
   } else if (msg.from_f1000) {
     var abc = msg.from_f1000.split(','),
-      pmid = abc[0],
-      fid = abc[1],
-      f_v = abc[2],
-      args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
-      extra = '', tmp;
+        pmid = abc[0],
+        fid = abc[1],
+        f_v = abc[2],
+        args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
+        extra = '', tmp;
     $.getJSON(base + '/api?a=chrome3&pmid=' + pmid + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
@@ -666,8 +691,8 @@ function get_request(msg, _port) {
         }
         if (d.item[0].pdf) {
           tmp = '<a class="thepaperlink-green" href="' +
-            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-            '" target="_blank">direct&nbsp;pdf</a>';
+              ez_format_link(ezproxy_prefix, d.item[0].pdf) +
+              '" target="_blank">direct&nbsp;pdf</a>';
           extra += tmp;
         }
         if (extra) {
@@ -676,9 +701,9 @@ function get_request(msg, _port) {
         p_proxy(_port, {to_other_sites:'article', uri:base, pmid:pmid, extra:extra});
         if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
           $.post(base + '/', args,
-            function (d) {
-              DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
-            }, 'json'
+              function (d) {
+                DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
+              }, 'json'
           );
         }
       }
@@ -691,7 +716,7 @@ function get_request(msg, _port) {
 
   } else if (msg.from_dxy) {
     var pmid = msg.from_dxy,
-      extra = '', tmp;
+        extra = '', tmp;
     $.getJSON(base + '/api?a=chrome4&pmid=' + pmid + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
@@ -700,14 +725,14 @@ function get_request(msg, _port) {
         }
         if (d.item[0].pdf) {
           tmp = '<a class="thepaperlink-green" href="' +
-            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-            '" target="_blank">direct&nbsp;pdf</a>';
+              ez_format_link(ezproxy_prefix, d.item[0].pdf) +
+              '" target="_blank">direct&nbsp;pdf</a>';
           extra += tmp;
         }
         if (d.item[0].f_v && d.item[0].fid) {
           tmp = '<a class="thepaperlink-red" href="' +
-            ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
-            '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
+              ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
+              '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
           extra += tmp;
         }
         if (extra) {
@@ -724,7 +749,7 @@ function get_request(msg, _port) {
 
   } else if (msg.from_orNSFC) {
     var doi = msg.from_orNSFC,
-      extra = '', tmp;
+        extra = '', tmp;
     $.getJSON(base + '/api?a=chrome5&doi=' + doi + '&prjID=' + msg.prjID + '&apikey=' + req_key, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
@@ -733,14 +758,14 @@ function get_request(msg, _port) {
         }
         if (d.item[0].pdf) {
           tmp = '<a class="thepaperlink-green" href="' +
-            ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-            '" target="_blank">direct&nbsp;pdf</a>';
+              ez_format_link(ezproxy_prefix, d.item[0].pdf) +
+              '" target="_blank">direct&nbsp;pdf</a>';
           extra += tmp;
         }
         if (d.item[0].f_v && d.item[0].fid) {
           tmp = '<a class="thepaperlink-red" href="' +
-            ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
-            '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
+              ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
+              '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
           extra += tmp;
         }
         if (extra) {
@@ -770,8 +795,6 @@ function get_request(msg, _port) {
       localStorage.setItem('alert_dev', '"' + msg.alert_dev + '"')
     }
 
-  //} else if (msg.open_options) {
-  //  open_new_tab( chrome.extension.getURL('options.html') );
   } else {
     console.log(msg);
   }
@@ -785,10 +808,10 @@ chrome.runtime.onConnect.addListener(function (_port) {
   });
 });
 chrome.runtime.onMessageExternal.addListener(
-  function (req, sender, sendResponse) {
-    get_request(req, null);
-    sendResponse({});
-  }
+    function (req, sender, sendResponse) {
+      get_request(req, null);
+      sendResponse({});
+    }
 );
 
 $.ajax({
@@ -840,22 +863,109 @@ if (old_id) {
 
 function queue_scholar_title() {
   setTimeout(
-    do_scholar_title,
-    1000*scholar_run + Math.floor(Math.random() * 1000)
+      do_scholar_title,
+      1000*scholar_run + Math.floor(Math.random() * 10000)
   );
 }
 
 function do_scholar_title() {
   var pmid = scholar_queue[3*scholar_run],
-    t = scholar_queue[3*scholar_run + 1],
-    tabId = scholar_queue[3*scholar_run + 2];
+      t = scholar_queue[3*scholar_run + 1],
+      tabId = scholar_queue[3*scholar_run + 2];
   scholar_run += 1;
-  scholar_title(pmid, t, tabId);
   if (scholar_run === scholar_count) {
     DEBUG && console.log('>> self-reset scholar_count _run _queue');
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
+  }
+  DEBUG && console.log('call scholar_title() at', new Date());
+  scholar_title(pmid, t, tabId);
+}
+
+function scholar_title(pmid, t, tabId) {
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('title', t);
+  if (scholar_no_more) {
+    b_proxy(tabId, {
+      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+    });
+    return;
+  }
+  var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
+      encodeURIComponent('"' + t + '"');
+  b_proxy(tabId, {
+    g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
+  });
+  $.get(url,
+      function (r) {
+        var reg = /<a[^<]+>Cited by \d+<\/a>/,
+            h = reg.exec(r),
+            g_num = [], g_link = [];
+        if (h && h.length) {
+          DEBUG && console.log(h);
+          g_num = />Cited by (\d+)</.exec(h[0]);
+          g_link = /href="([^"]+)"/.exec(h[0]);
+          if (g_num.length === 2 && g_link.length === 2) {
+            localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
+            b_proxy(tabId, {
+              g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
+            });
+            $.post(base + '/',
+                {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
+                function (d) {
+                  DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
+                }, 'json'
+            );
+            return;
+          }
+        }
+        b_proxy(tabId, {
+          g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+        });
+      },
+      'html'
+  ).fail(function () {
+        DEBUG && console.log('>> scholar_title failed');
+        b_proxy(tabId, {
+          g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
+        });
+        if ( parseInt(localStorage.getItem(date_str), 10) < 1 ) {
+          scholar_page_open_limits = 0;
+        }
+        if (scholar_page_open_limits > 0) {
+          scholar_page_open_limits -= 1;
+          localStorage.setItem(date_str, scholar_page_open_limits)
+          open_new_tab('http://scholar.google.com/');
+        }
+        if (scholar_once || scholar_page_open_limits === 0) {
+          scholar_no_more = 1;
+        }
+      });
+}
+
+function do_download_scihub(pmid, url) {
+  var id = localStorage.getItem('downloadId_' + pmid);
+  if (id) {
+    chrome.downloads.search({url: url},
+        function (item) {
+          DEBUG && console.log( 'filename', item[0].filename );
+          chrome.tabs.create({ // @@@@
+            url: 'file://' + item[0].filename,
+            active: false
+          });
+
+        } );
+  } else {
+    chrome.downloads.download(
+        {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
+        function (id) {
+          localStorage.setItem('downloadId_' + pmid, id);
+          DEBUG && console.log('downloadId', id); }
+    )
+    if (apikey && rev_proxy !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
+      dropbox_it(pmid, url, apikey);
+    }
   }
 }
 
@@ -866,6 +976,9 @@ function parse_scihub(pmid, url, tabId) {
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
+    if (scihub_download) {
+      do_download_scihub(pmid, in_mem[1]);
+    }
     return;
   }
   if (scihub_limits <= 0) {
@@ -888,14 +1001,22 @@ function parse_scihub(pmid, url, tabId) {
                 DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
               }, 'json'
           );
+          if (scihub_download) {
+            do_download_scihub(pmid, h[1]);
+          }
           return;
+        } else {
+          $.get('http://sci-hub.org/continue').then(function () {
+            $.get(url, function (r) {
+              DEBUG && console.log(r);
+            }); // @@@@
+          });
         }
-        b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: '://'});
       },
       'html'
   ).fail(function () {
-    DEBUG && console.log('>> parse_scihub failed, do nothing');
-  });
+        DEBUG && console.log('>> parse_scihub failed, do nothing');
+      });
 }
 
 function parse_pii(pmid, url, tabId) {
@@ -914,100 +1035,36 @@ function parse_pii(pmid, url, tabId) {
   }
   b_proxy(tabId, {el_id: '_pdf' + pmid, el_data: 1});
   $.get(url,
-    function (r) {
-      var reg = /href="([^"]+)" target="newPdfWin"/,
-        reg2 = /Cited by in Scopus \((\d+)\)/i,
-        h = reg.exec(r),
-        h2 = reg2.exec(r),
-        args;
-      if (h && h.length) {
-        DEBUG && console.log(h);
-        args = {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]};
-        if (h2 && h2.length) {
-          DEBUG && console.log(h2);
-          args.scopus_n = h2[1];
-          localStorage.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
-          b_proxy(tabId, {el_id: 'pl4_scopus' + pmid, el_data: h2[1]});
-        }
-        localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
-        b_proxy(tabId, {el_id: '_pdf' + pmid, el_data: h[1]});
-        $.post(base + '/', args,
-          function (d) {
-            DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
-          }, 'json'
-        );
-        return;
-      }
-      b_proxy(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
-    },
-    'html'
-  ).fail(function () {
-    DEBUG && console.log('>> parse_pii failed, do nothing');
-  });
-}
-
-function scholar_title(pmid, t, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('title', t);
-  var in_mem = localStorage.getItem('scholar_' + pmid);
-  if (in_mem) {
-    in_mem = in_mem.split(',', 3);
-    b_proxy(tabId, {
-      g_scholar: 1, pmid: pmid, g_num: in_mem[1], g_link: in_mem[2]
-    });
-    return;
-  }
-  if (scholar_once === 'yes' && scholar_fail_times > scholar_valid_page_open) {
-    DEBUG && console.log('scholar_fail_times', scholar_fail_times);
-    DEBUG && console.log('scholar_valid_page_open', scholar_valid_page_open);
-    return;
-  }
-  var url = 'http://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
-    encodeURIComponent('"' + t + '"');
-  b_proxy(tabId, {
-    g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
-  });
-  $.get(url,
-    function (r) {
-      var reg = /<a[^<]+>Cited by \d+<\/a>/,
-        h = reg.exec(r),
-        g_num = [], g_link = [];
-      if (h && h.length) {
-        DEBUG && console.log(h);
-        g_num = />Cited by (\d+)</.exec(h[0]);
-        g_link = /href="([^"]+)"/.exec(h[0]);
-        if (g_num.length === 2 && g_link.length === 2) {
-          localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-          b_proxy(tabId, {
-            g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
-          });
-          $.post(base + '/',
-            {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
-            function (d) {
-              DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
-            }, 'json'
+      function (r) {
+        var reg = /href="([^"]+)" target="newPdfWin"/,
+            reg2 = /Cited by in Scopus \((\d+)\)/i,
+            h = reg.exec(r),
+            h2 = reg2.exec(r),
+            args;
+        if (h && h.length) {
+          DEBUG && console.log(h);
+          args = {'apikey': req_key, 'pmid': pmid, 'pii_link': h[1]};
+          if (h2 && h2.length) {
+            DEBUG && console.log(h2);
+            args.scopus_n = h2[1];
+            localStorage.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
+            b_proxy(tabId, {el_id: 'pl4_scopus' + pmid, el_data: h2[1]});
+          }
+          localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
+          b_proxy(tabId, {el_id: '_pdf' + pmid, el_data: h[1]});
+          $.post(base + '/', args,
+              function (d) {
+                DEBUG && console.log('>> post pii_link (empty is a success): ' + d);
+              }, 'json'
           );
           return;
         }
-      }
-      b_proxy(tabId, {
-        g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-      });
-    },
-    'html'
+        b_proxy(tabId, {el_id: '_pdf' + pmid, el_data: '://'});
+      },
+      'html'
   ).fail(function () {
-    DEBUG && console.log('>> scholar_title failed');
-    b_proxy(tabId, {
-      g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
-    });
-    scholar_fail_times += 1;
-    if (!scholar_valid_page_open) {
-      if (scholar_once !== 'yes' || scholar_valid_page_open < 1) {
-        open_new_tab('http://scholar.google.com/');
-        scholar_valid_page_open += 1;
-      }
-    }
-  });
+        DEBUG && console.log('>> parse_pii failed, do nothing');
+      });
 }
 
 function load_broadcast() {
@@ -1061,15 +1118,15 @@ function load_broadcast() {
       DEBUG && console.log(d);
       if (d.apikey === req_key && d.action) {
         chrome.tabs.query({active: true, currentWindow: true},
-          function (tabs) { // current tab and window, not perfect
-            if (d.action === 'title') {
-              scholar_title(d.pmid, d.title, tabs[0].id);
-            } else if (d.action === 'url') {
-              parse_pii(d.pmid, d.url, tabs[0].id);
-            } else if (d.action === 'pdfLink_quick') {
-              b_proxy(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
-            }
-        });
+            function (tabs) { // current tab and window, not perfect
+              if (d.action === 'title') {
+                scholar_title(d.pmid, d.title, tabs[0].id);
+              } else if (d.action === 'url') {
+                parse_pii(d.pmid, d.url, tabs[0].id);
+              } else if (d.action === 'pdfLink_quick') {
+                b_proxy(tabs[0].id, {el_id: 'pdfLink_quick', el_data: d.pdfLink_quick});
+              }
+            });
         if (d.action === 'dropbox_it' && d.pdf.substr(0,7).toLowerCase() === 'http://') {
           dropbox_it(d.pmid, d.pdf, d.apikey);
         }
