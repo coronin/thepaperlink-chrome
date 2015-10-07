@@ -20,12 +20,13 @@ var DEBUG = false,
     init_found = localStorage.getItem('id_found') || '',
     guest_apikey = null,
     apikey, req_key, rev_proxy, base, pubmeder_apikey, pubmeder_email,
-    pubmeder_ok = 0,
-    broadcast_loaded = 0,
-    ajax_pii_link = 1,
-    scihub_link = 1,
-    scihub_download = 0,
-    scihub_limits = 3, // @@@@
+    pubmeder_ok = false,
+    broadcast_loaded = false,
+    ajax_pii_link = true,
+    scihub_link = true,
+    scihub_download = false,
+    scihub_open_files = false,
+    scihub_limits = localStorage.getItem('scihub_limit') || 3,
     extension_load_date = new Date(),
     date_str = 'day_' + extension_load_date.getFullYear() +
         '_' + (extension_load_date.getMonth() + 1) +
@@ -72,7 +73,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.5.0';
+  var a = [], version = 'Chrome_v2.5.1';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -90,7 +91,7 @@ function post_pl4me(v) {
               ws_addr = d.websocket_server;
               if (ws) {
                 ws.close();
-                broadcast_loaded = 0;
+                broadcast_loaded = false;
               }
               DEBUG && console.log('>> connect to the new ws server');
               load_broadcast();
@@ -175,18 +176,21 @@ function load_common_values() {
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   if (pubmeder_apikey !== null && pubmeder_email !== null) {
-    pubmeder_ok = 1;
+    pubmeder_ok = true;
   } else {
-    pubmeder_ok = 0;
+    pubmeder_ok = false;
   }
   if (localStorage.getItem('ajax_pii_link') === 'no') {
-    ajax_pii_link = 0;
+    ajax_pii_link = false;
   }
   if (localStorage.getItem('scihub_link') === 'no') {
-    scihub_link = 0;
+    scihub_link = false;
   } else {
     if (localStorage.getItem('scihub_download') === 'yes') {
-      scihub_download = 1;
+      scihub_download = true;
+    }
+    if (localStorage.getItem('scihub_open_files') === 'yes') {
+      scihub_open_files = true;
     }
   }
   if (localStorage.getItem('scholar_once') === 'no') {
@@ -233,19 +237,12 @@ function select_on_click(info, tab) {
   var url = base,
       new_tab = localStorage.getItem('new_tab');
   if ( alldigi.test(info.selectionText) ) {
-    url += '/_' + info.selectionText;
+    url += '/:' + info.selectionText;
   } else {
     url += '/?q=' + info.selectionText;
   }
-  if (new_tabId && new_tab === 'no') {
-    chrome.tabs.query({windowId: tab.windowID}, function (tabs) {
-      for (i = 0, len = tabs.length; i < len; i += 1) {
-        if (new_tabId === tabs[i].id) {
-          chrome.tabs.update(new_tabId, {url: url, active: true});
-          return;
-        }
-      }
-    });
+  if (new_tab === 'no') {
+    chrome.tabs.update({url: url, active: true});
   } else {
     open_new_tab(url, tab.windowId, tab.index);
   }
@@ -302,7 +299,7 @@ function save_visited_ID(new_id) {
 }
 
 function saveIt_pubmeder(pmid) {
-  if (pubmeder_ok === 0) {
+  if (!pubmeder_ok) {
     DEBUG && console.log('>> no valid pubmeder credit');
     return;
   }
@@ -523,7 +520,7 @@ function get_request(msg, _port) {
       localStorage.setItem('b_apikey_gold', 1);
       pubmeder_apikey = msg.save_apikey;
       pubmeder_email = msg.save_email;
-      pubmeder_ok = 1;
+      pubmeder_ok = true;
     } else {
       localStorage.setItem('thepaperlink_apikey', msg.save_apikey);
       localStorage.setItem('a_apikey_gold', 1);
@@ -622,10 +619,10 @@ function get_request(msg, _port) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
-    scihub_limits = 3; // @@@@
+    scihub_limits = localStorage.getItem('scihub_limit') || 3;
 
   } else if (msg.load_broadcast) {
-    broadcast_loaded = 0;
+    broadcast_loaded = false;
     if (ws) {
       ws.close();
     }
@@ -950,22 +947,38 @@ function do_download_scihub(pmid, url) {
     chrome.downloads.search({url: url},
         function (item) {
           DEBUG && console.log( 'filename', item[0].filename );
-          chrome.tabs.create({ // @@@@
-            url: 'file://' + item[0].filename,
-            active: false
-          });
-
+          if (do_download_scihub) {
+            chrome.tabs.create({
+              url: 'file://' + item[0].filename,
+              active: false
+            }); }
         } );
   } else {
     chrome.downloads.download(
         {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
         function (id) {
           localStorage.setItem('downloadId_' + pmid, id);
-          DEBUG && console.log('downloadId', id); }
-    )
+          DEBUG && console.log('downloadId', id);
+          if (do_download_scihub) {
+            chrome.downloads.open(id);
+          }
+        } );
     if (apikey && rev_proxy !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
       dropbox_it(pmid, url, apikey);
     }
+  }
+}
+
+function prepare_download_scihub(pmid, args) {
+  localStorage.setItem('scihub_' + pmid, pmid + ',' + args.scihub_link);
+  b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: args.scihub_link});
+  $.post(base + '/', args,
+      function (d) {
+        DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
+      }, 'json'
+  );
+  if (scihub_download) {
+    do_download_scihub(pmid, args.scihub_link);
   }
 }
 
@@ -986,30 +999,27 @@ function parse_scihub(pmid, url, tabId) {
   }
   scihub_limits -= 1;
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
+  var reg = /iframe src\s*=\s*"(\S+)"/i, h,
+      args = {'apikey': req_key, 'pmid': pmid, 'scihub_link': ''};
   $.get(url,
       function (r) {
-        var reg = /iframe src\s*=\s*"(\S+)"/i,
-            h = reg.exec(r),
-            args;
+        h = reg.exec(r);
         if (h && h.length) {
           DEBUG && console.log(h);
-          args = {'apikey': req_key, 'pmid': pmid, 'scihub_link': h[1]};
-          localStorage.setItem('scihub_' + pmid, pmid + ',' + h[1]);
-          b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: h[1]});
-          $.post(base + '/', args,
-              function (d) {
-                DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
-              }, 'json'
-          );
-          if (scihub_download) {
-            do_download_scihub(pmid, h[1]);
-          }
+          args.scihub_link = h[1];
+          prepare_download_scihub(pmid, args);
           return;
         } else {
           $.get('http://sci-hub.org/continue').then(function () {
             $.get(url, function (r) {
-              DEBUG && console.log(r);
-            }); // @@@@
+              console.log(r); // @@@@
+              h = reg.exec(r);
+              if (h && h.length) {
+                DEBUG && console.log(h);
+                args.scihub_link = h[1];
+                prepare_download_scihub(pmid, args);
+              }
+            });
           });
         }
       },
@@ -1085,16 +1095,16 @@ function load_broadcast() {
 
   ws.onopen = function () {
     DEBUG && console.log('>> ws is established');
-    broadcast_loaded = 1;
+    broadcast_loaded = true;
     ws.send('{"apikey":"' + req_key + '"}');
   };
 
   ws.onclose = function () {
-    if (broadcast_loaded === 1) {
+    if (broadcast_loaded) {
       console.log('__ server comminucation lost, reconnecting...');
       if (load_try < 0) {
         DEBUG && console.log('>> ws is broken');
-        broadcast_loaded = 0;
+        broadcast_loaded = false;
         return;
       }
       if (window.navigator.onLine) {
