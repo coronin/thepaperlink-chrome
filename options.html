@@ -15,7 +15,7 @@
     h3 {color:#9f0000}
     p {line-height:1.5em}
     li {padding:0.33em}
-    input.settings {position:relative;top:2px}
+    input.settings {position:relative}
     input.keywords {vertical-align:middle}
     .Off {display:none !important}
     .keys {font-family:'Courier New',Courier,monospace;background:#f0f0f0}
@@ -34,7 +34,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v2.5.0 &copy; 2010-15 &middot;
+  <span style="float:right">v2.5.1 &copy; 2010-15 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; California/Shanghai &middot;
     <a href="http://www.thepaperlink.com" rel="external">www.thepaperlink.com</a> &middot;
     <a href="http://www.zhaowenxian.com" rel="external">www.zhaowenxian.com</a>
@@ -141,13 +141,15 @@
   <h3>the extension settings</h3>
   <p><input class="settings" type="checkbox" id="new_tab" />
     You could check here to <b>always open a new tab</b> when searching selected text via the content menu,
-    rather than refresh the existing search tab.
+    rather than refresh the current tab.
     </p>
   <p><input class="settings" type="checkbox" id="contextMenu_shown" />
     You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
   <p><input class="settings" type="checkbox" id="co_pubmed" />
-    Disable the function overlap with <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a><span id="pubmeder_span"></span>.
+    Disable the function overlap with
+    <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
+    <span id="pubmeder_span"></span>.
     </p>
   <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -163,13 +165,18 @@
       </p>
   </div></div>
   <p><input class="settings" type="checkbox" id="scihub_link" />
-    <b>Enable</b> to fetch sci-hub.org PDF link on the abstract page.
+    <b>Enable</b> to insert sci-hub.org PDF links on the page
+    <span id="scihub_span"></span>.
   </p>
   <div class="ui-widget Off" id="scihub_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       <span style="color:red;font-weight:bold;background:yellow">testing:</span>
+      check to download a local copy and <i>Dropbox</i> it (if enabled)
       <input class="settings" type="checkbox" id="scihub_download" />
-      check to download a local copy and then upload
+    </p>
+    <p class="Off" id="scihub_download_info"><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
+      once download, check to always open the files
+      <input class="settings" type="checkbox" id="scihub_open_files" />
     </p>
   </div></div>
   <p><input class="settings" type="checkbox" id="ws_items" />
