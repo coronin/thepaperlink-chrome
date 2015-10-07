@@ -289,7 +289,7 @@ function getPmid(zone, num) {
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.setAttribute('style', 'border-left:6px #fccccc solid;padding-left:6px;font-size:11px');
-        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">waiting</span>';
+        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
         if (t(zone)[num].className === 'rprt') {
           t(zone)[num + 4].appendChild(c);
         } else { // display with abstract
