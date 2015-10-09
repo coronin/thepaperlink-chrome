@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -15,8 +15,6 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
-      "http://0.cail.cn/*",
-      "http://www.thepaperlink.net/*",
       "https://pubget-hrd.appspot.com/*"
     ]
   },
@@ -34,9 +32,12 @@
     "http://www.ncbi.nlm.nih.gov/*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
     "http://www.thepaperlink.com/api*",
-    "http://0.cail.cn/api*",
     "http://node.thepaperlink.com:8081/",
-    "http://node.thepaperlink.com:8089/"
+    "http://node.thepaperlink.com:8089/",
+    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
+    "https://pubget-hrd.appspot.com/*",
+    "https://pubmeder-hrd.appspot.com/input",
+    "http://*/*"
   ],
   "background": {
     "page": "background.html"
