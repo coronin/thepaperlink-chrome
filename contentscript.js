@@ -505,7 +505,7 @@ function get_request(msg) {
         }
       } else if (msg.g_num && msg.g_link) {
         $('citedBy' + msg.pmid).innerHTML = uneval_trim(msg.g_num) +
-            ' times <a target="_blank" href="http://scholar.google.com' +
+            ' times <a target="_blank" href="https://scholar.google.com' +
             uneval_trim(msg.g_link) + '">(in Google Scholar)</a>';
       }
     } catch (err) {
