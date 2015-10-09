@@ -15,13 +15,13 @@ function eFetch(pmid) {
     return;
   }
   $('.loadIcon').removeClass('Off');
-  var url, args = {apikey : 'ab25c21c079653919d9b53213ac8cc6e',
+  var url, args = {apikey : localStorage.getItem('GUEST_APIKEY'),
     db : 'pubmed',
     id : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'http://43.zhaowenxian.com/efetch';
+    url = 'http://www.zhaowenxian.com/entrezajax/efetch';
   } else {
-    url = 'https://entrezajax3.appspot.com/efetch';
+    url = 'https://pubget-hrd.appspot.com/entrezajax/efetch';
   }
   $.getJSON(url, args, function (d) {
     $('.AbsButton').addClass('Off');

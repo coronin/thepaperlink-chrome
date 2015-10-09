@@ -1,3 +1,4 @@
+"use strict";
 
 var DEBUG = false,
     i, len, aKey, aVal, ws, ws_timer,
@@ -98,6 +99,7 @@ function post_pl4me(v) {
           }
           if (d.guest_apikey) {
             guest_apikey = d.guest_apikey;
+            localStorage.setItem('GUEST_APIKEY', guest_apikey);
           } else if (v !== 1 && apikey === null) {
             post_pl4me(1);
           }
