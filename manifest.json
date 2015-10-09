@@ -15,8 +15,6 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
-      "http://0.cail.cn/*",
-      "http://www.thepaperlink.net/*",
       "https://pubget-hrd.appspot.com/*"
     ]
   },
@@ -29,7 +27,6 @@
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
     "https://pubget-hrd.appspot.com/*",
     "https://pubmeder-hrd.appspot.com/input",
-    "https://entrezajax3.appspot.com/efetch",
     "http://*/*"
   ],
   "background": {

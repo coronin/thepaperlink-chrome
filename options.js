@@ -58,7 +58,7 @@ function reset_key(v) {
 }
 
 function valid_thepaperlink(ak) {
-  return $.get('http://0.cail.cn/api?validate=' + ak,
+  return $.get('http://www.zhaowenxian.com/api?validate=' + ak,
       function (txt) {
         if (txt === 'valid') {
           _port.postMessage({save_apikey: ak, save_email: null});
