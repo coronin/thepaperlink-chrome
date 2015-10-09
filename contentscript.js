@@ -762,7 +762,6 @@ function get_request(msg) {
   }
   DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
   //sendResponse({});
-  return;
 }
 //chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onMessage.addListener(get_request); // from b_proxy
