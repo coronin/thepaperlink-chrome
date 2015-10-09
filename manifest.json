@@ -26,8 +26,6 @@
     "tabs",
     "clipboardWrite",
     "downloads",
-    "webRequest",
-    "webRequestBlocking",
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
     "https://pubget-hrd.appspot.com/*",
     "https://pubmeder-hrd.appspot.com/input",

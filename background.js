@@ -1,20 +1,5 @@
 "use strict";
 
-chrome.webRequest.onHeadersReceived.addListener(function (details) {
-  // console.log(details);
-  var flag = false, i,
-      rule = { "name": "Access-Control-Allow-Origin",
-               "value": "*" };
-  for (i = 0; i < details.responseHeaders.length; i += 1) {
-    if (details.responseHeaders[i].name === rule.name) {
-      flag = true;
-      details.responseHeaders[i].value = rule.value;
-      break;
-    }
-  }
-  if (!flag) details.responseHeaders.push(rule);
-}, {urls: ['*://scholar.google.com/']}, ['blocking', 'responseHeaders']);
-
 var DEBUG = false,
     i, len, aKey, aVal, ws, ws_timer,
     ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081',
