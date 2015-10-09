@@ -371,7 +371,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
-    oXHR.open('POST', 'http://0.cail.cn/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+    oXHR.open('POST', 'http://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
     oXHR.onreadystatechange = function (oEvent) {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
@@ -510,7 +510,7 @@ function get_request(msg) {
         }
       } else if (msg.g_num && msg.g_link) {
         $('citedBy' + msg.pmid).innerHTML = uneval_trim(msg.g_num) +
-            ' times <a target="_blank" href="http://scholar.google.com' +
+            ' times <a target="_blank" href="https://scholar.google.com' +
             uneval_trim(msg.g_link) + '">(in Google Scholar)</a>';
       }
     } catch (err) {
@@ -767,7 +767,6 @@ function get_request(msg) {
   }
   DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
   //sendResponse({});
-  return;
 }
 //chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onMessage.addListener(get_request); // from b_proxy
