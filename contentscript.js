@@ -366,7 +366,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
-    oXHR.open('POST', 'http://0.cail.cn/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+    oXHR.open('POST', 'http://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
     oXHR.onreadystatechange = function (oEvent) {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {

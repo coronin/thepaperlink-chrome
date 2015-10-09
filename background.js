@@ -79,7 +79,7 @@ function post_pl4me(v) {
   if (!local_ip) {
     return;
   }
-  $.post('http://0.cail.cn/',
+  $.post('http://www.zhaowenxian.com/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_pl4me, ' + a[v]);
@@ -108,7 +108,7 @@ function post_pl4me(v) {
             localStorage.removeItem('alert_outdated');
           }
         } else {
-          console.log('__ empty from 0.cail.cn');
+          console.log('__ empty from www.zhaowenxian.com');
         }
       }, 'json'
   ).fail(function () {
@@ -963,7 +963,7 @@ function do_download_scihub(pmid, url) {
     chrome.downloads.search({url: url},
         function (item) {
           DEBUG && console.log( 'filename', item[0].filename );
-          if (do_download_scihub) {
+          if (scihub_open_files) {
             chrome.tabs.create({
               url: 'file://' + item[0].filename,
               active: false
@@ -975,7 +975,7 @@ function do_download_scihub(pmid, url) {
         function (id) {
           localStorage.setItem('downloadId_' + pmid, id);
           DEBUG && console.log('downloadId', id);
-          if (do_download_scihub) {
+          if (scihub_open_files) {
             chrome.downloads.open(id);
           }
         } );
@@ -1167,5 +1167,11 @@ $(document).ready(function () {
   if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
     load_broadcast();
     get_server_data(0);
+  }
+});
+
+$( document ).ajaxSuccess( function (event, xhr, settings) {
+  if ( settings.url.indexOf('//scholar.google.com/') > -1 ) {
+    console.log('>>>> do something to access scholar.google.com via ajax');
   }
 });
