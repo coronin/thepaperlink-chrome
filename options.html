@@ -139,14 +139,14 @@
 
 <div id="option_tabs-3">
   <h3>the extension settings</h3>
-  <p><input class="settings" type="checkbox" id="new_tab" />
+  <p><input class="settings" type="checkbox" id="new_tab" title="new_tab" />
     You could check here to <b>always open a new tab</b> when searching selected text via the content menu,
     rather than refresh the current tab.
     </p>
-  <p><input class="settings" type="checkbox" id="contextMenu_shown" />
+  <p><input class="settings" type="checkbox" id="contextMenu_shown" title="contextMenu_shown" />
     You could check here to <b>disable</b> the context menu triggered by right mouse click.
     </p>
-  <p><input class="settings" type="checkbox" id="co_pubmed" />
+  <p><input class="settings" type="checkbox" id="co_pubmed" title="co_pubmed" />
     Disable the function overlap with
     <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
     <span id="pubmeder_span"></span>.
@@ -156,7 +156,7 @@
       <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
       </p>
   </div></div>
-  <p><input class="settings" type="checkbox" id="ajax_pii_link" />
+  <p><input class="settings" type="checkbox" id="ajax_pii_link" title="ajax_pii_link" />
     <b>Enable</b> to solve missing PDF links locally.
     </p>
   <div class="ui-widget Off" id="ajax_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
@@ -164,22 +164,22 @@
       only support the following publisher: <i>ScienceDirect</i>
       </p>
   </div></div>
-  <p><input class="settings" type="checkbox" id="scihub_link" />
+  <p><input class="settings" type="checkbox" id="scihub_link" title="scihub_link" />
     <b>Enable</b> to insert sci-hub.org PDF links on the page
     <span id="scihub_span"></span>.
   </p>
   <div class="ui-widget Off" id="scihub_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       <span style="color:red;font-weight:bold;background:yellow">testing:</span>
-      check <input class="settings" type="checkbox" id="scihub_download" />
+      check <input class="settings" type="checkbox" id="scihub_download" title="scihub_download" />
       to download a local copy and <i>Dropbox</i> it (if enabled)
     </p>
     <p class="Off" id="scihub_download_info"><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
-      once download, check <input class="settings" type="checkbox" id="scihub_open_files" />
+      once download, check <input class="settings" type="checkbox" id="scihub_open_files" title="scihub_open_files" />
       to always open the files
     </p>
   </div></div>
-  <p><input class="settings" type="checkbox" id="ws_items" />
+  <p><input class="settings" type="checkbox" id="ws_items" title="ws_items" />
     <b>Display</b> "cited by" counts on our website.
     </p>
   <div class="ui-widget Off" id="ws_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
@@ -191,12 +191,12 @@
       you are using the following server ws://<span id="websocket_server">node.thepaperlink.com:8081</span> for real-time communication</p>
     <p id="scholar_once_info"><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       google scholar connection check; enable the following to check only once
-      <input class="settings" type="checkbox" id="scholar_once" /></p>
+      <input class="settings" type="checkbox" id="scholar_once" title="scholar_once" /></p>
   </div></div>
   <p id="rev_proxy_content">
     </p>
   <hr/>
-  <p><input class="settings" type="text" value="{prefix}" size="40" id="ezproxy_input" />
+  <p><input class="settings" type="text" value="{prefix}" size="40" id="ezproxy_input" title="ezproxy_input" />
     If your institute uses ezproxy, fill in the {prefix} please.
     </p>
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
@@ -222,7 +222,7 @@
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
   <ul id="keywords_list"></ul>
-  <textarea class="Off" name="patterns" id="keywords_area" rows="4"></textarea>
+  <textarea class="Off" name="patterns" id="keywords_area" title="keywords_area" rows="4"></textarea>
   <button style="vertical-align:top;margin-left:4px" class="Off" id="submit_keyword">submit</button>
 </div>
 
