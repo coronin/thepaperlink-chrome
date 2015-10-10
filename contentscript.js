@@ -24,11 +24,6 @@ var DEBUG = false,
     onePage_calls = 0,
     _port = chrome.runtime.connect({name: 'background_port'});
 
-/* limited version, full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
-var limited = page_d.createElement('div');
-limited.innerHTML = '<div id="thePaperLink_chrome_limited"></div>';
-page_d.body.appendChild(limited);
-
 
 function ez_format_link(p, url){
   if (!p) return url;
