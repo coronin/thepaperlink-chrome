@@ -253,16 +253,16 @@ function p_proxy(_port, _data) {
   _port.postMessage(_data);
 }
 
-//function call_js_on_click(info, tab) {
-//  DEBUG && console.log('call_js_on_click', info);
-//  b_proxy(tab.id, {js_key: req_key, js_base: base + '/'});
-//}
+function call_js_on_click(info, tab) {
+  DEBUG && console.log('call_js_on_click', info);
+  b_proxy(tab.id, {js_key: req_key, js_base: base + '/'});
+}
 
 function menu_generator() {
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
-  //chrome.contextMenus.create({'title': 'find ID on this page',
-  //  'contexts':['page'], 'onclick': call_js_on_click});
+  chrome.contextMenus.create({'title': 'find ID on this page',
+    'contexts':['page'], 'onclick': call_js_on_click});
   chrome.contextMenus.create({'title': 'visit the Paper Link',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
