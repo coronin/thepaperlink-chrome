@@ -22,7 +22,6 @@ var DEBUG = false,
     search_term = '',
     search_result_count = '',
     onePage_calls = 0,
-    date = new Date(),
     _port = chrome.runtime.connect({name: 'background_port'});
 
 /* limited version, full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
@@ -372,7 +371,7 @@ function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
     oXHR.open('POST', 'http://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
-    oXHR.onreadystatechange = function (oEvent) {
+    oXHR.onreadystatechange = function () {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
           $('thepaperlink_alert').innerHTML = '&lt;!&gt; Alert sent.';
@@ -394,18 +393,15 @@ if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.com/settings'
     || page_url === 'http://www.zhaowenxian.com/settings'
     || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
-  var apikey = $('apikey').innerHTML,
-      cloud_op = $('cloud_op').innerHTML;
-  a_proxy({save_apikey: apikey, save_email: null});
-  a_proxy({save_cloud_op: cloud_op});
+  a_proxy({save_apikey: $('apikey').innerHTML, save_email: null});
+  a_proxy({save_cloud_op: $('cloud_op').innerHTML});
   noRun = 1;
 } else if (page_url === 'http://www.pubmeder.com/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
     || page_url === 'http://1.zhaowenxian.com/registration') { // storage data for access the bookmark server
-  var email = $('currentUser').innerHTML,
-      apikey = $('apikey_pubmeder').innerHTML;
-  a_proxy({save_apikey: apikey, save_email: email});
+  a_proxy({save_apikey: $('apikey_pubmeder').innerHTML,
+            save_email: $('currentUser').innerHTML});
   noRun = 1;
 } else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
   var content = $('r_content').innerHTML,
