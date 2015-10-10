@@ -253,10 +253,10 @@ function p_proxy(_port, _data) {
   _port.postMessage(_data);
 }
 
-function call_js_on_click(info, tab) {
-  DEBUG && console.log('call_js_on_click', info);
-  b_proxy(tab.id, {js_key: req_key, js_base: base + '/'});
-}
+//function call_js_on_click(info, tab) {
+//  DEBUG && console.log('call_js_on_click', info);
+//  b_proxy(tab.id, {js_key: req_key, js_base: base + '/'});
+//}
 
 function menu_generator() {
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
@@ -444,7 +444,8 @@ function reLoad_options() {
 function get_request(msg, _port) {
   DEBUG && console.log(msg);
   var sender_tab_id = null,
-      ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
+      ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '',
+      pmid, extra, tmp;
   if (_port && _port.sender) {
     sender_tab_id = _port.sender.tab.id;
   }
@@ -672,17 +673,17 @@ function get_request(msg, _port) {
     }
 
   } else if (msg.from_f1000) {
-    var abc = msg.from_f1000.split(','),
-        pmid = abc[0],
-        fid = abc[1],
+    var abc = msg.from_f1000.split(',');
+    pmid = abc[0];
+    extra = '';
+    var fid = abc[1],
         f_v = abc[2],
-        args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
-        extra = '', tmp;
+        args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
     $.getJSON(base + '/api',
         {a: 'chrome3',
          pmid: pmid,
          apikey: req_key,
-         runtime: chrome.runtime.id}, function (d) {
+         runtime: '' + chrome.runtime.id}, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
           tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
@@ -714,13 +715,13 @@ function get_request(msg, _port) {
     });
 
   } else if (msg.from_dxy) {
-    var pmid = msg.from_dxy,
-        extra = '', tmp;
+    pmid = msg.from_dxy;
+    extra = '';
     $.getJSON(base + '/api',
         {a: 'chrome4',
          pmid: pmid,
          apikey: req_key,
-         runtime: chrome.runtime.id}, function (d) {
+         runtime: '' + chrome.runtime.id}, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
           tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
@@ -751,14 +752,14 @@ function get_request(msg, _port) {
     });
 
   } else if (msg.from_orNSFC) {
-    var doi = msg.from_orNSFC,
-        extra = '', tmp;
+    var doi = msg.from_orNSFC;
+    extra = '';
     $.getJSON(base + '/api',
         {a: 'chrome5',
          doi: doi,
          prjID: msg.prjID,
          apikey: req_key,
-         runtime: chrome.runtime.id}, function (d) {
+         runtime: '' + chrome.runtime.id}, function (d) {
       if (d && d.count === 1) {
         if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
           tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';

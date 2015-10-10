@@ -60,7 +60,7 @@ function reset_key(v) {
 function valid_thepaperlink(ak) {
   return $.get('http://www.zhaowenxian.com/api',
       { validate: ak,
-         runtime: chrome.runtime.id },
+         runtime: '' + chrome.runtime.id },
       function (txt) {
         if (txt === 'valid') {
           _port.postMessage({save_apikey: ak, save_email: null});
@@ -100,7 +100,8 @@ function saveOptions() {
       pubmed_limit = $('#pubmed_limit').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
       req_a = null,
-      req_b = null;
+      req_b = null,
+      a;
   if (co_pubmed) {
     localStorage.setItem('co_pubmed', 'no');
   } else {
@@ -164,7 +165,7 @@ function saveOptions() {
   }
   if (scihub_limit) {
     try {
-      var a = parseInt(scihub_limit, 10);
+      a = parseInt(scihub_limit, 10);
       if (a && a !== 3) {
         localStorage.setItem('scihub_limit', a);
       }
@@ -174,7 +175,7 @@ function saveOptions() {
   }
   if (pubmed_limit) {
     try {
-      var a = parseInt(pubmed_limit, 10);
+      a = parseInt(pubmed_limit, 10);
       if (a && a !== 10) {
         localStorage.setItem('pubmed_limit', a);
       }
@@ -288,14 +289,14 @@ function addProductToUI(product) {
   if (product.localeData[0].description === '@thepaperlink') {
     $('#donate_info').removeClass('Off');
     $('#xxxx').text('If you enjoy using the extension and want to support its development, you can ');
-    var butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('donate');
-    $('#xxxx').append(butAct);
+    var butAct1 = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('donate');
+    $('#xxxx').append(butAct1);
   } else {
     var row = $('<tr></tr>'),
         colName = $('<td></td>').html('<b>' + product.localeData[0].title + '</b><br/><span style="color:#ccc">' + product.localeData[0].description + '</span>'),
         colPrice = $('<td></td>').text('$' + parseInt( product.prices[0].valueMicros, 10 ) / 1000000),
-        butAct = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('Purchase'),
-        colBut = $('<td></td>').append(butAct);
+        butAct2 = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('Purchase'),
+        colBut = $('<td></td>').append(butAct2);
     row.append(colName).append(colPrice).append(colBut);
     $('#in-app-purchase').append(row);
   }
