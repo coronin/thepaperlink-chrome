@@ -37,6 +37,7 @@ var DEBUG = false,
  *    contextMenu_shown
  *    new_tab
  *    co_pubmed
+ *    GUEST_APIKEY
  */
 
 function ez_format_link(prefix, url){
@@ -176,7 +177,11 @@ function load_common_values() {
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
-  pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
+  if (pubmeder_apikey !== null && pubmeder_email !== null) {
+    pubmeder_ok = true;
+  } else {
+    pubmeder_ok = false;
+  }
   if (localStorage.getItem('ajax_pii_link') === 'no') {
     ajax_pii_link = false;
   }
