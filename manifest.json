@@ -45,6 +45,7 @@
     "http://f1000.com/prime/*",
     "http://scholar.google.com/*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
+    "http://dx.doi.org.sci-hub.org/*",
     "http://pubmed.cn/*",
     "http://or.nsfc.gov.cn/*"
   ],
