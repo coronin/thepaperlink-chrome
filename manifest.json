@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -10,25 +10,15 @@
     "loadingLine.gif",
     "clippyIt.png"
   ],
-  "externally_connectable": {
-    "ids": ["*"],
-    "matches": [
-      "http://www.thepaperlink.com/*",
-      "http://www.zhaowenxian.com/*",
-      "https://pubget-hrd.appspot.com/*"
-    ]
-  },
   "permissions": [
     "background",
     "contextMenus",
     "tabs",
     "clipboardWrite",
     "downloads",
-    "https://www.ncbi.nlm.nih.gov/*",
-    "https://pubget-hrd.appspot.com/*",
-    "https://pubmeder-hrd.appspot.com/registration",
-    "https://pubmeder-hrd.appspot.com/input",
+    "https://pubget-hrd.appspot.com/static/humans.txt*",
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
+    "https://scholar.google.com/scholar*",
     "http://*/*"
   ],
   "background": {
@@ -48,8 +38,17 @@
   },
   "content_scripts": [ {
     "matches": [
+      "http://www.thepaperlink.com/*",
+      "http://www.zhaowenxian.com/*",
+      "http://www.pubmeder.com/registration",
+      "http://pubmeder-hrd.appspot.com/registration",
+      "https://pubmeder-hrd.appspot.com/registration",
+      "http://1.zhaowenxian.com/registration",
       "http://f1000.com/prime/*",
-      "http://scholar.google.com/*",
+      "https://scholar.google.com/scholar*",
+      "http://scholar.google.com/scholar*",
+      "http://pubmed.cn/*",
+      "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*"
     ],
@@ -61,5 +60,21 @@
     "js": [ "contentscript.js" ],
     "run_at" : "document_idle",
     "all_frames" : true
-  } ]
+  } ],
+  "externally_connectable": {
+    "ids": ["*"],
+    "matches": [
+      "http://www.thepaperlink.com/*",
+      "http://www.zhaowenxian.com/*",
+      "http://www.pubmeder.com/registration",
+      "http://pubmeder-hrd.appspot.com/registration",
+      "https://pubmeder-hrd.appspot.com/registration",
+      "http://1.zhaowenxian.com/registration",
+      "http://f1000.com/prime/*",
+      "http://pubmed.cn/*",
+      "http://or.nsfc.gov.cn/*",
+      "http://www.ncbi.nlm.nih.gov/*",
+      "https://www.ncbi.nlm.nih.gov/*"
+    ]
+  }
 }
