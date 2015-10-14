@@ -32,7 +32,10 @@
   },
   "options_page": "options.html",
   "page_action": {
-    "default_icon": "19grey.png",
+    "default_icon": {
+      "19": "19grey.png",
+      "48": "48grey.png"
+    },
     "default_title": "the paper link for PubMed: click to display detailed info",
     "default_popup" : "popup.html"
   },
