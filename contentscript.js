@@ -92,7 +92,7 @@ function process_orNSFC() {
 
 function process_dxy() {
   var i, len, ele,
-      pmid = $('pmid').value;
+      pmid = $('pmid').value; // abstract page only
   if (pmid && pmid === '' + parseInt(pmid, 10)) {
     a_proxy({from_dxy: pmid});
   }
@@ -181,8 +181,8 @@ function process_googlescholar() {
   }
   if (d.length > 0) {
     tmp = page_d.createElement('div');
-    tmp.setAttribute('style', 'float:right;cursor:pointer');
-    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">[order the results, v' +
+    tmp.setAttribute('style', 'float:right;cursor:pointer;color:red');
+    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">[order the results on this page &uarr;' +
         '<span id="_thepaperlink_order_status">0</span>]</span>' +
         '<span id="_thepaperlink_order_lists" style="display:none">' +
         d.join(',') + ';' +
@@ -418,6 +418,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
+  // content_scripts and externally_connectable on all sites
   var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
     DEBUG && console.log('>> other site, got ID ' + ID[1]);
@@ -426,13 +427,13 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   noRun = 1;
 }
 if ($('_thepaperlink_client_status')) {
-  //$('_thepaperlink_client_status').innerHTML = chrome.extension.getURL('options.html');
   $('_thepaperlink_client_status').innerHTML = chrome.runtime.id;
 }
 if ($('_thepaperlink_client_modify_it')) {
   $('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
+  // big boss, run on pubmed.org
   a_proxy({loadExtraJs: 1});
   run();
 }
@@ -626,7 +627,7 @@ function get_request(msg) {
         pmids + '\',\'' + uneval_trim(msg.save_key) + '\',\'' +
         uneval_trim(msg.save_email) + '\')">pubmeder&nbsp;all</span></div>';
   } else {
-    bookmark_div += 'save what you are reading? try<a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
+    bookmark_div += 'save what you are reading? try <a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
   }
   if (old_title) {
     $('pl4_title').innerHTML = old_title + bookmark_div;
