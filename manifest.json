@@ -53,7 +53,10 @@
       "http://pubmed.cn/*",
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*"
+      "https://www.ncbi.nlm.nih.gov/*",
+      "http://*.nature.com/*",
+      "http://*.cell.com/*",
+      "http://*.sciencemag.org/*"
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
@@ -77,7 +80,10 @@
       "http://pubmed.cn/*",
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*"
+      "https://www.ncbi.nlm.nih.gov/*",
+      "http://*.nature.com/*",
+      "http://*.cell.com/*",
+      "http://*.sciencemag.org/*"
     ]
   }
 }
