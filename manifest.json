@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -20,7 +20,7 @@
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
     "https://scholar.google.com/scholar*",
     "http://scholar.google.com/scholar*",
-    "*://*.sci-hub.org/*"
+    "*://*.sci-hub.cc/*"
   ],
   "background": {
     "page": "background.html"
