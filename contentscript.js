@@ -683,7 +683,7 @@ function get_request(msg) {
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
-          '" href="http://dx.doi.org.sci-hub.org/' + uneval_trim(r.item[i].doi) +
+          '" href="http://dx.doi.org.sci-hub.cc/' + uneval_trim(r.item[i].doi) +
           '" target="_blank">&#x219d;</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
@@ -691,7 +691,7 @@ function get_request(msg) {
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
-          '" href="http://linkinghub.elsevier.com.sci-hub.org/retrieve/pii/' + uneval_trim(r.item[i].pii) +
+          '" href="http://linkinghub.elsevier.com.sci-hub.cc/retrieve/pii/' + uneval_trim(r.item[i].pii) +
           '" target="_blank">&#x219d;</a>';
       div_html += tmp;
     }

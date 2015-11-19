@@ -73,7 +73,7 @@ function get_end_num(str) {
 }
 
 function post_pl4me(v) {
-  var a = [], version = 'Chrome_v2.5.3';
+  var a = [], version = 'Chrome_v2.5.4';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -637,12 +637,12 @@ function get_request(msg, _port) {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
     if (scihub_link) {
-      parse_scihub(msg.pmid, 'http://linkinghub.elsevier.com.sci-hub.org/retrieve/pii/' + msg.pii, sender_tab_id);
+      parse_scihub(msg.pmid, 'http://linkinghub.elsevier.com.sci-hub.cc/retrieve/pii/' + msg.pii, sender_tab_id);
     }
 
   } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (scihub_link) {
-      parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.org/' + msg.doi, sender_tab_id);
+      parse_scihub(msg.pmid, 'http://dx.doi.org.sci-hub.cc/' + msg.doi, sender_tab_id);
     }
 
   } else if (msg.search_term) {
@@ -1035,7 +1035,7 @@ function parse_scihub(pmid, url, tabId) {
           args.scihub_link = h[1];
           prepare_download_scihub(tabId, pmid, args);
         } else {
-          $.get('http://sci-hub.org/continue').then(function () {
+          $.get('http://sci-hub.cc/continue').then(function () {
             $.get(url, function (r) {
               DEBUG && console.log(r); // 2015-10-9: able to download a page
               h = reg.exec(r);
