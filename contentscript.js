@@ -648,12 +648,12 @@ function get_request(msg) {
         pmidArray = pmidArray.slice(0, j).concat(pmidArray.slice(j + 1, k));
       }
     }
-    if ($('pl4me_' + pmid)) {
+    if ($('pl4_once_' + pmid)) {
       continue;
     }
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" id="pl4me_' + pmid +
+    div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid +
         '" href="' + msg.uri + '/?q=pmid:' +
         pmid + '" target="_blank">the paper link</a>: ';
     if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
