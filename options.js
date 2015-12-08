@@ -1,6 +1,7 @@
 "use strict";
 
-var _port = chrome.runtime.connect({name: 'background_port'});
+var _port = chrome.runtime.connect({name: 'background_port'}),
+    bkg = chrome.extension.getBackgroundPage();
 
 function adjust_keywords() {
   var keyword_selected = '';
@@ -170,7 +171,7 @@ function saveOptions() {
         localStorage.setItem('scihub_limit', a);
       }
     } catch (err) {
-      console.log(err);
+      bkg.console.log(err);
     }
   }
   if (pubmed_limit) {
@@ -180,7 +181,7 @@ function saveOptions() {
         localStorage.setItem('pubmed_limit', a);
       }
     } catch (err) {
-      console.log(err);
+      bkg.console.log(err);
     }
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
@@ -261,7 +262,7 @@ function saveOptions() {
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
 function showLicense(license) { // @@@@
-  console.log('showLicense', license);
+  bkg.console.log('showLicense', license);
   var modal = $('#modalLicense');
   modal.find('.license').text( JSON.stringify(license, null, 2) );
   modal.modal('show');
@@ -275,7 +276,7 @@ function onActionButton(evt) {
   }
 }
 function onLicenseUpdate(dt) {
-  console.log('onLicenseUpdate', dt);
+  bkg.console.log('onLicenseUpdate', dt);
   var licenses = dt.response.details,
       count = licenses.length, i;
   for (i = 0; i < count; i += 1) {
@@ -283,7 +284,7 @@ function onLicenseUpdate(dt) {
   }
 }
 function onLicenseUpdateFailed(dt) {
-  console.log('onLicenseUpdateFailed', dt);
+  bkg.console.log('onLicenseUpdateFailed', dt);
 }
 function addProductToUI(product) {
   if (product.localeData[0].description === '@thepaperlink') {
@@ -312,13 +313,13 @@ function getLicenses() {
   });
 }
 function onPurchase(purchase) {
-  console.log('onPurchase', purchase);
+  bkg.console.log('onPurchase', purchase);
   // purchase.request.cardId,
   // purchase.response.orderId;
   getLicenses();
 }
 function onPurchaseFailed(purchase) {
-  console.log('onPurchaseFailed', purchase);
+  bkg.console.log('onPurchaseFailed', purchase);
   window.alert('Purchase failed. Error code [' + purchase.response.errorType + '].');
 }
 function buyProduct(sku) {
@@ -333,7 +334,7 @@ function onSkuDetails(dt) {
   var products = dt.response.details.inAppProducts,
       count = products.length, i;
   if (count === 0) {
-    console.log('onSkuDetails', dt);
+    bkg.console.log('onSkuDetails', dt);
     $('#in-app-purchase').addClass('Off');
   } else {
     for (i = 0; i < count; i += 1) {
@@ -343,7 +344,7 @@ function onSkuDetails(dt) {
   }
 }
 function onSkuDetailsFailed(dt) {
-  console.log('onSkuDetailsFailed', dt);
+  bkg.console.log('onSkuDetailsFailed', dt);
   $('#in-app-purchase').addClass('Off');
 }
 // IAP end
@@ -557,7 +558,7 @@ $(document).ready(function () {
         if (c[a] && get_end_num(c[a]) >= get_end_num(b)) {
           localStorage.removeItem(terms[i]);
         } else if (c[a]) { // get_end_num  c[a] < b
-          console.log('count should only increase "' + a + '"');
+          bkg.console.log('count should only increase "' + a + '"');
         } else {
           c.push( {key:a, value:b} );
           tmp.append(
