@@ -59,6 +59,7 @@ function reset_key(v) {
 }
 
 function valid_thepaperlink(ak) {
+  bkg.console.time("Call theServer to validate apikey");
   return $.get('http://www.zhaowenxian.com/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
@@ -68,12 +69,14 @@ function valid_thepaperlink(ak) {
         } else {
           $.cookie('alert_v1', 'oops', {expires: 3});
         }
-      },
-      'json'
-  );
+      }, 'json'
+  ).always(function() {
+    bkg.console.timeEnd("Call theServer to validate apikey");
+  });
 }
 
 function valid_pubmeder(e,ak) {
+  bkg.console.time("Call theServer to validate pubmeder");
   return $.get('http://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
       function (txt) {
         if (txt === 'correct') {
@@ -81,9 +84,10 @@ function valid_pubmeder(e,ak) {
         } else {
           $.cookie('alert_v2', 'oops', {expires: 3});
         }
-      },
-      'text'
-  );
+      }, 'text'
+  ).always(function() {
+    bkg.console.timeEnd("Call theServer to validate pubmeder");
+  });
 }
 
 function saveOptions() {
