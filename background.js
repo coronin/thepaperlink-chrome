@@ -414,6 +414,14 @@ function dropbox_it(pmid, pdf, k) {
   });
 }
 
+function format_a_li(category, pmid, url) {
+  $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+  $('#'+pmid).on('click', function () { eSS(this.id); });
+  if ( $('#'+category+'_h2').hasClass('Off') ) {
+    $('#'+category+'_h2').removeClass('Off');
+  }
+}
+
 function queue_scholar_title() {
   setTimeout(
       do_scholar_title,
@@ -461,6 +469,7 @@ function scholar_title(pmid, t, tabId) {
           g_link = /href="([^"]+)"/.exec(h[0]);
           if (g_num.length === 2 && g_link.length === 2) {
             localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
+            format_a_li('scholar', pmid, 'https://scholar.google.com' + g_link[1]);
             b_proxy(tabId, {
               g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
             });
@@ -527,6 +536,7 @@ function do_download_scihub(pmid, url) {
 
 function prepare_download_scihub(tabId, pmid, args) {
   localStorage.setItem('scihub_' + pmid, pmid + ',' + args.scihub_link);
+  format_a_li('scihub', pmid, args.scihub_link);
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: args.scihub_link});
   $.post(base + '/', args,
       function (d) {
@@ -1171,7 +1181,7 @@ $(document).ready(function () {
 
 //// 2015-12-9
 function load_ALL_localStorage() {
-  var a_value, a_key, a_key_split, a_url, a_pmid;
+  var a_value, a_key, a_key_split, a_url;
   $('#email_').html('');
   $('#scihub_').html('');
   $('#scholar_').html('');
@@ -1196,17 +1206,14 @@ function load_ALL_localStorage() {
           localStorage.removeItem(a_key);
           continue;
         }
-        a_pmid = a_key_split[1];
-        $('#scihub_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
-        $('#'+a_pmid).on('click', function () { eSS(this.id); });
+        //$('#scihub_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
+        //$('#'+a_pmid).on('click', function () { eSS(this.id); });
+        format_a_li('scihub', a_key_split[1], a_url);
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
-        a_pmid = a_key_split[1];
-        $('#scholar_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
-        $('#'+a_pmid).on('click', function () { eSS(this.id); });
-      }
-      if ( $('#'+a_key_split[0]+'_h2').hasClass('Off') ) {
-        $('#'+a_key_split[0]+'_h2').removeClass('Off');
+        //$('#scholar_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
+        //$('#'+a_pmid).on('click', function () { eSS(this.id); });
+        format_a_li('scholar', a_key_split[1], a_url);
       }
     }
   }
