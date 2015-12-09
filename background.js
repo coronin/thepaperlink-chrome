@@ -64,7 +64,7 @@ function get_end_num(str) {
 
 function post_theServer(v) {
   console.time("Call theServer for values");
-  var a = [], version = 'Chrome_v2.5.5';
+  var a = [], version = 'Chrome_v2.5.6';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -231,20 +231,31 @@ function call_js_on_click(info, tab) {
 }
 
 function menu_generator() {
+  chrome.contextMenus.removeAll();
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
   chrome.contextMenus.create({'title': 'find ID on this page',
     'contexts':['page'], 'onclick': call_js_on_click});
-  chrome.contextMenus.create({'title': 'visit the Paper Link',
+  chrome.contextMenus.create({'title': 'Visit our website',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
-  chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
+  chrome.contextMenus.create({'title': 'extension Options', 'contexts':['page'],
     'onclick': function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.create({
           index: tabs[0].index,
           url: chrome.extension.getURL('options.html'),
+          active: true
+        });
+      });
+    } });
+  chrome.contextMenus.create({'title': 'Inspect logs', 'contexts':['page'],
+    'onclick': function () {
+      chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.create({
+          index: tabs[0].index,
+          url: chrome.extension.getURL('background.html'),
           active: true
         });
       });
@@ -311,9 +322,10 @@ function eSearch(search_term, tabId) {
 }
 
 function email_abstract(a, b) {
-  var aKey = 'email_' + a + '_' + b;
+  var aKey = 'email_' + a + '_' + b,
+      cc_address = localStorage.getItem('cc_address') || '';
   $.post(base + '/',
-      {'apikey': a, 'pmid': b, 'action': 'email'},
+      {'apikey': a, 'pmid': b, 'action': 'email', 'cc': cc_address},
       function (d) {
         DEBUG && console.log('>> post /, action email: ' + d);
         localStorage.removeItem(aKey);
@@ -360,7 +372,7 @@ function send_binary(aB, pmid, upload, no_email) {
     }
     xhr.open('POST', upload, true);
     xhr.onload = function () {
-      console.log('__ upload the file to the server with status: ' + xhr.status);
+      console.log('__ upload the file to theServer with status: ' + xhr.status);
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
         if (!no_email && apikey) {
@@ -400,6 +412,17 @@ function dropbox_it(pmid, pdf, k) {
   ).fail(function () {
     DEBUG && console.log('>> dropbox_it failed: ' + pdf);
   });
+}
+
+function format_a_li(category, pmid, url, num) {
+  $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+  $('#'+pmid).on('click', function () { eSS(this.id); });
+  if (num) {
+    $('#'+pmid).text(pmid + ' (' + num + ')');
+  }
+  if ( $('#'+category+'_h2').hasClass('Off') ) {
+    $('#'+category+'_h2').removeClass('Off');
+  }
 }
 
 function queue_scholar_title() {
@@ -449,6 +472,7 @@ function scholar_title(pmid, t, tabId) {
           g_link = /href="([^"]+)"/.exec(h[0]);
           if (g_num.length === 2 && g_link.length === 2) {
             localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
+            format_a_li('scholar', pmid, 'https://scholar.google.com' + g_link[1]);
             b_proxy(tabId, {
               g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
             });
@@ -515,6 +539,7 @@ function do_download_scihub(pmid, url) {
 
 function prepare_download_scihub(tabId, pmid, args) {
   localStorage.setItem('scihub_' + pmid, pmid + ',' + args.scihub_link);
+  format_a_li('scihub', pmid, args.scihub_link);
   b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: args.scihub_link});
   $.post(base + '/', args,
       function (d) {
@@ -1102,10 +1127,10 @@ $.ajax({
   dataType: 'text',
   timeout: 4000
 }).done(function() {
-  DEBUG && console.log('>> access the server via secure https');
+  DEBUG && console.log('>> access theServer via secure https');
   localStorage.removeItem('https_failed');
 }).fail(function() {
-  DEBUG && console.log('>> access the server via http');
+  DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 1);
   if (localStorage.getItem('rev_proxy') !== 'yes') {
     base = 'http://www.thepaperlink.com';
@@ -1149,8 +1174,47 @@ if (old_id) {
 }
 
 $(document).ready(function () {
+  $('#section_start_at').text(extension_load_date);
+  $('#load_ALL').on('click', load_ALL_localStorage).text('load all local records');
   if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
     load_broadcast();
     get_server_data(0);
   }
 });
+
+//// 2015-12-9
+function load_ALL_localStorage() {
+  var a_value, a_key, a_key_split, a_url;
+  $('#email_').html('');
+  $('#scihub_').html('');
+  $('#scholar_').html('');
+  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link for pubmed');
+  for (i = 0; i < localStorage.length; i += 1) {
+    a_key = localStorage.key(i);
+    a_key_split = a_key.split('_');
+    a_value = localStorage.getItem(a_key);
+    if (a_value.indexOf('undefined') > -1) {
+      $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
+      localStorage.removeItem(a_key);
+      continue;
+    }
+    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scihub_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
+         a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ) {
+      if (a_key.indexOf('email_') === 0) {
+        $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
+      } else if (a_key.indexOf('scihub_') === 0) {
+        a_url = a_value.split(',')[1];
+        if (a_url.indexOf('googletagmanager.com') > 0) {
+          $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
+          localStorage.removeItem(a_key);
+          continue;
+        }
+        format_a_li('scihub', a_key_split[1], a_url);
+      } else if (a_key.indexOf('scholar_') === 0) {
+        a_url = 'https://scholar.google.com' + a_value.split(',')[2];
+        format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
+      }
+    }
+  }
+  $('#load_ALL').text('re-load');
+}

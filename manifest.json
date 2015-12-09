@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -41,22 +41,11 @@
   },
   "content_scripts": [ {
     "matches": [
-      "http://www.thepaperlink.com/*",
-      "http://www.zhaowenxian.com/*",
-      "http://www.pubmeder.com/registration",
-      "http://pubmeder-hrd.appspot.com/registration",
+      "https://pubget-hrd.appspot.com/*",
       "https://pubmeder-hrd.appspot.com/registration",
-      "http://1.zhaowenxian.com/registration",
-      "http://f1000.com/prime/*",
-      "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
-      "http://pubmed.cn/*",
-      "http://or.nsfc.gov.cn/*",
-      "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
-      "http://*.nature.com/*",
-      "http://*.cell.com/*",
-      "http://*.sciencemag.org/*"
+      "http://*/*"
     ],
     "exclude_globs": [
         "*://www.ncbi.nlm.nih.gov/pubmed/",
@@ -72,6 +61,8 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
+      "http://pubget-hrd.appspot.com/*",
+      "https://pubget-hrd.appspot.com/*",
       "http://www.pubmeder.com/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
