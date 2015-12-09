@@ -36,6 +36,7 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
+ * v2.5.5 - bug fix from high in the sky
  * v2.5.4 - sci-hub relocate
  * v2.5.3 - bug fix
  * v2.5.2 - improved integration with www.thepaperlink.com
