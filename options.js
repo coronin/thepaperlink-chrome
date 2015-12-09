@@ -1,6 +1,7 @@
 "use strict";
 
 var _port = chrome.runtime.connect({name: 'background_port'}),
+    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
     bkg = chrome.extension.getBackgroundPage();
 
 function adjust_keywords() {
@@ -104,6 +105,7 @@ function saveOptions() {
       scihub_limit = $('#scihub_limit').val(),
       pubmed_limit = $('#pubmed_limit').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
+      cc_address = $('#cc_address').val(),
       req_a = null,
       req_b = null,
       a;
@@ -211,6 +213,19 @@ function saveOptions() {
     }
     localStorage.setItem('ezproxy_prefix', '');
   }
+  if (cc_address && email_filter.test(cc_address)) {
+    localStorage.setItem('cc_address', cc_address);
+  } else {
+    if (cc_address === '{cc address}') {
+      cc_address = '';
+    }
+    if (cc_address) {
+      window.alert('\n wrong format of the "' + cc_address + '"\n oops :-p\n');
+      $('#cc_address').focus();
+      return false;
+    }
+    localStorage.setItem('cc_address', '');
+  }
   if ( !localStorage.getItem('a_apikey_gold') ) {
     var accessApi = $('#thepaperlink_apikey_input').val().replace( /\s+/g, '' );
     if (accessApi.length === 32) {
@@ -227,7 +242,6 @@ function saveOptions() {
   }
   if ( !localStorage.getItem('b_apikey_gold') ) {
     var userEmail = $('#pubmeder_email_input').val(),
-        email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
         userApi = $('#pubmeder_apikey_input').val().replace( /\s+/g, '' );
     if (userEmail && !email_filter.test(userEmail)) {
       window.alert('\n please provide a valid email address\n');
@@ -392,7 +406,8 @@ $(document).ready(function () {
       g_status = localStorage.getItem('googledrive_status'),
       s_status = localStorage.getItem('skydrive_status'),
       y_status = localStorage.getItem('baiduyun_status'),
-      ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
+      ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
+      cc_address = localStorage.getItem('cc_address');
 
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
@@ -465,6 +480,9 @@ $(document).ready(function () {
     } else {
       $('#ezproxy_demo_dot').addClass('Off');
     }
+  }
+  if (cc_address) {
+    $('#cc_address').val(cc_address);
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
