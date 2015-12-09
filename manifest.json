@@ -46,6 +46,8 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
+      "http://pubget-hrd.appspot.com/*",
+      "https://pubget-hrd.appspot.com/*",
       "http://www.pubmeder.com/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
@@ -75,6 +77,8 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
+      "http://pubget-hrd.appspot.com/*",
+      "https://pubget-hrd.appspot.com/*",
       "http://www.pubmeder.com/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
