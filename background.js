@@ -28,12 +28,6 @@ var DEBUG = false,
         '_' + (extension_load_date.getMonth() + 1) +
         '_' + extension_load_date.getDate(),
     last_date = localStorage.getItem('last_date_str') || '';
-/* use localStorage directly:
- *    ws_items
- *    contextMenu_shown
- *    new_tab
- *    co_pubmed
- */
 
 function ez_format_link(prefix, url){
   if (!prefix) return url;
@@ -69,6 +63,7 @@ function get_end_num(str) {
 }
 
 function post_theServer(v) {
+  console.time("Call theServer for values");
   var a = [], version = 'Chrome_v2.5.5';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
@@ -112,10 +107,12 @@ function post_theServer(v) {
     DEBUG && console.log('>> post_theServer, error');
   }).always(function() {
     loading_theServer = false;
+    console.timeEnd("Call theServer for values");
   });
 }
 
 function get_local_ip() {
+  console.time("Call theServer for local IP");
   return $.getJSON('http://node.thepaperlink.com:8089/', function (d) {
     local_ip = d['x-forwarded-for'];
     if (local_ip && local_ip.substr(0,7) === '::ffff:') {
@@ -129,6 +126,8 @@ function get_local_ip() {
     DEBUG && console.log('>> get_local_ip: ' + local_ip);
   }).fail(function() {
     DEBUG && console.log('>> get_local_ip error');
+  }).always(function() {
+    console.timeEnd("Call theServer for local IP");
   });
 }
 
@@ -179,7 +178,9 @@ function load_common_values() {
     scholar_no_more = 0;
   }
 }
+console.time("Load common values");
 load_common_values();
+console.timeEnd("Load common values");
 
 function open_new_tab(url, winId, idx) {
   var tab_obj = {url: url, active: true};
@@ -293,6 +294,7 @@ function saveIt_pubmeder(pmid) {
 
 function eSearch(search_term, tabId) {
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  console.time("data directly from eUtils");
   $.get(url,
       function (xml) {
         var pmid = $(xml).find('Id');
@@ -300,10 +302,11 @@ function eSearch(search_term, tabId) {
           localStorage.setItem('tabId:' + tabId.toString(), pmid.text());
           save_visited_ID( pmid.text() );
         }
-      },
-      'xml'
+      }, 'xml'
   ).fail(function () {
     DEBUG && console.log('>> eSearch failed, do nothing');
+  }).always(function () {
+    console.timeEnd("data directly from eUtils");
   });
 }
 
@@ -741,6 +744,7 @@ function get_request(msg, _port) {
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
+    DEBUG && console.time("call theServer for json");
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         p_proxy(_port,
@@ -764,6 +768,8 @@ function get_request(msg, _port) {
         localStorage.setItem('https_failed', 1);
         base = 'http://www.thepaperlink.com';
       }
+    }).always(function () {
+      DEBUG && console.timeEnd("call theServer for json");
     });
 
   } else if (msg.save_apikey) {
@@ -1085,6 +1091,7 @@ chrome.runtime.onMessageExternal.addListener(
     }
 );
 
+console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'http://www.zhaowenxian.com';
 } else if (localStorage.getItem('https_failed')) {
@@ -1108,6 +1115,7 @@ $.ajax({
     localStorage.setItem('contextMenu_on', 1);
     menu_generator();
   }
+  console.timeEnd("Call theServer to validate connection");
 });
 
 if (last_date !== date_str) {
