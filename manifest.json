@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.4",
+  "version": "2.5.5",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
@@ -48,8 +48,8 @@
       "https://pubmeder-hrd.appspot.com/registration",
       "http://1.zhaowenxian.com/registration",
       "http://f1000.com/prime/*",
-      "https://scholar.google.com/scholar*",
       "http://scholar.google.com/scholar*",
+      "https://scholar.google.com/scholar*",
       "http://pubmed.cn/*",
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
@@ -87,4 +87,3 @@
     ]
   }
 }
-
