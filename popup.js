@@ -192,7 +192,9 @@ function eSS(search_term) {
   $.get(url,
       function (xml) {
         var WebEnv = $(xml).find('WebEnv').text();
-        eSummary(WebEnv);
+        if (WebEnv) {
+          eSummary(WebEnv);
+        }
       },
       'xml'
   ).fail(function () {
@@ -231,7 +233,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       pmcCheck = /PMC/,
       url_trim = tab.url.substr(7, 25);
   if (tab.url.indexOf('chrome-extension://') === 0) {
-
+    $('#result').html('popup.js used in background.html');
   } else {
     chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
     chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
