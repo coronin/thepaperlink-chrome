@@ -64,7 +64,7 @@ function get_end_num(str) {
 
 function post_theServer(v) {
   console.time("Call theServer for values");
-  var a = [], version = 'Chrome_v2.5.5';
+  var a = [], version = 'Chrome_v2.5.6';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -414,9 +414,12 @@ function dropbox_it(pmid, pdf, k) {
   });
 }
 
-function format_a_li(category, pmid, url) {
+function format_a_li(category, pmid, url, num) {
   $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
   $('#'+pmid).on('click', function () { eSS(this.id); });
+  if (num) {
+    $('#'+pmid).text(pmid + ' (' + num + ')');
+  }
   if ( $('#'+category+'_h2').hasClass('Off') ) {
     $('#'+category+'_h2').removeClass('Off');
   }
@@ -1185,7 +1188,7 @@ function load_ALL_localStorage() {
   $('#email_').html('');
   $('#scihub_').html('');
   $('#scholar_').html('');
-  $('#section_start_at').text('THE TIME WHEN YOU INSTALL the paper link for pubmed');
+  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link for pubmed');
   for (i = 0; i < localStorage.length; i += 1) {
     a_key = localStorage.key(i);
     a_key_split = a_key.split('_');
@@ -1206,15 +1209,12 @@ function load_ALL_localStorage() {
           localStorage.removeItem(a_key);
           continue;
         }
-        //$('#scihub_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
-        //$('#'+a_pmid).on('click', function () { eSS(this.id); });
         format_a_li('scihub', a_key_split[1], a_url);
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
-        //$('#scholar_').append('<li><button id="'+a_pmid+'">'+a_pmid+'</button> &nbsp; <a target="_blank" href="'+a_url+'">'+a_url+'</a></li>');
-        //$('#'+a_pmid).on('click', function () { eSS(this.id); });
-        format_a_li('scholar', a_key_split[1], a_url);
+        format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
       }
     }
   }
+  $('#load_ALL').text('re-load');
 }
