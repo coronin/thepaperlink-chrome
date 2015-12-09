@@ -181,8 +181,8 @@ function eSummary(term) {
       },
       'xml'
   ).fail(function () {
-        $('#result').html('I am very sorry, but I failed. Try later?');
-      });
+    $('#result').html('I am very sorry, but I failed. Try later?');
+  });
 }
 
 function eSS(search_term) {
@@ -196,8 +196,8 @@ function eSS(search_term) {
       },
       'xml'
   ).fail(function () {
-        $('#result').html('Sorry, I failed. Try later?');
-      });
+    $('#result').html('Sorry, I failed. Try later?');
+  });
 }
 
 $(document).ready(function () {
@@ -230,21 +230,25 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       dotCheck = /\./,
       pmcCheck = /PMC/,
       url_trim = tab.url.substr(7, 25);
-  chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
-  chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
-  if (tab.url.substr(7, 26) !== url_trim) {
-    url_trim += '&hellip;';
-  }
-  if (dotCheck.test(ID)) {
-    $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-    $('.eSS').on('click', function () { eSS(this.id); });
-  } else if (pmcCheck.test(ID)) {
-    $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-    $('.eSS').on('click', function () { eSS(this.id); });
+  if (tab.url.indexOf('chrome-extension://') === 0) {
+
   } else {
-    $('#result').removeClass('Off');
-    $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
-    eSummary(ID);
-    //save_pubmeder
+    chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
+    chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
+    if (tab.url.substr(7, 26) !== url_trim) {
+      url_trim += '&hellip;';
+    }
+    if (dotCheck.test(ID)) {
+      $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
+      $('.eSS').on('click', function () { eSS(this.id); });
+    } else if (pmcCheck.test(ID)) {
+      $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
+      $('.eSS').on('click', function () { eSS(this.id); });
+    } else {
+      $('#result').removeClass('Off');
+      $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
+      eSummary(ID);
+      //save_pubmeder
+    }
   }
 });

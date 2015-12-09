@@ -231,20 +231,31 @@ function p_proxy(_port, _data) {
 //}
 
 function menu_generator() {
+  chrome.contextMenus.removeAll();
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
   //chrome.contextMenus.create({'title': 'find ID on this page',
   //  'contexts':['page'], 'onclick': call_js_on_click});
-  chrome.contextMenus.create({'title': 'visit the Paper Link',
+  chrome.contextMenus.create({'title': 'Visit our website',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
-  chrome.contextMenus.create({'title': 'Options', 'contexts':['page'],
+  chrome.contextMenus.create({'title': 'extension Options', 'contexts':['page'],
     'onclick': function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.create({
           index: tabs[0].index,
           url: chrome.extension.getURL('options.html'),
+          active: true
+        });
+      });
+    } });
+  chrome.contextMenus.create({'title': 'Inspect logs', 'contexts':['page'],
+    'onclick': function () {
+      chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.create({
+          index: tabs[0].index,
+          url: chrome.extension.getURL('background.html'),
           active: true
         });
       });
@@ -1150,8 +1161,51 @@ if (old_id) {
 }
 
 $(document).ready(function () {
+  $('#section_start_at').text(extension_load_date);
+  $('#load_ALL').on('click', load_ALL_localStorage).text('load all local records');
   if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
     load_broadcast();
     get_server_data(0);
   }
 });
+
+
+//// 2015-12-9
+
+function format_a_li(category, pmid, url) {
+  $('#'+category+'_').append('<li><button>'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+  $('#'+pmid).on('click', function () { eSS(this.textContent); });
+  if ( $('#'+category+'_h2').hasClass('Off') ) {
+    $('#'+category+'_h2').removeClass('Off');
+  }
+}
+
+function load_ALL_localStorage() {
+  var a_value, a_key, a_key_split, a_url;
+  $('#email_').html('');
+  $('#scihub_').html('');
+  $('#scholar_').html('');
+  $('#section_start_at').text('THE TIME WHEN YOU INSTALL the paper link for pubmed');
+  for (i = 0; i < localStorage.length; i += 1) {
+    a_key = localStorage.key(i);
+    a_key_split = a_key.split('_');
+    a_value = localStorage.getItem(a_key);
+    if (a_value.indexOf('undefined') > -1) {
+      $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
+      localStorage.removeItem(a_key);
+      continue;
+    }
+    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scihub_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
+         a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ) {
+      if (a_key.indexOf('email_') === 0) {
+        $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
+      } else if (a_key.indexOf('scihub_') === 0) {
+        a_url = a_value.split(',')[1];
+        format_a_li('scihub_', a_key_split[1], a_url);
+      } else if (a_key.indexOf('scholar_') === 0) {
+        a_url = 'https://scholar.google.com' + a_value.split(',')[2];
+        format_a_li('scholar_', a_key_split[1], a_url);
+      }
+    }
+  }
+}
