@@ -22,8 +22,7 @@ var DEBUG = false,
     search_term = '',
     search_result_count = '',
     onePage_calls = 0,
-    _port = chrome.runtime.connect({name: 'background_port'}),
-    bkg = chrome.extension.getBackgroundPage();
+    _port = chrome.runtime.connect({name: 'background_port'});
 
 
 function ez_format_link(p, url){
@@ -61,7 +60,7 @@ function $(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(d) {
-  DEBUG && bkg.console.log('>> sendRequest to background.html');
+  DEBUG && console.log('>> sendRequest to background.html');
   //chrome.extension.sendRequest(d);
   _port.postMessage(d);
 }
@@ -73,12 +72,12 @@ function process_orNSFC() {
     if (ele.className !== 'col-1')  continue;
     if (ele.textContent === 'DOI') {
       doi = trim( t('div')[i+1].textContent );
-      DEBUG && bkg.console.log('>>>>>>>>>> DOI on or.nsfc page: ' + doi);
+      DEBUG && console.log('>>>>>>>>>> DOI on or.nsfc page: ' + doi);
       continue;
     }
     if (ele.textContent === 'Project ID') {
       prjID = trim( t('div')[i+1].textContent );
-      DEBUG && bkg.console.log('>>>>>>>>>> Project ID from or.nsfc: ' + prjID);
+      DEBUG && console.log('>>>>>>>>>> Project ID from or.nsfc: ' + prjID);
       continue;
     }
     if (doi && prjID)  break;
@@ -124,7 +123,7 @@ function process_f1000() {
   if (pmid && f_v && fid) { // require valid f1000.com login
     a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
   } else {
-    DEBUG && bkg.console.log('>> process_f1000: ' +
+    DEBUG && console.log('>> process_f1000: ' +
         pmid + ',' + fid + ',' + f_v);
   }
 }
@@ -214,7 +213,7 @@ function getPmid(zone, num) {
   var a = t(zone)[num].textContent,
       regpmid = /PMID:\s(\d+)\s/,
       ID, b, c, t_cont, t_strings, t_title, t_i;
-  DEBUG && bkg.console.log(a);
+  DEBUG && console.log(a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
@@ -267,7 +266,7 @@ function getPmid(zone, num) {
         }
       }
       t_cont += ' [PMID:' + ID[1] + ']\r\n';
-      DEBUG && bkg.console.log(t_cont);
+      DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
           '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
@@ -339,7 +338,7 @@ function run() {
   try {
     search_term = $('term').value; // 2013-3-26
   } catch (err) {
-    DEBUG && bkg.console.log(err);
+    DEBUG && console.log(err);
   }
   a_proxy({reset_counts: 1});
   for (i = 0, len = t('div').length; i < len; i += 1) {
@@ -372,7 +371,7 @@ function alert_dev(req_key) {
         if (oXHR.status === 200) {
           $('thepaperlink_alert').innerHTML = '&lt;!&gt; Alert sent.';
         } else {
-          DEBUG && bkg.console.log('Error', oXHR.statusText);
+          DEBUG && console.log('Error', oXHR.statusText);
         }  }
     };
     setTimeout(function () {
@@ -422,7 +421,7 @@ if (page_url === 'http://www.thepaperlink.com/reg'
   // content_scripts and externally_connectable on all sites
   var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && bkg.console.log('>> other site, got ID ' + ID[1]);
+    DEBUG && console.log('>> other site, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   }
   noRun = 1;
@@ -440,7 +439,7 @@ if (!noRun) {
 }
 
 function get_request(msg) {
-  DEBUG && bkg.console.log(msg);
+  DEBUG && console.log(msg);
   if (msg.js_base_uri) {
     if (window.location.protocol === 'https:' && msg.js_base_uri.substr(0,5) !== 'https') {
       msg.js_base_uri = 'https://pubget-hrd.appspot.com';
@@ -480,7 +479,7 @@ function get_request(msg) {
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
       msg.js_base = 'https://pubget-hrd.appspot.com/';
     }
-    DEBUG && bkg.console.log('>> starting the js client');
+    DEBUG && console.log('>> starting the js client');
     localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);
     localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base);
     if (!$('__tr_display')) {
@@ -507,7 +506,7 @@ function get_request(msg) {
             uneval_trim(msg.g_link) + '">(in Google Scholar)</a>';
       }
     } catch (err) {
-      DEBUG && bkg.console.log(err);
+      DEBUG && console.log(err);
     }
     //sendResponse({});
     return;
@@ -537,7 +536,7 @@ function get_request(msg) {
         $(msg.el_id).innerText = msg.el_data;
       }
     } catch (err) {
-      DEBUG && bkg.console.log(err);
+      DEBUG && console.log(err);
     }
     //sendResponse({});
     return;
@@ -741,7 +740,7 @@ function get_request(msg) {
           try {
             $('thepaperlink_D' + evt_pmid).setAttribute('class', 'thepaperlink_Off');
           } catch (err) {
-            DEBUG && bkg.console.log(err);
+            DEBUG && console.log(err);
           }
         }
       });
@@ -749,16 +748,16 @@ function get_request(msg) {
   }
   if (pmidArray.length > 0 && onePage_calls < 10) {
     if (pmidArray.length === k) {
-      DEBUG && bkg.console.log('>> got nothing; stopped. ' + k);
+      DEBUG && console.log('>> got nothing; stopped. ' + k);
     } else {
-      DEBUG && bkg.console.log('>> call for ' + k + ', not get ' + pmidArray.length);
+      DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
       $('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
       onePage_calls += 1;
       a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
     }
   }
-  DEBUG && bkg.console.log('>> onePage_calls: ' + onePage_calls);
+  DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
   //sendResponse({});
 }
 //chrome.extension.onRequest.addListener(get_request);
