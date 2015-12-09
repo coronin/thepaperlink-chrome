@@ -311,9 +311,10 @@ function eSearch(search_term, tabId) {
 }
 
 function email_abstract(a, b) {
-  var aKey = 'email_' + a + '_' + b;
+  var aKey = 'email_' + a + '_' + b,
+      cc_address = localStorage.getItem('cc_address') || '';
   $.post(base + '/',
-      {'apikey': a, 'pmid': b, 'action': 'email'},
+      {'apikey': a, 'pmid': b, 'action': 'email', 'cc': cc_address},
       function (d) {
         DEBUG && console.log('>> post /, action email: ' + d);
         localStorage.removeItem(aKey);
@@ -360,7 +361,7 @@ function send_binary(aB, pmid, upload, no_email) {
     }
     xhr.open('POST', upload, true);
     xhr.onload = function () {
-      console.log('__ upload the file to the server with status: ' + xhr.status);
+      console.log('__ upload the file to theServer with status: ' + xhr.status);
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
         if (!no_email && apikey) {
@@ -1102,10 +1103,10 @@ $.ajax({
   dataType: 'text',
   timeout: 4000
 }).done(function() {
-  DEBUG && console.log('>> access the server via secure https');
+  DEBUG && console.log('>> access theServer via secure https');
   localStorage.removeItem('https_failed');
 }).fail(function() {
-  DEBUG && console.log('>> access the server via http');
+  DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 1);
   if (localStorage.getItem('rev_proxy') !== 'yes') {
     base = 'http://www.thepaperlink.com';
