@@ -5,7 +5,7 @@
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "content_security_policy": "script-src 'sha256-E1JDOb1SAJ9GP5Kie8KM0bjNZVqiiLFzAv5JjZnSd2g=' 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
+  "content_security_policy": "script-src 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
