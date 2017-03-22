@@ -11,9 +11,29 @@
     ul {list-style: none}
     -->
   </style>
-  <script type="text/javascript" src="jquery-1.8.3.min.js"></script>
-  <script type="text/javascript" src="background.js"></script>
-  <script type="text/javascript" src="popup.js"></script>
+  <script type="text/javascript"><!--
+  if (window.addEventListener) {
+      window.addEventListener("load", init, false);
+  }
+  function s2s3() {
+      if (window.jQuery) {
+          jQuery.getScript("background.js"); // s2
+          jQuery.getScript("popup.js"); // s3
+      } else {
+          setTimeout(function() { s2s3(); }, 100);
+      }
+  }
+  function init() {
+      if (typeof jQuery === "undefined") {
+          var s1 = document.createElement("script");
+          s1.type = "text/javascript";
+          s1.src = "jquery-1.8.3.min.js";
+          document.getElementsByTagName("head")[0].appendChild(s1);
+      }
+      s2s3();
+  }
+  //-->
+  </script>
 </head>
 <body>
   <h2>Inspect logs</h2>
