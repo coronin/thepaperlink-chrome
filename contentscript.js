@@ -371,7 +371,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
-    oXHR.open('POST', 'http://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+    oXHR.open('POST', 'https://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
     oXHR.onreadystatechange = function () {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
@@ -392,15 +392,19 @@ function alert_dev(req_key) {
 
 if (page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.com/settings'
+    || page_url === 'https://www.zhaowenxian.com/settings'
+    || page_url === 'https://www.zhaowenxian.com/reg'
     || page_url === 'http://www.zhaowenxian.com/settings'
     || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
   a_proxy({save_apikey: $('apikey').innerHTML, save_email: null});
   a_proxy({save_cloud_op: $('cloud_op').innerHTML});
   noRun = 1;
-} else if (page_url === 'http://www.pubmeder.com/registration'
+} else if (page_url === 'http://pubmeder.cailiang.net/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'http://1.zhaowenxian.com/registration') { // storage data for access the bookmark server
+    || page_url === 'http://1.thepaperlink.com/registration'
+    || page_url === 'http://1.zhaowenxian.com/registration'
+    || page_url === 'https://1.zhaowenxian.com/registration') { // storage data for access the bookmark server
   a_proxy({save_apikey: $('apikey_pubmeder').innerHTML,
             save_email: $('currentUser').innerHTML});
   noRun = 1;
@@ -439,7 +443,7 @@ if ($('_thepaperlink_client_modify_it')) {
   $('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
-  // big boss, run on pubmed.org
+  // big boss, run on pubmed.gov
   a_proxy({loadExtraJs: 1});
   run();
 }
@@ -469,7 +473,7 @@ function get_request(msg) {
     $('pl4_title').innerHTML = old_title +
         ' <span style="font-size:12px;font-weight:normal;color:red;background-color:yellow;cursor:pointer" id="thepaperlink_alert">' +
         'Error!&nbsp;&nbsp;' + msg.except +
-        '&nbsp;<a href="http://www.zhaowenxian.com/?q=' + search_term +
+        '&nbsp;<a href="https://www.zhaowenxian.com/?q=' + search_term +
         '" target="_blank">[?]</a></span>';
     a_proxy({alert_dev: search_term});
     $('thepaperlink_alert').onclick = function () {
@@ -633,7 +637,7 @@ function get_request(msg) {
         pmids + '\',\'' + uneval_trim(msg.save_key) + '\',\'' +
         uneval_trim(msg.save_email) + '\')">pubmeder&nbsp;all</span></div>';
   } else {
-    bookmark_div += 'save what you are reading? try <a href="http://www.pubmeder.com/registration" target="_blank">PubMed-er</a></div>';
+    bookmark_div += 'save what you are reading? try <a href="http://pubmeder.cailiang.net/registration" target="_blank">PubMed-er</a></div>';
   }
   if (old_title) {
     $('pl4_title').innerHTML = old_title + bookmark_div;

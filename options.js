@@ -61,7 +61,7 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   bkg.console.time("Call theServer to validate apikey");
-  return $.get('http://www.zhaowenxian.com/api',
+  return $.get('https://www.zhaowenxian.com/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
       function (txt) {
@@ -78,7 +78,7 @@ function valid_thepaperlink(ak) {
 
 function valid_pubmeder(e,ak) {
   bkg.console.time("Call theServer to validate pubmeder");
-  return $.get('http://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
+  return $.get('https://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
       function (txt) {
         if (txt === 'correct') {
           _port.postMessage({save_apikey: ak, save_email: e});
@@ -232,7 +232,7 @@ function saveOptions() {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.zhaowenxian.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.zhaowenxian.com/reg\n');
       } else {
         window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
       }
@@ -249,9 +249,9 @@ function saveOptions() {
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        window.alert('\n please provide a valid apikey\n get it from http://1.zhaowenxian.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from https://1.zhaowenxian.com/registration\n');
       } else {
-        window.alert('\n please provide a valid apikey\n get it from http://www.pubmeder.com/registration\n');
+        window.alert('\n please provide a valid apikey\n get it from http://pubmeder.cailiang.net/registration\n');
       }
       $('#pubmeder_apikey_input').focus();
       return false;
@@ -491,12 +491,12 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the paper link".' +
         ' It is slower.');
-    $('#api_server').text('http://www.zhaowenxian.com');
-    $('.reg_thepaperlink').text('http://www.zhaowenxian.com/reg');
-    $('.reg_thepaperlink').attr('href', 'http://www.zhaowenxian.com/reg');
-    $('#alerts_thepaperlink').attr('href', 'http://www.zhaowenxian.com/alerts');
-    $('.reg_pubmeder').text('http://1.zhaowenxian.com/registration');
-    $('.reg_pubmeder').attr('href', 'http://1.zhaowenxian.com/registration');
+    $('#api_server').text('https://www.zhaowenxian.com');
+    $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
+    $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
+    $('#alerts_thepaperlink').attr('href', 'https://www.zhaowenxian.com/alerts');
+    $('.reg_pubmeder').text('https://1.zhaowenxian.com/registration');
+    $('.reg_pubmeder').attr('href', 'https://1.zhaowenxian.com/registration');
     $('#scholar_once_info').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
@@ -672,7 +672,7 @@ $(document).ready(function () {
           if (localStorage.getItem('rev_proxy') === 'yes') {
             chrome.tabs.create({
               index: tabs[0].index,
-              url: 'http://www.zhaowenxian.com/prospective?' + $('#keywords_area').serialize(),
+              url: 'https://www.zhaowenxian.com/prospective?' + $('#keywords_area').serialize(),
               active: true
             });
           } else {
