@@ -64,13 +64,13 @@ function get_end_num(str) {
 
 function post_theServer(v) {
   console.time("Call theServer for values");
-  var a = [], version = 'Chrome_v2.5.6';
+  var a = [], version = 'Chrome_v2.6.0';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
     return;
   }
-  $.post('http://www.zhaowenxian.com/',
+  $.post('https://www.zhaowenxian.com/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_theServer, ' + a[v]);
@@ -285,9 +285,9 @@ function saveIt_pubmeder(pmid) {
         'pmid' : pmid},
       url = 'https://pubmeder-hrd.appspot.com/input';
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'http://1.zhaowenxian.com/input';
+    url = 'https://1.zhaowenxian.com/input';
   } else if (localStorage.getItem('https_failed')) {
-    url = 'http://www.pubmeder.com/input';
+    url = 'http://pubmeder.cailiang.net/input';
   }
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
@@ -727,7 +727,7 @@ function get_request(msg, _port) {
     sender_tab_id = _port.sender.tab.id;
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    base = 'http://www.zhaowenxian.com';
+    base = 'https://www.zhaowenxian.com';
   } else if (localStorage.getItem('https_failed')) {
     base = 'http://www.thepaperlink.com';
   }
@@ -1081,7 +1081,7 @@ function get_request(msg, _port) {
       failed_times = ( failed_terms.match(/","/g) ).length + 1;
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
-        base = 'http://www.zhaowenxian.com';
+        base = 'https://www.zhaowenxian.com';
       }
       localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
     } else {
@@ -1118,7 +1118,7 @@ chrome.runtime.onMessageExternal.addListener(
 
 console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
-  base = 'http://www.zhaowenxian.com';
+  base = 'https://www.zhaowenxian.com';
 } else if (localStorage.getItem('https_failed')) {
   base = 'http://www.thepaperlink.com';
 }
