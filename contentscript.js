@@ -288,7 +288,7 @@ function getPmid(zone, num) {
       pmids += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
-        c.setAttribute('style', 'border-left:6px #fccccc solid;padding-left:6px;font-size:11px');
+        c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
         c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
         if (byTag(zone)[num].className === 'rprt') {
           byTag(zone)[num + 4].appendChild(c);
@@ -574,7 +574,8 @@ function get_request(msg) {
           '}' +
           '.thepaperlink > a ,' +
           '.thepaperlink > span {' +
-          '  margin: 0 6px' +
+          '  margin: 0 6px;' +
+          '  text-decoration: none' +
           '}' +
           'a.thepaperlink-green {' +
           '  color: green' +
@@ -584,7 +585,6 @@ function get_request(msg) {
           '}' +
           '.thepaperlink-home {' +
           '  color: grey;' +
-          '  text-decoration: none;' +
           '  cursor: pointer' +
           '}' +
           'img.pl4_clippy {' +
