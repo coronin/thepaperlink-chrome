@@ -1,11 +1,11 @@
 {
   "manifest_version": 2,
   "name": "__MSG_appName__",
-  "version": "2.5.6",
+  "version": "2.6.0",
   "minimum_chrome_version": "31",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "content_security_policy": "script-src 'self' https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
+  "content_security_policy": "script-src 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
@@ -42,7 +42,10 @@
   "content_scripts": [ {
     "matches": [
       "https://pubget-hrd.appspot.com/*",
+      "https://www.zhaowenxian.com/*",
       "https://pubmeder-hrd.appspot.com/registration",
+      "https://1.zhaowenxian.com/registration",
+      "https://f1000.com/prime/*",
       "https://scholar.google.com/scholar*",
       "https://www.ncbi.nlm.nih.gov/*",
       "http://*/*"
@@ -61,13 +64,16 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
+      "https://www.zhaowenxian.com/*",
       "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
-      "http://www.pubmeder.com/registration",
+      "http://pubmeder.cailiang.net/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
       "http://1.zhaowenxian.com/registration",
+      "https://1.zhaowenxian.com/registration",
       "http://f1000.com/prime/*",
+      "https://f1000.com/prime/*",
       "http://pubmed.cn/*",
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
