@@ -26,7 +26,8 @@ var DEBUG = false,
 
 /* limited version: a mark to prevent "email it" in extension-la.min.js
    full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
-var limited = page_d.createElement('div');
+var thePaperLink_chrome_limited = true,
+    limited = page_d.createElement('div');
 limited.innerHTML = '<div id="thePaperLink_chrome_limited"></div>';
 page_d.body.appendChild(limited);
 
@@ -723,7 +724,7 @@ function get_request(msg) {
           uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) {
+    if (!thePaperLink_chrome_limited && msg.tpl) {
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
           pmid + '\',\'' + uneval_trim(msg.tpl) + '\')">&hellip;</span>';
