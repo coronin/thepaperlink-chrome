@@ -27,7 +27,7 @@ function eFetch(pmid) {
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
-    var l = d.result[0], tmp, j, len;
+    var l = d.result.PubmedArticle[0], tmp, j, len;
 
     if (l.MedlineCitation.Article.Abstract) {
       var abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
