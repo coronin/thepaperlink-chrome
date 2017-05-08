@@ -32,7 +32,8 @@
     "http://*/*"
   ],
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "persistent": false
   },
   "icons": {
     "128": "128.png",
