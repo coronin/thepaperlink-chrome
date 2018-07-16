@@ -36,6 +36,8 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
+ * v2.6.2 - response to Store removal
+ * v2.6.1 - bug fix
  * v2.6.0 - new domains, bug fix in contentscript
  * v2.5.6 - logs show in background.html
  * v2.5.5 - bug fix from high in the sky
