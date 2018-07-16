@@ -21,8 +21,7 @@
     "http://scholar.google.com/scholar*",
     "https://scholar.google.com/scholar*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
-    "http://www.sciencedirect.com/science/article/pii/*",
-    "*://*.sci-hub.cc/*"
+    "http://www.sciencedirect.com/science/article/pii/*"
   ],
   "background": {
     "page": "background.html"
