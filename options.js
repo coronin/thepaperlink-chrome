@@ -99,16 +99,16 @@ function saveOptions() {
       ws_items = $('#ws_items').prop('checked'),
       scholar_once = $('#scholar_once').prop('checked'),
       ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-      scihub_link = $('#scihub_link').prop('checked'),
-      scihub_download = $('#scihub_download').prop('checked'),
-      scihub_open_files = $('#scihub_open_files').prop('checked'),
-      scihub_limit = $('#scihub_limit').val(),
       pubmed_limit = $('#pubmed_limit').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
       cc_address = $('#cc_address').val(),
       req_a = null,
       req_b = null,
       a;
+      // scihub_link = $('#scihub_link').prop('checked'),
+      // scihub_download = $('#scihub_download').prop('checked'),
+      // scihub_open_files = $('#scihub_open_files').prop('checked'),
+      // scihub_limit = $('#scihub_limit').val(),
   if (co_pubmed) {
     localStorage.setItem('co_pubmed', 'no');
   } else {
@@ -154,7 +154,7 @@ function saveOptions() {
   } else {
     localStorage.setItem('ajax_pii_link', 'no');
   }
-  if (scihub_link) {
+  /* if (scihub_link) {
     localStorage.setItem('scihub_link', 'yes');
     localStorage.setItem('scihub_open_files', 'no');
     if (scihub_download) {
@@ -179,7 +179,7 @@ function saveOptions() {
     } catch (err) {
       bkg.console.log(err);
     }
-  }
+  } */
   if (pubmed_limit) {
     try {
       a = parseInt(pubmed_limit, 10);
@@ -542,7 +542,7 @@ $(document).ready(function () {
     $('#ajax_pii_link').prop('checked', true);
     $('#ajax_info').removeClass('Off');
   }
-  if (localStorage.getItem('scihub_link') !== 'no') {
+  /* if (localStorage.getItem('scihub_link') !== 'no') {
     $('#scihub_span').html(' (with a max limit of <input class="settings" type="text" value="3" size="1" id="scihub_limit" /> per page)');
     if (localStorage.getItem('scihub_limit')) {
       $('#scihub_limit').val( localStorage.getItem('scihub_limit') );
@@ -561,7 +561,7 @@ $(document).ready(function () {
     if (localStorage.getItem('scihub_open_files') === 'yes') {
       $('#scihub_open_files').prop('checked', true);
     }
-  }
+  } */
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),
