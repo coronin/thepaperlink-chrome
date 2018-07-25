@@ -105,10 +105,6 @@ function saveOptions() {
       req_a = null,
       req_b = null,
       a;
-      // scihub_link = $('#scihub_link').prop('checked'),
-      // scihub_download = $('#scihub_download').prop('checked'),
-      // scihub_open_files = $('#scihub_open_files').prop('checked'),
-      // scihub_limit = $('#scihub_limit').val(),
   if (co_pubmed) {
     localStorage.setItem('co_pubmed', 'no');
   } else {
@@ -154,32 +150,7 @@ function saveOptions() {
   } else {
     localStorage.setItem('ajax_pii_link', 'no');
   }
-  /* if (scihub_link) {
-    localStorage.setItem('scihub_link', 'yes');
-    localStorage.setItem('scihub_open_files', 'no');
-    if (scihub_download) {
-      localStorage.setItem('scihub_download', 'yes');
-      if (scihub_open_files) {
-        localStorage.setItem('scihub_open_files', 'yes');
-      }
-    } else {
-      localStorage.setItem('scihub_download', 'no');
-    }
-  } else {
-    localStorage.setItem('scihub_link', 'no');
-    localStorage.setItem('scihub_download', 'no');
-    localStorage.setItem('scihub_open_files', 'no');
-  }
-  if (scihub_limit) {
-    try {
-      a = parseInt(scihub_limit, 10);
-      if (a && a !== 3) {
-        localStorage.setItem('scihub_limit', a);
-      }
-    } catch (err) {
-      bkg.console.log(err);
-    }
-  } */
+  // 2018-7-25 paywall vs. scihub
   if (pubmed_limit) {
     try {
       a = parseInt(pubmed_limit, 10);
@@ -542,26 +513,7 @@ $(document).ready(function () {
     $('#ajax_pii_link').prop('checked', true);
     $('#ajax_info').removeClass('Off');
   }
-  /* if (localStorage.getItem('scihub_link') !== 'no') {
-    $('#scihub_span').html(' (with a max limit of <input class="settings" type="text" value="3" size="1" id="scihub_limit" /> per page)');
-    if (localStorage.getItem('scihub_limit')) {
-      $('#scihub_limit').val( localStorage.getItem('scihub_limit') );
-    }
-    $('#scihub_limit').on('change', function () {
-      $('#save_widget').removeClass('Off');
-    });
-    $('#scihub_link').prop('checked', true);
-    $('#scihub_info').removeClass('Off');
-    if (localStorage.getItem('scihub_download') === 'yes') {
-      $('#scihub_download').prop('checked', true);
-      $('#scihub_download_info').removeClass('Off');
-    } else {
-      $('#scihub_download_info').addClass('Off');
-    }
-    if (localStorage.getItem('scihub_open_files') === 'yes') {
-      $('#scihub_open_files').prop('checked', true);
-    }
-  } */
+  // 2018-7-25 paywall vs. scihub
 
   if (localStorage.getItem('past_search_terms')) {
     var terms = localStorage.getItem('past_search_terms').split('||'),

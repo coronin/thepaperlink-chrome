@@ -530,11 +530,8 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            if (msg.el_id.indexOf('_scihub') > -1) {
-              e.innerText = 'paywal';
-            } else {
-              e.innerText = 'pdf file';
-            }
+            // 2018-7-25 paywall vs. scihub
+            e.innerText = 'pdf file';
             e.href = uneval_trim(msg.el_data);
           }
         } else {
@@ -687,17 +684,13 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_doi' + pmid +
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
-          '" href="http://dx.doi.org.scihub----tw/' + uneval_trim(r.item[i].doi) +
-          '" target="_blank">&#x219d;</a>';
+          ) + '" target="_blank">publisher</a>'; // 2018-7-25 paywall vs. scihub
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_pii' + pmid +
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
-          '" href="http://linkinghub.elsevier.com.scihub----tw/retrieve/pii/' + uneval_trim(r.item[i].pii) +
-          '" target="_blank">&#x219d;</a>';
+          ) + '" target="_blank">publisher</a>'; // 2018-7-25 paywall vs. scihub
       div_html += tmp;
     }
     if (r.item[i].pii && byID('citedBy' + pmid)) {
