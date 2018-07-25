@@ -27,7 +27,6 @@ var DEBUG = false,
         '_' + (extension_load_date.getMonth() + 1) +
         '_' + extension_load_date.getDate(),
     last_date = localStorage.getItem('last_date_str') || '';
-    // scihub_limits = localStorage.getItem('scihub_limit') || 3,
 
 function ez_format_link(prefix, url){
   if (!prefix) return url;
@@ -509,22 +508,6 @@ function scholar_title(pmid, t, tabId) {
   });
 }
 
-function do_download_scihub(pmid, url) {
-  console.log(pmid, url);
-  // 2018-7-24
-}
-
-function prepare_download_scihub(tabId, pmid, args) {
-  console.log('prepare: ', args.scihub_link);
-  // 2018-7-24
-}
-
-function parse_scihub(pmid, url, tabId) {
-  console.log('pmid', pmid);
-  console.log('url', url);
-  // 2018-7-24
-}
-
 function parse_pii(pmid, url, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('url', url);
@@ -831,7 +814,6 @@ function get_request(msg, _port) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
-    // scihub_limits = localStorage.getItem('scihub_limit') || 3;
 
   } else if (msg.load_broadcast) {
     broadcast_loaded = false;
@@ -844,14 +826,7 @@ function get_request(msg, _port) {
     if (localStorage.getItem('ajax_pii_link') !== 'no') {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
-    if (localStorage.getItem('scihub_link') !== 'no') {
-      parse_scihub(msg.pmid, 'http://linkinghub.elsevier.com.scihub----tw/retrieve/pii/' + msg.pii, sender_tab_id);
-    }
-
-  } else if (msg.doi_link && msg.doi && msg.pmid) {
-    if (localStorage.getItem('scihub_link') !== 'no') {
-      parse_scihub(msg.pmid, 'http://dx.doi.org.scihub----tw/' + msg.doi, sender_tab_id);
-    }
+    // 2018-7-25 paywall vs. scihub
 
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
@@ -1022,8 +997,7 @@ function get_request(msg, _port) {
       active: true
     });
 
-  } else if (msg.pmid && msg.scihub) {
-    do_download_scihub(msg.pmid, msg.scihub);
+  // 2018-7-25 paywall vs. scihub
 
   } else {
     console.log(msg);
@@ -1114,7 +1088,6 @@ $(document).ready(function () {
 function load_ALL_localStorage() {
   var a_value, a_key, a_key_split, a_url;
   $('#email_').html('');
-  //$('#scihub_').html('');
   $('#scholar_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link for pubmed');
   for (i = 0; i < localStorage.length; i += 1) {
@@ -1126,18 +1099,13 @@ function load_ALL_localStorage() {
       localStorage.removeItem(a_key);
       continue;
     }
-    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scihub_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
+    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
          a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ) {
       if (a_key.indexOf('email_') === 0) {
         $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
-      } else if (a_key.indexOf('scihub_') === 0) {
-        a_url = a_value.split(',')[1];
-        if (a_url.indexOf('googletagmanager.com') > 0) {
-          $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
-          localStorage.removeItem(a_key);
-          continue;
-        }
-        format_a_li('scihub', a_key_split[1], a_url);
+
+      // 2018-7-25 paywall vs. scihub
+
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
