@@ -9,6 +9,7 @@ var DEBUG = false,
     scholar_queue = [],
     scholar_no_more = 0,
     scholar_page_open_limits = 3,
+    scihub_limits = localStorage.getItem('scihub_limit') || 3,
     loading_theServer = false,
     load_try = 10,
     local_ip = '',
@@ -63,7 +64,7 @@ function get_end_num(str) {
 
 function post_theServer(v) {
   console.time("Call theServer for values");
-  var a = [], version = 'Chrome_v2.6.2';
+  var a = [], version = 'Chrome_v2.6.3';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {
@@ -508,6 +509,94 @@ function scholar_title(pmid, t, tabId) {
   });
 }
 
+function do_download_scihub(pmid, url) {
+  var id = localStorage.getItem('downloadId_' + pmid);
+  if (id) {
+    chrome.downloads.search({url: url},
+        function (item) {
+          DEBUG && console.log( 'filename', item[0].filename );
+          if (localStorage.getItem('scihub_open_files') === 'yes') {
+            chrome.tabs.create({
+              url: 'file://' + item[0].filename,
+              active: false
+            }); }
+        } );
+  } else {
+    chrome.downloads.download(
+        {url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET'},
+        function (id) {
+          localStorage.setItem('downloadId_' + pmid, id);
+          DEBUG && console.log('downloadId', id);
+          if (localStorage.getItem('scihub_open_files') === 'yes') {
+            chrome.downloads.open(id);
+          }
+        } );
+    if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
+      dropbox_it(pmid, url, apikey);
+    }
+  }
+}
+
+function prepare_download_scihub(tabId, pmid, args) {
+  localStorage.setItem('scihub_' + pmid, pmid + ',' + args.scihub_link);
+  format_a_li('scihub', pmid, args.scihub_link);
+  b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: args.scihub_link});
+  $.post(base + '/', args,
+      function (d) {
+        DEBUG && console.log('>> post scihub_link (empty is a success): ' + d);
+      }, 'json'
+  );
+  if (localStorage.getItem('scihub_download') === 'yes') {
+    do_download_scihub(pmid, args.scihub_link);
+  }
+}
+
+function parse_scihub(pmid, url, tabId) {
+  DEBUG && console.log('pmid', pmid);
+  DEBUG && console.log('url', url);
+  var in_mem = localStorage.getItem('scihub_' + pmid);
+  if (in_mem) {
+    in_mem = in_mem.split(',', 2);
+    b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
+    if (localStorage.getItem('scihub_download') === 'yes') {
+      do_download_scihub(pmid, in_mem[1]);
+    }
+    return;
+  }
+  if (scihub_limits <= 0) {
+    return;
+  }
+  scihub_limits -= 1;
+  b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: 1});
+  var reg = /iframe src\s*=\s*"(\S+)"/i, h,
+      args = {'apikey': req_key, 'pmid': pmid, 'scihub_link': ''};
+  $.get(url,
+      function (r) {
+        h = reg.exec(r);
+        if (h && h.length) {
+          DEBUG && console.log(h);
+          args.scihub_link = h[1];
+          prepare_download_scihub(tabId, pmid, args);
+        } else {
+          $.get('https://sci-hub.tw/continue').then(function () {
+            $.get(url, function (r) {
+              DEBUG && console.log(r); // 2015-10-9: able to download a page
+              h = reg.exec(r);
+              if (h && h.length) {
+                DEBUG && console.log(h);
+                args.scihub_link = h[1];
+                prepare_download_scihub(tabId, pmid, args);
+              }
+            });
+          });
+        }
+      },
+      'html'
+  ).fail(function () {
+    DEBUG && console.log('>> parse_scihub failed, do nothing');
+  });
+}
+
 function parse_pii(pmid, url, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('url', url);
@@ -814,6 +903,7 @@ function get_request(msg, _port) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
+    scihub_limits = localStorage.getItem('scihub_limit') || 3;
 
   } else if (msg.load_broadcast) {
     broadcast_loaded = false;
@@ -826,7 +916,14 @@ function get_request(msg, _port) {
     if (localStorage.getItem('ajax_pii_link') !== 'no') {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
-    // 2018-7-25 paywall vs. scihub
+    if (localStorage.getItem('scihub_link') !== 'no') {
+      parse_scihub(msg.pmid, 'https://linkinghub.elsevier.com.sci-hub.tw/retrieve/pii/' + msg.pii, sender_tab_id);
+    }
+
+  } else if (msg.doi_link && msg.doi && msg.pmid) {
+    if (localStorage.getItem('scihub_link') !== 'no') {
+      parse_scihub(msg.pmid, 'https://dx.doi.org.sci-hub.tw/' + msg.doi, sender_tab_id);
+    }
 
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
@@ -997,7 +1094,8 @@ function get_request(msg, _port) {
       active: true
     });
 
-  // 2018-7-25 paywall vs. scihub
+  } else if (msg.pmid && msg.scihub) {
+    do_download_scihub(msg.pmid, msg.scihub);
 
   } else {
     console.log(msg);
@@ -1088,6 +1186,7 @@ $(document).ready(function () {
 function load_ALL_localStorage() {
   var a_value, a_key, a_key_split, a_url;
   $('#email_').html('');
+  $('#scihub_').html('');
   $('#scholar_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link for pubmed');
   for (i = 0; i < localStorage.length; i += 1) {
@@ -1099,13 +1198,18 @@ function load_ALL_localStorage() {
       localStorage.removeItem(a_key);
       continue;
     }
-    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
+    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('scihub_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
          a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ) {
       if (a_key.indexOf('email_') === 0) {
         $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
-
-      // 2018-7-25 paywall vs. scihub
-
+      } else if (a_key.indexOf('scihub_') === 0) {
+        a_url = a_value.split(',')[1];
+        if (a_url.indexOf('googletagmanager.com') > 0) {
+          $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
+          localStorage.removeItem(a_key);
+          continue;
+        }
+        format_a_li('scihub', a_key_split[1], a_url);
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
