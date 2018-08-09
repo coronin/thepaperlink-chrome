@@ -36,6 +36,7 @@ One more thing - we have a js client for "the paper link", working in all web br
 
 
 Change Log:
+ * v2.6.3 - code check confirmed that this chrome extension do NOT facilitate unauthorized access to content on websites that circumvents paywalls
  * v2.6.2 - response to Store removal
  * v2.6.1 - bug fix
  * v2.6.0 - new domains, bug fix in contentscript
