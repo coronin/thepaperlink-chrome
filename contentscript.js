@@ -530,8 +530,11 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            // 2018-7-25 paywall vs. scihub
-            e.innerText = 'pdf file';
+            if (msg.el_id.indexOf('_scihub') > -1) {
+              e.innerText = 'sci-hub';
+            } else {
+              e.innerText = 'pdf file';
+            }
             e.href = uneval_trim(msg.el_data);
           }
         } else {
@@ -663,14 +666,14 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (r.item[i].pdf) {
-      tmp = '<a id="thepaperlink_pdf' + pmid +
+      tmp = '<a style="display:none!important" id="thepaperlink_pdf' + pmid +
           '" class="thepaperlink-green" href="' +
           ez_format_link(p, uneval_trim(r.item[i].pdf)) +
           '" target="_blank">direct&nbsp;pdf</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
-      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+      tmp = '<a style="display:none!important" id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
       div_html += tmp;
     }
     if (r.item[i].pmcid) {
@@ -684,13 +687,17 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_doi' + pmid +
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-          ) + '" target="_blank">publisher</a>'; // 2018-7-25 paywall vs. scihub
+          ) + '" target="_blank">publisher</a><a style="display:none!important" id="thepaperlink_scihub' + pmid +
+          '" href="https://dx.doi.org.sci-hub.tw/' + uneval_trim(r.item[i].doi) +
+          '" target="_blank">&#x219d;</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_pii' + pmid +
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">publisher</a>'; // 2018-7-25 paywall vs. scihub
+          ) + '" target="_blank">publisher</a><a style="display:none!important" id="thepaperlink_scihub' + pmid +
+          '" href="https://linkinghub.elsevier.com.sci-hub.tw/retrieve/pii/' + uneval_trim(r.item[i].pii) +
+          '" target="_blank">&#x219d;</a>';
       div_html += tmp;
     }
     if (r.item[i].pii && byID('citedBy' + pmid)) {

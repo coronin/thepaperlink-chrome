@@ -34,7 +34,7 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v2.6.2 &copy; since 2010 &middot;
+  <span style="float:right">v2.6.3 &copy; since 2010 &middot;
     product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; California/Shanghai &middot;
     <a href="http://www.thepaperlink.com" rel="external">www.thepaperlink.com</a> &middot;
     <a href="https://www.zhaowenxian.com" rel="external">www.zhaowenxian.com</a>
@@ -164,7 +164,21 @@
       only support the following publisher: <em>ScienceDirect</em>
       </p>
   </div></div>
-  <!-- paywall vs. scihub_link scihub_span scihub_info -->
+  <p style="display:none!important"><input class="settings" type="checkbox" id="scihub_link" title="scihub_link" />
+    <strong>Enable</strong> to insert sci-hub PDF links
+    <span id="scihub_span"></span>.
+  </p>
+  <div class="ui-widget Off" id="scihub_info" style="display:none!important"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      <span style="color:red;font-weight:bold;background:yellow">very annoying</span>
+      check <input class="settings" type="checkbox" id="scihub_download" title="scihub_download" />
+      to download a local copy and <em>Dropbox</em> it (if enabled)
+    </p>
+    <p class="Off" id="scihub_download_info"><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
+      once download, check <input class="settings" type="checkbox" id="scihub_open_files" title="scihub_open_files" />
+      to always open the files
+    </p>
+  </div></div>
   <p><input class="settings" type="checkbox" id="ws_items" title="ws_items" />
     <strong>Display</strong> "cited by" counts on our website.
     </p>
