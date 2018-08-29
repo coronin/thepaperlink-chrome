@@ -1,58 +1,12 @@
-the paper link for PubMed (limited)
+the paper link 3
 --------
-In addition to existing PubMed search results, this extension will add direct PDF link; display F1000 scores, Impact Factor, Peaks and much more! It is built based on publicly available information from NLM / NCBI / NIH, and other sources.
+In addition to existing PubMed search results, this extension will show links to PDF; display F1000 score and journal impact factor; peak authors; and much more! It is built with passion and love.
 
 Detailed enhancement includes:
  * Impact Factor of the Journal
- * Direct link to its PDF file
+ * Direct link to its PDF file (to access still require permissions)
  * External pages related to the article
  * Faculty 1000 score and link to its comment page
- * "Peaks", which is based on Impact Factor (the playground for "Peaks" is at http://2.thepaperlink.com/static/peaks.html)
- * Email PDF file to yourself (only in FULL version)
- * Extract PMID on any webpage
+ * "Peaks" authors (the playground for "Peaks" is at http://2.thepaperlink.com/static/peaks.html)
 
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
-
-FULL version is https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko
-Versions of limited and FULL are matched
-
-=======
-Change Log:
- * v2.6.3 - code check confirmed that this chrome extension do NOT facilitate unauthorized access to content on websites that circumvents paywalls
- * v2.6.2 - response to Store removal
- * v2.6.1 - bug fix
- * v2.6.0 - new domains, bug fix in contentscript
- * v2.5.6 - logs show in background.html
- * v2.5.5 - bug fix from high in the sky
- * v2.5.4 - sci-hub relocate
- * v2.5.3 - bug fix
- * v2.5.2 - improved integration with www.thepaperlink.com
- * v2.5.1 - bug fix
- * v2.5.0 - options to download sci-hub files
- * v2.4.4 - bug fix
- * v2.4.0 - options save bug fix, reduce google scholar check, abstract page single author bug, sci-hub.org
- * v2.3.0 - support http://or.nsfc.gov.cn
- * v2.2.2 - bug fix, single page citation extraction
- * v2.2.1 - bug fix, single page the bar insertion
- * v2.2.0 - adjust error report
- * v2.1.* - in-app purchase
- * v2.0.5 - support .aa.bb.edu type of ezproxy, baiduyun, better keywords tab, etc
- * v2.0.4 - PubMed Commons
- * v2.0.3 - better annotation for "Error!"
- * v2.0.2 - bug fix
- * v2.0.1 - pl4.me expired
- * v2.0.0 - jump version
- * v0.6.6 - improve ui
- * v0.6.5.1 - new icon
- * v0.6.5 - bug fix
- * v0.6.4 - improve messaging
- * v0.6.3 - fix non-HTTPS file upload bug
- * v0.6.2 - fix server reconnect bug
- * v0.6.1 - js "use strict", bug fix on https pages
- * v0.6.0 - insert pdf link to F1000.com, order results in Google Scholar
- * v0.5.6 - support Google Drive and Sky Drive, bug fix
- * v0.5.5 - new server, node.pl4.me
- * v0.5.4 - bug fix, ui improve
- * v0.5.3 - ws on pl4.me:8081
- * v0.5.2 - bug fix
- * v0.5.1 - alert outdated
