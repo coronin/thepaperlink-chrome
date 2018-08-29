@@ -489,8 +489,8 @@ $(document).ready(function () {
     localStorage.removeItem('alert_outdated');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our reverse proxy</b> to access "the paper link".' +
-        ' It is slower.');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>the HTTP method</b> to access "the paper link".' +
+        ' It is unsecured.');
     $('#api_server').text('https://www.zhaowenxian.com');
     $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
@@ -500,11 +500,11 @@ $(document).ready(function () {
     $('#scholar_once_info').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
-        ' <b>check to enable</b> the reverse proxy to our service.');
+        ' <b>check to access</b> our service via HTTP.');
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use the reverse proxy, which is slower.' +
-        ' If you really want to, feel free to check to enable it.');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
+        ' If you really want to, feel free to access our service via HTTP.');
     $('#api_server').text('https://pubget-hrd.appspot.com');
   }
   $('#rev_proxy').on('change', function () {
@@ -543,7 +543,7 @@ $(document).ready(function () {
     $('#ajax_info').removeClass('Off');
   }
   if (localStorage.getItem('scihub_link') !== 'no') {
-    $('#scihub_span').html(' (with a max limit of <input class="settings" type="text" value="3" size="1" id="scihub_limit" /> per page)');
+    $('#scihub_span').html(' Max limit of <input class="settings" type="text" value="3" size="1" id="scihub_limit" /> per page.');
     if (localStorage.getItem('scihub_limit')) {
       $('#scihub_limit').val( localStorage.getItem('scihub_limit') );
     }

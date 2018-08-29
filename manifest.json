@@ -1,10 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_appName__",
-  "version": "2.6.3",
+  "name": "the paper link 3",
+  "version": "2.9",
   "minimum_chrome_version": "31",
-  "description": "__MSG_appDesc__",
-  "default_locale": "en",
+  "description": "Show links to PDF; display F1000 score and journal impact factor; peak authors; ... by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
@@ -38,7 +37,7 @@
       "19": "19grey.png",
       "48": "48grey.png"
     },
-    "default_title": "the paper link for PubMed: click to display detailed info",
+    "default_title": "the paper link 3: click to display detailed info",
     "default_popup" : "popup.html"
   },
   "content_scripts": [ {
@@ -61,8 +60,8 @@
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
-      "http://*.nature.com/*",
       "http://*.cell.com/*",
+      "http://*.nature.com/*",
       "http://*.sciencemag.org/*"
     ],
     "exclude_globs": [
@@ -93,8 +92,8 @@
       "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
-      "http://*.nature.com/*",
       "http://*.cell.com/*",
+      "http://*.nature.com/*",
       "http://*.sciencemag.org/*"
     ]
   }

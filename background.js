@@ -922,7 +922,7 @@ function get_request(msg, _port) {
 
   } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (localStorage.getItem('scihub_link') !== 'no') {
-      parse_scihub(msg.pmid, 'https://dx.doi.org.sci-hub.tw/' + msg.doi, sender_tab_id);
+      parse_scihub(msg.pmid, 'https://sci-hub.tw/' + msg.doi, sender_tab_id);
     }
 
   } else if (msg.search_term) {
