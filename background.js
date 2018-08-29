@@ -64,7 +64,7 @@ function get_end_num(str) {
 
 function post_theServer(v) {
   console.time("Call theServer for values");
-  var a = [], version = 'Chrome_v2.6.3';
+  var a = [], version = 'Chrome_v2.9';
   a[0] = 'WEBSOCKET_SERVER';
   a[1] = 'GUEST_APIKEY';
   if (!local_ip) {

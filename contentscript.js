@@ -24,8 +24,8 @@ var DEBUG = false,
     onePage_calls = 0,
     _port = chrome.runtime.connect({name: 'background_port'});
 
-/* limited version: a mark to prevent "email it" in extension-la.min.js
-   full version at https://chrome.google.com/webstore/detail/kgdcooicefdfjcplcnehfpbngjccncko */
+/* version 3: not yet "email it" in extension-la.min.js
+   https://chrome.google.com/webstore/detail/obgkooamoiloecoadbfaflephiefbfpn */
 var thePaperLink_chrome_limited = true,
     limited = page_d.createElement('div');
 limited.innerHTML = '<div id="thePaperLink_chrome_limited"></div>';
