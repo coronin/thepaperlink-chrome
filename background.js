@@ -575,7 +575,7 @@ function parse_scihub(pmid, url, tabId) {
         h = reg.exec(r);
         if (h && h.length) {
           DEBUG && console.log(h);
-          args.scihub_link = h[1];
+          args.scihub_link = h[1].split('#')[0];
           prepare_download_scihub(tabId, pmid, args);
         } else {
           $.get('https://sci-hub.tw/continue').then(function () {
@@ -584,7 +584,7 @@ function parse_scihub(pmid, url, tabId) {
               h = reg.exec(r);
               if (h && h.length) {
                 DEBUG && console.log(h);
-                args.scihub_link = h[1];
+                args.scihub_link = h[1].split('#')[0];
                 prepare_download_scihub(tabId, pmid, args);
               }
             });
