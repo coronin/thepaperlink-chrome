@@ -689,7 +689,7 @@ function get_request(msg) {
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
           '" href="https://sci-hub.tw/' + uneval_trim(r.item[i].doi) +
-          '" target="_blank">&#x219d;</a>';
+          '#" target="_blank">&#x219d;</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_pii' + pmid +
