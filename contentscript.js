@@ -530,11 +530,11 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            if (msg.el_id.indexOf('_scihub') > -1) {
-              e.innerText = 'quick pdf';
-            } else {
+            //if (msg.el_id.indexOf('_shark') > -1) { // 2018-9-2
+            //  e.innerText = 'quick pdf';
+            //} else {
               e.innerText = 'pdf file';
-            }
+            //}
             e.href = uneval_trim(msg.el_data);
           }
         } else {
@@ -687,7 +687,7 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_doi' + pmid +
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
+          ) + '" target="_blank">publisher</a><a id="thepaperlink_shark' + pmid +
           '" href="https://shark-bite.io/' + uneval_trim(r.item[i].doi) +
           '#" target="_blank">&#x219d;</a>';
       div_html += tmp;
@@ -695,7 +695,7 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_pii' + pmid +
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_scihub' + pmid +
+          ) + '" target="_blank">publisher</a><a id="thepaperlink_shark' + pmid +
           '" href="https://shark-bite.io/retrieve/pii/' + uneval_trim(r.item[i].pii) +
           '" target="_blank">&#x219d;</a>';
       div_html += tmp;
