@@ -99,10 +99,10 @@ function saveOptions() {
       ws_items = $('#ws_items').prop('checked'),
       scholar_once = $('#scholar_once').prop('checked'),
       ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-      scihub_link = $('#scihub_link').prop('checked'),
-      scihub_download = $('#scihub_download').prop('checked'),
-      scihub_open_files = $('#scihub_open_files').prop('checked'),
-      scihub_limit = $('#scihub_limit').val(),
+      shark_link = $('#shark_link').prop('checked'),
+      shark_download = $('#shark_download').prop('checked'),
+      shark_open_files = $('#shark_open_files').prop('checked'),
+      shark_limit = $('#shark_limit').val(),
       pubmed_limit = $('#pubmed_limit').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
       cc_address = $('#cc_address').val(),
@@ -154,27 +154,27 @@ function saveOptions() {
   } else {
     localStorage.setItem('ajax_pii_link', 'no');
   }
-  if (scihub_link) {
-    localStorage.setItem('scihub_link', 'yes');
-    localStorage.setItem('scihub_open_files', 'no');
-    if (scihub_download) {
-      localStorage.setItem('scihub_download', 'yes');
-      if (scihub_open_files) {
-        localStorage.setItem('scihub_open_files', 'yes');
+  if (shark_link) {
+    localStorage.setItem('shark_link', 'yes');
+    localStorage.setItem('shark_open_files', 'no');
+    if (shark_download) {
+      localStorage.setItem('shark_download', 'yes');
+      if (shark_open_files) {
+        localStorage.setItem('shark_open_files', 'yes');
       }
     } else {
-      localStorage.setItem('scihub_download', 'no');
+      localStorage.setItem('shark_download', 'no');
     }
   } else {
-    localStorage.setItem('scihub_link', 'no');
-    localStorage.setItem('scihub_download', 'no');
-    localStorage.setItem('scihub_open_files', 'no');
+    localStorage.setItem('shark_link', 'no');
+    localStorage.setItem('shark_download', 'no');
+    localStorage.setItem('shark_open_files', 'no');
   }
-  if (scihub_limit) {
+  if (shark_limit) {
     try {
-      a = parseInt(scihub_limit, 10);
+      a = parseInt(shark_limit, 10);
       if (a && a !== 3) {
-        localStorage.setItem('scihub_limit', a);
+        localStorage.setItem('shark_limit', a);
       }
     } catch (err) {
       bkg.console.log(err);
@@ -542,24 +542,24 @@ $(document).ready(function () {
     $('#ajax_pii_link').prop('checked', true);
     $('#ajax_info').removeClass('Off');
   }
-  if (localStorage.getItem('scihub_link') !== 'no') {
-    $('#scihub_span').html(' Max limit of <input class="settings" type="text" value="3" size="1" id="scihub_limit" /> per page.');
-    if (localStorage.getItem('scihub_limit')) {
-      $('#scihub_limit').val( localStorage.getItem('scihub_limit') );
+  if (localStorage.getItem('shark_link') !== 'no') {
+    $('#shark_span').html(' Max limit of <input class="settings" type="text" value="3" size="1" id="shark_limit" /> per page.');
+    if (localStorage.getItem('shark_limit')) {
+      $('#shark_limit').val( localStorage.getItem('shark_limit') );
     }
-    $('#scihub_limit').on('change', function () {
+    $('#shark_limit').on('change', function () {
       $('#save_widget').removeClass('Off');
     });
-    $('#scihub_link').prop('checked', true);
-    $('#scihub_info').removeClass('Off');
-    if (localStorage.getItem('scihub_download') === 'yes') {
-      $('#scihub_download').prop('checked', true);
-      $('#scihub_download_info').removeClass('Off');
+    $('#shark_link').prop('checked', true);
+    $('#shark_info').removeClass('Off');
+    if (localStorage.getItem('shark_download') === 'yes') {
+      $('#shark_download').prop('checked', true);
+      $('#shark_download_info').removeClass('Off');
     } else {
-      $('#scihub_download_info').addClass('Off');
+      $('#shark_download_info').addClass('Off');
     }
-    if (localStorage.getItem('scihub_open_files') === 'yes') {
-      $('#scihub_open_files').prop('checked', true);
+    if (localStorage.getItem('shark_open_files') === 'yes') {
+      $('#shark_open_files').prop('checked', true);
     }
   }
 
