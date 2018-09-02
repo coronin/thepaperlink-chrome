@@ -551,10 +551,9 @@ function prepare_download_scihub(tabId, pmid, args) {
   }
 }
 
-function parse_scihub(pmid, url, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('url', url);
-  var in_mem = localStorage.getItem('scihub_' + pmid);
+function parse_shark(pmid, url, tabId) {
+  DEBUG && console.log('NOT READY', pmid, url);
+  var in_mem = localStorage.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, {el_id: '_scihub' + pmid, el_data: in_mem[1]});
@@ -578,22 +577,16 @@ function parse_scihub(pmid, url, tabId) {
           args.scihub_link = h[1].split('#')[0];
           prepare_download_scihub(tabId, pmid, args);
         } else {
-          $.get('https://sci-hub.tw/continue').then(function () {
+          $.get('https://shark-bite.io/continue').then(function () {
             $.get(url, function (r) {
-              DEBUG && console.log(r); // 2015-10-9: able to download a page
-              h = reg.exec(r);
-              if (h && h.length) {
-                DEBUG && console.log(h);
-                args.scihub_link = h[1].split('#')[0];
-                prepare_download_scihub(tabId, pmid, args);
-              }
+                  DEBUG && console.log(r);
             });
           });
         }
       },
       'html'
   ).fail(function () {
-    DEBUG && console.log('>> parse_scihub failed, do nothing');
+    DEBUG && console.log('>> parse_shark failed, do nothing');
   });
 }
 
@@ -916,13 +909,13 @@ function get_request(msg, _port) {
     if (localStorage.getItem('ajax_pii_link') !== 'no') {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
-    if (localStorage.getItem('scihub_link') !== 'no') {
-      parse_scihub(msg.pmid, 'https://linkinghub.elsevier.com.sci-hub.tw/retrieve/pii/' + msg.pii, sender_tab_id);
+    if (localStorage.getItem('shark_link') !== 'no') {
+      parse_shark(msg.pmid, 'https://shark-bite.io/retrieve/pii/' + msg.pii, sender_tab_id);
     }
 
   } else if (msg.doi_link && msg.doi && msg.pmid) {
-    if (localStorage.getItem('scihub_link') !== 'no') {
-      parse_scihub(msg.pmid, 'https://sci-hub.tw/' + msg.doi, sender_tab_id);
+    if (localStorage.getItem('shark_link') !== 'no') {
+      parse_shark(msg.pmid, 'https://shark-bite.io/' + msg.doi, sender_tab_id);
     }
 
   } else if (msg.search_term) {
