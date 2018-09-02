@@ -106,6 +106,7 @@ function saveOptions() {
       pubmed_limit = $('#pubmed_limit').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
       cc_address = $('#cc_address').val(),
+      local_mirror = $('#local_mirror').val(),
       req_a = null,
       req_b = null,
       a;
@@ -225,6 +226,12 @@ function saveOptions() {
       return false;
     }
     localStorage.setItem('cc_address', '');
+  }
+  if (local_mirror && local_mirror != '{local.mirror}') {
+    localStorage.setItem('local_mirror', local_mirror);
+  } else {
+    local_mirror = '';
+    localStorage.setItem('local_mirror', '');
   }
   if ( !localStorage.getItem('a_apikey_gold') ) {
     var accessApi = $('#thepaperlink_apikey_input').val().replace( /\s+/g, '' );
@@ -376,12 +383,24 @@ $(document).ready(function () {
   $('#alert_tab').on('click', function() { $('#option_tabs').tabs('select', 3); });
   $('#ezproxy_input').focus(function () {
     if (this.value === this.defaultValue) {
-      this.value = '';
-    }
+      this.value = ''; }
   }).blur(function () {
     if (!this.value.length) {
-      this.value = this.defaultValue;
-    }
+      this.value = this.defaultValue; }
+  });
+  $('#cc_address').focus(function () {
+    if (this.value === this.defaultValue) {
+      this.value = ''; }
+  }).blur(function () {
+    if (!this.value.length) {
+      this.value = this.defaultValue; }
+  });
+  $('#local_mirror').focus(function () {
+    if (this.value === this.defaultValue) {
+      this.value = ''; }
+  }).blur(function () {
+    if (!this.value.length) {
+      this.value = this.defaultValue; }
   });
 
   if ( $.cookie('alert_v1') ) {
@@ -407,7 +426,8 @@ $(document).ready(function () {
       s_status = localStorage.getItem('skydrive_status'),
       y_status = localStorage.getItem('baiduyun_status'),
       ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
-      cc_address = localStorage.getItem('cc_address');
+      cc_address = localStorage.getItem('cc_address'),
+      local_mirror = localStorage.getItem('local_mirror');
 
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
@@ -483,6 +503,9 @@ $(document).ready(function () {
   }
   if (cc_address) {
     $('#cc_address').val(cc_address);
+  }
+  if (local_mirror) {
+    $('#local_mirror').val(local_mirror);
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
