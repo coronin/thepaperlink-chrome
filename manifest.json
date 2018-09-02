@@ -28,6 +28,7 @@
   "icons": {
     "128": "128.png",
     "48": "48.png",
+    "32": "32.png",
     "19": "19.png",
     "16": "16.png"
   },
@@ -35,6 +36,7 @@
   "page_action": {
     "default_icon": {
       "19": "19grey.png",
+      "32": "32grey.png",
       "48": "48grey.png"
     },
     "default_title": "the paper link 3: click to display detailed info",
