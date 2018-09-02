@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "the paper link 3",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "minimum_chrome_version": "31",
   "description": "Show links to PDF; display F1000 score and journal impact factor; peak authors; ... by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
