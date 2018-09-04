@@ -91,7 +91,7 @@
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
       "http://pubmed.cn/*",
-      "http://or.nsfc.gov.cn/*",
+      "http://or.nsfc.gov.cn/handle/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
       "http://*.cell.com/*",

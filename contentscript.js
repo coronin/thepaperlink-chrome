@@ -105,7 +105,7 @@ function process_dxy() {
   }
   for (i = 0, len = byTag('div').length; i < len; i += 1) {
     ele = byTag('div')[i];
-    if (ele.className === 'setting') {
+    if (ele.className === 'view_authors') {
       ele.setAttribute('id', 'thepaperlink_bar');
       break;
     }
@@ -290,7 +290,7 @@ function getPmid(zone, num) {
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
-        c.innerHTML = 'Cited by: <span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
+        c.innerHTML = 'Google Scholar: <span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
         if (byTag(zone)[num].className === 'rprt') {
           byTag(zone)[num + 4].appendChild(c);
         } else { // display with abstract
@@ -514,9 +514,10 @@ function get_request(msg) {
       } else if (msg.g_num && msg.g_link) {
         byID('citedBy' + msg.pmid).innerHTML = uneval_trim(msg.g_num) +
             ' times <a target="_blank" href="https://scholar.google.com' +
-            uneval_trim(msg.g_link) + '">(in Google Scholar)</a>';
+            uneval_trim(msg.g_link) + '"></a>';
       }
     } catch (err) {
+      byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
       DEBUG && console.log(err);
     }
     //sendResponse({});
@@ -669,7 +670,7 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_pdf' + pmid +
           '" class="thepaperlink-green" href="' +
           ez_format_link(p, uneval_trim(r.item[i].pdf)) +
-          '" target="_blank">link&nbsp;to&nbsp;pdf</a>';
+          '" target="_blank">pdf</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
@@ -679,7 +680,7 @@ function get_request(msg) {
     if (r.item[i].pmcid) {
       tmp = '<a id="thepaperlink_pmc' + pmid +
           '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
-          uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlink_chrome" target="_blank">open&nbsp;access</a>';
+          uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlink_chrome" target="_blank">pmc</a>';
       div_html += tmp;
     }
     if (r.item[i].doi) {
@@ -700,14 +701,14 @@ function get_request(msg) {
           '" target="_blank">&#x219d;</a>';
       div_html += tmp;
     }
-    if (r.item[i].pii && byID('citedBy' + pmid)) {
-      insert_span = page_d.createElement('span');
-      insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
-          ez_format_link(p,
-              'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">(in Scopus)</a>';
-      byID('citedBy' + pmid).parentNode.appendChild(insert_span);
-    }
+    //if (r.item[i].pii && byID('citedBy' + pmid)) {
+    //  insert_span = page_d.createElement('span');
+    //  insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
+    //      ez_format_link(p,
+    //          'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+    //      ) + '" target="_blank">(in Scopus)</a>';
+    //  byID('citedBy' + pmid).parentNode.appendChild(insert_span);
+    //}
     if (r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid +
           '" class="thepaperlink-red" href="' +

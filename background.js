@@ -651,7 +651,7 @@ function load_broadcast() {
   }
   clearInterval(ws_timer);
   ws_timer = null;
-  ws = new WebSocket('ws://' + ws_addr);
+  ws = new WebSocket('wss://' + ws_addr);
   // ws.readyState: 0 CONNECTING, 1 OPEN, 2 CLOSING, 3 CLOSED
   ws.onopen = function () {
     DEBUG && console.log('>> ws is established');
