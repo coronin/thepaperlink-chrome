@@ -229,9 +229,9 @@ function saveOptions() {
   }
   if (local_mirror && local_mirror != '{local.mirror}') {
     localStorage.setItem('local_mirror', local_mirror);
+    _port.postMessage({update_local_: 1, local_mirror: local_mirror});
   } else {
-    local_mirror = '';
-    localStorage.setItem('local_mirror', '');
+    localStorage.removeItem('local_mirror');
   }
   if ( !localStorage.getItem('a_apikey_gold') ) {
     var accessApi = $('#thepaperlink_apikey_input').val().replace( /\s+/g, '' );
