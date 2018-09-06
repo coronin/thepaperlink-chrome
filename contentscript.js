@@ -157,44 +157,39 @@ function order_gs() {
     tobe = lists[0].split(',');
     byID('_thepaperlink_order_status').textContent = '0';
   }
-  byID('gs_ccl').style.display = 'none';
+  byID('gs_res_ccl_mid').style.display = 'none';
   for (i = 0, len = tobe.length; i < len; i += 1) {
     nodes.push( byID('_thepaperlink_' + tobe[i]) );
-    byID('gs_ccl').removeChild( byID('_thepaperlink_' + tobe[i]) );
+    byID('gs_res_ccl_mid').removeChild( byID('_thepaperlink_' + tobe[i]) );
   }
   for (i = 0, len = nodes.length; i < len; i += 1) {
-    byID('gs_ccl').insertBefore(nodes[i], byID('_thepaperlink_pos0'));
+    byID('gs_res_ccl_mid').insertBefore(nodes[i], byID('_thepaperlink_pos0'));
   }
   nodes = null;
-  byID('gs_ccl').style.display = 'block';
+  byID('gs_res_ccl_mid').style.display = 'block';
 }
 
 function process_googlescholar() {
-  var i, ilen, j, jlen, tmp, nodes = byID('gs_ccl').childNodes, a, b, c, d = [];
+  var i, ilen, j, jlen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
     if (nodes[i].className === 'gs_alrt_btm') {
       nodes[i].setAttribute('id', '_thepaperlink_pos0');
       continue;
     }
-    a = nodes[i].lastChild;
+    a = nodes[i].lastChild; // class: gs_r gs_or gs_scl -> gs_ri
     if (!a) { continue; }
-    for (j = 0, jlen = a.childNodes.length; j < jlen; j += 1) {
-      if (a.childNodes[j].className === 'gs_fl') {
-        b = a.childNodes[j].textContent; // class: gs_r -> gs_ri -> gs_fl
-        if (b.substr(0, 9) === 'Cited by ') {
-          c = parseInt(b.substr(9,7), 10);
-          nodes[i].setAttribute('id', '_thepaperlink_' + c);
-          d.push(c);
-        }
-        break;
-      }
+    b = a.childNodes[3].textContent.trim(); // class: gs_r gs_or gs_scl -> gs_ri -> gs_fl
+    if (b.substr(0, 9) === 'Cited by ') {
+      c = parseInt(b.substr(9,7), 10);
+      nodes[i].setAttribute('id', '_thepaperlink_' + c);
+      d.push(c);
     }
   }
   if (d.length > 0) {
     tmp = page_d.createElement('div');
     tmp.setAttribute('style', 'float:right;cursor:pointer;color:red');
-    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">[order the results on this page &uarr;' +
-        '<span id="_thepaperlink_order_status">0</span>]</span>' +
+    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">results on this page ' +
+        '<span id="_thepaperlink_order_status">0</span>&nbsp; (0:original; 1:decreased; 2:increased)</span>' +
         '<span id="_thepaperlink_order_lists" style="display:none">' +
         d.join(',') + ';' +
         d.sort(function(u,v){return v-u;}).join(',') + ';' +
