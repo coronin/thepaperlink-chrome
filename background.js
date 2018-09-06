@@ -21,6 +21,7 @@ var DEBUG = false,
     base = 'https://pubget-hrd.appspot.com',
     guest_apikey = null,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
+    local_mirror,
     pubmeder_ok = false,
     broadcast_loaded = false,
     extension_load_date = new Date(),
@@ -177,6 +178,7 @@ function load_common_values() {
   } else {
     scholar_no_more = 0;
   }
+  local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
 }
 console.time("Load common values");
 load_common_values();
@@ -727,6 +729,11 @@ function get_request(msg, _port) {
   // respond to msg
   if (msg.loadExtraJs) {
     p_proxy(_port, {js_base_uri:base});
+
+  } else if (msg.update_local_ && msg.local_mirror) {
+    local_mirror = msg.local_mirror;
+  } else if (msg.load_local_) {
+    p_proxy(_port, {local_mirror:local_mirror});
 
   } else if (msg.url) {
     var request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id,
