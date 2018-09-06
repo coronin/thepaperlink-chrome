@@ -229,7 +229,6 @@ function saveOptions() {
   }
   if (local_mirror && local_mirror != '{local.mirror}') {
     localStorage.setItem('local_mirror', local_mirror);
-    _port.postMessage({update_local_: 1, local_mirror: local_mirror});
   } else {
     localStorage.removeItem('local_mirror');
   }
@@ -493,6 +492,7 @@ $(document).ready(function () {
   }
   if (ezproxy_prefix) {
     $('#ezproxy_input').val(ezproxy_prefix);
+    $('#ezproxy_enabled').text('is your ezproxy prefix.');
     $('#ez_info').removeClass('Off');
     $('.ezproxy_prefix').text(ezproxy_prefix);
     if (ezproxy_prefix.substr(0,1) === '.') {
@@ -501,11 +501,14 @@ $(document).ready(function () {
       $('#ezproxy_demo_dot').addClass('Off');
     }
   }
-  if (cc_address) {
-    $('#cc_address').val(cc_address);
-  }
   if (local_mirror) {
     $('#local_mirror').val(local_mirror);
+    $('#local_enabled').text('is your local server domain name.');
+    $('.local_prefix').text(local_mirror);
+    $('#local_info').removeClass('Off');
+  }
+  if (cc_address) {
+    $('#cc_address').val(cc_address);
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
