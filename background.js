@@ -730,8 +730,6 @@ function get_request(msg, _port) {
   if (msg.loadExtraJs) {
     p_proxy(_port, {js_base_uri:base});
 
-  } else if (msg.update_local_ && msg.local_mirror) {
-    local_mirror = msg.local_mirror;
   } else if (msg.load_local_) {
     p_proxy(_port, {local_mirror:local_mirror});
 

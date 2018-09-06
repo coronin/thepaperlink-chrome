@@ -197,7 +197,7 @@
     </p>
   <hr/>
   <p><input class="settings" type="text" value="{prefix}" size="32" id="ezproxy_input" title="ezproxy_input" />
-    If your institute uses ezproxy, fill in the {prefix} please.
+    <span id="ezproxy_enabled">If your institute uses <a href="https://en.wikipedia.org/wiki/EZproxy" target="_blank">EZproxy</a>, fill in the {prefix} please.</span>
     </p>
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -210,12 +210,17 @@
       </span>
       </p>
   </div></div>
-  <p style="display:none!important;"><input class="settings" type="text" value="{cc address}" size="40" id="cc_address" title="cc_address" />
+  <p style="display:none!important;"><input class="settings" type="text" value="{cc address}" size="32" id="cc_address" title="cc_address" />
     If you want to send to other people via "email it", please fill in the {cc address}.
   </p><!-- not yet  extension-la.min.js -->
-  <p><input class="settings" type="text" value="{local.mirror}" size="40" id="local_mirror" title="local_mirror" />
-    To access the local copy, please enter the domain name in the {local.mirror}.
+  <p><input class="settings" type="text" value="{local.mirror}" size="32" id="local_mirror" title="local_mirror" />
+    <span id="local_enabled">To access your <a href="https://support.clarivate.com/Endnote/" target="_blank">local</a> copy, please input the domain name.</span>
   </p>
+  <div class="ui-widget Off" id="local_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      Please visit the local copy https://<span style="font-weight:bold" class="local_prefix">local.mirror</span>/x/y/z.pdf by click &#x219d; icon.
+    </p>
+  </div></div>
 </div>
 
 <div id="option_tabs-4">
