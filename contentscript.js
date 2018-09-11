@@ -671,14 +671,14 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (r.item[i].pdf) {
-      tmp = '<a style="display:none!important" id="thepaperlink_pdf' + pmid +
+      tmp = '<a id="thepaperlink_pdf' + pmid +
           '" class="thepaperlink-green" href="' +
           ez_format_link(p, uneval_trim(r.item[i].pdf)) +
           '" target="_blank">pdf</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
-      tmp = '<a style="display:none!important" id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
       div_html += tmp;
     }
     if (r.item[i].pmcid) {
