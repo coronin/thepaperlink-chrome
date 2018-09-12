@@ -670,17 +670,17 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
-    if (r.item[i].pdf) {
-      tmp = '<a id="thepaperlink_pdf' + pmid +
-          '" class="thepaperlink-green" href="' +
-          ez_format_link(p, uneval_trim(r.item[i].pdf)) +
-          '" target="_blank">pdf</a>';
-      div_html += tmp;
-    } else if (r.item[i].pii) {
-      a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
-      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
-      div_html += tmp;
-    }
+    //if (r.item[i].pdf) {
+    //  tmp = '<a id="thepaperlink_pdf' + pmid +
+    //      '" class="thepaperlink-green" href="' +
+    //      ez_format_link(p, uneval_trim(r.item[i].pdf)) +
+    //      '" target="_blank">pdf</a>';
+    //  div_html += tmp;
+    //} else if (r.item[i].pii) {
+    //  a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
+    //  tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+    //  div_html += tmp;
+    //}
     if (r.item[i].pmcid) {
       tmp = '<a id="thepaperlink_pmc' + pmid +
           '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
@@ -692,17 +692,23 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_doi' + pmid +
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_shark' + pmid +
+          ) + '" target="_blank">publisher</a>';
+      if (local_mirror && local_mirror !== '127.0.0.1') {
+        tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/' + uneval_trim(r.item[i].doi) +
-          '#" target="_blank">&#x219d;</a>';
+          '#" target="_blank">local</a>';
+      }
       div_html += tmp;
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_pii' + pmid +
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">publisher</a><a id="thepaperlink_shark' + pmid +
+          ) + '" target="_blank">publisher</a>';
+      if (local_mirror && local_mirror !== '127.0.0.1') {
+        tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
-          '" target="_blank">&#x219d;</a>';
+          '" target="_blank">local</a>';
+      }
       div_html += tmp;
     }
     //if (r.item[i].pii && byID('citedBy' + pmid)) {
@@ -729,7 +735,7 @@ function get_request(msg) {
           uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (!thePaperLink_chrome_limited && msg.tpl) {
+    if (msg.tpl) { // !thePaperLink_chrome_limited && @@@@
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
           pmid + '\',\'' + uneval_trim(msg.tpl) + '\')">&hellip;</span>';
