@@ -125,6 +125,8 @@ function process_storkapp() {
       a_proxy({from_storkapp: pmid});
       ele.setAttribute('id', 'thepaperlink_bar');
       ele.innerHTML = '';
+      ele.href = '#';
+      ele.onclick = null;
       break;
     }
   }
