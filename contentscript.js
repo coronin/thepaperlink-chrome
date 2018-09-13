@@ -116,7 +116,7 @@ function process_dxy() { // 2018 Sep
   }
 }
 
-function process_f1000() {
+function process_f1000() { // 2018 Sep
   var i, len, pmid = '',
       f_v = 0,
       fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
@@ -125,10 +125,12 @@ function process_f1000() {
       pmid = byTag('meta')[i].getAttribute('content');
     }
   }
-  for (i = 0, len = byTag('div').length; i < len; i += 1) {
-    if (byTag('div')[i].className === 'articleFactor' && byTag('div')[i-1].id === 'article') {
-      f_v = parseInt(byTag('div')[i].textContent, 10);
-      // byTag('div')[i+3].setAttribute('id', '_thepaperlink_div'); // hidden tootip
+  for (i = 0, len = byTag('span').length; i < len; i += 1) {
+    if (byTag('span')[i].className === 'recommendations-summary-count') {
+      f_v = parseInt(byTag('span')[i].textContent, 10);
+    } else if (byTag('span')[i].className === 'journalname') {
+      byTag('span')[i].parentNode.setAttribute('id', 'thepaperlink_bar');
+      //byID('article-doi').remove();
     }
   }
   if (pmid && f_v && fid) { // require valid f1000.com login

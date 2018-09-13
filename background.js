@@ -981,7 +981,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            p_proxy(_port, {to_other_sites:'article', uri:base, pmid:pmid, extra:extra});
+            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
             if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
               $.post(base + '/', args,
                   function (d) {
