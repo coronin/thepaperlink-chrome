@@ -23,6 +23,7 @@ var DEBUG = false,
     search_result_count = '',
     onePage_calls = 0,
     local_mirror = '',
+    absNeeded = 0,
     _port = chrome.runtime.connect({name: 'background_port'});
 
 /* version 3:
@@ -267,6 +268,7 @@ function getPmid(zone, num) {
             }
           }
         }
+        absNeeded = 1;
       } else { // abstract page
         t_strings = byTag(zone)[num+1].textContent.split('.');
         t_title = trim( byTag('h1')[1].textContent );
@@ -556,7 +558,7 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            e.innerText = 'pdf file'; // _shark 2018-9-13
+            e.innerText = 'pdf'; // _shark 2018-9-13
             e.href = uneval_trim(msg.el_data);
           }
         } else {
@@ -687,6 +689,10 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
+    if (absNeeded) {
+      tmp = '<span onclick="ajaxAbs(\'' + pmid + '\')">abstract</span>';
+      div_html += tmp;
+    }
     if (r.item[i].pdf) {
       tmp = '<a id="thepaperlink_pdf' + pmid +
           '" class="thepaperlink-green" href="' +
@@ -728,20 +734,20 @@ function get_request(msg) {
       }
       div_html += tmp;
     }
-    //if (r.item[i].pii && byID('citedBy' + pmid)) {
-    //  insert_span = page_d.createElement('span');
-    //  insert_span.innerHTML = '; <span id="pl4_scopus' + pmid + '"></span> <a href="' +
-    //      ez_format_link(p,
-    //          'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
-    //      ) + '" target="_blank">(in Scopus)</a>';
-    //  byID('citedBy' + pmid).parentNode.appendChild(insert_span);
-    //}
+    if (r.item[i].pii && byID('citedBy' + pmid)) {
+      insert_span = page_d.createElement('span');
+      insert_span.innerHTML = '; <a href="' +
+          ez_format_link(p,
+              'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+          ) + '" target="_blank">Scopus</a> <span id="pl4_scopus' + pmid + '"></span>';
+      byID('citedBy' + pmid).parentNode.appendChild(insert_span);
+    }
     if (r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid +
           '" class="thepaperlink-red" href="' +
           ez_format_link(p,
               'http://f1000.com/' + uneval_trim(r.item[i].fid)
-          ) + '" target="_blank">f1000&nbsp;star&nbsp;' +
+          ) + '" target="_blank">f1000&nbsp;' +
           uneval_trim(r.item[i].f_v) + '</a>';
       div_html += tmp;
     }
