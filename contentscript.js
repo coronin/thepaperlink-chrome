@@ -687,17 +687,17 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
-    //if (r.item[i].pdf) {
-    //  tmp = '<a id="thepaperlink_pdf' + pmid +
-    //      '" class="thepaperlink-green" href="' +
-    //      ez_format_link(p, uneval_trim(r.item[i].pdf)) +
-    //      '" target="_blank">pdf</a>';
-    //  div_html += tmp;
-    //} else if (r.item[i].pii) {
-    //  a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
-    //  tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
-    //  div_html += tmp;
-    //}
+    if (r.item[i].pdf) {
+      tmp = '<a id="thepaperlink_pdf' + pmid +
+          '" class="thepaperlink-green" href="' +
+          ez_format_link(p, uneval_trim(r.item[i].pdf)) +
+          '" target="_blank">pdf</a>';
+      div_html += tmp;
+    } else if (r.item[i].pii) {
+      a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
+      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+      div_html += tmp;
+    }
     if (r.item[i].pmcid) {
       tmp = '<a id="thepaperlink_pmc' + pmid +
           '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
