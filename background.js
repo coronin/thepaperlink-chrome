@@ -1097,8 +1097,8 @@ function get_request(msg, _port) {
       active: true
     });
 
-  } else if (msg.pmid && msg.shark) {
-    do_download_shark(msg.pmid, msg.shark);
+  //} else if (msg.pmid && msg.shark) {
+  //  do_download_shark(msg.pmid, msg.shark);
 
   } else {
     console.log(msg);
