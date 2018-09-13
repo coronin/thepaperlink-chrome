@@ -1080,8 +1080,23 @@ function get_request(msg, _port) {
       }
     });
 
-  } else if (msg.ajaxAbs) {
-    p_proxy(_port, {returnAbs:msg.ajaxAbs});
+  } else if (msg.ajaxAbs) { // 2018-9-14
+      var pmid = msg.ajaxAbs;
+      if (localStorage.getItem('abs_'+pmid)) {
+          p_proxy(_port, {returnAbs: localStorage.getItem('abs_'+pmid)});
+          return;
+      } else {
+          var args = {apikey: req_key, db: 'pubmed', id: pmid};
+          $.getJSON(base + '/entrezajax/efetch', args, function (d) {
+              var l = d.result.PubmedArticle[0];
+              if (l.MedlineCitation.Article.Abstract) {
+                  localStorage.setItem('abs_'+pmid, l.MedlineCitation.Article.Abstract.AbstractText);
+                  p_proxy(_port, {returnAbs: l.MedlineCitation.Article.Abstract.AbstractText});
+              }
+          }).fail(function () {
+              DEBUG && console.log('>> eFetch failed');
+          });
+      }
 
   } else if (msg.alert_dev) {
     var failed_terms = localStorage.getItem('alert_dev') || '',

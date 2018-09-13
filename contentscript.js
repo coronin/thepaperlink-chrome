@@ -695,8 +695,8 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
-    if (absNeeded) { // a_proxy({ajaxAbs:pmid})
-      tmp = '<span class="thepaperlink-abs" onclick="alert(\'' + pmid + '\');">&nbsp;abs</span>';
+    if (absNeeded) {
+      tmp = '<span class="thepaperlink-abs" id="thepaperlink_abs' + pmid + '">&nbsp;abs</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
@@ -777,6 +777,7 @@ function get_request(msg) {
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
+    byID('thepaperlink_abs'+pmid).onclick = function () { a_proxy({ajaxAbs:pmid}) };
 
     if (byID('thepaperlink_hidden' + pmid)) {
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
