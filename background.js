@@ -543,7 +543,7 @@ function do_download_shark(pmid, url) {
 
 function prepare_download_shark(tabId, pmid, args) {
   localStorage.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
-  format_a_li('scihub', pmid, args.shark_link);
+  format_a_li('shark', pmid, args.shark_link);
   b_proxy(tabId, {el_id: '_shark' + pmid, el_data: args.shark_link});
   $.post(base + '/', args,
       function (d) {
@@ -581,11 +581,7 @@ function parse_shark(pmid, url, tabId) {
           args.shark_link = h[1].split('#')[0];
           prepare_download_shark(tabId, pmid, args);
         } else {
-          $.get('https://shark-bite.io/continue').then(function () {
-            $.get(url, function (r) {
-                  DEBUG && console.log(r);
-            });
-          });
+          console.log(r);
         }
       },
       'html'
@@ -1101,8 +1097,8 @@ function get_request(msg, _port) {
       active: true
     });
 
-  } else if (msg.pmid && msg.scihub) {
-    do_download_shark(msg.pmid, msg.scihub);
+  } else if (msg.pmid && msg.shark) {
+    do_download_shark(msg.pmid, msg.shark);
 
   } else {
     console.log(msg);
@@ -1216,7 +1212,7 @@ function load_ALL_localStorage() {
           localStorage.removeItem(a_key);
           continue;
         }
-        format_a_li('scihub', a_key_split[1], a_url);
+        format_a_li('shark', a_key_split[1], a_url);
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);

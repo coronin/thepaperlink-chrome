@@ -556,11 +556,7 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            //if (msg.el_id.indexOf('_shark') > -1) { // 2018-9-2
-            //  e.innerText = 'quick pdf';
-            //} else {
-              e.innerText = 'pdf file';
-            //}
+            e.innerText = 'pdf file'; // _shark 2018-9-13
             e.href = uneval_trim(msg.el_data);
           }
         } else {
