@@ -608,7 +608,7 @@ function get_request(msg) {
           'a.thepaperlink-red {' +
           '  color: red' +
           '}' +
-          '.thepaperlink-home {' +
+          '.thepaperlink-home, .thepaperlink-abs {' +
           '  color: grey;' +
           '  cursor: pointer' +
           '}' +
@@ -640,6 +640,12 @@ function get_request(msg) {
     div_html += msg.extra;
     div.innerHTML = div_html;
     byID(msg.to_other_sites).appendChild(div);
+    //sendResponse({});
+    return;
+  }
+
+  if (msg.returnAbs) { // 2018-9-14
+    alert(msg.returnAbs);
     //sendResponse({});
     return;
   }
@@ -689,8 +695,8 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
-    if (absNeeded) {
-      tmp = '<span onclick="ajaxAbs(\'' + pmid + '\')">abstract</span>';
+    if (absNeeded) { // a_proxy
+      tmp = '<span class="thepaperlink-abs" onclick="alert({ajaxAbs:\'' + pmid + '\'});">&nbsp;abs</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
@@ -734,7 +740,7 @@ function get_request(msg) {
       }
       div_html += tmp;
     }
-    if (r.item[i].pii && byID('citedBy' + pmid)) {
+    if (r.item[i].pii && byID('citedBy' + pmid)) { // @@@@
       insert_span = page_d.createElement('span');
       insert_span.innerHTML = '; <a href="' +
           ez_format_link(p,

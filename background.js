@@ -933,7 +933,7 @@ function get_request(msg, _port) {
     load_broadcast();
 
   } else if (msg.pii_link && msg.pii && msg.pmid) {
-    if (localStorage.getItem('ajax_pii_link') !== 'no') {
+    if (localStorage.getItem('ajax_pii_link') !== 'no') { // No 'Access-Control-Allow-Origin' header is present
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
     if (localStorage.getItem('shark_link') !== 'no') {
@@ -1076,6 +1076,9 @@ function get_request(msg, _port) {
         base = 'http://www.thepaperlink.com';
       }
     });
+
+  } else if (msg.ajaxAbs) {
+    p_proxy(_port, {returnAbs:msg.ajaxAbs});
 
   } else if (msg.alert_dev) {
     var failed_terms = localStorage.getItem('alert_dev') || '',
