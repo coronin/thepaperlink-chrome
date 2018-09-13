@@ -469,6 +469,9 @@ $(document).ready(function () {
     $('#dropbox_status').removeClass('Off');
     $('#dropbox_status').text('status: ' + d_status);
     $('#dropbox_a').text('check connection');
+    if (d_status === 'success') {
+      $('#shark_dropbox').html('and <em>Dropbox</em> it');
+    }
   }
   if (b_status) {
     $('#douban_status').removeClass('Off');
@@ -524,6 +527,7 @@ $(document).ready(function () {
     $('.reg_pubmeder').text('https://1.zhaowenxian.com/registration');
     $('.reg_pubmeder').attr('href', 'https://1.zhaowenxian.com/registration');
     $('#scholar_once_info').addClass('Off');
+    $('#shark_dropbox').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
         ' <b>check to access</b> our service via HTTP.');
