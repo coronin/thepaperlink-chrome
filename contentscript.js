@@ -558,7 +558,7 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            e.innerText = 'pdf'; // _shark 2018-9-13
+            e.removeClass('thepaperlink_Off');
             e.href = uneval_trim(msg.el_data);
           }
         } else {
@@ -696,7 +696,7 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (absNeeded) { // a_proxy({ajaxAbs:pmid})
-      tmp = '<span class="thepaperlink-abs" onclick="paperlink2_eSum_xml(\'' + pmid + '\',\'\');">&nbsp;abs</span>';
+      tmp = '<span class="thepaperlink-abs" onclick="alert(\'' + pmid + '\');">&nbsp;abs</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
@@ -707,7 +707,7 @@ function get_request(msg) {
       div_html += tmp;
     } else if (r.item[i].pii) {
       a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
-      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank"></a>';
+      tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank" class="thepaperlink_Off">pdf</a>';
       div_html += tmp;
     }
     if (r.item[i].pmcid) {
