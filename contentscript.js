@@ -116,6 +116,20 @@ function process_dxy() { // 2018 Sep
   }
 }
 
+function process_storkapp() {
+  var i, len, ele, pmid = '';
+  for (i = 0, len = byTag('a').length; i < len; i += 1) {
+    ele = byTag('a')[i];
+    if (ele.textContent.indexOf('ncbi.nlm.nih.gov/pubmed/') > 0) {
+      pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
+      a_proxy({from_storkapp: pmid});
+      ele.setAttribute('id', 'thepaperlink_bar');
+      ele.innerHTML = '';
+      break;
+    }
+  }
+}
+
 function process_f1000() { // 2018 Sep
   var i, len, pmid = '',
       f_v = 0,
@@ -418,6 +432,9 @@ if (page_url === 'http://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://f1000.com/prime/') > 0) {
   process_f1000();
   noRun = 1;
+} else if (page_url.indexOf('://www.storkapp.me/paper/') > 0) {
+  process_storkapp();
+  noRun = 1;
 } else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
   process_googlescholar();
   noRun = 1;
@@ -611,7 +628,7 @@ function get_request(msg) {
     return;
   }
 
-  if (msg.to_other_sites) { // dxy, f1000
+  if (msg.to_other_sites) { // respond to from_xx
     insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles));

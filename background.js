@@ -1059,6 +1059,28 @@ function get_request(msg, _port) {
       }
     });
 
+  } else if (msg.from_storkapp) {
+    var pmid = msg.from_storkapp;
+    extra = '';
+    $.getJSON(base + '/api',
+        {a: 'chrome6',
+          pmid: pmid,
+          apikey: req_key,
+          runtime: '' + chrome.runtime.id}, function (d) {
+          if (d && d.count === 1) {
+            extra = common_dThree(d.item[0], 1);
+            if (extra) {
+              extra = ': ' + extra;
+            }
+            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+          }
+        }).fail(function () {
+      if (base === 'https://pubget-hrd.appspot.com') {
+        localStorage.setItem('https_failed', 1);
+        base = 'http://www.thepaperlink.com';
+      }
+    });
+
   } else if (msg.alert_dev) {
     var failed_terms = localStorage.getItem('alert_dev') || '',
         failed_times = 0;
