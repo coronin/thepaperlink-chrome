@@ -556,7 +556,9 @@ function prepare_download_shark(tabId, pmid, args) {
 }
 
 function parse_shark(pmid, url, tabId) {
-  DEBUG && console.log('NOT READY', pmid, url);
+  DEBUG && console.log(pmid, url, tabId);
+  return false;
+  // @@@@ No 'Access-Control-Allow-Origin' header
   var in_mem = localStorage.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -591,8 +593,9 @@ function parse_shark(pmid, url, tabId) {
 }
 
 function parse_pii(pmid, url, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('url', url);
+  DEBUG && console.log(pmid, url, tabId);
+  return false;
+  // @@@@ No 'Access-Control-Allow-Origin' header
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -933,16 +936,16 @@ function get_request(msg, _port) {
     load_broadcast();
 
   } else if (msg.pii_link && msg.pii && msg.pmid) {
-    if (localStorage.getItem('ajax_pii_link') !== 'no') { // No 'Access-Control-Allow-Origin' header is present
+    if (localStorage.getItem('ajax_pii_link') !== 'no') {
       parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     }
     if (localStorage.getItem('shark_link') !== 'no') {
-      parse_shark(msg.pmid, 'https://shark-bite.io/retrieve/pii/' + msg.pii, sender_tab_id);
+      parse_shark(msg.pmid, 'https://'+local_mirror+'/retrieve/pii/'+msg.pii, sender_tab_id);
     }
 
   } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (localStorage.getItem('shark_link') !== 'no') {
-      parse_shark(msg.pmid, 'https://shark-bite.io/' + msg.doi, sender_tab_id);
+      parse_shark(msg.pmid, 'https://'+local_mirror+'/'+msg.doi, sender_tab_id);
     }
 
   } else if (msg.search_term) {

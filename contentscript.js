@@ -309,7 +309,7 @@ function getPmid(zone, num) {
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
-        c.innerHTML = 'Google Scholar: <span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
+        c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
         if (byTag(zone)[num].className === 'rprt') {
           byTag(zone)[num + 4].appendChild(c);
         } else { // display with abstract
@@ -534,14 +534,14 @@ function get_request(msg) {
       if (msg.g_num === 1 && msg.g_link === 1) {
         byID('citedBy' + msg.pmid).innerText = 'trying';
       } else if (msg.g_num === 0 && msg.g_link === 0) {
-        byID('citedBy' + msg.pmid).innerHTML = '<i>Really? No one cited it yet. Is it a very recent publication?</i>';
+        byID('citedBy' + msg.pmid).innerHTML = '<i>Really? Not cited it yet. Is it a very recent publication?</i>';
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
           byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
         }
       } else if (msg.g_num && msg.g_link) {
-        byID('citedBy' + msg.pmid).innerHTML = uneval_trim(msg.g_num) +
-            ' times <a target="_blank" href="https://scholar.google.com' +
-            uneval_trim(msg.g_link) + '"></a>';
+        byID('citedBy' + msg.pmid).innerHTML = '<a target="_blank" href="https://scholar.google.com' +
+          uneval_trim(msg.g_link) + '">Google Scholar ' +
+          uneval_trim(msg.g_num) + ' times</a>';
       }
     } catch (err) {
       byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
@@ -695,8 +695,8 @@ function get_request(msg) {
       tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
       div_html += tmp;
     }
-    if (absNeeded) { // a_proxy
-      tmp = '<span class="thepaperlink-abs" onclick="alert({ajaxAbs:\'' + pmid + '\'});">&nbsp;abs</span>';
+    if (absNeeded) { // a_proxy({ajaxAbs:pmid})
+      tmp = '<span class="thepaperlink-abs" onclick="paperlink2_eSum_xml(\'' + pmid + '\',\'\');">&nbsp;abs</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
