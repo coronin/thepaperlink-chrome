@@ -32,6 +32,7 @@ function eFetch(pmid) {
     if (l.MedlineCitation.Article.Abstract) {
       var abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
+      localStorage.setItem('abs_'+pmid, l.MedlineCitation.Article.Abstract.AbstractText);
     }
     if (l.MedlineCitation.CommentsCorrectionsList) {
       var ref_list = '<p class="moreAbout"><b style="text-decoration:underline">References:</b> ';
