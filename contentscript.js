@@ -695,7 +695,7 @@ function get_request(msg) {
           '" href="' + ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a>';
-      if (local_mirror && local_mirror !== '127.0.0.1') {
+      if (local_mirror) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/' + uneval_trim(r.item[i].doi) +
           '#" target="_blank">local</a>';
@@ -706,7 +706,7 @@ function get_request(msg) {
           '" href="' + ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">publisher</a>';
-      if (local_mirror && local_mirror !== '127.0.0.1') {
+      if (local_mirror) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
           '" target="_blank">local</a>';
