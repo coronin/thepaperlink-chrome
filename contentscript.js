@@ -777,7 +777,7 @@ function get_request(msg) {
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
-    byID('thepaperlink_abs'+pmid).onclick = function () { a_proxy({ajaxAbs:pmid}) };
+    byID('thepaperlink_abs'+pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
 
     if (byID('thepaperlink_hidden' + pmid)) {
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
