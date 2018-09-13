@@ -22,6 +22,7 @@ var DEBUG = false,
     guest_apikey = null,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
     local_mirror,
+    ezproxy_prefix,
     pubmeder_ok = false,
     broadcast_loaded = false,
     extension_load_date = new Date(),
@@ -179,6 +180,7 @@ function load_common_values() {
     scholar_no_more = 0;
   }
   local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
+  ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
 }
 console.time("Load common values");
 load_common_values();
@@ -713,10 +715,28 @@ function reLoad_options() {
   });
 }
 
+function common_dThree(itemZero) {
+  var tmp, extra = '';
+  if (itemZero.slfo && itemZero.slfo !== '~' && parseFloat(itemZero.slfo) > 0) {
+      tmp = '<span>impact&nbsp;' + itemZero.slfo + '</span>';
+      extra += tmp;
+  }
+  if (itemZero.pdf) {
+      tmp = '<a class="thepaperlink-green" href="' +
+          ez_format_link(ezproxy_prefix, itemZero.pdf) +
+          '" target="_blank">direct&nbsp;pdf</a>';
+      extra += tmp;
+  }
+  if (itemZero.doi && local_mirror && local_mirror !== '127.0.0.1') {
+      tmp = '<a href="https://' + local_mirror +'/'+ itemZero.doi + '#" target="_blank">local</a>';
+      extra += tmp;
+  }
+  return extra;
+}
+
 function get_request(msg, _port) {
   DEBUG && console.log(msg);
   var sender_tab_id = null,
-      ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '',
       pmid, extra, tmp;
   if (_port && _port.sender) {
     sender_tab_id = _port.sender.tab.id;
@@ -968,16 +988,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
-              tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
-              extra += tmp;
-            }
-            if (d.item[0].pdf) {
-              tmp = '<a class="thepaperlink-green" href="' +
-                  ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-                  '" target="_blank">direct&nbsp;pdf</a>';
-              extra += tmp;
-            }
+            extra = common_dThree(d.item[0]);
             if (extra) {
               extra = ': ' + extra;
             }
@@ -1006,16 +1017,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
-              tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
-              extra += tmp;
-            }
-            if (d.item[0].pdf) {
-              tmp = '<a class="thepaperlink-green" href="' +
-                  ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-                  '" target="_blank">direct&nbsp;pdf</a>';
-              extra += tmp;
-            }
+            extra = common_dThree(d.item[0]);
             if (d.item[0].f_v && d.item[0].fid) {
               tmp = '<a class="thepaperlink-red" href="' +
                   ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
@@ -1044,16 +1046,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            if (d.item[0].slfo && d.item[0].slfo !== '~' && parseFloat(d.item[0].slfo) > 0) {
-              tmp = '<span>impact&nbsp;' + d.item[0].slfo + '</span>';
-              extra += tmp;
-            }
-            if (d.item[0].pdf) {
-              tmp = '<a class="thepaperlink-green" href="' +
-                  ez_format_link(ezproxy_prefix, d.item[0].pdf) +
-                  '" target="_blank">direct&nbsp;pdf</a>';
-              extra += tmp;
-            }
+            extra = common_dThree(d.item[0]);
             if (d.item[0].f_v && d.item[0].fid) {
               tmp = '<a class="thepaperlink-red" href="' +
                   ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +

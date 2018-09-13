@@ -130,7 +130,7 @@ function process_f1000() { // 2018 Sep
       f_v = parseInt(byTag('span')[i].textContent, 10);
     } else if (byTag('span')[i].className === 'journalname') {
       byTag('span')[i].parentNode.setAttribute('id', 'thepaperlink_bar');
-      //byID('article-doi').remove();
+      byID('article-doi').style.display = 'none';
     }
   }
   if (pmid && f_v && fid) { // require valid f1000.com login
