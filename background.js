@@ -715,7 +715,7 @@ function reLoad_options() {
   });
 }
 
-function common_dThree(itemZero) {
+function common_dThree(itemZero, withRed) {
   var tmp, extra = '';
   if (itemZero.slfo && itemZero.slfo !== '~' && parseFloat(itemZero.slfo) > 0) {
       tmp = '<span>impact&nbsp;' + itemZero.slfo + '</span>';
@@ -727,7 +727,13 @@ function common_dThree(itemZero) {
           '" target="_blank">direct&nbsp;pdf</a>';
       extra += tmp;
   }
-  if (itemZero.doi && local_mirror && local_mirror !== '127.0.0.1') {
+  if (withRed && itemZero.f_v && itemZero.fid) {
+      tmp = '<a class="thepaperlink-red" href="' +
+          ez_format_link(ezproxy_prefix, 'http://f1000.com/' + itemZero.fid) +
+          '" target="_blank">f1000&nbsp;star&nbsp;' + itemZero.f_v + '</a>';
+      extra += tmp;
+  }
+  if (itemZero.doi && local_mirror) {
       tmp = '<a href="https://' + local_mirror +'/'+ itemZero.doi + '#" target="_blank">local</a>';
       extra += tmp;
   }
@@ -988,7 +994,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            extra = common_dThree(d.item[0]);
+            extra = common_dThree(d.item[0], 0);
             if (extra) {
               extra = ': ' + extra;
             }
@@ -1017,13 +1023,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            extra = common_dThree(d.item[0]);
-            if (d.item[0].f_v && d.item[0].fid) {
-              tmp = '<a class="thepaperlink-red" href="' +
-                  ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
-                  '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
-              extra += tmp;
-            }
+            extra = common_dThree(d.item[0], 1);
             if (extra) {
               extra = ': ' + extra;
             }
@@ -1046,13 +1046,7 @@ function get_request(msg, _port) {
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
           if (d && d.count === 1) {
-            extra = common_dThree(d.item[0]);
-            if (d.item[0].f_v && d.item[0].fid) {
-              tmp = '<a class="thepaperlink-red" href="' +
-                  ez_format_link(ezproxy_prefix, 'http://f1000.com/' + d.item[0].fid) +
-                  '" target="_blank">f1000&nbsp;star&nbsp;' + d.item[0].f_v + '</a>';
-              extra += tmp;
-            }
+            extra = common_dThree(d.item[0], 1);
             if (extra) {
               extra = ': ' + extra;
             }
