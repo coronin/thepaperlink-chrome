@@ -645,6 +645,7 @@ function get_request(msg) {
   }
 
   if (msg.returnAbs) { // 2018-9-14
+    byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
     alert(msg.returnAbs);
     //sendResponse({});
     return;
@@ -777,7 +778,7 @@ function get_request(msg) {
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
-    byID('thepaperlink_abs'+pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
+    byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
 
     if (byID('thepaperlink_hidden' + pmid)) {
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {

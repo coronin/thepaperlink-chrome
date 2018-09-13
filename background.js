@@ -419,10 +419,14 @@ function dropbox_it(pmid, pdf, k) {
 }
 
 function format_a_li(category, pmid, url, num) {
-  $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
-  $('#'+pmid).on('click', function () { eSS(this.id); });
-  if (num) {
-    $('#'+pmid).text(pmid + ' (' + num + ')');
+  if (!url && !num) { // Abstract:
+    $('#'+category+'_').append('<li><textarea rows="3" cols="100">'+pmid+'</textarea></li>');
+  } else {
+    $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+    $('#'+pmid).on('click', function () { eSS(this.id); });
+    if (num) {
+      $('#'+pmid).text(pmid + ' (' + num + ')');
+    }
   }
   if ( $('#'+category+'_h2').hasClass('Off') ) {
     $('#'+category+'_h2').removeClass('Off');
@@ -1083,7 +1087,7 @@ function get_request(msg, _port) {
   } else if (msg.ajaxAbs) { // 2018-9-14
       var pmid = msg.ajaxAbs;
       if (localStorage.getItem('abs_'+pmid)) {
-          p_proxy(_port, {returnAbs: localStorage.getItem('abs_'+pmid)});
+          p_proxy(_port, {returnAbs:localStorage.getItem('abs_'+pmid), pmid:pmid});
           return;
       } else {
           var args = {apikey: req_key, db: 'pubmed', id: pmid};
@@ -1092,7 +1096,7 @@ function get_request(msg, _port) {
               var l = d.result.PubmedArticle[0];
               if (l.MedlineCitation.Article.Abstract) {
                   localStorage.setItem('abs_'+pmid, l.MedlineCitation.Article.Abstract.AbstractText);
-                  p_proxy(_port, {returnAbs: l.MedlineCitation.Article.Abstract.AbstractText});
+                  p_proxy(_port, {returnAbs:l.MedlineCitation.Article.Abstract.AbstractText, pmid:pmid});
               }
           }).fail(function () {
               DEBUG && console.log('>> eFetch abstract failed PMID:' + pmid);
@@ -1213,7 +1217,8 @@ function load_ALL_localStorage() {
   $('#email_').html('');
   $('#shark_').html('');
   $('#scholar_').html('');
-  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link for pubmed');
+  $('#abstract_').html('');
+  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   for (i = 0; i < localStorage.length; i += 1) {
     a_key = localStorage.key(i);
     a_key_split = a_key.split('_');
@@ -1223,8 +1228,11 @@ function load_ALL_localStorage() {
       localStorage.removeItem(a_key);
       continue;
     }
-    if ( ( a_key.indexOf('email_') === 0 || a_key.indexOf('shark_') === 0 || a_key.indexOf('scholar_') === 0 ) &&
-         a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ) {
+    if ( ( a_key.indexOf('email_') === 0 ||
+           a_key.indexOf('shark_') === 0 ||
+           a_key.indexOf('scholar_') === 0 ) &&
+         a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ||
+         a_key.indexOf('abs_') === 0 ) {
       if (a_key.indexOf('email_') === 0) {
         $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
       } else if (a_key.indexOf('shark_') === 0) {
@@ -1238,6 +1246,8 @@ function load_ALL_localStorage() {
       } else if (a_key.indexOf('scholar_') === 0) {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
+      } else if (a_key.indexOf('abs_') === 0) {
+        format_a_li('abstract', a_key_split[1]+' Abstract: '+a_value, null, null);
       }
     }
   }
