@@ -325,11 +325,10 @@ function eSearch(search_term, tabId) {
   });
 }
 
-function email_abstract(a, b) {
-  var aKey = 'email_' + a + '_' + b,
-      cc_address = localStorage.getItem('cc_address') || '';
+function email_abstract(a, b, cc_addr) {
+  var aKey = 'email_' + a + '_' + b;
   $.post(base + '/',
-      {'apikey': a, 'pmid': b, 'action': 'email', 'cc': cc_address},
+      {'apikey': a, 'pmid': b, 'action': 'email', 'cc': cc_addr},
       function (d) {
         DEBUG && console.log('>> post /, action email: ' + d);
         localStorage.removeItem(aKey);
@@ -380,7 +379,7 @@ function send_binary(aB, pmid, upload, no_email) {
       if (xhr.responseText === null) {
         DEBUG && console.log('>> email_pdf failed, just email the abstract');
         if (!no_email && apikey) {
-          email_abstract(apikey, pmid);
+          email_abstract(apikey, pmid, localStorage.getItem('cc_address') || '');
         }
       }
     };
@@ -874,7 +873,7 @@ function get_request(msg, _port) {
       get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
 
     } else if (!msg.no_email) {
-      email_abstract(apikey, msg.pmid);
+      email_abstract(apikey, msg.pmid, localStorage.getItem('cc_address') || '');
     }
 
   } else if (msg.save_cloud_op) {
@@ -1187,7 +1186,7 @@ if (last_date !== date_str) {
       }
     } else if (aKey && aKey.substr(0,6) === 'email_') {
       aVal = aKey.split('_');
-      email_abstract(aVal[1], aVal[2]);
+      email_abstract(aVal[1], aVal[2], localStorage.getItem('cc_address') || '');
     } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
       aVal = aKey.split('_');
       localStorage.removeItem(aKey);
