@@ -291,7 +291,7 @@ function getPmid(zone, num) {
           }
         }
       }
-      t_cont += ' [PMID:' + ID[1] + ']\r\n';
+      t_cont += '  PMID:' + ID[1] + '\r\n';
       DEBUG && console.log(t_cont);
       b = page_d.createElement('div');
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
@@ -790,22 +790,25 @@ function get_request(msg) {
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
-    byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
-    if (!slfoV || slfoV < 2.0) {
-      byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
-    } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {
-      byID(pmid).style.paddingTop = '10px';
-      var barText = page_d.createElement('textarea');
-      barText.style.display = 'none';
-      barText.id = 'thepaperlink_text' + pmid;
-      barText.className = 'thepaperlink-text';
-      byID(pmid).appendChild(barText);
-      if (slfoV > 30.0) {
-        byID(pmid).style.borderRight = '6px solid red';
-      } else if (slfoV > 20.0) {
-        byID(pmid).style.borderRight = '4px solid red';
-      } else {
-        byID(pmid).style.borderRight = '4px solid yellow';
+
+    if (byID('thepaperlink_abs' + pmid)) {
+      byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
+      if (!slfoV || slfoV < 2.0) {
+        byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
+      } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {
+        byID(pmid).style.paddingTop = '10px';
+        var barText = page_d.createElement('textarea');
+        barText.style.display = 'none';
+        barText.id = 'thepaperlink_text' + pmid;
+        barText.className = 'thepaperlink-text';
+        byID(pmid).appendChild(barText);
+        if (slfoV > 30.0) {
+            byID(pmid).style.borderRight = '6px solid red';
+        } else if (slfoV > 20.0) {
+            byID(pmid).style.borderRight = '4px solid red';
+        } else {
+            byID(pmid).style.borderRight = '4px solid yellow';
+        }
       }
     }
 

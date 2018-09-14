@@ -892,7 +892,7 @@ function get_request(msg, _port) {
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
-    holder.value = msg.t_cont;
+    holder.value = msg.t_cont; // 2018-9-14 @@@@ so_noDate
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';
