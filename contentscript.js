@@ -618,8 +618,11 @@ function get_request(msg) {
           'img.pl4_clippy:hover {' +
           '  opacity: 1.0' +
           '}' +
-          'span sup {' +
-          '  background-color:yellow !important' +
+          '.thepaperlink span sup, .thepaperlink a sup {' +
+          '  background-color:yellow!important; border-radius:6px' +
+          '}' +
+          'textarea.thepaperlink-text {' +
+          '  overflow:auto; padding-right:10px; outline:none; border:0; width:440px; height:200px; font-size:11px; color:grey; line-height:1.8; font-family:sans-serif' +
           '}',
       r = msg.r;
 
@@ -650,6 +653,10 @@ function get_request(msg) {
   if (msg.returnAbs) { // 2018-9-14
     byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
     alert(msg.returnAbs);
+    if (byID('thepaperlink_text' + msg.pmid)) {
+      byID('thepaperlink_text' + msg.pmid).style.display = 'block';
+      byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
+    }
     //sendResponse({});
     return;
   }
@@ -783,16 +790,21 @@ function get_request(msg) {
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
     byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
-    if (slfoV && slfoV < 2.0) {
-      byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.33;
-    } else if (slfoV && slfoV > 9.9) {
-      byID('thepaperlink_abs' + pmid).parentNode.style.borderRight = '2px solid yellow';
-      if (slfoV > 20.0) {
-        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '5px solid yellow';
-      } else if (slfoV > 15.0) {
-        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '3px solid yellow';
+    if (!slfoV || slfoV < 2.0) {
+      byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
+    } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {
+      byID(pmid).style.paddingTop = '10px';
+      var barText = page_d.createElement('textarea');
+      barText.style.display = 'none';
+      barText.id = 'thepaperlink_text' + pmid;
+      barText.className = 'thepaperlink-text';
+      byID(pmid).appendChild(barText);
+      if (slfoV > 30.0) {
+        byID(pmid).style.borderRight = '6px solid red';
+      } else if (slfoV > 20.0) {
+        byID(pmid).style.borderRight = '4px solid red';
       } else {
-        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '2px solid yellow';
+        byID(pmid).style.borderRight = '4px solid yellow';
       }
     }
 
