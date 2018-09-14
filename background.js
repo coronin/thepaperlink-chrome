@@ -325,21 +325,6 @@ function eSearch(search_term, tabId) {
   });
 }
 
-function email_abstract(a, b, cc_addr) {
-  var aKey = 'email_' + a + '_' + b;
-  $.post(base + '/',
-      {'apikey': a, 'pmid': b, 'action': 'email', 'cc': cc_addr},
-      function (d) {
-        DEBUG && console.log('>> post /, action email: ' + d);
-        localStorage.removeItem(aKey);
-      }, 'json'
-  ).fail(function () {
-    DEBUG && console.log('>> email failed, save for later');
-    var date = new Date();
-    localStorage.setItem(aKey, date.getTime());
-  });
-}
-
 function send_binary(aB, pmid, upload, no_email) {
   try {
     var xhr = new XMLHttpRequest(),
@@ -377,9 +362,11 @@ function send_binary(aB, pmid, upload, no_email) {
     xhr.onload = function () {
       console.log('__ upload the file to theServer with status: ' + xhr.status);
       if (xhr.responseText === null) {
-        DEBUG && console.log('>> email_pdf failed, just email the abstract');
+        DEBUG && console.log('>> email_pdf failed');
         if (!no_email && apikey) {
-          email_abstract(apikey, pmid, localStorage.getItem('cc_address') || '');
+          // email_abstract, 2018-9-14
+          var date = new Date();
+          localStorage.setItem('email_' + apikey + '_' + pmid, date.getTime());
         }
       }
     };
@@ -872,9 +859,10 @@ function get_request(msg, _port) {
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {
     if (msg.pdf.substr(0,7).toLowerCase() === 'http://') {
       get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
-
     } else if (!msg.no_email) {
-      email_abstract(apikey, msg.pmid, localStorage.getItem('cc_address') || '');
+      // email_abstract, 2018-9-14
+      var date = new Date();
+      localStorage.setItem('email_' + apikey + '_' + msg.pmid, date.getTime());
     }
 
   } else if (msg.save_cloud_op) {
@@ -1187,7 +1175,6 @@ if (last_date !== date_str) {
       }
     } else if (aKey && aKey.substr(0,6) === 'email_') {
       aVal = aKey.split('_');
-      email_abstract(aVal[1], aVal[2], localStorage.getItem('cc_address') || '');
     } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
       aVal = aKey.split('_');
       localStorage.removeItem(aKey);
