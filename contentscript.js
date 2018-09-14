@@ -776,10 +776,11 @@ function get_request(msg) {
           uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) { // !thePaperLink_chrome_limited && @@@@
+    if (msg.tpl) { // 2018-9-14
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
-          pmid + '\',\'' + uneval_trim(msg.tpl) + '\')">&hellip;</span>';
+          pmid + '\',\'' + uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.tpll) +
+          '\')">&hellip;</span>';
       div_html += tmp;
     }
     if (msg.tpl && r.item[i].pdf) {
