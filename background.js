@@ -800,7 +800,8 @@ function get_request(msg, _port) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         p_proxy(_port,
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-              cloud_op:cloud_op, uri:base, p:ezproxy_prefix}
+              cloud_op:cloud_op, uri:base, p:ezproxy_prefix,
+              tpll:localStorage.getItem('cc_address') || ''}
         );
       } else {
         if (apikey) {
