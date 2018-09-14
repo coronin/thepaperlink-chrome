@@ -23,6 +23,7 @@ var DEBUG = false,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
     local_mirror,
     ezproxy_prefix,
+    cc_address,
     pubmeder_ok = false,
     broadcast_loaded = false,
     extension_load_date = new Date(),
@@ -181,6 +182,7 @@ function load_common_values() {
   }
   local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
   ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
+  cc_address = localStorage.getItem('cc_address') || '';
 }
 console.time("Load common values");
 load_common_values();
@@ -787,8 +789,7 @@ function get_request(msg, _port) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         p_proxy(_port,
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-              cloud_op:cloud_op, uri:base, p:ezproxy_prefix,
-              tpll:localStorage.getItem('cc_address') || ''}
+              cloud_op:cloud_op, uri:base, p:ezproxy_prefix, tpll:cc_address}
         );
       } else {
         if (apikey) {
