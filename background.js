@@ -960,14 +960,13 @@ function get_request(msg, _port) {
           localStorage.setItem(msg.search_term, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
-            p_proxy(_port, {search_trend:'&darr;'});
+            p_proxy(_port, {search_trend:end_num+'&darr;'});
           } else {
-            p_proxy(_port, {search_trend:'&uarr;'});
+            p_proxy(_port, {search_trend:end_num+'&uarr;'});
           }
-        } else {
-          if (end_num) {
-            p_proxy(_port, {search_trend:'&equiv;'});
-          } }
+        } else if (end_num) {
+          p_proxy(_port, {search_trend:'&equiv;'});
+        }
       } else {
         localStorage.setItem(msg.search_term, digitals.join(','));
       }
