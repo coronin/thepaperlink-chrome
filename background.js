@@ -849,15 +849,15 @@ function get_request(msg, _port) {
   } else if (msg.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       chrome.pageAction.show(sender_tab_id);
+      if ( alldigi.test(msg.sendID) ) {
+        save_visited_ID(msg.sendID);
+      } else {
+        eSearch(msg.sendID, sender_tab_id);
+      }
     } else {
       DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
     }
     localStorage.setItem('tabId:' + sender_tab_id.toString(), msg.sendID);
-    if ( alldigi.test(msg.sendID) ) {
-      save_visited_ID(msg.sendID);
-    } else {
-      eSearch(msg.sendID, sender_tab_id);
-    }
 
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
