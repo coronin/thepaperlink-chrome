@@ -721,7 +721,7 @@ function reLoad_options() {
 function common_dThree(itemZero, withRed) {
   var tmp, extra = '';
   if (itemZero.slfo && itemZero.slfo !== '~' && parseFloat(itemZero.slfo) > 0) {
-      tmp = '<span>impact&nbsp;' + itemZero.slfo + '</span>';
+      tmp = '<span>impact<sup>' + itemZero.slfo + '</sup></span>';
       extra += tmp;
   }
   if (itemZero.pdf) {
@@ -733,7 +733,7 @@ function common_dThree(itemZero, withRed) {
   if (withRed && itemZero.f_v && itemZero.fid) {
       tmp = '<a class="thepaperlink-red" href="' +
           ez_format_link(ezproxy_prefix, 'http://f1000.com/' + itemZero.fid) +
-          '" target="_blank">f1000&nbsp;star&nbsp;' + itemZero.f_v + '</a>';
+          '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
       extra += tmp;
   }
   if (itemZero.doi && local_mirror) {

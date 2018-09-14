@@ -693,7 +693,7 @@ function get_request(msg) {
         '" href="' + msg.uri + '/?q=pmid:' +
         pmid + '" target="_blank">the paper link</a>: ';
     if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
-      tmp = '<span>impact&nbsp;' + uneval_trim(r.item[i].slfo) + '</span>';
+      tmp = '<span>impact<sup>' + uneval_trim(r.item[i].slfo) + '</sup></span>';
       div_html += tmp;
     }
     if (absNeeded) {
@@ -754,8 +754,8 @@ function get_request(msg) {
           '" class="thepaperlink-red" href="' +
           ez_format_link(p,
               'http://f1000.com/' + uneval_trim(r.item[i].fid)
-          ) + '" target="_blank">f1000&nbsp;' +
-          uneval_trim(r.item[i].f_v) + '</a>';
+          ) + '" target="_blank">f1000<sup>' +
+          uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
     if (msg.pubmeder || msg.cloud_op) {
