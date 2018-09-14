@@ -945,7 +945,7 @@ function get_request(msg, _port) {
     if (msg.search_result_count && msg.search_result_count > 1) {
       var terms = localStorage.getItem('past_search_terms'),
           term_lower = msg.search_term.toLowerCase().
-          replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
+                           replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '),
           one_term_saved = localStorage.getItem(term_lower),
           end_num = get_end_num(one_term_saved),
           digitals = get_ymd();
@@ -957,7 +957,7 @@ function get_request(msg, _port) {
       }
       if (one_term_saved) {
         if (end_num && end_num !== msg.search_result_count) {
-          localStorage.setItem(msg.search_term, one_term_saved + '||' + digitals.join(','));
+          localStorage.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
             p_proxy(_port, {search_trend:end_num+'&darr;'});
@@ -968,7 +968,7 @@ function get_request(msg, _port) {
           p_proxy(_port, {search_trend:'&equiv;'});
         }
       } else {
-        localStorage.setItem(msg.search_term, digitals.join(','));
+        localStorage.setItem(term_lower, digitals.join(','));
       }
     }
 

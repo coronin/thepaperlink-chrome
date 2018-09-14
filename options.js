@@ -601,11 +601,10 @@ $(document).ready(function () {
         t = 0, i, a, b, c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
-      b = localStorage.getItem(''+terms[i]); console.log(terms[i]); console.log(b);
+      b = localStorage.getItem(terms[i]);
       if (b) {
-        a = terms[i].toLowerCase().replace(
-          /(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ' ); // prettify history
-        if (a !== terms[i]) {
+        a = terms[i].toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
+        if (a !== terms[i]) { // prettify history
           localStorage.setItem(a, b);
           localStorage.removeItem(terms[i]);
         }
@@ -620,10 +619,104 @@ $(document).ready(function () {
               a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
               '</span> <a href="#">' + get_end_num(b) + '</a></li>'
           );
-          t += 1; console.log(c);
+          t += 1;
         }
       } }
-    // @@@@
+    if (t > 0) {
+      var span_max = 200;
+      $('.keywords_li span').each(function () {
+        if ($(this).width() > span_max) {
+          span_max = $(this).width();
+        }
+      });
+      if (span_max > 300) {
+        span_max = 300;
+      }
+      $('.keywords_li span').each(function () {
+        $(this).width(span_max + 40);
+      });
+      $('#keywords_area').width(span_max + 57);
+      $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
+      //$('#graph_trend').height( $('#keywords_list').height() + 25 );
+      if (t > 5) {
+        tmp.append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
+            '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
+        $('#toggle_all_keywords').on('click', function() {
+          $('.keywords').each(function () {
+            toggle_checked( $(this), 1 );
+          });
+          adjust_keywords();
+        });
+        $('#select_all_keywords').on('click', function() {
+          $('.keywords').prop('checked', true);
+          adjust_keywords();
+        });
+      }
+      $('input.keywords').on('change', function () {
+        adjust_keywords();
+      });
+      $('.keywords_li span').on('click', function() {
+        toggle_checked( $(this).parent().children('input') );
+      });
+      $('.keywords_li a').addClass('ui-button ui-state-default ui-corner-all');
+      $('.keywords_li a').on('click', function(e) {
+        e.preventDefault();
+        var term = $(this).parent().children('span').text(),
+            hist = localStorage.getItem(term),
+            hist_array = hist.split('||'),
+            tt = $('#graph_trend').offset().top - 25,
+            j = 'search results count: ' + term + '\n----\n', k, l,
+            len = hist_array.length;
+        for (k = 0; k < len; k += 1) {
+          l = hist_array[k].lastIndexOf(',');
+          tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
+          j += tmp;
+        }
+        $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
+            '</pre><span style="margin-left:0.5em" id="delete_term_log">delete</span>' +
+            '<span id="search_term_again">search now</span>');
+        if (window.pageYOffset > tt) {
+          $('#graph_trend').css('padding-top', window.pageYOffset - tt);
+        } else {
+          $('#graph_trend').css('padding-top', 0);
+        }
+        $('#delete_term_log').on('click', function () {
+          var answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          if (answer) {
+            localStorage.removeItem(term);
+            location.reload();
+          }
+        });
+        $('#search_term_again').on('click', function () {
+          chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.create({
+              index: tabs[0].index,
+              url: 'https://www.ncbi.nlm.nih.gov/pubmed?term=' + term,
+              active: true
+            });
+          });
+        });
+        return false;
+      });
+      $('#submit_keyword').on('click', function() {
+        alert('Server DOWN.');
+      //   chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+      //     if (localStorage.getItem('rev_proxy') === 'yes') {
+      //       chrome.tabs.create({
+      //         index: tabs[0].index,
+      //         url: 'https://www.zhaowenxian.com/prospective?' + $('#keywords_area').serialize(),
+      //         active: true
+      //       });
+      //     } else {
+      //       chrome.tabs.create({
+      //         index: tabs[0].index,
+      //         url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+      //         active: true
+      //       });
+      //     }
+      //   });
+      });
+    }
   }
 
   google.payments.inapp.getSkuDetails({
