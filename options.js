@@ -512,6 +512,7 @@ $(document).ready(function () {
   }
   if (cc_address) {
     $('#cc_address').val(cc_address);
+    $('#cc_enabled').text('will get the abstract when you "email it".');
   }
   if (localStorage.getItem('alert_outdated')) {
     $('.alert_outdated').removeClass('Off');
