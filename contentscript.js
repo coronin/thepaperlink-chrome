@@ -617,6 +617,9 @@ function get_request(msg) {
           '}' +
           'img.pl4_clippy:hover {' +
           '  opacity: 1.0' +
+          '}' +
+          'span sup {' +
+          '  background-color:yellow !important' +
           '}',
       r = msg.r;
 
@@ -692,7 +695,8 @@ function get_request(msg) {
     div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid +
         '" href="' + msg.uri + '/?q=pmid:' +
         pmid + '" target="_blank">the paper link</a>: ';
-    if (r.item[i].slfo && r.item[i].slfo !== '~' && parseFloat(r.item[i].slfo) > 0) {
+    var slfoV = parseFloat(r.item[i].slfo);
+    if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
       tmp = '<span>impact<sup>' + uneval_trim(r.item[i].slfo) + '</sup></span>';
       div_html += tmp;
     }
@@ -779,6 +783,18 @@ function get_request(msg) {
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
     byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
+    if (slfoV && slfoV < 2.0) {
+      byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.33;
+    } else if (slfoV && slfoV > 9.9) {
+      byID('thepaperlink_abs' + pmid).parentNode.style.borderRight = '2px solid yellow';
+      if (slfoV > 20.0) {
+        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '5px solid yellow';
+      } else if (slfoV > 15.0) {
+        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '3px solid yellow';
+      } else {
+        byID('thepaperlink_abs' + pmid).parentNode.style.borderBottom = '2px solid yellow';
+      }
+    }
 
     if (byID('thepaperlink_hidden' + pmid)) {
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
