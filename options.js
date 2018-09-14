@@ -530,8 +530,9 @@ $(document).ready(function () {
     $('#scholar_once_info').addClass('Off');
     $('#shark_dropbox').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
-        ' <b>check to access</b> our service via HTTP.');
+    $('#rev_proxy_content').html(
+        '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
+        ' <b>check to access</b> our service via HTTP.' );
     $('#api_server').text('http://www.thepaperlink.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
@@ -600,10 +601,10 @@ $(document).ready(function () {
         t = 0, i, a, b, c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
-      b = localStorage.getItem(terms[i]);
+      b = localStorage.getItem(''+terms[i]); console.log(terms[i]); console.log(b);
       if (b) {
-        a = terms[i].toLowerCase().
-            replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' '); // prettify history
+        a = terms[i].toLowerCase().replace(
+          /(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ' ); // prettify history
         if (a !== terms[i]) {
           localStorage.setItem(a, b);
           localStorage.removeItem(terms[i]);
@@ -619,7 +620,7 @@ $(document).ready(function () {
               a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
               '</span> <a href="#">' + get_end_num(b) + '</a></li>'
           );
-          t += 1;
+          t += 1; console.log(c);
         }
       } }
     // @@@@

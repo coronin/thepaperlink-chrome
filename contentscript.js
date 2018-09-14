@@ -345,7 +345,7 @@ function get_Json(pmids) {
       } else {
         search_result_count = 0;
       }
-      a_proxy({search_term: search_term, search_result_count: search_result_count});
+      a_proxy({search_term: trim(search_term), search_result_count: search_result_count});
       ele.innerHTML = old_title + loading_span;
     }
   }
@@ -362,7 +362,7 @@ function get_Json(pmids) {
 function run() {
   var i, len, z;
   try {
-    search_term = byID('term').value; // 2013-3-26
+    search_term = trim( byID('term').value ); // 2013-3-26, 2018-9-14
   } catch (err) {
     DEBUG && console.log(err);
   }
@@ -370,10 +370,12 @@ function run() {
   for (i = 0, len = byTag('div').length; i < len; i += 1) {
     if (byTag('div')[i].className === 'rprt' || byTag('div')[i].className === 'rprt abstract') {
       getPmid('div', i);
-    } else if (!search_term && byTag('div')[i].className === 'print_term') {
-      z = byTag('div')[i].textContent;
-      if (z) {
-        search_term = z.substr(8, z.length);
+    }
+  }
+  if (!search_term) {
+    for (i = 0; i < byTag('meta').length; i += 1) {
+      if (byTag('meta')[i].getAttribute('name') === 'ncbi_term') {
+        search_term = trim( byTag('meta')[i].getAttribute('content') );
       }
     }
   }
