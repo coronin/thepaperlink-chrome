@@ -709,7 +709,7 @@ function reLoad_options() {
 function common_dThree(itemZero, withRed) {
   var tmp, extra = '';
   if (itemZero.slfo && itemZero.slfo !== '~' && parseFloat(itemZero.slfo) > 0) {
-      tmp = '<span>impact<sup>' + itemZero.slfo + '</sup></span>';
+      tmp = '<span>impact<i style="font-size:75%">' + itemZero.slfo + '</i></span>';
       extra += tmp;
   }
   if (itemZero.pdf) {
