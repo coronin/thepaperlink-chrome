@@ -578,8 +578,8 @@ function get_request(msg) {
 
   } else if (msg.search_trend) {
     var hook = byID('myncbiusername').textContent;
-    byID('myncbiusername').innerHTML = '<span style="color:yellow">' + msg.search_trend +
-        '</span>&nbsp;&nbsp;&nbsp;&nbsp;' + hook;
+    byID('myncbiusername').innerHTML = '<span style="color:yellow">&nbsp;' +
+        msg.search_trend + '&nbsp;</span> ' + hook;
     byID('myncbiusername').style.display = 'inline';
     //sendResponse({});
     return;
