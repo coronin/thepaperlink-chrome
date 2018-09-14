@@ -407,13 +407,23 @@ function dropbox_it(pmid, pdf, k) {
 }
 
 function format_a_li(category, pmid, url, num) {
-  if (!url && !num) { // Abstract:
-    $('#'+category+'_').append('<li><textarea rows="3" cols="100">'+pmid+'</textarea></li>');
+  if (!url && !num) {
+    var id_abs = pmid.split('====');
+    $('#'+category+'_').append(
+        '<li><button style="float:left" id="'+category+id_abs[0]+'">'+id_abs[0]+
+        '</button> &nbsp; <textarea rows="3" cols="90">'+id_abs[1]+'</textarea></li>' );
+    var categoryLen = category.length;
+    $('#'+category+id_abs[0]).on('click', function () {
+      eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
+    });
   } else {
-    $('#'+category+'_').append('<li><button id="'+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
-    $('#'+pmid).on('click', function () { eSS(this.id); });
+    $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+    var categoryLen = category.length;
+    $('#'+category+pmid).on('click', function () {
+      eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
+    });
     if (num) {
-      $('#'+pmid).text(pmid + ' (' + num + ')');
+      $('#'+category+pmid).text(pmid + ' (' + num + ')');
     }
   }
   if ( $('#'+category+'_h2').hasClass('Off') ) {
@@ -1234,9 +1244,13 @@ function load_ALL_localStorage() {
         a_url = 'https://scholar.google.com' + a_value.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
       } else if (a_key.indexOf('abs_') === 0) {
-        format_a_li('abstract', a_key_split[1]+' Abstract: '+a_value, null, null);
+        format_a_li('abstract', a_key_split[1]+'===='+a_value, null, null);
       }
     }
+  }
+  if ($('#email_').text() === '') {
+    $('#email_').addClass('Off');
+    $('#email_h2').addClass('Off');
   }
   $('#load_ALL').text('re-load');
 }
