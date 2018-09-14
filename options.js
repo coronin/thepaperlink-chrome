@@ -691,7 +691,7 @@ $(document).ready(function () {
           chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             chrome.tabs.create({
               index: tabs[0].index,
-              url: 'http://www.ncbi.nlm.nih.gov/pubmed?term=' + term,
+              url: 'https://www.ncbi.nlm.nih.gov/pubmed?term=' + term,
               active: true
             });
           });

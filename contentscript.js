@@ -331,17 +331,17 @@ function get_Json(pmids) {
   } else {
     url += '&apikey=';
   }
-  for (i = 0, len = byTag('h2').length; i < len; i += 1) {
-    ele = byTag('h2')[i];
-    if (ele.className === 'result_count') {
+  for (i = 0, len = byTag('h3').length; i < len; i += 1) {
+    ele = byTag('h3')[i];
+    if (ele.className.indexOf('result_count') == 0) {
       need_insert = 0;
       ele.setAttribute('id', 'pl4_title');
       old_title = ele.innerHTML;
       search_result_count = ele.textContent;
       if (search_result_count.indexOf(' of ') > 0) {
         search_result_count = parseInt(search_result_count.split(' of ')[1], 10);
-      } else if (search_result_count.indexOf('Results: ') > -1) {
-        search_result_count = parseInt(search_result_count.substr(9, search_result_count.length), 10);
+      } else if (search_result_count.indexOf('Items: ') > -1) {
+        search_result_count = parseInt(search_result_count.substr(7, search_result_count.length), 10);
       } else {
         search_result_count = 0;
       }
@@ -677,7 +677,7 @@ function get_request(msg) {
   if (msg.pubmeder) {
     bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
         pmids + '\',\'' + uneval_trim(msg.save_key) + '\',\'' +
-        uneval_trim(msg.save_email) + '\')">pubmeder&nbsp;all</span></div>';
+        uneval_trim(msg.save_email) + '\')">save&nbsp;page</span></div>';
   } else {
     bookmark_div += 'save what you are reading? try <a href="http://pubmeder.cailiang.net/registration" target="_blank">PubMed-er</a></div>';
   }
