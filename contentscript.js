@@ -620,7 +620,7 @@ function get_request(msg) {
           'img.pl4_clippy:hover {' +
           '  opacity: 1.0' +
           '}' +
-          '.thepaperlink span sup, .thepaperlink a sup {' +
+          '.thepaperlink span i, .thepaperlink a sup {' +
           '  background-color:yellow!important; border-radius:6px' +
           '}' +
           'textarea.thepaperlink-text {' +
@@ -706,7 +706,7 @@ function get_request(msg) {
         pmid + '" target="_blank">the paper link</a>: ';
     var slfoV = parseFloat(r.item[i].slfo);
     if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
-      tmp = '<span>impact<sup>' + uneval_trim(r.item[i].slfo) + '</sup></span>';
+      tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
       div_html += tmp;
     }
     if (absNeeded) {
