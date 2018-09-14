@@ -287,8 +287,8 @@ function saveIt_pubmeder(pmid) {
     return;
   }
   var args = {'apikey' : pubmeder_apikey,
-        'email' : pubmeder_email,
-        'pmid' : pmid},
+              'email' : pubmeder_email,
+              'pmid' : pmid},
       url = 'https://pubmeder-hrd.appspot.com/input';
   if (localStorage.getItem('rev_proxy') === 'yes') {
     url = 'https://1.zhaowenxian.com/input';
