@@ -1,12 +1,12 @@
 the paper link 3
 --------
-In addition to existing PubMed search results, this extension will show links to PDF; display F1000 score and journal impact factor; peak authors; and much more! It is built with passion and love.
+In addition to PubMed search results, this extension will show links to PDF; display F1000 score and journal impact factor; peak authors; and much more! It is built with passion and love.
 
 Detailed enhancement includes:
  * Impact Factor of the Journal
- * Direct link to its PDF file (to access still require permissions)
+ * Direct link to its publisher's PDF file
  * External pages related to the article
- * Faculty 1000 score and link to its comment page
+ * Faculty 1000 star count and link to its comment page
  * "Peaks" authors (the playground for "Peaks" is at http://2.thepaperlink.com/static/peaks.html)
 
 Source of this extension is at https://github.com/coronin/thepaperlink-chrome
