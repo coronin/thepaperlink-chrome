@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
   "name": "the paper link 3",
-  "version": "2.9.8",
+  "version": "2.9.9",
   "minimum_chrome_version": "39",
   "description": "Show links to PDF; display F1000 score and journal impact factor; peak authors; ... by Liang Cai",
-  "content_security_policy": "script-src 'self' https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
+  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
@@ -33,27 +33,19 @@
     "16": "16.png"
   },
   "options_page": "options.html",
-  "page_action": {
-    "default_icon": {
-      "19": "19grey.png",
-      "32": "32grey.png",
-      "48": "48grey.png"
-    },
-    "default_title": "the paper link 3: click to display detailed info",
-    "default_popup" : "popup.html"
-  },
   "content_scripts": [ {
     "matches": [
       "http://www.thepaperlink.com/*",
+      "https://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
       "https://www.zhaowenxian.com/*",
       "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
-      "http://pubmeder-hrd.appspot.com/registration",
-      "https://pubmeder-hrd.appspot.com/registration",
       "http://1.zhaowenxian.com/registration",
       "https://1.zhaowenxian.com/registration",
+      "http://pubmeder-hrd.appspot.com/registration",
+      "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
       "https://www.storkapp.me/paper/*",
@@ -81,15 +73,16 @@
     "ids": ["*"],
     "matches": [
       "http://www.thepaperlink.com/*",
+      "https://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
       "https://www.zhaowenxian.com/*",
       "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
-      "http://pubmeder-hrd.appspot.com/registration",
-      "https://pubmeder-hrd.appspot.com/registration",
       "http://1.zhaowenxian.com/registration",
       "https://1.zhaowenxian.com/registration",
+      "http://pubmeder-hrd.appspot.com/registration",
+      "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
       "https://www.storkapp.me/paper/*",
