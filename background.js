@@ -224,7 +224,7 @@ function select_on_click(info, tab) {
 }
 
 function b_proxy(tab_id, _data) { // process ws action
-  chrome.tabs.sendMessage(tab_id, _data);
+  if (tab_id) { chrome.tabs.sendMessage(tab_id, _data); }
 }
 
 function p_proxy(_port, _data) {
