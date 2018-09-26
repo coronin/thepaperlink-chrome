@@ -103,8 +103,11 @@ function process_orNSFC() { // 2018 Sep
 }
 
 function process_dxy() { // 2018 Sep
+  if ( !byID('pmid') ) { // abstract page only
+    return 0;
+  }
   var i, len, ele,
-      pmid = byID('pmid').value; // abstract page only
+      pmid = byID('pmid').value;
   if (pmid && pmid === '' + parseInt(pmid, 10)) {
     a_proxy({from_dxy: pmid});
   }
@@ -412,7 +415,9 @@ function alert_dev(req_key) {
 }
 
 
-if (page_url === 'http://www.thepaperlink.com/reg'
+if (page_url === 'https://www.thepaperlink.com/reg'
+    || page_url === 'https://www.thepaperlink.com/settings'
+    || page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.com/settings'
     || page_url === 'https://www.zhaowenxian.com/settings'
     || page_url === 'https://www.zhaowenxian.com/reg'

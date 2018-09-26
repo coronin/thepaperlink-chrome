@@ -240,7 +240,7 @@ function saveOptions() {
       if (localStorage.getItem('rev_proxy') === 'yes') {
         window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.zhaowenxian.com/reg\n');
       } else {
-        window.alert('\n please provide a valid apikey to use the extension\n get it from http://www.thepaperlink.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.com/reg\n');
       }
       $('#thepaperlink_apikey_input').focus();
       return false;
@@ -533,7 +533,7 @@ $(document).ready(function () {
     $('#rev_proxy_content').html(
         '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
         ' <b>check to access</b> our service via HTTP.' );
-    $('#api_server').text('http://www.thepaperlink.com');
+    $('#api_server').text('https://www.thepaperlink.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
         ' If you really want to, feel free to access our service via HTTP.');

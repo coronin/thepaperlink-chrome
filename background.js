@@ -751,7 +751,7 @@ function get_request(msg, _port) {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     base = 'https://www.zhaowenxian.com';
   } else if (localStorage.getItem('https_failed')) {
-    base = 'http://www.thepaperlink.com';
+    base = 'https://www.thepaperlink.com';
   }
   // respond to msg
   if (msg.loadExtraJs) {
@@ -816,7 +816,7 @@ function get_request(msg, _port) {
       }
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://www.thepaperlink.com';
+        base = 'https://www.thepaperlink.com';
       }
     }).always(function () {
       DEBUG && console.timeEnd("call theServer for json");
@@ -1011,7 +1011,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://www.thepaperlink.com';
+        base = 'https://www.thepaperlink.com';
       }
     });
 
@@ -1033,7 +1033,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://www.thepaperlink.com';
+        base = 'https://www.thepaperlink.com';
       }
     });
 
@@ -1056,7 +1056,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://www.thepaperlink.com';
+        base = 'https://www.thepaperlink.com';
       }
     });
 
@@ -1078,7 +1078,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://www.thepaperlink.com';
+        base = 'https://www.thepaperlink.com';
       }
     });
 
@@ -1147,7 +1147,7 @@ console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.zhaowenxian.com';
 } else if (localStorage.getItem('https_failed')) {
-  base = 'http://www.thepaperlink.com';
+  base = 'https://www.thepaperlink.com';
 }
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
@@ -1160,7 +1160,7 @@ $.ajax({
   DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 1);
   if (localStorage.getItem('rev_proxy') !== 'yes') {
-    base = 'http://www.thepaperlink.com';
+    base = 'https://www.thepaperlink.com';
   }
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -1254,3 +1254,11 @@ function load_ALL_localStorage() {
   }
   $('#load_ALL').text('re-load');
 }
+
+// 2018-9-23 https://developer.chrome.com/extensions/inline_faq
+chrome.runtime.onInstalled.addListener(function listener(details) {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.tabs.create({url: "https://www.thepaperlink.com/"});
+    chrome.runtime.onInstalled.removeListener(listener);
+  }
+});
