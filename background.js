@@ -73,7 +73,7 @@ function post_theServer(v) {
   if (!local_ip) {
     return;
   }
-  $.post('https://www.zhaowenxian.com/',
+  $.post('http://phd.cail.cn/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_theServer, ' + a[v]);
@@ -103,7 +103,7 @@ function post_theServer(v) {
             localStorage.removeItem('alert_outdated');
           }
         } else {
-          console.log('__ empty from www.zhaowenxian.com');
+          console.log('__ empty from theServer');
         }
       }, 'json'
   ).fail(function () {
@@ -292,9 +292,9 @@ function saveIt_pubmeder(pmid) {
       url = 'https://pubmeder-hrd.appspot.com/input';
   if (localStorage.getItem('rev_proxy') === 'yes') {
     url = 'https://1.zhaowenxian.com/input';
-  } else if (localStorage.getItem('https_failed')) {
-    url = 'http://pubmeder.cailiang.net/input';
-  }
+  }// else if (localStorage.getItem('https_failed')) {
+  //  url = 'http://pubmeder.cailiang.net/input';
+  //}
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
       var pre_history = localStorage.getItem('id_history') || '';
@@ -749,10 +749,10 @@ function get_request(msg, _port) {
     sender_tab_id = _port.sender.tab.id;
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    base = 'https://www.zhaowenxian.com';
-  } else if (localStorage.getItem('https_failed')) {
-    base = 'https://www.thepaperlink.com';
-  }
+    base = 'http://phd.cail.cn';
+  }// else if (localStorage.getItem('https_failed')) {
+  //  base = 'https://www.thepaperlink.com';
+  //}
   // respond to msg
   if (msg.loadExtraJs) {
     p_proxy(_port, {js_base_uri:base});
@@ -816,7 +816,7 @@ function get_request(msg, _port) {
       }
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'https://www.thepaperlink.com';
+        base = 'http://phd.cail.cn';
       }
     }).always(function () {
       DEBUG && console.timeEnd("call theServer for json");
@@ -1011,7 +1011,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'https://www.thepaperlink.com';
+        base = 'http://phd.cail.cn';
       }
     });
 
@@ -1033,7 +1033,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'https://www.thepaperlink.com';
+        base = 'http://phd.cail.cn';
       }
     });
 
@@ -1056,7 +1056,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'https://www.thepaperlink.com';
+        base = 'http://phd.cail.cn';
       }
     });
 
@@ -1078,7 +1078,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'https://www.thepaperlink.com';
+        base = 'http://phd.cail.cn';
       }
     });
 
@@ -1108,7 +1108,7 @@ function get_request(msg, _port) {
       failed_times = ( failed_terms.match(/","/g) ).length + 1;
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
-        base = 'https://www.zhaowenxian.com';
+        base = 'http://phd.cail.cn';
       }
       localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
     } else {
@@ -1145,10 +1145,10 @@ chrome.runtime.onMessageExternal.addListener(
 
 console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
-  base = 'https://www.zhaowenxian.com';
-} else if (localStorage.getItem('https_failed')) {
-  base = 'https://www.thepaperlink.com';
-}
+  base = 'http://phd.cail.cn';
+}// else if (localStorage.getItem('https_failed')) {
+//  base = 'https://www.thepaperlink.com';
+//}
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
   dataType: 'text',
@@ -1159,9 +1159,9 @@ $.ajax({
 }).fail(function() {
   DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 1);
-  if (localStorage.getItem('rev_proxy') !== 'yes') {
-    base = 'https://www.thepaperlink.com';
-  }
+  //if (localStorage.getItem('rev_proxy') !== 'yes') {
+  base = 'http://phd.cail.cn';
+  //}
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
     localStorage.setItem('contextMenu_on', 1);
