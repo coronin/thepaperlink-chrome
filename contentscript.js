@@ -799,7 +799,10 @@ function get_request(msg) {
     byID(pmid).appendChild(div);
 
     if (byID('thepaperlink_abs' + pmid)) {
-      byID('thepaperlink_abs' + pmid).onclick = function () { a_proxy({ajaxAbs:this.id.substr(16)}) };
+      byID('thepaperlink_abs' + pmid).onclick = function () {
+        byID(this.id).textContent = 'trying';
+        a_proxy({ajaxAbs:this.id.substr(16)});
+      };
       if (!slfoV || slfoV < 2.0) {
         byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
       } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {
