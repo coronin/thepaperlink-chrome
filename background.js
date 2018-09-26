@@ -848,7 +848,7 @@ function get_request(msg, _port) {
 
   } else if (msg.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
-      chrome.pageAction.show(sender_tab_id);
+      // chrome.pageAction.show(sender_tab_id);
       if ( alldigi.test(msg.sendID) ) {
         save_visited_ID(msg.sendID);
       } else {
