@@ -1108,6 +1108,7 @@ function get_request(msg, _port) {
       failed_times = ( failed_terms.match(/","/g) ).length + 1;
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
+        localStorage.removeItem('https_failed'); // 2018-9-27
         base = 'http://phd.cail.cn';
       }
       localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
