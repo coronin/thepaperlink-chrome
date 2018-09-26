@@ -19,7 +19,7 @@ function eFetch(pmid) {
     db : 'pubmed',
     id : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'https://www.zhaowenxian.com/entrezajax/efetch';
+    url = 'http://phd.cail.cn/entrezajax/efetch';
   } else {
     url = 'https://pubget-hrd.appspot.com/entrezajax/efetch';
   }

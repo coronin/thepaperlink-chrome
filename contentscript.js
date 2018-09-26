@@ -396,7 +396,7 @@ function run() {
 function alert_dev(req_key) {
   if (req_key) {
     var oXHR = new XMLHttpRequest();
-    oXHR.open('POST', 'https://www.zhaowenxian.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
+    oXHR.open('POST', 'https://www.thepaperlink.com/?action=alert_dev&pmid=1&apikey=' + req_key, true);
     oXHR.onreadystatechange = function () {
       if (oXHR.readyState === 4) {
         if (oXHR.status === 200) {
@@ -508,7 +508,7 @@ function get_request(msg) {
     byID('pl4_title').innerHTML = old_title +
         ' <span style="font-size:12px;font-weight:normal;color:red;background-color:yellow;cursor:pointer" id="thepaperlink_alert">' +
         'Error!&nbsp;&nbsp;' + msg.except +
-        '&nbsp;<a href="https://www.zhaowenxian.com/?q=' + search_term +
+        '&nbsp;<a href="https://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">[?]</a></span>';
     a_proxy({alert_dev: search_term});
     byID('thepaperlink_alert').onclick = function () {
