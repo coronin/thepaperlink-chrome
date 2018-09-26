@@ -61,7 +61,7 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   bkg.console.time("Call theServer to validate apikey");
-  return $.get('https://www.zhaowenxian.com/api',
+  return $.get('http://phd.cail.cn/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
       function (txt) {
@@ -521,7 +521,7 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>the HTTP method</b> to access "the paper link".' +
         ' It is unsecured.');
-    $('#api_server').text('https://www.zhaowenxian.com');
+    $('#api_server').text('http://phd.cail.cn');
     $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
     $('#alerts_thepaperlink').attr('href', 'https://www.zhaowenxian.com/alerts');
@@ -533,7 +533,7 @@ $(document).ready(function () {
     $('#rev_proxy_content').html(
         '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
         ' <b>check to access</b> our service via HTTP.' );
-    $('#api_server').text('https://www.thepaperlink.com');
+    $('#api_server').text('http://phd.cail.cn');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
         ' If you really want to, feel free to access our service via HTTP.');
@@ -704,13 +704,13 @@ $(document).ready(function () {
       //     if (localStorage.getItem('rev_proxy') === 'yes') {
       //       chrome.tabs.create({
       //         index: tabs[0].index,
-      //         url: 'https://www.zhaowenxian.com/prospective?' + $('#keywords_area').serialize(),
+      //         url: 'http://phd.cail.cn/prospective?' + $('#keywords_area').serialize(),
       //         active: true
       //       });
       //     } else {
       //       chrome.tabs.create({
       //         index: tabs[0].index,
-      //         url: 'http://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
+      //         url: 'https://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
       //         active: true
       //       });
       //     }
