@@ -146,6 +146,7 @@ function saveOptions() {
   }
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
+    localStorage.removeItem('https_failed'); // 2018-9-27
     localStorage.setItem('scholar_once', 'yes'); // ws_items + route to google
   } else {
     localStorage.setItem('rev_proxy', 'no');
