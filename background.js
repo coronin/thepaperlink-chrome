@@ -1210,10 +1210,15 @@ function load_ALL_localStorage() {
   $('#scholar_').html('');
   $('#abstract_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
-  syncValues['appMasterKey'] = [];
+  syncValues['appMasterKey'] = new Array();
   for (aKey in localStorage) {
     a_key_split = aKey.split('_');
     aVal = localStorage.getItem(aKey);
+    if (!aVal) {
+      console.log('>> remove a key: ' + aKey);
+      localStorage.removeItem(aKey);
+      continue;
+    }
     if (aVal.indexOf('undefined') > -1) {
       $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
       localStorage.removeItem(aKey);
@@ -1273,9 +1278,9 @@ function load_ALL_localStorage() {
       syncValues[aKey] = aVal;
     }
   }
-  chrome.storage.sync.set(syncValues, function() {
+  DEBUG && console.log(syncValues);
+  chrome.storage.sync.set(syncValues, function () {
     console.log('Storage.sync set');
-    DEBUG && console.log(syncValues);
   });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
@@ -1320,8 +1325,8 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
         console.log('Empty: syncValues stopped');
         return;
     }
-    console.log('Will get syncValues ' + rslt.appMasterKeys.length);
     DEBUG && console.log(rslt.appMasterKeys);
+    console.log('Will get syncValues ' + rslt.appMasterKeys.length);
     chrome.storage.sync.get(rslt.appMasterKeys, function (rst) {
         for (aKey in rst) {
             localStorage.setItem(aKey, rst[aKey]);
