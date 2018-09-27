@@ -1275,15 +1275,15 @@ function load_ALL_localStorage() {
         } // 2018-9-27
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
-    } else {
-      console.log(aKey, aVal);
-      //syncValues['appMasterKey'].push( aKey );
-      //syncValues[aKey] = aVal;
+    } else if (aKey !== 'appMasterKey') {
+      syncValues['appMasterKey'].push( aKey );
+      syncValues[aKey] = aVal;
     }
   }
   DEBUG && console.log(syncValues);
+  console.time('Storage.sync set');
   chrome.storage.sync.set(syncValues, function () {
-    console.log('Storage.sync set');
+    console.timeEnd('Storage.sync set');
   });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
@@ -1323,14 +1323,15 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     ]);
 });
 // sync core values
+console.time('Try storage.sync get');
 chrome.storage.sync.get(['appMasterKey'], function (rslt) {
     if (!rslt.appMasterKeys) {
         console.log('Empty: syncValues stopped');
         return;
     }
     DEBUG && console.log(rslt.appMasterKeys);
-    console.log('Will get syncValues ' + rslt.appMasterKeys.length);
     chrome.storage.sync.get(rslt.appMasterKeys, function (rst) {
+        console.timeEnd('Try storage.sync get');
         for (aKey in rst) {
             localStorage.setItem(aKey, rst[aKey]);
         }
@@ -1341,8 +1342,8 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
 
 chrome.storage.onChanged.addListener(function (changes) {
   if (changes) {
-    console.log('Will update syncValues ' + changes.length);
     for (aKey in changes) {
+      console.log(aKey, changes[aKey]); // @@@@
       localStorage.setItem(aKey, changes[aKey]);
     }
   }
