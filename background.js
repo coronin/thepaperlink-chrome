@@ -1272,9 +1272,7 @@ function load_ALL_localStorage() {
       syncValues[aKey] = aVal;
     }
   }
-
-  console.log(syncValues);
-
+  DEBUG && console.log(syncValues);
   console.time('Storage.sync set');
   chrome.storage.sync.set(syncValues, function () {
     console.timeEnd('Storage.sync set');
@@ -1284,13 +1282,6 @@ function load_ALL_localStorage() {
     $('#email_h2').addClass('Off');
   }
   $('#load_ALL').text('re-load and re-sync');
-}
-
-function objLocalStore(pmid, pmidObj) {
-  console.log(pmid);
-  for (aKey in pmidObj) {
-      console.log(aKey, pmidObj[aKey]);
-  }
 }
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -1335,7 +1326,12 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
         console.timeEnd('Try storage.sync get');
         for (aKey in rst) {
           if (aKey.indexOf('pmid_') === 0) {
-            objLocalStore(aKey.substr(5, aKey.length-5), rst[aKey]);
+            var a_pmid = aKey.substr(5, aKey.length-5),
+              pmidObj = rst[aKey], a_key;
+            for (a_key in pmidObj) {
+              console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
+              // @@@@
+            }
           } else {
             localStorage.setItem(aKey, rst[aKey]);
           }
@@ -1347,9 +1343,7 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
 
 chrome.storage.onChanged.addListener(function (rst) {
   for (aKey in rst) {
-    if (aKey.indexOf('pmid_') === 0) {
-      objLocalStore(aKey.substr(5, aKey.length-5), rst[aKey]);
-    } else {
+    if (aKey.indexOf('pmid_') !== 0) {
       localStorage.setItem(aKey, rst[aKey]);
     }
   }
