@@ -9,7 +9,6 @@
   <script type="text/javascript" src="jquery.cookie.js"></script>
   <script type="text/javascript" src="jquery-ui-1.9.2.custom.min.js"></script><!-- Button Tabs -->
   <script type="text/javascript" src="options.js"></script>
-  <script type="text/javascript" src="buy.js"></script>
   <style type="text/css">
     body {font-family:arial,sans-serif;font-size:62.5%;margin:50px}
     h3 {color:#9f0000}
@@ -196,7 +195,7 @@
     </p>
   <hr/>
   <p><input class="settings" type="text" value="{prefix}" size="32" id="ezproxy_input" title="ezproxy_input" />
-    <span id="ezproxy_enabled">If your institute uses <a href="https://en.wikipedia.org/wiki/EZproxy" target="_blank">EZproxy</a>, fill in the {prefix} please.</span>
+    <span id="ezproxy_enabled">If your institute uses <a href="https://en.wikipedia.org/wiki/EZproxy" rel="external">EZproxy</a>, fill in the {prefix} please.</span>
     </p>
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -213,7 +212,7 @@
     <span id="cc_enabled">If you want to send to other people via "email it", please fill in the {cc address}.</span>
   </p>
   <p><input class="settings" type="text" value="{local.mirror}" size="32" id="local_mirror" title="local_mirror" />
-    <span id="local_enabled">To access your <a href="https://support.clarivate.com/Endnote/" target="_blank">local</a> copy, please input the domain name.</span>
+    <span id="local_enabled">To access your <a href="https://support.clarivate.com/Endnote/" rel="external">local</a> copy, please input the domain name.</span>
   </p>
   <div class="ui-widget Off" id="local_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -225,10 +224,13 @@
 <div id="option_tabs-4">
   <h3>keywords in PubMed you have searched</h3>
   <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
+    <!-- table style="margin-left:18px" id="in-app-purchase"></table -->
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       you have to subscribe the alert service on <a id="alerts_thepaperlink" href="https://www.thepaperlink.com/alerts" rel="external">our website</a> to get notified
       </p>
-      <table style="margin-left:18px" id="in-app-purchase"></table>
+    <a><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
+      visit <a id="background_html" href="#" target="_blank">here</a> to inspect your local PubMed search
+      </p>
   </div></div>
   <div id="graph_trend" style="float:right;background:#ffffff"></div>
   <ul id="keywords_list"></ul>

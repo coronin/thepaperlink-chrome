@@ -282,97 +282,14 @@ function saveOptions() {
 }
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
-function showLicense(license) { // @@@@
-  bkg.console.log('showLicense', license);
-  var modal = $('#modalLicense');
-  modal.find('.license').text( JSON.stringify(license, null, 2) );
-  modal.modal('show');
-}
-function onActionButton(evt) {
-  var actionButton = $(evt.currentTarget);
-  if ( actionButton.data('license') ) {
-    showLicense( actionButton.data('license') );
-  } else {
-    buyProduct( actionButton.data('sku') );
-  }
-}
-function onLicenseUpdate(dt) {
-  bkg.console.log('onLicenseUpdate', dt);
-  var licenses = dt.response.details,
-      count = licenses.length, i;
-  for (i = 0; i < count; i += 1) {
-    addLicenseDataToProduct( licenses[i] );
-  }
-}
-function onLicenseUpdateFailed(dt) {
-  bkg.console.log('onLicenseUpdateFailed', dt);
-}
-function addProductToUI(product) {
-  if (product.localeData[0].description === '@thepaperlink') {
-    $('#donate_info').removeClass('Off');
-    $('#xxxx').text('If you enjoy using the extension and want to support its development, you can ');
-    var butAct1 = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('donate');
-    $('#xxxx').append(butAct1);
-  } else {
-    var row = $('<tr></tr>'),
-        colName = $('<td></td>').html('<b>' + product.localeData[0].title + '</b><br/><span style="color:#ccc">' + product.localeData[0].description + '</span>'),
-        colPrice = $('<td></td>').text('$' + parseInt( product.prices[0].valueMicros, 10 ) / 1000000),
-        butAct2 = $('<button type="button"></button>').data('sku', product.sku).attr('id', 'IAP_' + product.sku).click(onActionButton).text('Purchase'),
-        colBut = $('<td></td>').append(butAct2);
-    row.append(colName).append(colPrice).append(colBut);
-    $('#in-app-purchase').append(row);
-  }
-}
-function addLicenseDataToProduct(license) {
-  $('#IAP_' + license.sku).text('View license').data('license', license);
-}
-function getLicenses() {
-  google.payments.inapp.getPurchases({
-    parameters: {env: 'prod'},
-    success: onLicenseUpdate,
-    failure: onLicenseUpdateFailed
-  });
-}
-function onPurchase(purchase) {
-  bkg.console.log('onPurchase', purchase);
-  // purchase.request.cardId,
-  // purchase.response.orderId;
-  getLicenses();
-}
-function onPurchaseFailed(purchase) {
-  bkg.console.log('onPurchaseFailed', purchase);
-  window.alert('Purchase failed. Error code [' + purchase.response.errorType + '].');
-}
-function buyProduct(sku) {
-  google.payments.inapp.buy({
-    parameters: {env: 'prod'},
-    sku: sku,
-    success: onPurchase,
-    failure: onPurchaseFailed
-  });
-}
-function onSkuDetails(dt) {
-  var products = dt.response.details.inAppProducts,
-      count = products.length, i;
-  if (count === 0) {
-    bkg.console.log('onSkuDetails', dt);
-    $('#in-app-purchase').addClass('Off');
-  } else {
-    for (i = 0; i < count; i += 1) {
-      addProductToUI( products[i] );
-    }
-    getLicenses();
-  }
-}
-function onSkuDetailsFailed(dt) {
-  bkg.console.log('onSkuDetailsFailed', dt);
-  $('#in-app-purchase').addClass('Off');
-}
+// 2018-9-27 @@@@
 // IAP end
 
 $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');
   $('button').button();
+  $('#background_html').text('logs');
+  $('#background_html').attr('href', chrome.extension.getURL('background.html'));
 
   $('#saveBtn').on('click', function() { saveOptions(); });
   $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
@@ -702,10 +619,10 @@ $(document).ready(function () {
     }
   }
 
-  google.payments.inapp.getSkuDetails({
-    parameters: {env: 'prod'},
-    success: onSkuDetails,
-    failure: onSkuDetailsFailed
-  });
+  //google.payments.inapp.getSkuDetails({
+  //  parameters: {env: 'prod'},
+  //  success: onSkuDetails,
+  //  failure: onSkuDetailsFailed
+  //});
   $('#option_tabs').tabs({cookie: {expires: 9}});
 });
