@@ -1250,10 +1250,26 @@ function load_ALL_localStorage() {
   $('#load_ALL').text('re-load');
 }
 
-// 2018-9-23 https://developer.chrome.com/extensions/inline_faq
-chrome.runtime.onInstalled.addListener(function listener(details) {
-  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-    chrome.tabs.create({url: "https://www.thepaperlink.com/"});
-    chrome.runtime.onInstalled.removeListener(listener);
-  }
+// 2018-9-27
+chrome.runtime.onInstalled.addListener(function () {
+    chrome.declarativeContent.onPageChanged.addRules([{
+        conditions: [
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//www.thepaperlink.com' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//www.zhaowenxian.com' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//f1000.com/prime/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//pubmed.cn/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
+        ],
+        actions: [ new chrome.declarativeContent.ShowPageAction() ]
+    }]);
+
 });

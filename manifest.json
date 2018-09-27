@@ -20,7 +20,8 @@
     "http://scholar.google.com/scholar*",
     "https://scholar.google.com/scholar*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
-    "http://www.sciencedirect.com/science/article/pii/*"
+    "http://www.sciencedirect.com/science/article/pii/*",
+    "declarativeContent"
   ],
   "background": {
     "page": "background.html"
@@ -31,6 +32,10 @@
     "32": "32.png",
     "19": "19.png",
     "16": "16.png"
+  },
+  "page_action": {
+    "default_icon": "19.png",
+    "default_title": "paper link 3, brought to you by Liang Cai"
   },
   "options_page": "options.html",
   "content_scripts": [ {
