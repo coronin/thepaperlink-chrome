@@ -482,7 +482,7 @@ function get_request(msg) {
   DEBUG && console.log(msg);
   if (msg.js_base_uri) {
     if (window.location.protocol === 'https:' && msg.js_base_uri.substr(0,5) !== 'https') {
-      msg.js_base_uri = 'https://pubget-hrd.appspot.com';
+      msg.js_base_uri = 'https://www.zhaowenxian.com';
     }
     if (!byID('paperlink2_display')) {
       var peaks = page_d.createElement('script');
@@ -537,11 +537,12 @@ function get_request(msg) {
     return;
 
   } else if (msg.g_scholar) {
+    if ( !byID('citedBy' + msg.pmid) ) { return 0; }
     try {
       if (msg.g_num === 1 && msg.g_link === 1) {
         byID('citedBy' + msg.pmid).innerText = 'trying';
       } else if (msg.g_num === 0 && msg.g_link === 0) {
-        byID('citedBy' + msg.pmid).innerHTML = '<i>Really? Not cited it yet. Is it a very recent publication?</i>';
+        byID('citedBy' + msg.pmid).innerHTML = '<i>Really? No citation yet. Is it a very recent publication?</i>';
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
           byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
         }
@@ -551,8 +552,8 @@ function get_request(msg) {
           uneval_trim(msg.g_num) + ' times</a>';
       }
     } catch (err) {
-      byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
       DEBUG && console.log(err);
+      byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
     }
     //sendResponse({});
     return;
