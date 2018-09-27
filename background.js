@@ -1201,48 +1201,106 @@ $(document).ready(function () {
     load_broadcast();
     get_server_data(0);
   }
+
+
+// sync core values
+    chrome.storage.sync.get(['appMasterKey'], function (rslt) {
+        if (!rslt.appMasterKeys) {
+          console.log('Empty: syncValues stopped');
+          return;
+        }
+        var syncValues = [];
+        for (i = 0, len = rslt.appMasterKeys.length; i < len; i += 1) {
+            syncValues.push( rslt.appMasterKeys[i] );
+        }
+        console.log('Will get syncValues');
+        DEBUG && console.log(syncValues);
+        chrome.storage.sync.get(syncValues, function (rst) {
+            for (i = 0, len = syncValues.length; i < len; i += 1) {
+                console.log( syncValues[i] );
+                console.log( rst[ syncValues[i] ] );
+            }
+        });
+    });
+
 });
 
 //// 2015-12-9
 function load_ALL_localStorage() {
-  var a_value, a_key, a_key_split, a_url;
+  var a_key_split, a_url, syncValues = {};
   $('#email_').html('');
   $('#shark_').html('');
   $('#scholar_').html('');
   $('#abstract_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
+  syncValues['appMasterKey'] = [];
   for (i = 0; i < localStorage.length; i += 1) {
-    a_key = localStorage.key(i);
-    a_key_split = a_key.split('_');
-    a_value = localStorage.getItem(a_key);
-    if (a_value.indexOf('undefined') > -1) {
-      $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
-      localStorage.removeItem(a_key);
+    aKey = localStorage.key(i);
+    a_key_split = aKey.split('_');
+    aVal = localStorage.getItem(aKey);
+    if (aVal.indexOf('undefined') > -1) {
+      $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
+      localStorage.removeItem(aKey);
       continue;
     }
-    if ( ( a_key.indexOf('email_') === 0 ||
-           a_key.indexOf('shark_') === 0 ||
-           a_key.indexOf('scholar_') === 0 ) &&
-         a_key_split[1] && a_value.indexOf(a_key_split[1]) === 0 ||
-         a_key.indexOf('abs_') === 0 ) {
-      if (a_key.indexOf('email_') === 0) {
-        $('#'+a_key_split[0]+'_').append('<li>'+a_value+'</li>');
-      } else if (a_key.indexOf('shark_') === 0) {
-        a_url = a_value.split(',')[1];
+    if ( ( aKey.indexOf('email_') === 0 ||
+           aKey.indexOf('shark_') === 0 ||
+           aKey.indexOf('scholar_') === 0 ) &&
+         a_key_split[1] && aVal.indexOf(a_key_split[1]) === 0 ||
+         aKey.indexOf('abs_') === 0 ) {
+      if (aKey.indexOf('email_') === 0) {
+        if (syncValues['pmid_'+a_key_split[1]]) {
+          syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
+        } else {
+          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          syncValues['pmid_'+a_key_split[1]] = {};
+          syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
+        } // 2018-9-27
+        $('#'+a_key_split[0]+'_').append('<li>'+aVal+'</li>');
+      } else if (aKey.indexOf('shark_') === 0) {
+        if (syncValues['pmid_'+a_key_split[1]]) {
+          syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
+        } else {
+          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          syncValues['pmid_'+a_key_split[1]] = {};
+          syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
+        } // 2018-9-27
+        a_url = aVal.split(',')[1];
         if (a_url.indexOf('googletagmanager.com') > 0) {
-          $('#undefined_clean').append('<li>'+a_key+' : '+a_value+' &rarr; ACTION: REMOVE</li>');
-          localStorage.removeItem(a_key);
+          $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
+          localStorage.removeItem(aKey);
           continue;
         }
         format_a_li('shark', a_key_split[1], a_url);
-      } else if (a_key.indexOf('scholar_') === 0) {
-        a_url = 'https://scholar.google.com' + a_value.split(',')[2];
-        format_a_li('scholar', a_key_split[1], a_url, a_value.split(',')[1]);
-      } else if (a_key.indexOf('abs_') === 0) {
-        format_a_li('abstract', a_key_split[1]+'===='+a_value, null, null);
+      } else if (aKey.indexOf('scholar_') === 0) {
+        if (syncValues['pmid_'+a_key_split[1]]) {
+          syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
+        } else {
+          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          syncValues['pmid_'+a_key_split[1]] = {};
+          syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
+        } // 2018-9-27
+        a_url = 'https://scholar.google.com' + aVal.split(',')[2];
+        format_a_li('scholar', a_key_split[1], a_url, aVal.split(',')[1]);
+      } else if (aKey.indexOf('abs_') === 0) {
+        if (syncValues['pmid_'+a_key_split[1]]) {
+          syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
+        } else {
+          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          syncValues['pmid_'+a_key_split[1]] = {};
+          syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
+        } // 2018-9-27
+        format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
+    } else {
+      syncValues['appMasterKey'].push( aKey );
+      syncValues[aKey] = aVal;
     }
   }
+  chrome.storage.sync.set(syncValues, function() {
+    console.log('Storage.sync set');
+    DEBUG && console.log(syncValues);
+  });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
     $('#email_h2').addClass('Off');
@@ -1250,8 +1308,8 @@ function load_ALL_localStorage() {
   $('#load_ALL').text('re-load');
 }
 
-// 2018-9-27
 chrome.runtime.onInstalled.addListener(function () {
+// 2018-9-27
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
@@ -1279,4 +1337,6 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
         ]
     }
     ]);
-}); });
+});
+// @@@@
+});
