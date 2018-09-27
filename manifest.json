@@ -21,10 +21,12 @@
     "https://scholar.google.com/scholar*",
     "http://linkinghub.elsevier.com/retrieve/pii/*",
     "http://www.sciencedirect.com/science/article/pii/*",
-    "declarativeContent"
+    "declarativeContent",
+    "storage"
   ],
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "persistent": true
   },
   "icons": {
     "128": "128.png",
@@ -34,7 +36,13 @@
     "16": "16.png"
   },
   "page_action": {
-    "default_icon": "19.png",
+    "default_icon": {
+      "128": "128.png",
+      "48": "48.png",
+      "32": "32.png",
+      "19": "19.png",
+      "16": "16.png"
+    },
     "default_title": "paper link 3, brought to you by Liang Cai"
   },
   "options_page": "options.html",
@@ -69,7 +77,7 @@
         "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
     ],
     "js": [ "contentscript.js" ],
-    "run_at" : "document_idle",
+    "run_at" : "document_end",
     "all_frames" : true
   } ],
   "externally_connectable": {
