@@ -708,8 +708,8 @@ function load_broadcast() {
 function reLoad_options() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
-    for (i = 0, len = tabs.length; i < len; i += 1) {
-      chrome.tabs.update(tabs[i].id, {url: urlOp});
+    for (i in tabs) {
+      chrome.tabs.update(i.id, {url: urlOp});
     }
   });
 }
@@ -1168,8 +1168,7 @@ $.ajax({
 if (last_date !== date_str) {
   localStorage.setItem('last_date_str', date_str);
   DEBUG && console.log('>> a new day! start with some housekeeping tasks');
-  for (i = 0, len = localStorage.length; i < len; i += 1) {
-    aKey = localStorage.key(i);
+  for (aKey in localStorage) {
     if (aKey && aKey.substr(0,6) === 'tabId:') {
       aVal = localStorage.getItem(aKey);
       if ( alldigi.test(aVal) ) {
@@ -1212,8 +1211,7 @@ function load_ALL_localStorage() {
   $('#abstract_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   syncValues['appMasterKey'] = [];
-  for (i = 0; i < localStorage.length; i += 1) {
-    aKey = localStorage.key(i);
+  for (aKey in localStorage) {
     a_key_split = aKey.split('_');
     aVal = localStorage.getItem(aKey);
     if (aVal.indexOf('undefined') > -1) {
