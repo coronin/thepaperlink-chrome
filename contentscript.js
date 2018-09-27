@@ -428,10 +428,7 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   noRun = 1;
 } else if (page_url === 'http://pubmeder.cailiang.net/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'https://pubmeder-hrd.appspot.com/registration'
-    || page_url === 'http://1.thepaperlink.com/registration'
-    || page_url === 'http://1.zhaowenxian.com/registration'
-    || page_url === 'https://1.zhaowenxian.com/registration') { // storage data for access the bookmark server
+    || page_url === 'https://pubmeder-hrd.appspot.com/registration') { // storage data for access the bookmark server
   a_proxy({save_apikey: byID('apikey_pubmeder').innerHTML,
             save_email: byID('currentUser').innerHTML});
   noRun = 1;

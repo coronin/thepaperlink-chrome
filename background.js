@@ -746,11 +746,9 @@ function get_request(msg, _port) {
   if (_port && _port.sender) {
     sender_tab_id = _port.sender.tab.id;
   }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
     base = 'http://phd.cail.cn';
-  }// else if (localStorage.getItem('https_failed')) {
-  //  base = 'https://www.thepaperlink.com';
-  //}
+  }
   // respond to msg
   if (msg.loadExtraJs) {
     p_proxy(_port, {js_base_uri:base});
@@ -1143,11 +1141,9 @@ chrome.runtime.onMessageExternal.addListener(
 );
 
 console.time("Call theServer to validate connection");
-if (localStorage.getItem('rev_proxy') === 'yes') {
+if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
   base = 'http://phd.cail.cn';
-}// else if (localStorage.getItem('https_failed')) {
-//  base = 'https://www.thepaperlink.com';
-//}
+}
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
   dataType: 'text',
