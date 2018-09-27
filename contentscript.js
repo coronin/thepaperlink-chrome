@@ -517,13 +517,12 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.js_key && msg.js_base) {
+  } else if (msg.js_key && msg.js_base) { // @@@@s
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
       msg.js_base = 'https://pubget-hrd.appspot.com/';
     }
-    DEBUG && console.log('>> starting the js client');
-    localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);
-    localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base);
+    localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);   // will be removed by /js?
+    localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base); // will be removed by /js?
     if (!byID('__tr_display')) {
       var jsClient = page_d.createElement('script');
       jsClient.setAttribute('type', 'text/javascript');
