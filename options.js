@@ -78,7 +78,7 @@ function valid_thepaperlink(ak) {
 
 function valid_pubmeder(e,ak) {
   bkg.console.time("Call theServer to validate pubmeder");
-  return $.get('https://1.zhaowenxian.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
+  return $.get('http://pubmeder.cailiang.net/input?pmid=999999999&apikey=' + ak + '&email=' + e,
       function (txt) {
         if (txt === 'correct') {
           _port.postMessage({save_apikey: ak, save_email: e});
@@ -255,11 +255,7 @@ function saveOptions() {
       $('#pubmeder_email_input').focus();
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
-      if (localStorage.getItem('rev_proxy') === 'yes') {
-        window.alert('\n please provide a valid apikey\n get it from https://1.zhaowenxian.com/registration\n');
-      } else {
-        window.alert('\n please provide a valid apikey\n get it from http://pubmeder.cailiang.net/registration\n');
-      }
+      window.alert('\n please provide a valid apikey\n get it from http://pubmeder.cailiang.net/registration\n');
       $('#pubmeder_apikey_input').focus();
       return false;
     } else if (userEmail && userApi.length === 32) {
