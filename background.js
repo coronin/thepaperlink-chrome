@@ -1201,28 +1201,6 @@ $(document).ready(function () {
     load_broadcast();
     get_server_data(0);
   }
-
-
-// sync core values
-    chrome.storage.sync.get(['appMasterKey'], function (rslt) {
-        if (!rslt.appMasterKeys) {
-          console.log('Empty: syncValues stopped');
-          return;
-        }
-        var syncValues = [];
-        for (i = 0, len = rslt.appMasterKeys.length; i < len; i += 1) {
-            syncValues.push( rslt.appMasterKeys[i] );
-        }
-        console.log('Will get syncValues');
-        DEBUG && console.log(syncValues);
-        chrome.storage.sync.get(syncValues, function (rst) {
-            for (i = 0, len = syncValues.length; i < len; i += 1) {
-                console.log( syncValues[i] );
-                console.log( rst[ syncValues[i] ] );
-            }
-        });
-    });
-
 });
 
 //// 2015-12-9
@@ -1338,5 +1316,25 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     }
     ]);
 });
+// sync core values
+chrome.storage.sync.get(['appMasterKey'], function (rslt) {
+    if (!rslt.appMasterKeys) {
+        console.log('Empty: syncValues stopped');
+        return;
+    }
+    console.log('Will get syncValues ' + rslt.appMasterKeys.length);
+    DEBUG && console.log(rslt.appMasterKeys);
+    chrome.storage.sync.get(rslt.appMasterKeys, function (rst) {
+        for (aKey in rst) {
+            localStorage.setItem(aKey, rst[aKey]);
+        }
+    });
+});
 // @@@@
+});
+
+chrome.storage.onChanged.addListener(function (changes) {
+    for (aKey in changes) {
+        localStorage.setItem(aKey, changes[aKey]);
+    }
 });
