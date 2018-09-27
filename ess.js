@@ -187,6 +187,7 @@ function eSummary(term) {
 }
 
 function eSS(search_term) {
+  $('#ess_input').val(search_term);
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $('#result').removeClass('Off');

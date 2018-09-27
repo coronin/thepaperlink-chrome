@@ -415,13 +415,14 @@ function format_a_li(category, pmid, url, num) {
       eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
     });
   } else {
-    $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; <a target="_blank" href="'+url+'">'+url+'</a></li>');
+    $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; ' +
+        '<a target="_blank" href="'+url+'">/' + url.split('/', 4)[3] + '</a></li>');
     var categoryLen = category.length;
     $('#'+category+pmid).on('click', function () {
       eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
     });
     if (num) {
-      $('#'+category+pmid).text(pmid + ' (' + num + ')');
+      $('#'+category+pmid).text(pmid + ' cited ' + num + ' times');
     }
   }
   if ( $('#'+category+'_h2').hasClass('Off') ) {
@@ -1194,15 +1195,6 @@ if (old_id) {
   localStorage.setItem('id_found', init_found + ' ' + old_id);
 }
 
-$(document).ready(function () {
-  $('#section_start_at').text(extension_load_date);
-  $('#load_ALL').on('click', load_ALL_localStorage).text('load all local records');
-  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
-    load_broadcast();
-    get_server_data(0);
-  }
-});
-
 //// 2015-12-9
 function load_ALL_localStorage() {
   var a_key_split, a_url, syncValues = {};
@@ -1214,14 +1206,14 @@ function load_ALL_localStorage() {
   syncValues['appMasterKey'] = new Array();
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
-    a_key_split = aKey.split('_');
     aVal = localStorage.getItem(aKey);
-    if (!aVal) {
+    if (!aKey || !aVal) {
       console.log('>> remove a key: ' + aKey);
       localStorage.removeItem(aKey);
       continue;
     }
-    if (aVal.indexOf('undefined') > -1) {
+    a_key_split = aKey.split('_');
+    if (aVal.indexOf('undefined') > -1 || aKey.indexOf('pmid_') === 0) {
       $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
       localStorage.removeItem(aKey);
       continue;
@@ -1280,7 +1272,9 @@ function load_ALL_localStorage() {
       syncValues[aKey] = aVal;
     }
   }
-  DEBUG && console.log(syncValues);
+
+  console.log(syncValues);
+
   console.time('Storage.sync set');
   chrome.storage.sync.set(syncValues, function () {
     console.timeEnd('Storage.sync set');
@@ -1289,7 +1283,14 @@ function load_ALL_localStorage() {
     $('#email_').addClass('Off');
     $('#email_h2').addClass('Off');
   }
-  $('#load_ALL').text('re-load');
+  $('#load_ALL').text('re-load and re-sync');
+}
+
+function objLocalStore(pmid, pmidObj) {
+  console.log(pmid);
+  for (aKey in pmidObj) {
+      console.log(aKey, pmidObj[aKey]);
+  }
 }
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -1333,18 +1334,32 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
     chrome.storage.sync.get(rslt.appMasterKeys, function (rst) {
         console.timeEnd('Try storage.sync get');
         for (aKey in rst) {
+          if (aKey.indexOf('pmid_') === 0) {
+            objLocalStore(aKey.substr(5, aKey.length-5), rst[aKey]);
+          } else {
             localStorage.setItem(aKey, rst[aKey]);
+          }
         }
     });
 });
 // @@@@
 });
 
-chrome.storage.onChanged.addListener(function (changes) {
-  if (changes) {
-    for (aKey in changes) {
-      console.log(aKey, changes[aKey]); // @@@@
-      localStorage.setItem(aKey, changes[aKey]);
+chrome.storage.onChanged.addListener(function (rst) {
+  for (aKey in rst) {
+    if (aKey.indexOf('pmid_') === 0) {
+      objLocalStore(aKey.substr(5, aKey.length-5), rst[aKey]);
+    } else {
+      localStorage.setItem(aKey, rst[aKey]);
     }
+  }
+});
+
+$(document).ready(function () {
+  $('#section_start_at').text(extension_load_date);
+  $('#load_ALL').on('click', load_ALL_localStorage).text('load and sync all local records');
+  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
+    load_broadcast();
+    get_server_data(0);
   }
 });
