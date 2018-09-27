@@ -291,10 +291,8 @@ function saveIt_pubmeder(pmid) {
               'pmid' : pmid},
       url = 'https://pubmeder-hrd.appspot.com/input';
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'https://1.zhaowenxian.com/input';
-  }// else if (localStorage.getItem('https_failed')) {
-  //  url = 'http://pubmeder.cailiang.net/input';
-  //}
+    url = 'http://pubmeder.cailiang.net/input';
+  }
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
       var pre_history = localStorage.getItem('id_history') || '';
