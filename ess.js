@@ -237,7 +237,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#result').html('ess.js used in background.html');
 
   } else {
-    var ID = localStorage.getItem('tabId:' + tab.id.toString()),
+    var ID = localStorage.getItem('tabId:' + tab.id.toString());
     // chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
     // chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
     // 2018-9-26 @@@@
