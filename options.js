@@ -522,8 +522,8 @@ $(document).ready(function () {
     $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
     $('#alerts_thepaperlink').attr('href', 'https://www.zhaowenxian.com/alerts');
-    $('.reg_pubmeder').text('https://1.zhaowenxian.com/registration');
-    $('.reg_pubmeder').attr('href', 'https://1.zhaowenxian.com/registration');
+    $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
+    $('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
     $('#scholar_once_info').addClass('Off');
     $('#shark_dropbox').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
@@ -697,21 +697,7 @@ $(document).ready(function () {
       });
       $('#submit_keyword').on('click', function() {
         alert('Server DOWN.');
-      //   chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-      //     if (localStorage.getItem('rev_proxy') === 'yes') {
-      //       chrome.tabs.create({
-      //         index: tabs[0].index,
-      //         url: 'http://phd.cail.cn/prospective?' + $('#keywords_area').serialize(),
-      //         active: true
-      //       });
-      //     } else {
-      //       chrome.tabs.create({
-      //         index: tabs[0].index,
-      //         url: 'https://www.thepaperlink.com/prospective?' + $('#keywords_area').serialize(),
-      //         active: true
-      //       });
-      //     }
-      //   });
+        // GET /prospective?' + $('#keywords_area').serialize()
       });
     }
   }

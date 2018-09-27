@@ -4,7 +4,7 @@
   "version": "2.9.10",
   "minimum_chrome_version": "39",
   "description": "Show links to PDF; display F1000 score and journal impact factor; peak authors; ... by Liang Cai",
-  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.zhaowenxian.com https://pubget-hrd.appspot.com https://1.zhaowenxian.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
+  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.zhaowenxian.com https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
@@ -42,8 +42,6 @@
       "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
-      "http://1.zhaowenxian.com/registration",
-      "https://1.zhaowenxian.com/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
@@ -79,8 +77,6 @@
       "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
-      "http://1.zhaowenxian.com/registration",
-      "https://1.zhaowenxian.com/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
