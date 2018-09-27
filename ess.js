@@ -233,8 +233,10 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       dotCheck = /\./,
       pmcCheck = /PMC/,
       url_trim = tab.url.substr(7, 25);
+
   if (tab.url.indexOf('chrome-extension://') === 0) {
     $('#result').html('ess.js used in background.html');
+
   } else {
     // chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
     // chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
@@ -252,4 +254,5 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       //save_pubmeder
     }
   }
+
 });
