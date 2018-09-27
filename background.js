@@ -1168,7 +1168,8 @@ $.ajax({
 if (last_date !== date_str) {
   localStorage.setItem('last_date_str', date_str);
   DEBUG && console.log('>> a new day! start with some housekeeping tasks');
-  for (aKey in localStorage) {
+  for (i = 0, len = localStorage.length; i < len; i += 1) {
+    aKey = localStorage.key(i);
     if (aKey && aKey.substr(0,6) === 'tabId:') {
       aVal = localStorage.getItem(aKey);
       if ( alldigi.test(aVal) ) {
@@ -1211,7 +1212,8 @@ function load_ALL_localStorage() {
   $('#abstract_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   syncValues['appMasterKey'] = new Array();
-  for (aKey in localStorage) {
+  for (i = 0, len = localStorage.length; i < len; i += 1) {
+    aKey = localStorage.key(i);
     a_key_split = aKey.split('_');
     aVal = localStorage.getItem(aKey);
     if (!aVal) {
@@ -1274,8 +1276,9 @@ function load_ALL_localStorage() {
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
     } else {
-      syncValues['appMasterKey'].push( aKey );
-      syncValues[aKey] = aVal;
+      console.log(aKey, aVal);
+      //syncValues['appMasterKey'].push( aKey );
+      //syncValues[aKey] = aVal;
     }
   }
   DEBUG && console.log(syncValues);
@@ -1337,7 +1340,10 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
 });
 
 chrome.storage.onChanged.addListener(function (changes) {
+  if (changes) {
+    console.log('Will update syncValues ' + changes.length);
     for (aKey in changes) {
-        localStorage.setItem(aKey, changes[aKey]);
+      localStorage.setItem(aKey, changes[aKey]);
     }
+  }
 });
