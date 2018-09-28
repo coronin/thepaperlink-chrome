@@ -61,7 +61,7 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   bkg.console.time("Call theServer to validate apikey");
-  return $.get('http://phd.cail.cn/api',
+  return $.get('https://www.zhaowenxian.com/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
       function (txt) {
@@ -435,7 +435,7 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>the HTTP method</b> to access "the paper link".' +
         ' It is unsecured.');
-    $('#api_server').text('http://phd.cail.cn');
+    $('#api_server').text('http://www.zhaowenxian.com');
     $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
     $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
     $('#alerts_thepaperlink').attr('href', 'https://www.zhaowenxian.com/alerts');
@@ -447,7 +447,7 @@ $(document).ready(function () {
     $('#rev_proxy_content').html(
         '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
         ' <b>check to access</b> our service via HTTP.' );
-    $('#api_server').text('http://phd.cail.cn');
+    $('#api_server').text('http://www.zhaowenxian.com');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
         ' If you really want to, feel free to access our service via HTTP.');

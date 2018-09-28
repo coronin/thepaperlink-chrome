@@ -100,9 +100,9 @@ function process_f1000() { // 2018 Sep
       fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
   for (i = 0; i < byTag('meta').length; i += 1) {
     if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
-      pmid = byTag('meta')[i].getAttribute('content');
+      pmid += byTag('meta')[i].getAttribute('content');
     } else if (byTag('meta')[i].getAttribute('name') === 'citation_doi') {
-      doi = byTag('meta')[i].getAttribute('content');
+      doi += byTag('meta')[i].getAttribute('content');
     }
   }
   for (i = 0, len = byTag('span').length; i < len; i += 1) {
@@ -339,6 +339,7 @@ function run() {
     for (i = 0; i < byTag('meta').length; i += 1) {
       if (byTag('meta')[i].getAttribute('name') === 'ncbi_term') {
         search_term = byTag('meta')[i].getAttribute('content');
+        break;
       }
     }
   }
@@ -477,7 +478,7 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.js_key && msg.js_base) { // @@@@
+  } else if (msg.js_key && msg.js_base) { // 2018-9-28: call_js_on_click via page_action
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
       msg.js_base = 'https://pubget-hrd.appspot.com/';
     }
