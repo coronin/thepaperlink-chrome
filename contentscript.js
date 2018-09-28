@@ -108,6 +108,7 @@ function process_storkapp() {
     ele = byTag('a')[i];
     if (ele.textContent.indexOf('ncbi.nlm.nih.gov/pubmed/') > 0) {
       pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
+      page_d.title = pmid;
       a_proxy({from_storkapp: pmid});
       ele.setAttribute('id', 'thepaperlink_bar');
       ele.innerHTML = '';

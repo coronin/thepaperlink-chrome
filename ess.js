@@ -232,46 +232,49 @@ $(document).ready(function () {
 });
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-  var tab = tabs[0],
-      dotCheck = /\d\d\.\d\d\d\d/,
-      pmcCheck = /^PMC/,
-      url_trim = tab.url.substr(7, 25);
-
+  var tab = tabs[0], ID;
   if (tab.url.indexOf('chrome-extension://') === 0) {
     $('#result').html('ess.js used in background.html');
 
-  } else {
-    if (tab.url.indexOf('//pubmed.cn/') > 0) {
-      var ID = tab.url.split('//pubmed.cn/')[1];
-      if (/^\d+$/.test(ID)) {
-        $('#found').html('PMID found on page ' + url_trim);
-        $('#ess_input').val(ID);
-        $('#result').removeClass('Off');
-        eSummary(ID);
-        chrome.runtime.postMessage({from_dxy: ID});
-      } else {
-        eSS( ID.substr(9, ID.indexOf('&')-9) );
-      }
+  } else if (tab.url.indexOf('//pubmed.cn/') > 0) {
+    ID = tab.url.split('//pubmed.cn/')[1];
+    if (/^\d+$/.test(ID)) {
+      $('#found').html('<div id="thepaperlink_bar">PMID found on page '+tab.url+'</div>');
+      $('#ess_input').val(ID);
+      $('#result').removeClass('Off');
+      eSummary(ID);
+      chrome.tabs.sendMessage(tab.id, {from_dxy: ID});
+    } else {
+      eSS( ID.substr(9, ID.indexOf('&')-9) );
     }
-    // @@@@
-    chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
-      if (dotCheck.test(ID)) {
-          $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-          $('.eSS').on('click', function () { eSS(this.id); });
-      } else if (pmcCheck.test(ID)) {
-          $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-          $('.eSS').on('click', function () { eSS(this.id); });
-      }// else {
-          //$('#result').removeClass('Off');
-          //$('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
-          //eSummary(ID);
-          //save_pubmeder
-      //}
-    });
+
+  } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
+    ID = tab.title;
+    $('#found').html('PMID found on /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
+    $('#ess_input').val(ID);
+    $('#result').removeClass('Off');
+    eSummary(ID);
+
   }
+      // @@@@
+      chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
+        if (/\d\d\.\d\d\d\d/.test(ID)) {
+            $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + tab.url);
+            $('.eSS').on('click', function () { eSS(this.id); });
+        } else if (/^PMC\d+$/.test(ID)) {
+            $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + tab.url);
+            $('.eSS').on('click', function () { eSS(this.id); });
+        }// else {
+            //$('#result').removeClass('Off');
+            //$('#found').html('PMID:<span>' + ID + '</span> found on page ');
+            //eSummary(ID);
+            //save_pubmeder
+        //}
+      });
+      // @@@@
 });
 
-function get_request(msg) {
-    alert(msg);
-}
-chrome.runtime.onMessage.addListener(get_request);
+chrome.runtime.onMessage.addListener(function (msg) {
+    // @@@@
+    console.log(msg);
+})
