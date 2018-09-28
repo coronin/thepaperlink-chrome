@@ -12,7 +12,7 @@ chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey'], function (e) {
         var jsClient = document.createElement('script');
         jsClient.setAttribute('type', 'text/javascript');
         jsClient.setAttribute('src', js_base + 'js?y=' + (Math.random()));
-        document.body.appendChild(jsClient);
+        document.body.appendChild(jsClient); // @@@@ fail to insert or.nsfc
     }
 });
 

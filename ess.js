@@ -262,6 +262,13 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#result').removeClass('Off');
     eSS(ID);
 
+  } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
+    ID = tab.title.split('::')[0];
+    $('#found').html(tab.title.split('::')[1]);
+    $('#ess_input').val(ID);
+    $('#result').removeClass('Off');
+    eSummary(ID);
+
   }
       // @@@@
       chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
