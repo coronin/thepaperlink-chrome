@@ -233,8 +233,8 @@ $(document).ready(function () {
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var tab = tabs[0],
-      dotCheck = /\./,
-      pmcCheck = /PMC/,
+      dotCheck = /\d\d\.\d\d\d\d/,
+      pmcCheck = /^PMC/,
       url_trim = tab.url.substr(7, 25);
 
   if (tab.url.indexOf('chrome-extension://') === 0) {
@@ -250,19 +250,21 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     }
     // @@@@
     chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
-      var ID = data[0];
+
+      console.log(data);
+
       if (dotCheck.test(ID)) {
           $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
           $('.eSS').on('click', function () { eSS(this.id); });
       } else if (pmcCheck.test(ID)) {
           $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
           $('.eSS').on('click', function () { eSS(this.id); });
-      } else {
+      }// else {
           //$('#result').removeClass('Off');
           //$('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
           //eSummary(ID);
           //save_pubmeder
-      }
+      //}
     });
   }
 
