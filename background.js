@@ -980,7 +980,6 @@ function get_request(msg, _port) {
     pmid = abc[0];
     extra = '';
     aKey = 'tabId:' + sender_tab_id.toString();
-    chrome.storage.local.set({aKey: pmid});
     var fid = tmp[1],
         f_v = tmp[2],
         args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
@@ -994,6 +993,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
+            chrome.storage.local.set({aKey: d.item[0]});
             p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
             if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
               $.post(base + '/', args,
@@ -1013,8 +1013,7 @@ function get_request(msg, _port) {
   } else if (msg.from_dxy) {
     pmid = msg.from_dxy;
     extra = '';
-    //aKey = 'tabId:' + sender_tab_id.toString();
-    //chrome.storage.local.set({aKey: pmid});
+    aKey = 'tabId:' + sender_tab_id.toString();
     $.getJSON(base + '/api',
         {a: 'chrome4',
           pmid: pmid,
@@ -1025,6 +1024,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
+            chrome.storage.local.set({aKey: d.item[0]});
             p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
@@ -1061,7 +1061,6 @@ function get_request(msg, _port) {
     pmid = msg.from_storkapp;
     extra = '';
     aKey = 'tabId:' + sender_tab_id.toString();
-    chrome.storage.local.set({aKey: pmid});
     $.getJSON(base + '/api',
         {a: 'chrome6',
           pmid: pmid,
@@ -1072,6 +1071,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
+            chrome.storage.local.set({aKey: d.item[0]});
             p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
@@ -1289,14 +1289,21 @@ function load_ALL_localStorage() {
 }
 
 chrome.runtime.onInstalled.addListener(function () {
-// 2018-9-27
-chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+  // 2018-9-27
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
+    }, {
+        conditions: [
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//pubmed.cn/' },
+                css: [ "p[class='pmid']" ] })
+        ],
+        actions: [ new chrome.declarativeContent.RequestContentScript({js: ["multipleId.js"]}) ]
     }, {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
@@ -1309,16 +1316,14 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
         ],
-        actions: [
-            new chrome.declarativeContent.ShowPageAction()
-        ]
+        actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }
     ]);
-});
+  });
 
-// sync core values
-console.time('Try storage.sync get');
-chrome.storage.sync.get(['appMasterKey'], function (rslt) {
+  // sync core values
+  console.time('Try storage.sync get');
+  chrome.storage.sync.get(['appMasterKey'], function (rslt) {
     if (!rslt.appMasterKeys) {
         console.log('Empty: syncValues stopped');
         return;
@@ -1341,8 +1346,7 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
           }
         }
     });
-});
-
+  });
 }); // onInstalled
 
 chrome.storage.onChanged.addListener(function (rst) {
