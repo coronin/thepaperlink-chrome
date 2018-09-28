@@ -239,21 +239,25 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   } else {
     if (tab.url.indexOf('//pubmed.cn/') > 0) {
+
       alert( tab.id );
+
     } // @@@@
-    var ID = localStorage.getItem('tabId:' + tab.id.toString());
-    if (dotCheck.test(ID)) {
-      $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-      $('.eSS').on('click', function () { eSS(this.id); });
-    } else if (pmcCheck.test(ID)) {
-      $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
-      $('.eSS').on('click', function () { eSS(this.id); });
-    } else {
-      $('#result').removeClass('Off');
-      $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
-      eSummary(ID);
-      //save_pubmeder
-    }
+    chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
+      var ID = data[0];
+      if (dotCheck.test(ID)) {
+          $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
+          $('.eSS').on('click', function () { eSS(this.id); });
+      } else if (pmcCheck.test(ID)) {
+          $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
+          $('.eSS').on('click', function () { eSS(this.id); });
+      } else {
+          $('#result').removeClass('Off');
+          $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
+          eSummary(ID);
+          //save_pubmeder
+      }
+    });
   }
 
 });
