@@ -432,9 +432,9 @@ if (page_url === 'https://www.thepaperlink.com/reg'
 //} else if (page_url.indexOf('://pubmed.cn/') > 0) {
 //  process_dxy();
 //  noRun = 1;
-} else if (page_url.indexOf('://or.nsfc.gov.cn/') > 0) {
-  process_orNSFC();
-  noRun = 1;
+//} else if (page_url.indexOf('://or.nsfc.gov.cn/') > 0) {
+//  process_orNSFC();
+//  noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
     && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {

@@ -22,7 +22,8 @@
     "declarativeContent",
     "activeTab",
     "storage",
-    "*://pubmed.cn/*"
+    "*://pubmed.cn/*",
+    "http://or.nsfc.gov.cn/handle/*"
   ],
   "background": {
     "page": "background.html",
@@ -62,7 +63,6 @@
       "https://www.storkapp.me/paper/*",
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
-      "http://or.nsfc.gov.cn/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
       "https://*.cell.com/*",
@@ -93,7 +93,6 @@
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
       "https://www.storkapp.me/paper/*",
-      "http://or.nsfc.gov.cn/handle/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
       "https://*.cell.com/*",
