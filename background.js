@@ -74,7 +74,7 @@ function post_theServer(v) {
   if (!local_ip) {
     return;
   }
-  $.post('http://phd.cail.cn/',
+  $.post('https://www.zhaowenxian.com/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_theServer, ' + a[v]);
@@ -741,7 +741,7 @@ function get_request(msg, _port) {
     sender_tab_id = _port.sender.tab.id;
   }
   if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
-    base = 'http://phd.cail.cn';
+    base = 'https://www.zhaowenxian.com';
   }
   // respond to msg
   if (msg.loadExtraJs) {
@@ -806,7 +806,7 @@ function get_request(msg, _port) {
       }
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
     }).always(function () {
       DEBUG && console.timeEnd("call theServer for json");
@@ -1004,7 +1004,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
     });
 
@@ -1028,7 +1028,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
     });
 
@@ -1051,7 +1051,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
     });
 
@@ -1075,7 +1075,7 @@ function get_request(msg, _port) {
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
     });
 
@@ -1106,7 +1106,7 @@ function get_request(msg, _port) {
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
         localStorage.removeItem('https_failed'); // 2018-9-27
-        base = 'http://phd.cail.cn';
+        base = 'https://www.zhaowenxian.com';
       }
       localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
     } else {
@@ -1143,7 +1143,7 @@ chrome.runtime.onMessageExternal.addListener(
 
 console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
-  base = 'http://phd.cail.cn';
+  base = 'https://www.zhaowenxian.com';
 }
 $.ajax({
   url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
@@ -1156,7 +1156,7 @@ $.ajax({
   DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 1);
   //if (localStorage.getItem('rev_proxy') !== 'yes') {
-  base = 'http://phd.cail.cn';
+  base = 'https://www.zhaowenxian.com';
   //}
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -1304,7 +1304,7 @@ chrome.runtime.onInstalled.addListener(function () {
                 pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
         ],
         actions: [
-            new chrome.declarativeContent.RequestContentScript({js: ["multipleId.js"]}),
+            new chrome.declarativeContent.RequestContentScript({js: ["jsClient.js"]}),
             new chrome.declarativeContent.ShowPageAction()
         ]
     }, {

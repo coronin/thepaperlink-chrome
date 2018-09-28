@@ -1,6 +1,6 @@
 "use strict";
 
-var js_base = 'http://phd.cail.cn/';
+var js_base = 'https://www.zhaowenxian.com/';
 if (window.location.protocol === 'https:') {
     js_base = 'https://pubget-hrd.appspot.com/';
 }
