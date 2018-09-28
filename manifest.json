@@ -1,5 +1,4 @@
 {
-  "manifest_version": 2,
   "name": "the paper link 3",
   "version": "2.9.11",
   "minimum_chrome_version": "39",
@@ -105,5 +104,6 @@
       "http://*.sciencemag.org/*",
       "https://*.sciencemag.org/*"
     ]
-  }
+  },
+  "manifest_version": 2
 }

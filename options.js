@@ -460,7 +460,7 @@ $(document).ready(function () {
     $('#co_pubmed').prop('checked', true);
     $('#pubmeder_info').removeClass('Off');
   } else {
-    $('#pubmeder_span').html(' (your search in popup widget has a max limit of <input class="settings" type="text" value="10" size="2" id="pubmed_limit" />)');
+    $('#pubmeder_span').html(' (your search in popup widget has a max limit of <input class="settings" type="text" value="5" size="2" id="pubmed_limit" />)');
     if (localStorage.getItem('pubmed_limit')) {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
