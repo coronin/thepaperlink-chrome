@@ -255,6 +255,13 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#result').removeClass('Off');
     eSummary(ID);
 
+  } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
+    ID = tab.title.split('National Natural Science Foundation of China')[1].replace(/:/g, '').replace(/^\s+|\s+$/g, '');
+    $('#found').html(tab.title.split(':')[0]);
+    $('#ess_input').val(ID);
+    $('#result').removeClass('Off');
+    eSS(ID);
+
   }
       // @@@@
       chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {

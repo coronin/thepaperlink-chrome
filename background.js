@@ -1297,7 +1297,9 @@ chrome.runtime.onInstalled.addListener(function () {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//pubmed.cn/' },
-                css: [ "p[class='pmid']" ] })
+                css: [ "p[class='pmid']" ] }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
         ],
         actions: [
             new chrome.declarativeContent.RequestContentScript({js: ["multipleId.js"]}),
@@ -1311,9 +1313,7 @@ chrome.runtime.onInstalled.addListener(function () {
                 pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//pubmed.cn/' },
-                css: [ "p[class='view_pmid']" ] }),
-            new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
+                css: [ "p[class='view_pmid']" ] })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }

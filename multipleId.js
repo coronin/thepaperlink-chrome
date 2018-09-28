@@ -14,7 +14,6 @@ chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey'], function (e) {
         jsClient.setAttribute('src', js_base + 'js?y=' + (Math.random()));
         document.body.appendChild(jsClient);
     }
-
 });
 
 // 2018-9-28: pubmed.cn
