@@ -53,7 +53,6 @@
       "https://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
       "https://www.zhaowenxian.com/*",
-      "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
       "http://pubmeder-hrd.appspot.com/registration",
@@ -72,9 +71,9 @@
       "https://*.sciencemag.org/*"
     ],
     "exclude_globs": [
-        "*://www.ncbi.nlm.nih.gov/pubmed/",
-        "*://www.ncbi.nlm.nih.gov/sites/entrez/",
-        "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
+      "*://www.ncbi.nlm.nih.gov/pubmed/",
+      "*://www.ncbi.nlm.nih.gov/sites/entrez/",
+      "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
     ],
     "js": [ "contentscript.js" ],
     "run_at" : "document_end",
@@ -87,7 +86,6 @@
       "https://www.thepaperlink.com/*",
       "http://www.zhaowenxian.com/*",
       "https://www.zhaowenxian.com/*",
-      "http://pubget-hrd.appspot.com/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
       "http://pubmeder-hrd.appspot.com/registration",

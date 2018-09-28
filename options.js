@@ -613,7 +613,7 @@ $(document).ready(function () {
         return false;
       });
       $('#submit_keyword').on('click', function() {
-        alert('Server DOWN.');
+        window.alert('Server DOWN.');
         // GET /prospective?' + $('#keywords_area').serialize()
       });
     }

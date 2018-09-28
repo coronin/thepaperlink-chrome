@@ -227,10 +227,6 @@ function b_proxy(tab_id, _data) { // process ws action
   if (tab_id) { chrome.tabs.sendMessage(tab_id, _data); }
 }
 
-function p_proxy(p, _data) {
-  p.postMessage(_data);
-}
-
 function menu_generator() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
@@ -747,10 +743,10 @@ function get_request(msg, _port) {
   }
   // respond to msg
   if (msg.loadExtraJs) {
-    p_proxy(_port, {js_base_uri:base});
+    _port.postMessage({js_base_uri:base});
 
   } else if (msg.load_local_) {
-    p_proxy(_port, {local_mirror:local_mirror});
+    _port.postMessage({local_mirror:local_mirror});
 
   } else if (msg.url) {
     var request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id,
@@ -789,22 +785,22 @@ function get_request(msg, _port) {
     DEBUG && console.time("call theServer for json");
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
-        p_proxy(_port,
+        _port.postMessage(
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
               cloud_op:cloud_op, uri:base, p:ezproxy_prefix, tpll:cc_address}
         );
       } else {
         if (apikey) {
-          p_proxy(_port, {except:'JSON parse error.', tpl:apikey});
+          _port.postMessage({except:'JSON parse error.', tpl:apikey});
         } else {
-          p_proxy(_port, {except:'Usage limits exceeded.', tpl:''});
+          _port.postMessage({except:'Usage limits exceeded.', tpl:''});
         }
       }
     }).fail(function () {
       if (apikey) {
-        p_proxy(_port, {except:'Data fetch error.', tpl:apikey});
+        _port.postMessage({except:'Data fetch error.', tpl:apikey});
       } else {
-        p_proxy(_port, {except:'Guest usage limited.', tpl:''});
+        _port.postMessage({except:'Guest usage limited.', tpl:''});
       }
       if (base === 'https://pubget-hrd.appspot.com') {
         localStorage.setItem('https_failed', 1);
@@ -907,7 +903,7 @@ function get_request(msg, _port) {
     var in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 3);
-      p_proxy(_port, {
+      _port.postMessage({
         g_scholar: 1, pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]
       });
     } else if (!scholar_no_more) {
@@ -963,12 +959,12 @@ function get_request(msg, _port) {
           localStorage.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
-            p_proxy(_port, {search_trend:end_num+'&darr;'});
+            _port.postMessage({search_trend:end_num+'&darr;'});
           } else {
-            p_proxy(_port, {search_trend:end_num+'&uarr;'});
+            _port.postMessage({search_trend:end_num+'&uarr;'});
           }
         } else if (end_num) {
-          p_proxy(_port, {search_trend:'&equiv;'});
+          _port.postMessage({search_trend:'&equiv;'});
         }
       } else {
         localStorage.setItem(term_lower, digitals.join(','));
@@ -994,7 +990,7 @@ function get_request(msg, _port) {
               extra = ': ' + extra;
             }
             chrome.storage.local.set({aKey: d.item[0]});
-            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
             if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
               $.post(base + '/', args,
                   function (d) {
@@ -1025,7 +1021,7 @@ function get_request(msg, _port) {
               extra = ': ' + extra;
             }
             chrome.storage.local.set({aKey: d.item[0]});
-            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -1048,7 +1044,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:d.item[0].pmid, extra:extra});
+            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:d.item[0].pmid, extra:extra});
           }
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -1072,7 +1068,7 @@ function get_request(msg, _port) {
               extra = ': ' + extra;
             }
             chrome.storage.local.set({aKey: d.item[0]});
-            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -1084,7 +1080,7 @@ function get_request(msg, _port) {
   } else if (msg.ajaxAbs) { // 2018-9-14
       var pmid = msg.ajaxAbs;
       if (localStorage.getItem('abs_'+pmid)) {
-          p_proxy(_port, {returnAbs:localStorage.getItem('abs_'+pmid), pmid:pmid});
+          _port.postMessage({returnAbs:localStorage.getItem('abs_'+pmid), pmid:pmid});
           return;
       } else {
           var args = {apikey: req_key, db: 'pubmed', id: pmid};
@@ -1093,7 +1089,7 @@ function get_request(msg, _port) {
               var l = d.result.PubmedArticle[0];
               if (l.MedlineCitation.Article.Abstract) {
                   localStorage.setItem('abs_'+pmid, l.MedlineCitation.Article.Abstract.AbstractText);
-                  p_proxy(_port, {returnAbs:l.MedlineCitation.Article.Abstract.AbstractText, pmid:pmid});
+                  _port.postMessage({returnAbs:l.MedlineCitation.Article.Abstract.AbstractText, pmid:pmid});
               }
           }).fail(function () {
               DEBUG && console.log('>> eFetch abstract failed PMID:' + pmid);
@@ -1137,10 +1133,10 @@ chrome.runtime.onConnect.addListener(function (_port) {
   });
 });
 chrome.runtime.onMessageExternal.addListener(
-    function (req, sender, sendResponse) {
-      get_request(req, null);
-      sendResponse({});
-    }
+  function (req, sender, sendResponse) {
+    get_request(req, null);
+    sendResponse({});
+  }
 );
 
 console.time("Call theServer to validate connection");
