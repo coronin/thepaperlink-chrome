@@ -720,7 +720,7 @@ function common_dThree(itemZero, withRed) {
   }
   if (withRed && itemZero.f_v && itemZero.fid) {
       tmp = '<a class="thepaperlink-red" href="' +
-          ez_format_link(ezproxy_prefix, 'http://f1000.com/' + itemZero.fid) +
+          ez_format_link(ezproxy_prefix, 'https://f1000.com/prime/' + itemZero.fid) +
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
       extra += tmp;
   }
@@ -973,7 +973,7 @@ function get_request(msg, _port) {
 
   } else if (msg.from_f1000) {
     tmp = msg.from_f1000.split(',');
-    pmid = abc[0];
+    pmid = tmp[0];
     extra = '';
     aKey = 'tabId:' + sender_tab_id.toString();
     var fid = tmp[1],

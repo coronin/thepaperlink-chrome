@@ -95,12 +95,14 @@ function process_storkapp() {
 }
 
 function process_f1000() { // 2018 Sep
-  var i, len, pmid = '',
+  var i, len, pmid = '', doi = '',
       f_v = 0,
       fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
   for (i = 0; i < byTag('meta').length; i += 1) {
     if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
       pmid = byTag('meta')[i].getAttribute('content');
+    } else if (byTag('meta')[i].getAttribute('name') === 'citation_doi') {
+      doi = byTag('meta')[i].getAttribute('content');
     }
   }
   for (i = 0, len = byTag('span').length; i < len; i += 1) {
@@ -112,10 +114,10 @@ function process_f1000() { // 2018 Sep
     }
   }
   if (pmid && f_v && fid) { // require valid f1000.com login
+    page_d.title = pmid + '::' + doi;
     a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
   } else {
-    DEBUG && console.log('>> process_f1000: ' +
-        pmid + ',' + fid + ',' + f_v);
+    DEBUG && console.log('>> process_f1000: '+pmid+','+fid+','+f_v);
   }
 }
 
@@ -726,7 +728,7 @@ function get_request(msg) {
       tmp = '<a id="thepaperlink_f' + pmid +
           '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-              'http://f1000.com/' + uneval_trim(r.item[i].fid)
+              'https://f1000.com/prime/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' +
           uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
