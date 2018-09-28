@@ -1329,8 +1329,7 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
     });
 });
 
-// @@@@
-});
+}); // onInstalled
 
 chrome.storage.onChanged.addListener(function (rst) {
   for (aKey in rst) {
@@ -1338,15 +1337,6 @@ chrome.storage.onChanged.addListener(function (rst) {
       localStorage.setItem(aKey, rst[aKey]);
     }
   }
-});
-
-chrome.pageAction.onClicked.addListener(function (tab) {
-  // .SetIcon
-  // .RequestContentScript
-  chrome.pageAction.setTitle({tabId: tab.id, title: 'click: ' + tab.id});
-  chrome.tabs.executeScript(null, {code:
-    'alert(" not ready for pubmed.cn");'
-  });
 });
 
 $(document).ready(function () {
