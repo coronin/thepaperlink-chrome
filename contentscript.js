@@ -77,31 +77,6 @@ function a_proxy(d) {
 }
 a_proxy({load_local_: 1});
 
-function process_orNSFC() { // 2018 Sep
-  var i, len, ele, doi, prjID, b;
-  for (i = 0, len = byTag('div').length; i < len; i += 1) {
-    ele = byTag('div')[i];
-    if (ele.className !== 'col-1')  continue;
-    if (ele.textContent === 'DOI') {
-      doi = trim( byTag('div')[i+1].textContent );
-      DEBUG && console.log('>>>>>>>>>> DOI on or.nsfc page: ' + doi);
-      continue;
-    }
-    if (ele.textContent === 'Project ID') {
-      prjID = trim( byTag('div')[i+1].textContent );
-      DEBUG && console.log('>>>>>>>>>> Project ID from or.nsfc: ' + prjID);
-      continue;
-    }
-    if (doi && prjID)  break;
-  }
-  if (doi && doipattern.test(doi)) {
-    a_proxy({from_orNSFC: doi, prjID: prjID});
-    b = page_d.createElement('div');
-    b.innerHTML = '<div id="thepaperlink_bar" style="position:relative;top:-552px;float:right;z-index:999;font-size:90%;"></div>';
-    byID('item-right').appendChild(b);
-  }
-}
-
 function process_storkapp() {
   var i, len, ele, pmid = '';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
