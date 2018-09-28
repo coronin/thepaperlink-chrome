@@ -517,7 +517,7 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.js_key && msg.js_base) { // @@@@s
+  } else if (msg.js_key && msg.js_base) { // @@@@
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
       msg.js_base = 'https://pubget-hrd.appspot.com/';
     }

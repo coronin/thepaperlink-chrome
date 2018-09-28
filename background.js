@@ -231,17 +231,10 @@ function p_proxy(_port, _data) {
   _port.postMessage(_data);
 }
 
-//function call_js_on_click(info, tab) {
-//  DEBUG && console.log('call_js_on_click', info);
-//  b_proxy(tab.id, {js_key: req_key, js_base: base + '/'});
-//}
-
 function menu_generator() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
-  //chrome.contextMenus.create({'title': 'find ID on this page',
-  //  'contexts':['page'], 'onclick': call_js_on_click});
   chrome.contextMenus.create({'title': 'Visit our website',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
   chrome.contextMenus.create({'type': 'separator',
@@ -1290,11 +1283,7 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } }),
-            new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.thepaperlink.com' } }),
-            new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.zhaowenxian.com' } })
+                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }, {
@@ -1314,6 +1303,7 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     }
     ]);
 });
+
 // sync core values
 console.time('Try storage.sync get');
 chrome.storage.sync.get(['appMasterKey'], function (rslt) {
@@ -1338,6 +1328,7 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
         }
     });
 });
+
 // @@@@
 });
 
@@ -1347,6 +1338,15 @@ chrome.storage.onChanged.addListener(function (rst) {
       localStorage.setItem(aKey, rst[aKey]);
     }
   }
+});
+
+chrome.pageAction.onClicked.addListener(function (tab) {
+  // .SetIcon
+  // .RequestContentScript
+  chrome.pageAction.setTitle({tabId: tab.id, title: 'click: ' + tab.id});
+  chrome.tabs.executeScript(null, {code:
+    'alert(" not ready for pubmed.cn");'
+  });
 });
 
 $(document).ready(function () {
