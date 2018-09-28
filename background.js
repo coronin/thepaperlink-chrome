@@ -1207,6 +1207,8 @@ function load_ALL_localStorage() {
       console.log('>> remove a key: ' + aKey);
       localStorage.removeItem(aKey);
       continue;
+    } else if (aKey && aKey.substr(0,6) === 'tabId:') {
+      continue;
     }
     a_key_split = aKey.split('_');
     if (aVal.indexOf('undefined') > -1 || aKey.indexOf('pmid_') === 0) {
@@ -1325,6 +1327,8 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
               console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
               // @@@@
             }
+          } else if (aKey.substr(0,6) === 'tabId:') {
+            chrome.storage.sync.remove(aKey);
           } else {
             localStorage.setItem(aKey, rst[aKey]);
           }
@@ -1336,7 +1340,7 @@ chrome.storage.sync.get(['appMasterKey'], function (rslt) {
 
 chrome.storage.onChanged.addListener(function (rst) {
   for (aKey in rst) {
-    if (aKey.indexOf('pmid_') !== 0) {
+    if (aKey.indexOf('pmid_') !== 0 && aKey.substr(0,6) !== 'tabId:') {
       localStorage.setItem(aKey, rst[aKey]);
     }
   }
