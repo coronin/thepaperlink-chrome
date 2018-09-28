@@ -973,11 +973,12 @@ function get_request(msg, _port) {
     }
 
   } else if (msg.from_f1000) {
-    var abc = msg.from_f1000.split(',');
+    tmp = msg.from_f1000.split(',');
     pmid = abc[0];
     extra = '';
-    var fid = abc[1],
-        f_v = abc[2],
+    localStorage.setItem('tabId:' + sender_tab_id.toString(), pmid);
+    var fid = tmp[1],
+        f_v = tmp[2],
         args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
     $.getJSON(base + '/api',
         {a: 'chrome3',
@@ -1008,6 +1009,7 @@ function get_request(msg, _port) {
   } else if (msg.from_dxy) {
     pmid = msg.from_dxy;
     extra = '';
+    localStorage.setItem('tabId:' + sender_tab_id.toString(), pmid);
     $.getJSON(base + '/api',
         {a: 'chrome4',
           pmid: pmid,
@@ -1028,11 +1030,11 @@ function get_request(msg, _port) {
     });
 
   } else if (msg.from_orNSFC) {
-    var doi = msg.from_orNSFC;
+    tmp = msg.from_orNSFC;
     extra = '';
     $.getJSON(base + '/api',
         {a: 'chrome5',
-          doi: doi,
+          doi: tmp,
           prjID: msg.prjID,
           apikey: req_key,
           runtime: '' + chrome.runtime.id}, function (d) {
@@ -1041,7 +1043,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
+            p_proxy(_port, {to_other_sites:'thepaperlink_bar', uri:base, pmid:d.item[0].pmid, extra:extra});
           }
         }).fail(function () {
       if (base === 'https://pubget-hrd.appspot.com') {
@@ -1051,8 +1053,9 @@ function get_request(msg, _port) {
     });
 
   } else if (msg.from_storkapp) {
-    var pmid = msg.from_storkapp;
+    pmid = msg.from_storkapp;
     extra = '';
+    localStorage.setItem('tabId:' + sender_tab_id.toString(), pmid);
     $.getJSON(base + '/api',
         {a: 'chrome6',
           pmid: pmid,

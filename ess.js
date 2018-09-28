@@ -126,7 +126,7 @@ function eFetch(pmid) {
 
 function eSummary(term) {
   var webenvCheck = /[a-zA-Z]/,
-      limit = localStorage.getItem('pubmed_limit') || '10',
+      limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
   if (webenvCheck.test(term)) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
@@ -182,7 +182,7 @@ function eSummary(term) {
       },
       'xml'
   ).fail(function () {
-    $('#result').html('I am very sorry, but I failed. Try later?');
+    $('#result').html('I failed to fetch the summary. Try later?');
   });
 }
 
@@ -200,7 +200,7 @@ function eSS(search_term) {
       },
       'xml'
   ).fail(function () {
-    $('#result').html('Sorry, I failed. Try later?');
+    $('#result').html('I failed to find anything. Try later?');
   });
 }
 
@@ -238,10 +238,10 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#result').html('ess.js used in background.html');
 
   } else {
+    if (tab.url.indexOf('//pubmed.cn/') > 0) {
+      alert( tab.id );
+    } // @@@@
     var ID = localStorage.getItem('tabId:' + tab.id.toString());
-    // chrome.pageAction.setIcon({path: '19.png', tabId: tab.id});
-    // chrome.pageAction.setTitle({title: 'extracted', tabId: tab.id});
-    // 2018-9-26 @@@@
     if (dotCheck.test(ID)) {
       $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
       $('.eSS').on('click', function () { eSS(this.id); });
