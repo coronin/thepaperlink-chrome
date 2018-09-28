@@ -36,6 +36,7 @@
     "16": "16.png"
   },
   "page_action": {
+    "default_popup": "ess.html",
     "default_icon": {
       "128": "128.png",
       "48": "48.png",
