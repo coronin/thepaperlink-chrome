@@ -128,6 +128,9 @@ function eSummary(term) {
   var webenvCheck = /[a-zA-Z]/,
       limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
+  if (!term) {
+    term = $('#ess_input').val();
+  }
   if (webenvCheck.test(term)) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
         limit + '&query_key=1&webenv=' + term;
@@ -239,16 +242,14 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   } else {
     if (tab.url.indexOf('//pubmed.cn/') > 0) {
-      var ID = tab.url.split('//pubmed.cn/')[0];
+      var ID = tab.url.split('//pubmed.cn/')[1];
+      $('#found').html('PMID found on page ' + url_trim);
+      $('#ess_input').val(ID);
       $('#result').removeClass('Off');
-      $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
-      eSummary(ID);
+      eSummary();
     }
     // @@@@
     chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
-
-      console.log(data);
-
       var ID = data[0];
       if (dotCheck.test(ID)) {
           $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
@@ -257,9 +258,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
           $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
           $('.eSS').on('click', function () { eSS(this.id); });
       } else {
-          $('#result').removeClass('Off');
-          $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
-          eSummary(ID);
+          //$('#result').removeClass('Off');
+          //$('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
+          //eSummary(ID);
           //save_pubmeder
       }
     });
