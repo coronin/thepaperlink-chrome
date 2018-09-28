@@ -307,8 +307,10 @@ function eSearch(search_term, tabId) {
       function (xml) {
         var pmid = $(xml).find('Id');
         if (pmid.length === 1) {
-          chrome.storage.local.set({'tabId:' + tabId.toString(): pmid.text()});
-          save_visited_ID( pmid.text() );
+          aKey = 'tabId:' + tabId.toString();
+          aVal = pmid.text();
+          chrome.storage.local.set({aKey: aVal});
+          save_visited_ID( aVal );
         }
       }, 'xml'
   ).fail(function () {
@@ -847,7 +849,8 @@ function get_request(msg, _port) {
     } else {
       DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
     }
-    chrome.storage.local.set({'tabId:' + sender_tab_id.toString(): msg.sendID});
+    aKey = 'tabId:' + sender_tab_id.toString();
+    chrome.storage.local.set({aKey: msg.sendID});
 
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -976,7 +979,8 @@ function get_request(msg, _port) {
     tmp = msg.from_f1000.split(',');
     pmid = abc[0];
     extra = '';
-    chrome.storage.local.set({'tabId:' + sender_tab_id.toString(): pmid});
+    aKey = 'tabId:' + sender_tab_id.toString();
+    chrome.storage.local.set({aKey: pmid});
     var fid = tmp[1],
         f_v = tmp[2],
         args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
@@ -1009,7 +1013,8 @@ function get_request(msg, _port) {
   } else if (msg.from_dxy) {
     pmid = msg.from_dxy;
     extra = '';
-    chrome.storage.local.set({'tabId:' + sender_tab_id.toString(): pmid});
+    //aKey = 'tabId:' + sender_tab_id.toString();
+    //chrome.storage.local.set({aKey: pmid});
     $.getJSON(base + '/api',
         {a: 'chrome4',
           pmid: pmid,
@@ -1055,7 +1060,8 @@ function get_request(msg, _port) {
   } else if (msg.from_storkapp) {
     pmid = msg.from_storkapp;
     extra = '';
-    chrome.storage.local.set({'tabId:' + sender_tab_id.toString(): pmid});
+    aKey = 'tabId:' + sender_tab_id.toString();
+    chrome.storage.local.set({aKey: pmid});
     $.getJSON(base + '/api',
         {a: 'chrome6',
           pmid: pmid,
