@@ -102,24 +102,6 @@ function process_orNSFC() { // 2018 Sep
   }
 }
 
-function process_dxy() { // 2018 Sep
-  if ( !byID('pmid') ) { // abstract page only
-    return 0;
-  }
-  var i, len, ele,
-      pmid = byID('pmid').value;
-  if (pmid && pmid === '' + parseInt(pmid, 10)) {
-    a_proxy({from_dxy: pmid});
-  }
-  for (i = 0, len = byTag('div').length; i < len; i += 1) {
-    ele = byTag('div')[i];
-    if (ele.className === 'view_authors') {
-      ele.setAttribute('id', 'thepaperlink_bar');
-      break;
-    }
-  }
-}
-
 function process_storkapp() {
   var i, len, ele, pmid = '';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
@@ -446,9 +428,9 @@ if (page_url === 'https://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
   process_googlescholar();
   noRun = 1;
-} else if (page_url.indexOf('://pubmed.cn/') > 0) {
-  process_dxy();
-  noRun = 1;
+//} else if (page_url.indexOf('://pubmed.cn/') > 0) {
+//  process_dxy();
+//  noRun = 1;
 } else if (page_url.indexOf('://or.nsfc.gov.cn/') > 0) {
   process_orNSFC();
   noRun = 1;

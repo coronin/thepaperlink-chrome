@@ -1303,7 +1303,10 @@ chrome.runtime.onInstalled.addListener(function () {
                 pageUrl: { urlContains: '//pubmed.cn/' },
                 css: [ "p[class='pmid']" ] })
         ],
-        actions: [ new chrome.declarativeContent.RequestContentScript({js: ["multipleId.js"]}) ] // permissions @@@@
+        actions: [
+            new chrome.declarativeContent.RequestContentScript({js: ["multipleId.js"]}),
+            new chrome.declarativeContent.ShowPageAction()
+        ]
     }, {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
