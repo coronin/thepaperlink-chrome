@@ -15,7 +15,7 @@ var DEBUG = false,
     page_url = page_d.URL,
     loading_gif = chrome.extension.getURL('loadingLine.gif'),
     clippy_file = chrome.extension.getURL('clippyIt.png'),
-    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9\.\/\)\(-]+\w)\s*\W?/,
+    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9.\/)(-]+\w)\s*\W?/,
     pmids = '',
     pmidArray = [],
     old_title = '',
@@ -481,13 +481,14 @@ function get_request(msg) {
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
       msg.js_base = 'https://pubget-hrd.appspot.com/';
     }
-    localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);   // will be removed by /js?
-    localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base); // will be removed by /js?
+    // will be removed by /js?
+    localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);
+    localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base);
     if (!byID('__tr_display')) {
       var jsClient = page_d.createElement('script');
       jsClient.setAttribute('type', 'text/javascript');
       jsClient.setAttribute('src', msg.js_base + 'js?y=' + (Math.random()));
-      page_d.body.appendChild(jsClient);
+      (page_d.head || page_d.documentElement).appendChild(jsClient);
     }
     //sendResponse({});
     return;

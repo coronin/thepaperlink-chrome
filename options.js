@@ -228,7 +228,7 @@ function saveOptions() {
     }
     localStorage.setItem('cc_address', '');
   }
-  if (local_mirror && local_mirror != '{local.mirror}') {
+  if (local_mirror && local_mirror !== '{local.mirror}') {
     localStorage.setItem('local_mirror', local_mirror);
   } else {
     localStorage.removeItem('local_mirror');

@@ -272,7 +272,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   }
       // @@@@
       chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
-        if (/\d\d\.\d\d\d\d/.test(ID)) {
+        if (/\d{2}\.\d{4}\//.test(ID)) {
             $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + tab.url);
             $('.eSS').on('click', function () { eSS(this.id); });
         } else if (/^PMC\d+$/.test(ID)) {
@@ -291,4 +291,4 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 chrome.runtime.onMessage.addListener(function (msg) {
     // @@@@
     console.log(msg);
-})
+});

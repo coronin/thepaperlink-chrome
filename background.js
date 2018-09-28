@@ -33,9 +33,10 @@ var DEBUG = false,
     last_date = localStorage.getItem('last_date_str') || '';
 
 function ez_format_link(prefix, url){
-  if (!prefix) return url;
-  if (prefix.substr(0,1) === '.') {
-    var i, ss = '', s = url.split('/');
+  if (!prefix) {
+    return url;
+  } else if (prefix.substr(0,1) === '.') {
+    var ss = '', s = url.split('/');
     for (i = 0; i < s.length; i += 1) {
       ss += s[i];
       if (i === 2) {
@@ -191,10 +192,10 @@ console.timeEnd("Load common values");
 function open_new_tab(url, winId, idx) {
   var tab_obj = {url: url, active: true};
   if (winId) {
-    tab_obj['windowId'] = winId;
+    tab_obj.windowId = winId;
   }
   if (idx) {
-    tab_obj['index'] = idx;
+    tab_obj.index = idx;
   }
   DEBUG && console.log('tab_obj', tab_obj);
   chrome.tabs.create(tab_obj, function (tab) {
@@ -331,7 +332,8 @@ function send_binary(aB, pmid, upload, no_email) {
     if (abView.length < 1000) {
       return;
     }
-    for (i = 0, len = abView.length; i < len; i += 1) {
+    i = 0;
+    for (len = abView.length; i < len; i += 1) {
       post_data += String.fromCharCode(abView[i] & 0xff);
     }
     post_data += postTail;
@@ -1081,7 +1083,7 @@ function get_request(msg, _port) {
       var pmid = msg.ajaxAbs;
       if (localStorage.getItem('abs_'+pmid)) {
           _port.postMessage({returnAbs:localStorage.getItem('abs_'+pmid), pmid:pmid});
-          return;
+
       } else {
           var args = {apikey: req_key, db: 'pubmed', id: pmid};
           DEBUG && console.log('>> will eFetch abstract for PMID:' + pmid);
@@ -1201,7 +1203,7 @@ function load_ALL_localStorage() {
   $('#scholar_').html('');
   $('#abstract_').html('');
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
-  syncValues['appMasterKey'] = new Array();
+  syncValues['appMasterKey'] = [];
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     aVal = localStorage.getItem(aKey);
