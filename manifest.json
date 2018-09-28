@@ -21,7 +21,8 @@
     "*://www.sciencedirect.com/science/article/pii/*",
     "declarativeContent",
     "activeTab",
-    "storage"
+    "storage",
+    "*://pubmed.cn/*"
   ],
   "background": {
     "page": "background.html",
