@@ -239,11 +239,16 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   } else {
     if (tab.url.indexOf('//pubmed.cn/') > 0) {
-
-      alert( tab.id );
-
-    } // @@@@
+      var ID = tab.url.split('//pubmed.cn/')[0];
+      $('#result').removeClass('Off');
+      $('#found').html('PMID:<span>' + ID + '</span> found on page ' + url_trim);
+      eSummary(ID);
+    }
+    // @@@@
     chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
+
+      console.log(data);
+
       var ID = data[0];
       if (dotCheck.test(ID)) {
           $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + url_trim);
