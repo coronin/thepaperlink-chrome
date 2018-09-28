@@ -17,11 +17,11 @@
     "downloads",
     "https://pubget-hrd.appspot.com/static/humans.txt*",
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
-    "http://scholar.google.com/scholar*",
-    "https://scholar.google.com/scholar*",
-    "http://linkinghub.elsevier.com/retrieve/pii/*",
-    "http://www.sciencedirect.com/science/article/pii/*",
+    "*://scholar.google.com/scholar*",
+    "*://linkinghub.elsevier.com/retrieve/pii/*",
+    "*://www.sciencedirect.com/science/article/pii/*",
     "declarativeContent",
+    "activeTab",
     "storage"
   ],
   "background": {
