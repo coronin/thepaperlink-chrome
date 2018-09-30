@@ -247,7 +247,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       $('#found').html('<div id="thepaperlink_bar">PMID found on page '+tab.url+'</div>');
       $('#ess_input').val(ID);
       eSummary(ID, tab.id);
-      chrome.tabs.sendMessage(tab.id, {from_dxy: ID}); // @@@@
+      chrome.tabs.sendMessage(tab.id, {from_nonF1000: ID}); // @@@@
     } else {
       eSS( ID.substr(9, ID.indexOf('&')-9), tab.id );
     }

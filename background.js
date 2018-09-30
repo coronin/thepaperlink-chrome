@@ -733,6 +733,50 @@ function common_dThree(itemZero, withRed) {
   return extra;
 }
 
+function call_from_other_sites(pmid, tabId, fid, f_v) {
+  aKey = 'tpl' + pmid;
+  chrome.storage.local.get([aKey], function (dd) {
+    if (dd && dd[0].pmid == pmid) {
+      aVal = common_dThree(d.item[0], 0);
+      if (aVal) {
+        aVal = ': ' + aVal;
+      }
+      chrome.storage.local.set({aKey: d.item[0]});
+      _port.postMessage({to_other_sites:'thepaperlink_bar',
+                         uri:base, pmid:pmid, extra:aVal});
+    } else {
+      $.getJSON(base + '/api',
+      {a: 'chrome3', pmid: pmid, apikey: req_key, runtime: ''+chrome.runtime.id},
+      function (d) {
+        if (d && d.count === 1) {
+          aVal = common_dThree(d.item[0], 0);
+          if (aVal) {
+            aVal = ': ' + aVal;
+          }
+          chrome.storage.local.set({aKey: d.item[0]});
+          _port.postMessage({to_other_sites:'thepaperlink_bar',
+                             uri:base, pmid:pmid, extra:aVal});
+          if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
+            $.post(base + '/',
+                {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
+                function (d) {
+                  DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
+                }, 'json'
+            );
+          }
+        } else if (!d.error) {
+          DEBUG && console.log(d);
+        }
+      }).fail(function () {
+        if (base === 'https://pubget-hrd.appspot.com') {
+          localStorage.setItem('https_failed', 1);
+          base = 'https://www.zhaowenxian.com';
+        }
+      });
+    }
+  });
+}
+
 function get_request(msg, _port) {
   DEBUG && console.log(msg);
   var sender_tab_id = null,
@@ -784,13 +828,17 @@ function get_request(msg, _port) {
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
-    DEBUG && console.time("call theServer for json");
+    DEBUG && console.time("call theServer api for json");
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         _port.postMessage(
             {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
               cloud_op:cloud_op, uri:base, p:ezproxy_prefix, tpll:cc_address}
         );
+        if (d && d.count === 1) {
+          aKey = 'tpl' + d.item[0].pmid;
+          chrome.storage.local.set({aKey: d.item[0]});
+        }
       } else {
         if (apikey) {
           _port.postMessage({except:'JSON parse error.', tpl:apikey});
@@ -809,7 +857,7 @@ function get_request(msg, _port) {
         base = 'https://www.zhaowenxian.com';
       }
     }).always(function () {
-      DEBUG && console.timeEnd("call theServer for json");
+      DEBUG && console.timeEnd("call theServer api for json");
     });
 
   } else if (msg.save_apikey) {
@@ -975,109 +1023,10 @@ function get_request(msg, _port) {
 
   } else if (msg.from_f1000) {
     tmp = msg.from_f1000.split(',');
-    pmid = tmp[0];
-    extra = '';
-    aKey = 'tabId:' + sender_tab_id.toString();
-    var fid = tmp[1],
-        f_v = tmp[2],
-        args = {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v};
-    $.getJSON(base + '/api',
-        {a: 'chrome3',
-          pmid: pmid,
-          apikey: req_key,
-          runtime: '' + chrome.runtime.id}, function (d) {
-          if (d && d.count === 1) {
-            extra = common_dThree(d.item[0], 0);
-            if (extra) {
-              extra = ': ' + extra;
-            }
-            //chrome.storage.local.set({aKey: d.item[0]});
-            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
-            if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
-              $.post(base + '/', args,
-                  function (d) {
-                    DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
-                  }, 'json'
-              );
-            }
-          }
-        }).fail(function () {
-      if (base === 'https://pubget-hrd.appspot.com') {
-        localStorage.setItem('https_failed', 1);
-        base = 'https://www.zhaowenxian.com';
-      }
-    });
+    call_from_other_sites(tmp[0], sender_tab_id.toString(), tmp[1], tmp[2]);
 
-  } else if (msg.from_dxy) {
-    pmid = msg.from_dxy;
-    extra = '';
-    aKey = 'tabId:' + sender_tab_id.toString();
-    $.getJSON(base + '/api',
-        {a: 'chrome4',
-          pmid: pmid,
-          apikey: req_key,
-          runtime: '' + chrome.runtime.id}, function (d) {
-          if (d && d.count === 1) {
-            extra = common_dThree(d.item[0], 1);
-            if (extra) {
-              extra = ': ' + extra;
-            }
-            //chrome.storage.local.set({aKey: d.item[0]});
-            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
-          }
-        }).fail(function () {
-      if (base === 'https://pubget-hrd.appspot.com') {
-        localStorage.setItem('https_failed', 1);
-        base = 'https://www.zhaowenxian.com';
-      }
-    });
-
-  } else if (msg.from_orNSFC) {
-    tmp = msg.from_orNSFC;
-    extra = '';
-    $.getJSON(base + '/api',
-        {a: 'chrome5',
-          doi: tmp,
-          prjID: msg.prjID,
-          apikey: req_key,
-          runtime: '' + chrome.runtime.id}, function (d) {
-          if (d && d.count === 1) {
-            extra = common_dThree(d.item[0], 1);
-            if (extra) {
-              extra = ': ' + extra;
-            }
-            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:d.item[0].pmid, extra:extra});
-          }
-        }).fail(function () {
-      if (base === 'https://pubget-hrd.appspot.com') {
-        localStorage.setItem('https_failed', 1);
-        base = 'https://www.zhaowenxian.com';
-      }
-    });
-
-  } else if (msg.from_storkapp) {
-    pmid = msg.from_storkapp;
-    extra = '';
-    aKey = 'tabId:' + sender_tab_id.toString();
-    $.getJSON(base + '/api',
-        {a: 'chrome6',
-          pmid: pmid,
-          apikey: req_key,
-          runtime: '' + chrome.runtime.id}, function (d) {
-          if (d && d.count === 1) {
-            extra = common_dThree(d.item[0], 1);
-            if (extra) {
-              extra = ': ' + extra;
-            }
-            //chrome.storage.local.set({aKey: d.item[0]});
-            _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
-          }
-        }).fail(function () {
-      if (base === 'https://pubget-hrd.appspot.com') {
-        localStorage.setItem('https_failed', 1);
-        base = 'https://www.zhaowenxian.com';
-      }
-    });
+  } else if (msg.from_nonF1000) {
+    call_from_other_sites(msg.from_nonF1000, sender_tab_id.toString());
 
   } else if (msg.ajaxAbs) { // 2018-9-14
       var pmid = msg.ajaxAbs;
@@ -1185,9 +1134,9 @@ if (last_date !== date_str) {
       aVal = aKey.split('_');
       localStorage.removeItem(aKey);
       saveIt_pubmeder(aVal[1]);
-    } else if (aKey && (aKey.substr(0,8) === 'scholar_' || aKey.substr(0,7) === 'scopus_')) {
-      localStorage.removeItem(aKey);
-    }
+    }// else if (aKey && (aKey.substr(0,8) === 'scholar_' || aKey.substr(0,7) === 'scopus_')) {
+    //  localStorage.removeItem(aKey);
+    //}
   }
 }
 
@@ -1198,8 +1147,7 @@ if (old_id) {
 //// 2015-12-9
 function load_ALL_localStorage() {
   var a_key_split, a_url,
-      syncValues = {},
-      uploadMasterKey = [];
+      syncValues = {};
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
@@ -1212,7 +1160,7 @@ function load_ALL_localStorage() {
       console.log('>> remove a key: ' + aKey);
       localStorage.removeItem(aKey);
       continue;
-    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'uploadMasterKey') {
+    } else if (aKey.indexOf('tabId:') === 0) {
       continue;
     }
     if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
@@ -1227,13 +1175,10 @@ function load_ALL_localStorage() {
           a_key_split[1] && aVal.indexOf(a_key_split[1]) === 0) ||
          aKey.indexOf('abs_') === 0 ) {
       if (aKey.indexOf('email_') === 0) {
-        if (syncValues['pmid_'+a_key_split[1]]) {
-          syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
-        } else {
-          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
+        if (!syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]] = {};
-          syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
         } // 2018-9-27
+        syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
         $('#email_').append('<li>'+aVal+'</li>');
       } else if (aKey.indexOf('shark_') === 0) {
         a_url = aVal.split(',')[1];
@@ -1242,43 +1187,32 @@ function load_ALL_localStorage() {
           localStorage.removeItem(aKey);
           continue;
         }
-        if (syncValues['pmid_'+a_key_split[1]]) {
-          syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
-        } else {
-          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
+        if (!syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]] = {};
-          syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         } // 2018-9-27
+        syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         format_a_li('shark', a_key_split[1], a_url);
       } else if (aKey.indexOf('scholar_') === 0) {
-        if (syncValues['pmid_'+a_key_split[1]]) {
-          syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
-        } else {
-          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
+        if (!syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]] = {};
-          syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
         } // 2018-9-27
+        syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
         a_url = 'https://scholar.google.com' + aVal.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, aVal.split(',')[1]);
       } else if (aKey.indexOf('abs_') === 0) {
-        if (syncValues['pmid_'+a_key_split[1]]) {
-          syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
-        } else {
-          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
+        if (!syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]] = {};
-          syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
         } // 2018-9-27
+        syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
     } else {
-      uploadMasterKey.push( aKey );
       syncValues[aKey] = '' + aVal;
     }
   }
-  console.time('Storage.sync set');
-console.log(uploadMasterKey);
+  console.time('Add to storage.sync');
   chrome.storage.sync.set(syncValues, function () {
-    console.timeEnd('Storage.sync set');
+    console.timeEnd('Add to storage.sync');
   });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
@@ -1295,13 +1229,13 @@ function adjustStorage(rst) {
           pmidObj = rst[aKey],
           a_key;
       for (a_key in pmidObj) {
-        DEBUG && console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
-        localStorage.setItem(a_key+'_'+a_pmid, pmidObj[a_key]);
+        DEBUG && console.log(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
+        localStorage.setItem(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
       }
-    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'uploadMasterKey') {
-      toRemove.push();
+    } else if (aKey.indexOf('tabId:') === 0) {
+      toRemove.push(aKey);
     } else if (aKey) {
-      localStorage.setItem(aKey, rst[aKey]);
+      localStorage.setItem(aKey, ''+rst[aKey]);
     }
   }
   if (toRemove.length) {
@@ -1310,14 +1244,14 @@ function adjustStorage(rst) {
 }
 
 function do_syncValues() {
-  console.time('do entire storage.sync');
+  console.time('Get entire storage.sync');
   chrome.storage.sync.get(null, function (rslt) { // the entire
+    console.timeEnd('Get entire storage.sync');
     if (!rslt) {
       console.log('Empty: syncValues stopped');
       return;
     }
     adjustStorage(rslt);
-    console.timeEnd('do entire storage.sync');
   });
 }
 
