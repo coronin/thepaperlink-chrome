@@ -22,6 +22,7 @@
     "declarativeContent",
     "activeTab",
     "storage",
+    "unlimitedStorage",
     "*://pubmed.cn/*",
     "http://or.nsfc.gov.cn/handle/*"
   ],
