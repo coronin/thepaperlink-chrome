@@ -618,7 +618,6 @@ function get_request(msg) {
 
   if (msg.returnAbs) { // 2018-9-14
     byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
-    alert(msg.returnAbs);
     if (byID('thepaperlink_text' + msg.pmid)) {
       byID('thepaperlink_text' + msg.pmid).style.display = 'block';
       byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
