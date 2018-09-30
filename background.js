@@ -1197,13 +1197,14 @@ if (old_id) {
 
 //// 2015-12-9
 function load_ALL_localStorage() {
-  var a_key_split, a_url, syncValues = {};
+  var a_key_split, a_url,
+      syncValues = {},
+      uploadMasterKey = [];
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
   $('#scholar_').html('');
   $('#abstract_').html('');
-  syncValues['appMasterKey'] = [];
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     aVal = localStorage.getItem(aKey);
@@ -1211,7 +1212,7 @@ function load_ALL_localStorage() {
       console.log('>> remove a key: ' + aKey);
       localStorage.removeItem(aKey);
       continue;
-    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'appMasterKey' || aKey === 'aKey' ) {
+    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'uploadMasterKey') {
       continue;
     }
     if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
@@ -1229,7 +1230,7 @@ function load_ALL_localStorage() {
         if (syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
         } else {
-          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
         } // 2018-9-27
@@ -1244,7 +1245,7 @@ function load_ALL_localStorage() {
         if (syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         } else {
-          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         } // 2018-9-27
@@ -1253,7 +1254,7 @@ function load_ALL_localStorage() {
         if (syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
         } else {
-          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['scholar'] = aVal;
         } // 2018-9-27
@@ -1263,19 +1264,19 @@ function load_ALL_localStorage() {
         if (syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
         } else {
-          syncValues['appMasterKey'].push( 'pmid_'+a_key_split[1] );
+          uploadMasterKey.push( 'pmid_'+a_key_split[1] );
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['abs'] = aVal;
         } // 2018-9-27
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
     } else {
-      syncValues['appMasterKey'].push( aKey );
+      uploadMasterKey.push( aKey );
       syncValues[aKey] = '' + aVal;
     }
   }
-  DEBUG && console.log(syncValues);
   console.time('Storage.sync set');
+console.log(uploadMasterKey);
   chrome.storage.sync.set(syncValues, function () {
     console.timeEnd('Storage.sync set');
   });
@@ -1283,7 +1284,41 @@ function load_ALL_localStorage() {
     $('#email_').addClass('Off');
     $('#email_h2').addClass('Off');
   }
-  $('#load_ALL').text('re-load and re-sync');
+  $('#load_ALL').on('click', do_syncValues).text('re-sync to local');
+}
+
+function adjustStorage(rst) {
+  var toRemove = [];
+  for (aKey in rst) {
+    if (aKey.indexOf('pmid_') === 0) {
+      var a_pmid = aKey.substr(5, aKey.length-5),
+          pmidObj = rst[aKey],
+          a_key;
+      for (a_key in pmidObj) {
+        DEBUG && console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
+        localStorage.setItem(a_key+'_'+a_pmid, pmidObj[a_key]);
+      }
+    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'uploadMasterKey') {
+      toRemove.push();
+    } else if (aKey) {
+      localStorage.setItem(aKey, rst[aKey]);
+    }
+  }
+  if (toRemove.length) {
+    chrome.storage.sync.remove(toRemove);
+  }
+}
+
+function do_syncValues() {
+  console.time('do entire storage.sync');
+  chrome.storage.sync.get(null, function (rslt) { // the entire
+    if (!rslt) {
+      console.log('Empty: syncValues stopped');
+      return;
+    }
+    adjustStorage(rslt);
+    console.timeEnd('do entire storage.sync');
+  });
 }
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -1323,40 +1358,11 @@ chrome.runtime.onInstalled.addListener(function () {
   });
 
   // sync core values
-  console.time('Try storage.sync get');
-  chrome.storage.sync.get(['appMasterKey'], function (rslt) {
-    if (!rslt.appMasterKey) {
-        console.log('Empty: syncValues stopped');
-        return;
-    }
-    DEBUG && console.log(rslt.appMasterKey);
-    chrome.storage.sync.get(rslt.appMasterKey, function (rst) {
-        console.timeEnd('Try storage.sync get');
-        for (aKey in rst) {
-          if (aKey.indexOf('pmid_') === 0) {
-            var a_pmid = aKey.substr(5, aKey.length-5),
-                pmidObj = rst[aKey],
-                a_key;
-            for (a_key in pmidObj) {
-              DEBUG && console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
-              localStorage.setItem(a_key+'_'+a_pmid, pmidObj[a_key]);
-            }
-          } else if (aKey.indexOf('tabId:') === 0 || aKey === 'aKey') {
-            chrome.storage.sync.remove(aKey);
-          } else {
-            localStorage.setItem(aKey, rst[aKey]);
-          }
-        }
-    });
-  });
+  do_syncValues();
 }); // onInstalled
 
 chrome.storage.onChanged.addListener(function (rst) {
-  for (aKey in rst) {
-    if (aKey.indexOf('pmid_') !== 0 && aKey.indexOf('tabId:') !== 0) {
-      localStorage.setItem(aKey, rst[aKey]);
-    }
-  }
+  adjustStorage(rst);
 });
 
 $(document).ready(function () {
