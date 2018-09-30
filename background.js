@@ -737,13 +737,13 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
   if (!pmid) { return; }
   aKey = 'tpl' + pmid;
   chrome.storage.local.get([aKey], function (dd) {
-    if (dd && dd[0].pmid == pmid) {
+    if (dd && dd.pmid == pmid) {
       aVal = common_dThree(dd[0], 0);
       if (aVal) {
         aVal = ': ' + aVal;
       }
-      _port.postMessage({to_other_sites:'thepaperlink_bar',
-                         uri:base, pmid:pmid, extra:aVal});
+      chrome.tabs.sendMessage(parseInt(tabId, 10),
+          {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:aVal} );
     } else {
       $.getJSON(base + '/api',
       {a: 'chrome3', pmid: pmid, apikey: req_key, runtime: ''+chrome.runtime.id},
@@ -753,8 +753,8 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           if (aVal) {
             aVal = ': ' + aVal;
           }
-          _port.postMessage({to_other_sites:'thepaperlink_bar',
-                             uri:base, pmid:pmid, extra:aVal});
+          chrome.tabs.sendMessage(parseInt(tabId, 10),
+              {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:aVal} );
           aKey = 'tpl' + pmid;
           chrome.storage.local.set({aKey: d.item[0]});
           if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
@@ -1032,6 +1032,9 @@ function get_request(msg, _port) {
   } else if (msg.from_nonF1000) {
     call_from_other_sites(msg.from_nonF1000, sender_tab_id.toString());
 
+  } else if (msg.pageAbs) { // 2018-10-1
+    localStorage.setItem('abs_'+msg.pmid, msg.pageAbs);
+
   } else if (msg.ajaxAbs) { // 2018-9-14
       var pmid = msg.ajaxAbs;
       if (localStorage.getItem('abs_'+pmid)) {
@@ -1216,6 +1219,7 @@ function load_ALL_localStorage() {
     }
   }
   console.time('Add to storage.sync');
+  $('#undefined_clean').append('<li>Add to storage.sync '+Object.keys(syncValues).length+' items</li>');
   chrome.storage.sync.set(syncValues, function () {
     console.timeEnd('Add to storage.sync');
   });
@@ -1223,7 +1227,7 @@ function load_ALL_localStorage() {
     $('#email_').addClass('Off');
     $('#email_h2').addClass('Off');
   }
-  $('#load_ALL').off( "click", "**" );
+  $('#load_ALL').off('click');
   $('#load_ALL').on('click', do_syncValues).text('re-sync to local');
 }
 
