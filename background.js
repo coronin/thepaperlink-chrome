@@ -305,7 +305,7 @@ function eSearch(search_term, tabId) {
         var pmid = $(xml).find('Id');
         if (pmid.length === 1) {
           aKey = 'tabId:' + tabId.toString();
-          aVal = pmid.text();
+          aVal = '' + pmid.text();
           chrome.storage.local.set({aKey: aVal});
           save_visited_ID( aVal );
         }
@@ -405,14 +405,14 @@ function format_a_li(category, pmid, url, num) {
         '</button> &nbsp; <textarea rows="3" cols="90">'+id_abs[1]+'</textarea></li>' );
     var categoryLen = category.length;
     $('#'+category+id_abs[0]).on('click', function () {
-      eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
+      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null ); // function in ess.js
     });
   } else {
     $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; ' +
         '<a target="_blank" href="'+url+'">/' + url.split('/', 4)[3] + '</a></li>');
     var categoryLen = category.length;
     $('#'+category+pmid).on('click', function () {
-      eSS( this.id.substr(categoryLen, this.id.length-categoryLen) );
+      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null ); // function in ess.js
     });
     if (num) {
       $('#'+category+pmid).text(pmid + ' cited ' + num + ' times');
@@ -841,14 +841,14 @@ function get_request(msg, _port) {
       // chrome.pageAction.show(sender_tab_id);
       if ( alldigi.test(msg.sendID) ) {
         save_visited_ID(msg.sendID);
+        aKey = 'tabId:' + sender_tab_id.toString();
+        chrome.storage.local.set({aKey: msg.sendID});
       } else {
         eSearch(msg.sendID, sender_tab_id);
       }
     } else {
       DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
     }
-    aKey = 'tabId:' + sender_tab_id.toString();
-    chrome.storage.local.set({aKey: msg.sendID});
 
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
@@ -991,7 +991,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            chrome.storage.local.set({aKey: d.item[0]});
+            //chrome.storage.local.set({aKey: d.item[0]});
             _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
             if (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)) {
               $.post(base + '/', args,
@@ -1022,7 +1022,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            chrome.storage.local.set({aKey: d.item[0]});
+            //chrome.storage.local.set({aKey: d.item[0]});
             _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
@@ -1069,7 +1069,7 @@ function get_request(msg, _port) {
             if (extra) {
               extra = ': ' + extra;
             }
-            chrome.storage.local.set({aKey: d.item[0]});
+            //chrome.storage.local.set({aKey: d.item[0]});
             _port.postMessage({to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:extra});
           }
         }).fail(function () {
@@ -1198,11 +1198,11 @@ if (old_id) {
 //// 2015-12-9
 function load_ALL_localStorage() {
   var a_key_split, a_url, syncValues = {};
+  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
   $('#scholar_').html('');
   $('#abstract_').html('');
-  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   syncValues['appMasterKey'] = [];
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
@@ -1211,19 +1211,19 @@ function load_ALL_localStorage() {
       console.log('>> remove a key: ' + aKey);
       localStorage.removeItem(aKey);
       continue;
-    } else if (aKey && aKey.substr(0,6) === 'tabId:') {
+    } else if (aKey.indexOf('tabId:') === 0 || aKey === 'appMasterKey' || aKey === 'aKey' ) {
       continue;
     }
-    a_key_split = aKey.split('_');
-    if (aVal.indexOf('undefined') > -1 || aKey.indexOf('pmid_') === 0) {
+    if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
       $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
       localStorage.removeItem(aKey);
       continue;
     }
-    if ( ( aKey.indexOf('email_') === 0 ||
+    a_key_split = aKey.split('_');
+    if ( (( aKey.indexOf('email_') === 0 ||
            aKey.indexOf('shark_') === 0 ||
            aKey.indexOf('scholar_') === 0 ) &&
-         a_key_split[1] && aVal.indexOf(a_key_split[1]) === 0 ||
+          a_key_split[1] && aVal.indexOf(a_key_split[1]) === 0) ||
          aKey.indexOf('abs_') === 0 ) {
       if (aKey.indexOf('email_') === 0) {
         if (syncValues['pmid_'+a_key_split[1]]) {
@@ -1233,8 +1233,14 @@ function load_ALL_localStorage() {
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['email'] = aVal;
         } // 2018-9-27
-        $('#'+a_key_split[0]+'_').append('<li>'+aVal+'</li>');
+        $('#email_').append('<li>'+aVal+'</li>');
       } else if (aKey.indexOf('shark_') === 0) {
+        a_url = aVal.split(',')[1];
+        if (a_url.indexOf('googletagmanager.com') > 0) {
+          $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
+          localStorage.removeItem(aKey);
+          continue;
+        }
         if (syncValues['pmid_'+a_key_split[1]]) {
           syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         } else {
@@ -1242,12 +1248,6 @@ function load_ALL_localStorage() {
           syncValues['pmid_'+a_key_split[1]] = {};
           syncValues['pmid_'+a_key_split[1]]['shark'] = aVal;
         } // 2018-9-27
-        a_url = aVal.split(',')[1];
-        if (a_url.indexOf('googletagmanager.com') > 0) {
-          $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
-          localStorage.removeItem(aKey);
-          continue;
-        }
         format_a_li('shark', a_key_split[1], a_url);
       } else if (aKey.indexOf('scholar_') === 0) {
         if (syncValues['pmid_'+a_key_split[1]]) {
@@ -1269,9 +1269,9 @@ function load_ALL_localStorage() {
         } // 2018-9-27
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
-    } else if (aKey !== 'appMasterKey') {
+    } else {
       syncValues['appMasterKey'].push( aKey );
-      syncValues[aKey] = aVal;
+      syncValues[aKey] = '' + aVal;
     }
   }
   DEBUG && console.log(syncValues);
@@ -1325,22 +1325,23 @@ chrome.runtime.onInstalled.addListener(function () {
   // sync core values
   console.time('Try storage.sync get');
   chrome.storage.sync.get(['appMasterKey'], function (rslt) {
-    if (!rslt.appMasterKeys) {
+    if (!rslt.appMasterKey) {
         console.log('Empty: syncValues stopped');
         return;
     }
-    DEBUG && console.log(rslt.appMasterKeys);
-    chrome.storage.sync.get(rslt.appMasterKeys, function (rst) {
+    DEBUG && console.log(rslt.appMasterKey);
+    chrome.storage.sync.get(rslt.appMasterKey, function (rst) {
         console.timeEnd('Try storage.sync get');
         for (aKey in rst) {
           if (aKey.indexOf('pmid_') === 0) {
             var a_pmid = aKey.substr(5, aKey.length-5),
-              pmidObj = rst[aKey], a_key;
+                pmidObj = rst[aKey],
+                a_key;
             for (a_key in pmidObj) {
-              console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
-              // @@@@
+              DEBUG && console.log(a_key+'_'+a_pmid, pmidObj[a_key]);
+              localStorage.setItem(a_key+'_'+a_pmid, pmidObj[a_key]);
             }
-          } else if (aKey.substr(0,6) === 'tabId:') {
+          } else if (aKey.indexOf('tabId:') === 0 || aKey === 'aKey') {
             chrome.storage.sync.remove(aKey);
           } else {
             localStorage.setItem(aKey, rst[aKey]);
@@ -1352,7 +1353,7 @@ chrome.runtime.onInstalled.addListener(function () {
 
 chrome.storage.onChanged.addListener(function (rst) {
   for (aKey in rst) {
-    if (aKey.indexOf('pmid_') !== 0 && aKey.substr(0,6) !== 'tabId:') {
+    if (aKey.indexOf('pmid_') !== 0 && aKey.indexOf('tabId:') !== 0) {
       localStorage.setItem(aKey, rst[aKey]);
     }
   }

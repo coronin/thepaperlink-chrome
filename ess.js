@@ -124,7 +124,7 @@ function eFetch(pmid) {
   });
 }
 
-function eSummary(term) {
+function eSummary(term, tabId) {
   var webenvCheck = /[a-zA-Z]/,
       limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
@@ -156,6 +156,7 @@ function eSummary(term) {
               Pages = $(this).find('Item[Name="Pages"]').text(),
               esum_text,
               tmp;
+          if (tabId) { chrome.tabs.sendMessage(tabId, {sendID: pmid}); }
 
           a.each(function (j) {
             if (j === 0) {
@@ -189,7 +190,7 @@ function eSummary(term) {
   });
 }
 
-function eSS(search_term) {
+function eSS(search_term, tabId) {
   $('#ess_input').val(search_term);
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
@@ -198,7 +199,7 @@ function eSS(search_term) {
       function (xml) {
         var WebEnv = $(xml).find('WebEnv').text();
         if (WebEnv) {
-          eSummary(WebEnv);
+          eSummary(WebEnv, tabId);
         }
       },
       'xml'
@@ -226,7 +227,7 @@ $(document).ready(function () {
 
   $('#ess_input').keydown(function (event) {
     if (event.keyCode === 13) {
-      eSS( this.value );
+      eSS( this.value, null ); // @@@@
     }
   });
 });
@@ -242,10 +243,10 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       $('#found').html('<div id="thepaperlink_bar">PMID found on page '+tab.url+'</div>');
       $('#ess_input').val(ID);
       $('#result').removeClass('Off');
-      eSummary(ID);
-      chrome.tabs.sendMessage(tab.id, {from_dxy: ID});
+      eSummary(ID, tab.id);
+      chrome.tabs.sendMessage(tab.id, {from_dxy: ID}); // @@@@
     } else {
-      eSS( ID.substr(9, ID.indexOf('&')-9) );
+      eSS( ID.substr(9, ID.indexOf('&')-9), tab.id );
     }
 
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
@@ -253,39 +254,41 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#found').html('PMID found on /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
     $('#ess_input').val(ID);
     $('#result').removeClass('Off');
-    eSummary(ID);
+    eSummary(ID, tab.id);
 
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(/:/g, '').replace(/^\s+|\s+$/g, '');
     $('#found').html(tab.title.split(':')[0]);
     $('#ess_input').val(ID);
     $('#result').removeClass('Off');
-    eSS(ID);
+    eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
     $('#found').html(tab.title.split('::')[1]);
     $('#ess_input').val(ID);
     $('#result').removeClass('Off');
-    eSummary(ID);
+    eSummary(ID, tab.id);
 
-  }
-      // @@@@
-      chrome.storage.local.get(['tabId:' + tab.id.toString()], function (data) {
-        if (/\d{2}\.\d{4}\//.test(ID)) {
-            $('#found').html('DOI:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + tab.url);
-            $('.eSS').on('click', function () { eSS(this.id); });
-        } else if (/^PMC\d+$/.test(ID)) {
-            $('#found').html('PMCID:<span class="eSS" id="' + ID + '">' + ID + '</span> found on page ' + tab.url);
-            $('.eSS').on('click', function () { eSS(this.id); });
-        }// else {
-            //$('#result').removeClass('Off');
-            //$('#found').html('PMID:<span>' + ID + '</span> found on page ');
-            //eSummary(ID);
-            //save_pubmeder
-        //}
+  } else { // @@@@
+  chrome.storage.local.get(['tabId:' + tab.id.toString()], function (dd) {
+    ID = dd[0];
+    if (/\d{2}\.\d{4}\//.test(ID)) {
+      $('#found').html('Found DOI <span class="eSS" id="' + ID + '">' + ID + '</span>');
+      $('.eSS').on('click', function () {
+        eSS(this.id, tab.id);
       });
-      // @@@@
+    } else if (/^PMC\d+$/.test(ID)) {
+      $('#found').html('Found PMCID <span class="eSS" id="' + ID + '">' + ID + '</span>');
+      $('.eSS').on('click', function () {
+        eSS(this.id, tab.id);
+      });
+    } else if (/^\d+$/.test(ID)) {
+      $('#result').removeClass('Off');
+      $('#found').html('Maybe PMID <span>' + ID + '</span>');
+      eSummary(ID, tab.id);
+    }
+  }); }
 });
 
 chrome.runtime.onMessage.addListener(function (msg) {
