@@ -92,6 +92,7 @@ function process_storkapp() {
       break;
     }
   }
+  a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]), pmid: pmid});
 }
 
 function process_f1000() { // 2018 Sep
@@ -119,6 +120,7 @@ function process_f1000() { // 2018 Sep
   } else {
     DEBUG && console.log('>> process_f1000: '+pmid+','+fid+','+f_v);
   }
+  a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]), pmid: pmid});
 }
 
 function order_gs() {
@@ -267,6 +269,7 @@ function getPmid(zone, num) {
         byTag(zone)[num + 3].appendChild(b);
       } else { // display with abstract
         byTag(zone)[num + 1].appendChild(b);
+        a_proxy({pageAbs: byTag(zone)[num + 8].textContent, pmid: ID[1]});
       }
       pmids += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
