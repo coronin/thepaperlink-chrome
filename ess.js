@@ -9,8 +9,13 @@ function hideMore() {
 function eFetch(pmid) {
   $('.eSum').addClass('Off');
   $('#' + pmid).removeClass('Off');
-  if ($('#abs_' + pmid).text()) {
+  if ( $('#abs_' + pmid).text() ) {
     $('#abs_' + pmid + '> .moreAbout').removeClass('Off');
+    $('.AbsButton').addClass('Off');
+    return;
+  } else if ( localStorage.getItem('abs_'+pmid) ){
+    $('#result').append('<p class="moreAbout">'+localStorage.getItem('abs_'+pmid)+'</p>');
+    $('.moreAbout').on('click', function () { hideMore(); });
     $('.AbsButton').addClass('Off');
     return;
   }
@@ -182,7 +187,6 @@ function eSummary(term, tabId) {
           $('<div/>').html(esum_text).appendTo('#result');
         });
         $('.AbsButton').on('click', function () { eFetch(this.id); });
-        $('#result').removeClass('Off');
       },
       'xml'
   ).fail(function () {
@@ -194,7 +198,6 @@ function eSS(search_term, tabId) {
   $('#ess_input').val(search_term);
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
-  $('#result').removeClass('Off');
   $.get(url,
       function (xml) {
         var WebEnv = $(xml).find('WebEnv').text();
@@ -234,6 +237,7 @@ $(document).ready(function () {
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var tab = tabs[0], ID;
+  $('#result').removeClass('Off');
   if (tab.url.indexOf('chrome-extension://') === 0) {
     $('#result').html('ess.js used in background.html');
 
@@ -242,7 +246,6 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     if (/^\d+$/.test(ID)) {
       $('#found').html('<div id="thepaperlink_bar">PMID found on page '+tab.url+'</div>');
       $('#ess_input').val(ID);
-      $('#result').removeClass('Off');
       eSummary(ID, tab.id);
       chrome.tabs.sendMessage(tab.id, {from_dxy: ID}); // @@@@
     } else {
@@ -253,21 +256,18 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     ID = tab.title;
     $('#found').html('PMID found on /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
     $('#ess_input').val(ID);
-    $('#result').removeClass('Off');
     eSummary(ID, tab.id);
 
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(/:/g, '').replace(/^\s+|\s+$/g, '');
     $('#found').html(tab.title.split(':')[0]);
     $('#ess_input').val(ID);
-    $('#result').removeClass('Off');
     eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
     $('#found').html(tab.title.split('::')[1]);
     $('#ess_input').val(ID);
-    $('#result').removeClass('Off');
     eSummary(ID, tab.id);
 
   } else { // @@@@
@@ -284,9 +284,10 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         eSS(this.id, tab.id);
       });
     } else if (/^\d+$/.test(ID)) {
-      $('#result').removeClass('Off');
       $('#found').html('Maybe PMID <span>' + ID + '</span>');
       eSummary(ID, tab.id);
+    } else {
+      $('#result').addClass('Off');
     }
   }); }
 });

@@ -1086,7 +1086,7 @@ function get_request(msg, _port) {
 
       } else {
           var args = {apikey: req_key, db: 'pubmed', id: pmid};
-          DEBUG && console.log('>> will eFetch abstract for PMID:' + pmid);
+          DEBUG && console.log('>> will entrezajax abstract for PMID:' + pmid);
           $.getJSON(base + '/entrezajax/efetch', args, function (d) {
               var l = d.result.PubmedArticle[0];
               if (l.MedlineCitation.Article.Abstract) {
@@ -1094,7 +1094,7 @@ function get_request(msg, _port) {
                   _port.postMessage({returnAbs:l.MedlineCitation.Article.Abstract.AbstractText, pmid:pmid});
               }
           }).fail(function () {
-              DEBUG && console.log('>> eFetch abstract failed PMID:' + pmid);
+              DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
           });
       }
 
