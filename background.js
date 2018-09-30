@@ -405,14 +405,16 @@ function format_a_li(category, pmid, url, num) {
         '</button> &nbsp; <textarea rows="3" cols="90">'+id_abs[1]+'</textarea></li>' );
     var categoryLen = category.length;
     $('#'+category+id_abs[0]).on('click', function () {
-      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null ); // function in ess.js
+      // function in ess.js
+      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
     });
   } else {
     $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; ' +
         '<a target="_blank" href="'+url+'">/' + url.split('/', 4)[3] + '</a></li>');
     var categoryLen = category.length;
     $('#'+category+pmid).on('click', function () {
-      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null ); // function in ess.js
+      // function in ess.js
+      eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
     });
     if (num) {
       $('#'+category+pmid).text(pmid + ' cited ' + num + ' times');
@@ -838,8 +840,8 @@ function get_request(msg, _port) {
         );
         if (d && d.count) {
           tmp = {};
-          for (aVal in d.item) {
-            tmp['tpl' + aVal.pmid] = aVal;
+          for (i = 0; i < d.count; i += 1) {
+            tmp['tpl' + d.item[i].pmid] = d.item[i];
           }
           chrome.storage.local.set(tmp);
         }
@@ -1231,19 +1233,22 @@ function load_ALL_localStorage() {
   $('#load_ALL').on('click', do_syncValues).text('re-sync to local');
 }
 
-function adjustStorage(rst) {
+function adjustStorage(rst, newOnly) {
   var toRemove = [];
   for (aKey in rst) {
     if (aKey.indexOf('pmid_') === 0) {
       var a_pmid = aKey.substr(5, aKey.length-5),
           pmidObj = rst[aKey],
           a_key;
+      if (newOnly) { pmidObj = rst[aKey].newValue; }
       for (a_key in pmidObj) {
         DEBUG && console.log(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
         localStorage.setItem(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
       }
     } else if (aKey.indexOf('tabId:') === 0) {
       toRemove.push(aKey);
+    } else if (aKey && newOnly) {
+      localStorage.setItem(aKey, ''+rst[aKey].newValue);
     } else if (aKey) {
       localStorage.setItem(aKey, ''+rst[aKey]);
     }
@@ -1306,7 +1311,7 @@ chrome.runtime.onInstalled.addListener(function () {
 }); // onInstalled
 
 chrome.storage.onChanged.addListener(function (rst) {
-  adjustStorage(rst);
+  adjustStorage(rst, 1);
 });
 
 chrome.omnibox.onInputChanged.addListener(
