@@ -306,8 +306,8 @@ function eSearch(search_term, tabId) {
         if (pmid.length === 1) {
           aKey = 'tabId:' + tabId.toString();
           aVal = '' + pmid.text();
-          chrome.storage.local.set({aKey: aVal});
           save_visited_ID( aVal );
+          chrome.storage.local.set({aKey: aVal});
         }
       }, 'xml'
   ).fail(function () {
@@ -738,11 +738,10 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
   aKey = 'tpl' + pmid;
   chrome.storage.local.get([aKey], function (dd) {
     if (dd && dd[0].pmid == pmid) {
-      aVal = common_dThree(d.item[0], 0);
+      aVal = common_dThree(dd[0], 0);
       if (aVal) {
         aVal = ': ' + aVal;
       }
-      chrome.storage.local.set({aKey: d.item[0]});
       _port.postMessage({to_other_sites:'thepaperlink_bar',
                          uri:base, pmid:pmid, extra:aVal});
     } else {
@@ -754,9 +753,10 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           if (aVal) {
             aVal = ': ' + aVal;
           }
-          chrome.storage.local.set({aKey: d.item[0]});
           _port.postMessage({to_other_sites:'thepaperlink_bar',
                              uri:base, pmid:pmid, extra:aVal});
+          aKey = 'tpl' + pmid;
+          chrome.storage.local.set({aKey: d.item[0]});
           if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
             $.post(base + '/',
                 {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
@@ -1223,6 +1223,7 @@ function load_ALL_localStorage() {
     $('#email_').addClass('Off');
     $('#email_h2').addClass('Off');
   }
+  $('#load_ALL').off( "click", "**" );
   $('#load_ALL').on('click', do_syncValues).text('re-sync to local');
 }
 
@@ -1302,6 +1303,20 @@ chrome.runtime.onInstalled.addListener(function () {
 
 chrome.storage.onChanged.addListener(function (rst) {
   adjustStorage(rst);
+});
+
+chrome.omnibox.onInputChanged.addListener(
+  function (text, suggest) {
+    suggest([
+      {content: text + "&pdf_only=on", description: "only search articles with valid PDF"},
+      {content: text + "&reviews_only=on", description: "only research reviews in PubMed"}
+    ]);
+});
+
+chrome.omnibox.onInputEntered.addListener(
+  function (text) {
+    var newURL = base + '?q=' + text;
+    chrome.tabs.create({ url: newURL });
 });
 
 $(document).ready(function () {
