@@ -274,7 +274,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     eSummary(ID, tab.id);
 
   } else { // @@@@
-  chrome.storage.local.get(['tabId:' + tab.id.toString()], function (dd) {
+  chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
     ID = dd;
     if (/\d{2}\.\d{4}\//.test(ID)) {
       $('#found').html('Found DOI <span class="eSS" id="' + ID + '">' + ID + '</span>');

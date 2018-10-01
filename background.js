@@ -172,6 +172,11 @@ function load_common_values() {
     localStorage.removeItem('googledrive_status');
     localStorage.removeItem('skydrive_status');
     localStorage.removeItem('baiduyun_status');
+  } else {
+    chrome.storage.sync.set({
+      thepaperlink_apikey: apikey,
+      rev_proxy: localStorage.getItem('rev_proxy') || 'no',
+      https_failed: localStorage.getItem('https_failed') || '' });
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
@@ -304,10 +309,11 @@ function eSearch(search_term, tabId) {
       function (xml) {
         var pmid = $(xml).find('Id');
         if (pmid.length === 1) {
-          aKey = 'tabId:' + tabId.toString();
           aVal = '' + pmid.text();
           save_visited_ID( aVal );
-          chrome.storage.local.set({aKey: aVal});
+          aKey = {};
+          aKey['tabId:' + tabId] = aVal;
+          chrome.storage.local.set(aKey);
         }
       }, 'xml'
   ).fail(function () {
@@ -398,12 +404,12 @@ function dropbox_it(pmid, pdf, k) {
 }
 
 function format_a_li(category, pmid, url, num) {
+  var categoryLen = category.length;
   if (!url && !num) {
     var id_abs = pmid.split('====');
     $('#'+category+'_').append(
         '<li><button style="float:left" id="'+category+id_abs[0]+'">'+id_abs[0]+
         '</button> &nbsp; <textarea rows="3" cols="90">'+id_abs[1]+'</textarea></li>' );
-    var categoryLen = category.length;
     $('#'+category+id_abs[0]).on('click', function () {
       // function in ess.js
       eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
@@ -411,7 +417,6 @@ function format_a_li(category, pmid, url, num) {
   } else {
     $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; ' +
         '<a target="_blank" href="'+url+'">/' + url.split('/', 4)[3] + '</a></li>');
-    var categoryLen = category.length;
     $('#'+category+pmid).on('click', function () {
       // function in ess.js
       eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
@@ -463,12 +468,12 @@ function scholar_title(pmid, t, tabId) {
   });
   $.get(url,
       function (r) {
-        var reg = /<a[^<]+>Cited by \d+<\/a>/,
+        var reg = /<a[^<]+>Cited\ by\ \d+<\/a>/,
             h = reg.exec(r),
             g_num = [], g_link = [];
         if (h && h.length) {
           DEBUG && console.log(h);
-          g_num = />Cited by (\d+)</.exec(h[0]);
+          g_num = />Cited\ by\ (\d+)</.exec(h[0]);
           g_link = /href="([^"]+)"/.exec(h[0]);
           if (g_num.length === 2 && g_link.length === 2) {
             localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
@@ -569,7 +574,7 @@ function parse_shark(pmid, url, tabId) {
   }
   shark_limits -= 1;
   b_proxy(tabId, {el_id: '_shark' + pmid, el_data: 1});
-  var reg = /iframe src\s*=\s*"(\S+)"/i, h,
+  var reg = /iframe\ src\s*=\s*"(\S+)"/i, h,
       args = {'apikey': req_key, 'pmid': pmid, 'shark_link': ''};
   $.get(url,
       function (r) {
@@ -607,7 +612,7 @@ function parse_pii(pmid, url, tabId) {
   $.get(url,
       function (r) {
         var reg = /href="([^"]+)" target="newPdfWin"/,
-            reg2 = /Cited by in Scopus \((\d+)\)/i,
+            reg2 = /Cited\ by\ in\ Scopus\ \((\d+)\)/i,
             h = reg.exec(r),
             h2 = reg2.exec(r),
             args;
@@ -739,12 +744,15 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
   if (!pmid) { return; }
   aKey = 'tpl' + pmid;
   chrome.storage.local.get([aKey], function (dd) {
+
+console.log(dd); // @@@@
+
     if (dd && dd.pmid == pmid) {
       aVal = common_dThree(dd[0], 0);
       if (aVal) {
         aVal = ': ' + aVal;
       }
-      chrome.tabs.sendMessage(parseInt(tabId, 10),
+      chrome.tabs.sendMessage( tabId,
           {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:aVal} );
     } else {
       $.getJSON(base + '/api',
@@ -755,10 +763,12 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           if (aVal) {
             aVal = ': ' + aVal;
           }
-          chrome.tabs.sendMessage(parseInt(tabId, 10),
+          chrome.tabs.sendMessage( tabId,
               {to_other_sites:'thepaperlink_bar', uri:base, pmid:pmid, extra:aVal} );
-          aKey = 'tpl' + pmid;
-          chrome.storage.local.set({aKey: d.item[0]});
+          aKey = {};
+          aKey['tpl' + pmid] = d.item[0];
+          aKey['tpl' + pmid].date_str = date_str;
+          chrome.storage.local.set(aKey);
           if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
             $.post(base + '/',
                 {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
@@ -791,10 +801,7 @@ function get_request(msg, _port) {
     base = 'https://www.zhaowenxian.com';
   }
   // respond to msg
-  if (msg.loadExtraJs) {
-    _port.postMessage({js_base_uri:base});
-
-  } else if (msg.load_local_) {
+  if (msg.load_local_mirror) {
     _port.postMessage({local_mirror:local_mirror});
 
   } else if (msg.url) {
@@ -842,6 +849,7 @@ function get_request(msg, _port) {
           tmp = {};
           for (i = 0; i < d.count; i += 1) {
             tmp['tpl' + d.item[i].pmid] = d.item[i];
+            tmp['tpl' + d.item[i].pmid].date_str = date_str;
           }
           chrome.storage.local.set(tmp);
         }
@@ -895,8 +903,9 @@ function get_request(msg, _port) {
       // chrome.pageAction.show(sender_tab_id);
       if ( alldigi.test(msg.sendID) ) {
         save_visited_ID(msg.sendID);
-        aKey = 'tabId:' + sender_tab_id.toString();
-        chrome.storage.local.set({aKey: msg.sendID});
+        aKey = {};
+        aKey['tabId:' + sender_tab_id] = msg.sendID;
+        chrome.storage.local.set(aKey);
       } else {
         eSearch(msg.sendID, sender_tab_id);
       }
@@ -1029,10 +1038,10 @@ function get_request(msg, _port) {
 
   } else if (msg.from_f1000) {
     tmp = msg.from_f1000.split(',');
-    call_from_other_sites(tmp[0], sender_tab_id.toString(), tmp[1], tmp[2]);
+    call_from_other_sites(tmp[0], sender_tab_id, tmp[1], tmp[2]);
 
   } else if (msg.from_nonF1000) {
-    call_from_other_sites(msg.from_nonF1000, sender_tab_id.toString());
+    call_from_other_sites(msg.from_nonF1000, sender_tab_id);
 
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_'+msg.pmid, msg.pageAbs);
@@ -1056,19 +1065,22 @@ function get_request(msg, _port) {
           });
       }
 
-  } else if (msg.alert_dev) {
-    var failed_terms = localStorage.getItem('alert_dev') || '',
+  } else if (msg.failed_term) {
+    var failed_terms = localStorage.getItem('failed_terms') || '',
         failed_times = 0;
     if (failed_terms) {
+
+console.log(failed_terms); // @@@@
+
       failed_times = ( failed_terms.match(/","/g) ).length + 1;
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
         localStorage.removeItem('https_failed'); // 2018-9-27
         base = 'https://www.zhaowenxian.com';
       }
-      localStorage.setItem('alert_dev', failed_terms + ',"' + msg.alert_dev + '"')
+      localStorage.setItem('failed_terms', failed_terms + ',"' + msg.failed_term + '"')
     } else {
-      localStorage.setItem('alert_dev', '"' + msg.alert_dev + '"')
+      localStorage.setItem('failed_terms', '"' + msg.failed_term + '"')
     }
 
   } else if (msg.open_options) {
@@ -1165,8 +1177,7 @@ function load_ALL_localStorage() {
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     aVal = localStorage.getItem(aKey);
-    if (!aKey || !aVal) {
-      console.log('>> remove a key: ' + aKey);
+    if (!aKey || aVal === null) {
       localStorage.removeItem(aKey);
       continue;
     } else if (aKey.indexOf('tabId:') === 0) {
@@ -1245,7 +1256,7 @@ function adjustStorage(rst, newOnly) {
         DEBUG && console.log(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
         localStorage.setItem(a_key+'_'+a_pmid, ''+pmidObj[a_key]);
       }
-    } else if (aKey.indexOf('tabId:') === 0) {
+    } else if (aKey.indexOf('tabId:') === 0 || rst[aKey] === undefined) {
       toRemove.push(aKey);
     } else if (aKey && newOnly) {
       localStorage.setItem(aKey, ''+rst[aKey].newValue);
@@ -1259,6 +1270,7 @@ function adjustStorage(rst, newOnly) {
 }
 
 function do_syncValues() {
+  $('#undefined_clean').append('<li>Will get the entire storage.sync</li>');
   console.time('Get entire storage.sync');
   chrome.storage.sync.get(null, function (rslt) { // the entire
     console.timeEnd('Get entire storage.sync');

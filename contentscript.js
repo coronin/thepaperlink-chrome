@@ -1,12 +1,15 @@
 "use strict";
 
 /*
- * Copyright (c) 2013 Liang Cai . All rights reserved.  Use of this
+ * Copyright (c) 2013-2018 Liang Cai .  All rights reserved.  Use of this
  * source code is governed by a BSD-style license that can be found in the
  * LICENSE file.
  *
- * http://cail.cn
- * initial version, a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
+ * http://about.me/cail
+ *
+ * this started as a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
+ * the paper link 3:
+ *   https://chrome.google.com/webstore/detail/obgkooamoiloecoadbfaflephiefbfpn
  */
 
 var DEBUG = false,
@@ -15,7 +18,7 @@ var DEBUG = false,
     page_url = page_d.URL,
     loading_gif = chrome.extension.getURL('loadingLine.gif'),
     clippy_file = chrome.extension.getURL('clippyIt.png'),
-    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9.\/)(-]+\w)\s*\W?/,
+    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/,
     pmids = '',
     pmidArray = [],
     old_title = '',
@@ -26,32 +29,12 @@ var DEBUG = false,
     absNeeded = 0,
     _port = chrome.runtime.connect({name: 'background_port'});
 
-/* version 3:
-   https://chrome.google.com/webstore/detail/obgkooamoiloecoadbfaflephiefbfpn
-   not yet "email it" in extension-la.min.js
- */
+
 var thePaperLink_chrome_limited = true,
     limited = page_d.createElement('div');
 limited.innerHTML = '<div id="thePaperLink_chrome_limited"></div>';
 page_d.body.appendChild(limited);
-
-
-function ez_format_link(p, url){
-  if (!p) return url;
-  if (p.substr(0,1) === '.') {
-    var i, ss = '', s = url.split('/');
-    for (i = 0; i < s.length; i += 1) {
-      ss += s[i];
-      if (i === 2) {
-        ss += p;
-      }
-      ss += '/';
-    }
-    return ss;
-  } else {
-    return (p + url);
-  }
-}
+// @@@@
 
 if (typeof uneval === 'undefined') {
   var uneval = function (a) {
@@ -75,15 +58,30 @@ function a_proxy(d) {
   //chrome.extension.sendRequest(d);
   _port.postMessage(d);
 }
-a_proxy({load_local_: 1});
+a_proxy({load_local_mirror: 1});
 
-function process_storkapp() {
+function ez_format_link(p, url){
+  if (!p) { return url; }
+  if (p.substr(0,1) === '.') {
+    var i, ss = '', s = url.split('/');
+    for (i = 0; i < s.length; i += 1) {
+      ss += s[i];
+      if (i === 2) { ss += p; }
+      ss += '/';
+    }
+    return ss;
+  } else {
+    return (p + url);
+  }
+}
+
+function process_storkapp() { // 2018 Sep
   var i, len, ele, pmid = '';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
     ele = byTag('a')[i];
     if (ele.textContent.indexOf('ncbi.nlm.nih.gov/pubmed/') > 0) {
       pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
-      page_d.title = pmid;
+      page_d.title = pmid; // ess.js
       a_proxy({from_nonF1000: pmid});
       ele.setAttribute('id', 'thepaperlink_bar');
       ele.innerHTML = '';
@@ -92,7 +90,8 @@ function process_storkapp() {
       break;
     }
   }
-  a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]), pmid: pmid});
+  a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
+           pmid: pmid});
 }
 
 function process_f1000() { // 2018 Sep
@@ -114,16 +113,17 @@ function process_f1000() { // 2018 Sep
       byID('article-doi').style.display = 'none';
     }
   }
-  if (pmid && f_v && fid) { // require valid f1000.com login
-    page_d.title = pmid + '::' + doi;
+  if (pmid && f_v && fid) {
+    page_d.title = pmid + '::' + doi; // ess.js
     a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
   } else {
     DEBUG && console.log('>> process_f1000: '+pmid+','+fid+','+f_v);
   }
-  a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]), pmid: pmid});
+  a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]),
+           pmid: pmid});
 }
 
-function order_gs() {
+function order_gs() { // 2018 Sep @@@@
   var i, len, tobe = [], nodes = [],
       lists = byID('_thepaperlink_order_lists').textContent.split(';');
   if (byID('_thepaperlink_order_status').textContent === '0') {
@@ -153,7 +153,7 @@ function order_gs() {
   byID('gs_res_ccl_mid').style.display = 'block';
 }
 
-function process_googlescholar() {
+function process_googlescholar() { // 2018 Sep @@@@
   var i, ilen, j, jlen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
     if (nodes[i].className === 'gs_alrt_btm') {
@@ -183,9 +183,9 @@ function process_googlescholar() {
   }
 }
 
-function parse_id(a) { // pubmeder code
+function parse_id(a) {
   var regpmid = /pmid\s*:?\s*(\d+)\s*/i,
-      regdoi = /doi\s*:?\s*/i,
+      regdoi = /doi\s*:?\s*\d{2}\.\d{4}\//i,
       regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
       ID = null;
   if (regpmid.test(a)) {
@@ -233,7 +233,7 @@ function getPmid(zone, num) {
             }
           }
         }
-        absNeeded = 1;
+        absNeeded = 1; // 2018 Sep
       } else { // abstract page
         t_strings = byTag(zone)[num+1].textContent.split('.');
         t_title = trim( byTag('h1')[1].textContent );
@@ -262,12 +262,10 @@ function getPmid(zone, num) {
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
           '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
           '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
-      b.onclick = function () { // chrome.extension.sendRequest
-        a_proxy({t_cont: t_cont});
-      };
+      b.onclick = function () { a_proxy({t_cont: t_cont}); };
       if (byTag(zone)[num].className === 'rprt') {
         byTag(zone)[num + 3].appendChild(b);
-      } else { // display with abstract
+      } else { // abstract page
         byTag(zone)[num + 1].appendChild(b);
         a_proxy({pageAbs: byTag(zone)[num + 8].textContent, pmid: ID[1]});
       }
@@ -275,23 +273,23 @@ function getPmid(zone, num) {
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
-        c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // No 'Access-Control-Allow-Origin' header is present on the requested resource.
+        c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // @@@@ 'Access-Control-Allow-Origin' header is present on the requested resource.
         if (byTag(zone)[num].className === 'rprt') {
           byTag(zone)[num + 4].appendChild(c);
-        } else { // display with abstract
+        } else { // abstract page
           byTag(zone)[num + 5].appendChild(c);
         }
-        a_proxy({a_pmid: ID[1], a_title: t_title});
+        a_proxy({a_pmid: ID[1], a_title: t_title}); // queue_scholar_title
       }
-    }
-  }
+    } // regpmid.exec(a)
+  } // regpmid.test(a)
 }
 
 function get_Json(pmids) {
   var i, len, ele,
       need_insert = 1,
       url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
-      loading_span = '<span style="font-weight:normal;font-style:italic"> fetching data from "the paper link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+      loading_span = '<span style="font-weight:normal;font-style:italic"> loading from "the paper link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -303,16 +301,19 @@ function get_Json(pmids) {
       need_insert = 0;
       ele.setAttribute('id', 'pl4_title');
       old_title = ele.innerHTML;
-      search_result_count = ele.textContent;
-      if (search_result_count.indexOf(' of ') > 0) {
-        search_result_count = parseInt(search_result_count.split(' of ')[1], 10);
-      } else if (search_result_count.indexOf('Items: ') > -1) {
-        search_result_count = parseInt(search_result_count.substr(7, search_result_count.length), 10);
-      } else {
-        search_result_count = 0;
+      if (search_term) {
+        search_result_count = ele.textContent;
+        if (search_result_count.indexOf(' of ') > 0) {
+          search_result_count = parseInt(search_result_count.split(' of ')[1], 10);
+        } else if (search_result_count.indexOf('Items: ') > -1) {
+          search_result_count = parseInt(search_result_count.substr(7, search_result_count.length), 10);
+        } else {
+          search_result_count = 0;
+        }
+        a_proxy({search_term: search_term, search_result_count: search_result_count});
       }
-      a_proxy({search_term: search_term, search_result_count: search_result_count});
       ele.innerHTML = old_title + loading_span;
+      break;
     }
   }
   if (need_insert) {
@@ -322,7 +323,7 @@ function get_Json(pmids) {
     byID('messagearea').appendChild(ele);
   }
   onePage_calls += 1;
-  a_proxy({url: url});
+  a_proxy({url: url}); // call theServer api
 }
 
 function run() {
@@ -389,18 +390,18 @@ if (page_url === 'https://www.thepaperlink.com/reg'
     || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
   a_proxy({save_apikey: byID('apikey').innerHTML, save_email: null});
   a_proxy({save_cloud_op: byID('cloud_op').innerHTML});
-  noRun = 1;
+  noRun = 2;
 } else if (page_url === 'http://pubmeder.cailiang.net/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
     || page_url === 'https://pubmeder-hrd.appspot.com/registration') { // storage data for access the bookmark server
   a_proxy({save_apikey: byID('apikey_pubmeder').innerHTML,
-            save_email: byID('currentUser').innerHTML});
-  noRun = 1;
+           save_email: byID('currentUser').innerHTML});
+  noRun = 3;
 } else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
   var content = byID('r_content').innerHTML,
       service = byID('r_success').innerHTML;
   a_proxy({service: service, content: content});
-  noRun = 1;
+  noRun = 4;
 } else if (page_url.indexOf('://f1000.com/prime/') > 0) {
   process_f1000();
   noRun = 1;
@@ -417,44 +418,40 @@ if (page_url === 'https://www.thepaperlink.com/reg'
 //  process_orNSFC();
 //  noRun = 1;
 } else if (page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
-    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
-    && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) {
-  // content_scripts and externally_connectable on all sites
+        && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
+        && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) { // content_scripts, externally_connectable
   var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && console.log('>> other site, got ID ' + ID[1]);
+    DEBUG && console.log('>> other sites, got ID ' + ID[1]);
     a_proxy({sendID: ID[1]});
   }
   noRun = 1;
 }
-if (byID('_thepaperlink_client_status')) {
+if (byID('_thepaperlink_client_status')) { // noRun = 2
   byID('_thepaperlink_client_status').innerHTML = chrome.runtime.id;
 }
-if (byID('_thepaperlink_client_modify_it')) {
+if (byID('_thepaperlink_client_modify_it')) { // noRun = 2
   byID('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
-  // big boss, run on pubmed.gov
-  a_proxy({loadExtraJs: 1});
-  run();
+  chrome.storage.sync.get(['rev_proxy', 'https_failed'], function (e) {
+    var jss_base = 'https://www.thepaperlink.com/';
+    if (e.https_failed || (e.rev_proxy && e.rev_proxy === 'yes')) {
+      jss_base = 'https://www.zhaowenxian.com/';
+    }
+    if (!byID('paperlink2_display')) {
+      var peaks = document.createElement('script');
+      peaks.setAttribute('type', 'text/javascript');
+      peaks.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
+      page_d.body.appendChild(peaks);
+    }
+  });
+  run(); // big boss
 }
 
 function get_request(msg) {
   DEBUG && console.log(msg);
-  if (msg.js_base_uri) {
-    if (window.location.protocol === 'https:' && msg.js_base_uri.substr(0,5) !== 'https') {
-      msg.js_base_uri = 'https://www.zhaowenxian.com';
-    }
-    if (!byID('paperlink2_display')) {
-      var peaks = page_d.createElement('script');
-      peaks.setAttribute('type', 'text/javascript');
-      peaks.setAttribute('src', msg.js_base_uri + '/jss?y=' + (Math.random()));
-      page_d.body.appendChild(peaks);
-    }
-    //sendResponse({});
-    return;
-
-  } else if (msg.local_mirror) {
+  if (msg.local_mirror) {
     local_mirror = msg.local_mirror;
     //sendResponse({});
     return;
@@ -471,29 +468,18 @@ function get_request(msg) {
         'Error!&nbsp;&nbsp;' + msg.except +
         '&nbsp;<a href="https://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">[?]</a></span>';
-    a_proxy({alert_dev: search_term});
+    a_proxy({failed_term: search_term});
     byID('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');
       if (answer) {
-        alert_dev( uneval_trim(msg.tpl) );
+        alert_dev(msg.tpl);
       }
     };
     //sendResponse({});
     return;
 
-  } else if (msg.js_key && msg.js_base) { // 2018-9-28: call_js_on_click via page_action
-    if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
-      msg.js_base = 'https://www.thepaperlink.com/';
-    }
-    // will be removed by /js?
-    localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);
-    localStorage.setItem('thePaperLink_pubget_js_base', msg.js_base);
-    if (!byID('__tr_display')) {
-      var jsClient = page_d.createElement('script');
-      jsClient.setAttribute('type', 'text/javascript');
-      jsClient.setAttribute('src', msg.js_base + 'js?y=' + (Math.random()));
-      (page_d.head || page_d.documentElement).appendChild(jsClient);
-    }
+  } else if (msg.js_key && msg.js_base) {
+    // 2018-9-28: call_js_on_click via page_action
     //sendResponse({});
     return;
 
@@ -509,8 +495,7 @@ function get_request(msg) {
         }
       } else if (msg.g_num && msg.g_link) {
         byID('citedBy' + msg.pmid).innerHTML = '<a target="_blank" href="https://scholar.google.com' +
-          uneval_trim(msg.g_link) + '">Google Scholar ' +
-          uneval_trim(msg.g_num) + ' times</a>';
+          msg.g_link + '">Google Scholar ' + msg.g_num + ' times</a>';
       }
     } catch (err) {
       DEBUG && console.log(err);
@@ -519,7 +504,7 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.el_id && msg.el_data) {
+  } else if (msg.el_id && msg.el_data) { // _pdf, pl4_scopus, _shark
     try {
       if (msg.el_data && msg.el_data.indexOf('://') > -1) {
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
@@ -528,11 +513,10 @@ function get_request(msg) {
             e.parentNode.removeChild(e);
           } else {
             e.removeClass('thepaperlink_Off');
-            e.href = uneval_trim(msg.el_data);
+            e.href = msg.el_data;
           }
         } else {
-          byID(msg.el_id).innerHTML = '&raquo; <a target="_blank" href="' +
-              uneval_trim(msg.el_data) +'">the file link</a>';
+          byID(msg.el_id).innerHTML = '&raquo; <a target="_blank" href="' + msg.el_data + '">the file link</a>';
         }
       } else if (msg.el_data === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
         byID(msg.el_id).innerText = 'trying';
@@ -545,11 +529,37 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.search_trend) {
+  } else if (msg.search_trend) { // from msg.search_term
     var hook = byID('myncbiusername').textContent;
     byID('myncbiusername').innerHTML = '<span style="color:yellow">&nbsp;' +
         msg.search_trend + '&nbsp;</span> ' + hook;
     byID('myncbiusername').style.display = 'inline';
+    //sendResponse({});
+    return;
+
+  } else if (msg.to_other_sites) { // respond to from_xx
+    insert_style = page_d.createElement('style');
+    insert_style.type = 'text/css';
+    insert_style.appendChild(page_d.createTextNode(styles));
+    page_d.body.appendChild(insert_style);
+    div = page_d.createElement('div');
+    div.className = 'thepaperlink';
+    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
+        msg.pmid + '" target="_blank">the paper link</a>';
+    div_html += msg.extra;
+    div.innerHTML = div_html;
+    byID(msg.to_other_sites).appendChild(div);
+    //sendResponse({});
+    return;
+
+  } else if (msg.returnAbs) { // 2018-9-14
+    byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
+    alert(msg.returnAbs);
+    if (byID('thepaperlink_text' + msg.pmid)) {
+      byID('thepaperlink_text' + msg.pmid).style.display = 'block';
+      byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
+    }
+    localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
     //sendResponse({});
     return;
   }
@@ -601,37 +611,7 @@ function get_request(msg) {
         uneval(r.error) + '</span>';
     //sendResponse({});
     return;
-  }
-
-  if (msg.to_other_sites) { // respond to from_xx
-    insert_style = page_d.createElement('style');
-    insert_style.type = 'text/css';
-    insert_style.appendChild(page_d.createTextNode(styles));
-    page_d.body.appendChild(insert_style);
-    div = page_d.createElement('div');
-    div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
-        msg.pmid + '" target="_blank">the paper link</a>';
-    div_html += msg.extra;
-    div.innerHTML = div_html;
-    byID(msg.to_other_sites).appendChild(div);
-    //sendResponse({});
-    return;
-  }
-
-  if (msg.returnAbs) { // 2018-9-14
-    byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
-    alert(msg.returnAbs);
-    if (byID('thepaperlink_text' + msg.pmid)) {
-      byID('thepaperlink_text' + msg.pmid).style.display = 'block';
-      byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
-    }
-    localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
-    //sendResponse({});
-    return;
-  }
-
-  if (!r || !r.count) {
+  } else if (!r || !r.count) {
     //sendResponse({});
     return;
   }
@@ -646,8 +626,7 @@ function get_request(msg) {
   }
   if (msg.pubmeder) {
     bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
-        pmids + '\',\'' + uneval_trim(msg.save_key) + '\',\'' +
-        uneval_trim(msg.save_email) + '\')">save&nbsp;page</span></div>';
+        pmids + '\',\'' + msg.save_key + '\',\'' + msg.save_email + '\')">save&nbsp;page</span></div>';
   } else {
     bookmark_div += 'save what you are reading? try <a href="http://pubmeder.cailiang.net/registration" target="_blank">PubMed-er</a></div>';
   }
@@ -656,9 +635,9 @@ function get_request(msg) {
   } else {
     byID('pl4_title').innerHTML = '';
   }
+  k = pmidArray.length;
   for (i = 0; i < r.count; i += 1) {
     pmid = uneval_trim(r.item[i].pmid);
-    k = pmidArray.length;
     for (j = 0; j < k; j += 1) {
       if (pmid === pmidArray[j]) {
         pmidArray = pmidArray.slice(0, j).concat(pmidArray.slice(j + 1, k));
@@ -669,23 +648,20 @@ function get_request(msg) {
     }
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid +
-        '" href="' + msg.uri + '/?q=pmid:' +
-        pmid + '" target="_blank">the paper link</a>: ';
+    div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid + '" href="' +
+        msg.uri + '/?q=pmid:' + pmid + '" target="_blank">the paper link</a>: ';
     var slfoV = parseFloat(r.item[i].slfo);
     if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
       tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
       div_html += tmp;
     }
-    if (absNeeded) {
+    if (absNeeded) { // 2018 Sep
       tmp = '<span class="thepaperlink-abs" id="thepaperlink_abs' + pmid + '">&nbsp;abs</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
-      tmp = '<a id="thepaperlink_pdf' + pmid +
-          '" class="thepaperlink-green" href="' +
-          ez_format_link(p, uneval_trim(r.item[i].pdf)) +
-          '" target="_blank">pdf</a>';
+      tmp = '<a id="thepaperlink_pdf' + pmid + '" class="thepaperlink-green" href="' +
+          ez_format_link(p, uneval_trim(r.item[i].pdf)) + '" target="_blank">pdf</a>';
       div_html += tmp;
     } else if (r.item[i].pii) {
       a_proxy({pmid: pmid, pii: r.item[i].pii, pii_link: 1});
@@ -693,15 +669,14 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (r.item[i].pmcid) {
-      tmp = '<a id="thepaperlink_pmc' + pmid +
-          '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
+      tmp = '<a id="thepaperlink_pmc' + pmid + '" href="https://www.ncbi.nlm.nih.gov/pmc/articles/' +
           uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlink_chrome" target="_blank">pmc</a>';
       div_html += tmp;
     }
     if (r.item[i].doi) {
       a_proxy({pmid: pmid, doi: r.item[i].doi, doi_link: 1});
-      tmp = '<a id="thepaperlink_doi' + pmid +
-          '" href="' + ez_format_link(p,
+      tmp = '<a id="thepaperlink_doi' + pmid + '" href="' +
+          ez_format_link(p,
               'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a>';
       if (local_mirror) {
@@ -711,8 +686,8 @@ function get_request(msg) {
       }
       div_html += tmp;
     } else if (r.item[i].pii) {
-      tmp = '<a id="thepaperlink_pii' + pmid +
-          '" href="' + ez_format_link(p,
+      tmp = '<a id="thepaperlink_pii' + pmid + '" href="' +
+          ez_format_link(p,
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">publisher</a>';
       if (local_mirror) {
@@ -729,14 +704,12 @@ function get_request(msg) {
               'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">Scopus</a> <span id="pl4_scopus' + pmid + '"></span>';
       byID('citedBy' + pmid).parentNode.appendChild(insert_span);
-    }
+    } // @@@@
     if (r.item[i].f_v && r.item[i].fid) {
-      tmp = '<a id="thepaperlink_f' + pmid +
-          '" class="thepaperlink-red" href="' +
+      tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
               'https://f1000.com/prime/' + uneval_trim(r.item[i].fid)
-          ) + '" target="_blank">f1000<sup>' +
-          uneval_trim(r.item[i].f_v) + '</sup></a>';
+          ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
     if (msg.pubmeder || msg.cloud_op) {
@@ -746,7 +719,7 @@ function get_request(msg) {
           uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) { // 2018-9-14
+    if (msg.tpl) { // check on 2018-9-14
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
           pmid + '\',\'' + uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.tpll) +
@@ -754,12 +727,12 @@ function get_request(msg) {
       div_html += tmp;
     }
     if (msg.tpl && r.item[i].pdf) {
-      tmp = '<span class="thepaperlink_Off" id="thepaperlink_hidden' +
-          pmid + '"></span>';
+      tmp = '<span class="thepaperlink_Off" id="thepaperlink_hidden' + pmid + '"></span>';
       div_html += tmp;
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
+    k += 1;
 
     if (byID('thepaperlink_abs' + pmid)) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
@@ -785,7 +758,7 @@ function get_request(msg) {
       }
     }
 
-    if (byID('thepaperlink_hidden' + pmid)) {
+    if (byID('thepaperlink_hidden' + pmid)) { // @@@@
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
         var eventData = this.textContent,
             evt_pmid = this.id.substr(19),
@@ -802,16 +775,16 @@ function get_request(msg) {
           }
         }
       });
-    }
-  }
-  if (pmidArray.length > 0 && onePage_calls < 10) {
+    } // @@@@
+  } // for loop r.count
+  if (pmidArray.length > 0 && onePage_calls) { // && onePage_calls < 10
     if (pmidArray.length === k) {
       DEBUG && console.log('>> got nothing; stopped. ' + k);
     } else {
       DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
       byID('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
-      onePage_calls += 1;
+      onePage_calls += 1; // @@@@
       a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
     }
   }
