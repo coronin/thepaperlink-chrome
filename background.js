@@ -99,7 +99,7 @@ function post_theServer(v) {
             post_theServer(1);
           }
           if (d.chrome && d.chrome !== version) {
-            localStorage.setItem('alert_outdated', 1);
+            localStorage.setItem('alert_outdated', 'yes');
           } else if (version === d.chrome) {
             localStorage.removeItem('alert_outdated');
           }
@@ -338,8 +338,7 @@ function send_binary(aB, pmid, upload, no_email) {
     if (abView.length < 1000) {
       return;
     }
-    i = 0;
-    for (len = abView.length; i < len; i += 1) {
+    for (i = 0, len = abView.length; i < len; i += 1) {
       post_data += String.fromCharCode(abView[i] & 0xff);
     }
     post_data += postTail;
@@ -715,11 +714,8 @@ function common_dThree(itemZero, withRed) {
 
 function call_from_other_sites(pmid, tabId, fid, f_v) {
   if (!pmid) { return; }
-  aKey = 'tpl' + pmid;
-  chrome.storage.local.get([aKey], function (dd) {
-
-console.log(dd); // @@@@
-
+  chrome.storage.local.get(['tpl'+pmid], function (ddd) {
+    var dd = ddd['tpl'+pmid];
     if (dd && dd.pmid == pmid) {
       aVal = common_dThree(dd[0], 0);
       if (aVal) {
@@ -741,6 +737,9 @@ console.log(dd); // @@@@
           aKey = {};
           aKey['tpl' + pmid] = d.item[0];
           aKey['tpl' + pmid].date_str = date_str;
+          if (localStorage.getItem('abs_'+pmid) && !d.item[0].abstract) {
+            aKey['tpl' + pmid].abstract = localStorage.getItem('abs_'+pmid);
+          }
           chrome.storage.local.set(aKey);
           if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
             $.post(base + '/',
@@ -755,7 +754,7 @@ console.log(dd); // @@@@
         }
       }).fail(function () {
         if (base === 'https://www.thepaperlink.com') {
-          localStorage.setItem('https_failed', 1);
+          localStorage.setItem('https_failed', 'yes');
           base = 'https://www.zhaowenxian.com';
         }
       });
@@ -823,6 +822,9 @@ function get_request(msg, _port) {
           for (i = 0; i < d.count; i += 1) {
             tmp['tpl' + d.item[i].pmid] = d.item[i];
             tmp['tpl' + d.item[i].pmid].date_str = date_str;
+            if (localStorage.getItem('abs_'+d.item[i].pmid) && !d.item[i].abstract) {
+              tmp['tpl' + d.item[i].pmid].abstract = localStorage.getItem('abs_'+d.item[i].pmid);
+            }
           }
           chrome.storage.local.set(tmp);
         }
@@ -840,7 +842,7 @@ function get_request(msg, _port) {
         _port.postMessage({except:'Guest usage limited.', tpl:''});
       }
       if (base === 'https://www.thepaperlink.com') {
-        localStorage.setItem('https_failed', 1);
+        localStorage.setItem('https_failed', 'yes');
         base = 'https://www.zhaowenxian.com';
       }
     }).always(function () {
@@ -851,13 +853,13 @@ function get_request(msg, _port) {
     if (msg.save_email) {
       localStorage.setItem('pubmeder_apikey', msg.save_apikey);
       localStorage.setItem('pubmeder_email', msg.save_email);
-      localStorage.setItem('b_apikey_gold', 1);
+      localStorage.setItem('b_apikey_gold', 'yes');
       pubmeder_apikey = msg.save_apikey;
       pubmeder_email = msg.save_email;
       pubmeder_ok = true;
     } else {
       localStorage.setItem('thepaperlink_apikey', msg.save_apikey);
-      localStorage.setItem('a_apikey_gold', 1);
+      localStorage.setItem('a_apikey_gold', 'yes');
       apikey = msg.save_apikey;
       req_key = apikey;
     }
@@ -1100,13 +1102,13 @@ $.ajax({
   localStorage.removeItem('https_failed');
 }).fail(function() {
   DEBUG && console.log('>> access theServer via http');
-  localStorage.setItem('https_failed', 1);
+  localStorage.setItem('https_failed', 'yes');
   //if (localStorage.getItem('rev_proxy') !== 'yes') {
   base = 'https://www.zhaowenxian.com';
   //}
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
-    localStorage.setItem('contextMenu_on', 1);
+    localStorage.setItem('contextMenu_on', 'yes');
     menu_generator();
   }
   console.timeEnd("Call theServer to validate connection");
@@ -1219,8 +1221,22 @@ chrome.runtime.onInstalled.addListener(function () {
   do_syncValues();
 }); // onInstalled
 
-chrome.storage.onChanged.addListener(function (rst) {
-  adjustStorage(rst, 1);
+chrome.storage.onChanged.addListener(function (rst, areaName) {
+  if (areaName === 'sync') {
+    adjustStorage(rst, 1);
+  } else {
+    for (aKey in rst) {
+      var a = rst[aKey].oldValue,
+          b = rst[aKey].newValue;
+      if (a && a.date_str) {
+        a.date_str = undefined;
+        b.date_str = undefined;
+      }
+      if (a && JSON.stringify(a) !== JSON.stringify(a)) {
+        localStorage.setItem('diff_'+aKey, date_str);
+      }
+    }
+  }
 });
 
 chrome.omnibox.onInputChanged.addListener(

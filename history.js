@@ -6,12 +6,12 @@ var DEBUG = false,
     bkg = chrome.extension.getBackgroundPage();
 
 function format_a_li(category, pmid, url, num) {
+  var categoryLen = category.length;
   if (!url && !num) {
     var id_abs = pmid.split('====');
     $('#'+category+'_').append(
         '<li><button style="float:left" id="'+category+id_abs[0]+'">'+id_abs[0]+
         '</button> &nbsp; <textarea rows="3" cols="90">'+id_abs[1]+'</textarea></li>' );
-    var categoryLen = category.length;
     $('#'+category+id_abs[0]).on('click', function () {
       // function in ess.js
       eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
@@ -19,7 +19,6 @@ function format_a_li(category, pmid, url, num) {
   } else {
     $('#'+category+'_').append('<li><button id="'+category+pmid+'">'+pmid+'</button> &nbsp; ' +
         '<a target="_blank" href="'+url+'">/' + url.split('/', 4)[3] + '</a></li>');
-    var categoryLen = category.length;
     $('#'+category+pmid).on('click', function () {
       // function in ess.js
       eSummary( this.id.substr(categoryLen, this.id.length-categoryLen), null );
