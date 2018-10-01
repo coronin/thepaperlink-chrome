@@ -449,7 +449,6 @@ function scholar_title(pmid, t, tabId) {
           g_link = /href="([^"]+)"/.exec(h[0]);
           if (g_num.length === 2 && g_link.length === 2) {
             localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
-            format_a_li('scholar', pmid, 'https://scholar.google.com' + g_link[1]);
             b_proxy(tabId, {
               g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
             });
@@ -516,7 +515,6 @@ function do_download_shark(pmid, url) {
 
 function prepare_download_shark(tabId, pmid, args) {
   localStorage.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
-  format_a_li('shark', pmid, args.shark_link);
   b_proxy(tabId, {el_id: '_shark' + pmid, el_data: args.shark_link});
   $.post(base + '/', args,
       function (d) {

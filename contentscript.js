@@ -590,18 +590,7 @@ function get_request(msg) {
           '}',
       r = msg.r;
 
-  if (r && r.error) {
-    byID('pl4_title').innerHTML = old_title +
-        ' <span style="font-size:14px;font-weight:normal;color:red">"the paper link" error ' +
-        uneval(r.error) + '</span>';
-    //sendResponse({});
-    return;
-
-  } else if (!r || !r.count) {
-    //sendResponse({});
-    return;
-
-  } else if (msg.to_other_sites) { // respond to from_xx, style
+  if (msg.to_other_sites) { // respond to from_xx, style
     insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles)); // WebKit hack
@@ -613,6 +602,17 @@ function get_request(msg) {
     div_html += msg.extra;
     div.innerHTML = div_html;
     byID(msg.to_other_sites).appendChild(div);
+    //sendResponse({});
+    return;
+
+  } else if (r && r.error) {
+    byID('pl4_title').innerHTML = old_title +
+        ' <span style="font-size:14px;font-weight:normal;color:red">"the paper link" error ' +
+        uneval(r.error) + '</span>';
+    //sendResponse({});
+    return;
+
+  } else if (!r || !r.count) {
     //sendResponse({});
     return;
   }
