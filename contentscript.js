@@ -793,5 +793,5 @@ function get_request(msg) {
   //sendResponse({});
 }
 //chrome.extension.onRequest.addListener(get_request);
-chrome.runtime.onMessage.addListener(get_request); // from b_proxy
+chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
 _port.onMessage.addListener(get_request);
