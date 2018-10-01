@@ -1185,7 +1185,7 @@ chrome.runtime.onInstalled.addListener(function () {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } })
+                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } }) // @@@@
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }, {
@@ -1203,12 +1203,20 @@ chrome.runtime.onInstalled.addListener(function () {
     }, {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//pubmed.cn/' },
+                css: [ "p[class='view_pmid']" ] }),
+            new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//f1000.com/prime/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//pubmed.cn/' },
-                css: [ "p[class='view_pmid']" ] })
+                pageUrl: { urlContains: '.cell.com/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.nature.com/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.sciencemag.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.rupress.org/' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }
