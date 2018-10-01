@@ -717,7 +717,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
   chrome.storage.local.get(['tpl'+pmid], function (ddd) {
     var dd = ddd['tpl'+pmid];
     if (dd && dd.pmid == pmid) {
-      aVal = common_dThree(dd[0], 0);
+      aVal = common_dThree(dd, 0);
       if (aVal) {
         aVal = ': ' + aVal;
       }
@@ -758,7 +758,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           base = 'https://www.zhaowenxian.com';
         }
       });
-    }
+    } // if chrome.storage.local.get
   });
 }
 

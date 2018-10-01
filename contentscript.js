@@ -537,21 +537,6 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
-  } else if (msg.to_other_sites) { // respond to from_xx
-    insert_style = page_d.createElement('style');
-    insert_style.type = 'text/css';
-    insert_style.appendChild(page_d.createTextNode(styles));
-    page_d.body.appendChild(insert_style);
-    div = page_d.createElement('div');
-    div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
-        msg.pmid + '" target="_blank">the paper link</a>';
-    div_html += msg.extra;
-    div.innerHTML = div_html;
-    byID(msg.to_other_sites).appendChild(div);
-    //sendResponse({});
-    return;
-
   } else if (msg.returnAbs) { // 2018-9-14
     byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
     alert(msg.returnAbs);
@@ -611,7 +596,23 @@ function get_request(msg) {
         uneval(r.error) + '</span>';
     //sendResponse({});
     return;
+
   } else if (!r || !r.count) {
+    //sendResponse({});
+    return;
+
+  } else if (msg.to_other_sites) { // respond to from_xx, style
+    insert_style = page_d.createElement('style');
+    insert_style.type = 'text/css';
+    insert_style.appendChild(page_d.createTextNode(styles)); // WebKit hack
+    page_d.body.appendChild(insert_style);
+    div = page_d.createElement('div');
+    div.className = 'thepaperlink';
+    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/?q=pmid:' +
+        msg.pmid + '" target="_blank">the paper link</a>';
+    div_html += msg.extra;
+    div.innerHTML = div_html;
+    byID(msg.to_other_sites).appendChild(div);
     //sendResponse({});
     return;
   }
