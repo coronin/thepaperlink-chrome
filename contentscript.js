@@ -483,7 +483,7 @@ function get_request(msg) {
 
   } else if (msg.js_key && msg.js_base) { // 2018-9-28: call_js_on_click via page_action
     if (window.location.protocol === 'https:' && msg.js_base.substr(0,5) !== 'https') {
-      msg.js_base = 'https://pubget-hrd.appspot.com/';
+      msg.js_base = 'https://www.thepaperlink.com/';
     }
     // will be removed by /js?
     localStorage.setItem('thePaperLink_pubget_js_key', msg.js_key);
