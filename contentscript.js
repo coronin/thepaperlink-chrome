@@ -54,7 +54,7 @@ function byID(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(d) {
-  DEBUG && console.log('>> sendRequest to background.html');
+  DEBUG && console.log('>> sendRequest to background.js');
   //chrome.extension.sendRequest(d);
   _port.postMessage(d);
 }

@@ -288,8 +288,8 @@ function saveOptions() {
 $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');
   $('button').button();
-  $('#background_html').text('logs');
-  $('#background_html').attr('href', chrome.extension.getURL('background.html'));
+  $('#history_html').text('logs');
+  $('#history_html').attr('href', chrome.extension.getURL('history.html'));
 
   $('#saveBtn').on('click', function() { saveOptions(); });
   $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
