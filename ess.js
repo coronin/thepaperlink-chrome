@@ -242,7 +242,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var tab = tabs[0], ID;
   $('#result').removeClass('Off');
   if (tab.url.indexOf('chrome-extension://') === 0) {
-    $('#result').html('ess.js used in background.html');
+    $('#result').html('ess.js used in history.html');
 
   } else if (tab.url.indexOf('//pubmed.cn/') > 0) {
     ID = tab.url.split('//pubmed.cn/')[1];
@@ -297,5 +297,5 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
 chrome.runtime.onMessage.addListener(function (msg) {
     // @@@@
-    console.log(msg);
+    chrome.extension.getBackgroundPage().console.log(msg);
 });
