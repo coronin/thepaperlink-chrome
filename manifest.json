@@ -66,11 +66,7 @@
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*",
-      "https://*.cell.com/*",
-      "https://*.nature.com/*",
-      "http://*.sciencemag.org/*",
-      "https://*.sciencemag.org/*"
+      "https://www.ncbi.nlm.nih.gov/*"
     ],
     "exclude_globs": [
       "*://www.ncbi.nlm.nih.gov/pubmed/",
@@ -96,11 +92,7 @@
       "https://f1000.com/prime/*",
       "https://www.storkapp.me/paper/*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*",
-      "https://*.cell.com/*",
-      "https://*.nature.com/*",
-      "http://*.sciencemag.org/*",
-      "https://*.sciencemag.org/*"
+      "https://www.ncbi.nlm.nih.gov/*"
     ]
   },
   "manifest_version": 2
