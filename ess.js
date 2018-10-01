@@ -275,7 +275,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   } else { // @@@@
   chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
-    ID = dd;
+    ID = dd['tabId:'+tab.id];
     if (/\d{2}\.\d{4}\//.test(ID)) {
       $('#found').html('Found DOI <span class="eSS" id="' + ID + '">' + ID + '</span>');
       $('.eSS').on('click', function () {
