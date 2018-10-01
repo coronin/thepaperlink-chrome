@@ -22,7 +22,7 @@ function titleLink(ID) {
   if (localStorage.getItem('local_mirror')) {
     doiURL = 'https://' + localStorage.getItem('local_mirror');
   }
-  if (/\d{2}\.\d{4}\//.test(ID)) {
+  if (/\d{2}\.\d{4,5}\//.test(ID)) {
     chrome.tabs.create({url: doiURL + '/' + ID, active: false});
 
   } else if (/^PMC\d+$/.test(ID)) {
@@ -332,6 +332,16 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
 
+  } else if (tab.url.indexOf('//journals.plos.org/') > 0) {
+    ID = tab.url.split('/article?id=')[1];
+    $('#found').html('&copy; ' + ID);
+    eSS(ID, tab.id);
+
+  } else if (tab.url.indexOf('//elifesciences.org/') > 0) {
+    ID = '10.7554/eLife.' + tab.url.split('/')[4].split('.')[0];
+    $('#found').html('&copy; ' + ID);
+    eSS(ID, tab.id);
+
   } else if (tab.url.indexOf('sciencemag.org/') > 0) {
     var urlBreaks = tab.url.split('/');
     ID = '10.1126/';
@@ -358,7 +368,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   } else { chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
     // @@@@
     ID = dd['tabId:'+tab.id];
-    if (/\d{2}\.\d{4}\//.test(ID) || /^PMC\d+$/.test(ID)) {
+    if (/\d{2}\.\d{4,5}\//.test(ID) || /^PMC\d+$/.test(ID)) {
       $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
       $('.eSS').on('click', function () {
         eSS(this.id, tab.id);

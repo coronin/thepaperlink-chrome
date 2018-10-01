@@ -1214,13 +1214,22 @@ chrome.runtime.onInstalled.addListener(function () {
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '.cell.com/' } }),
-            new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '.nature.com/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '.sciencemag.org/' } }),
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '.rupress.org/' } })
+                pageUrl: { urlContains: '.rupress.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//journals.plos.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//elifesciences.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.biologists.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.embopress.org/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '.cell.com/' } })
+
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }

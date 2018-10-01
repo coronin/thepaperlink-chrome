@@ -18,7 +18,7 @@ var DEBUG = false,
     page_url = page_d.URL,
     loading_gif = chrome.extension.getURL('loadingLine.gif'),
     clippy_file = chrome.extension.getURL('clippyIt.png'),
-    doipattern = /(\d{2}\.\d{4}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/,
+    doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/,
     pmids = '',
     pmidArray = [],
     old_title = '',
@@ -185,7 +185,7 @@ function process_googlescholar() { // 2018 Sep @@@@
 
 function parse_id(a) {
   var regpmid = /pmid\s*:?\s*(\d+)\s*/i,
-      regdoi = /doi\s*:?\s*\d{2}\.\d{4}\//i,
+      regdoi = /doi\s*:?\s*\d{2}\.\d{4,5}\//i,
       regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
       ID = null;
   if (regpmid.test(a)) {
