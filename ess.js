@@ -161,7 +161,7 @@ function eSummary(term, tabId) {
               Pages = $(this).find('Item[Name="Pages"]').text(),
               esum_text,
               tmp;
-          if (tabId) { chrome.tabs.sendMessage(tabId, {sendID: pmid}); }
+          if (tabId && pmid) { chrome.tabs.sendMessage(tabId, {sendID: pmid}); }
 
           a.each(function (j) {
             if (j === 0) {
@@ -198,6 +198,9 @@ function eSS(search_term, tabId) {
   $('#ess_input').val(search_term);
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
+  if ( $('#result').hasClass('Off') ) {
+    $('#result').removeClass('Off');
+  }
   $.get(url,
       function (xml) {
         var WebEnv = $(xml).find('WebEnv').text();
@@ -249,7 +252,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       eSummary(ID, tab.id);
       chrome.tabs.sendMessage(tab.id, {from_nonF1000: ID}); // @@@@
     } else {
-      eSS( ID.substr(9, ID.indexOf('&')-9), tab.id );
+      eSS( ID.substr(9, ID.indexOf('&')-9).replace(/\+/g, ' '), tab.id );
     }
 
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
@@ -259,7 +262,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     eSummary(ID, tab.id);
 
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
-    ID = tab.title.split('National Natural Science Foundation of China')[1].replace(/:/g, '').replace(/^\s+|\s+$/g, '');
+    ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html(tab.title.split(':')[0]);
     $('#ess_input').val(ID);
     eSS(ID, tab.id);
