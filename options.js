@@ -451,7 +451,7 @@ $(document).ready(function () {
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
         ' If you really want to, feel free to access our service via HTTP.');
-    $('#api_server').text('https://pubget-hrd.appspot.com');
+    $('#api_server').text('https://www.thepaperlink.com');
   }
   $('#rev_proxy').on('change', function () {
     $('#save_widget').removeClass('Off');

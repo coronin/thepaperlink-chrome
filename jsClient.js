@@ -1,9 +1,9 @@
 "use strict";
 
-var js_base = 'https://www.zhaowenxian.com/';
-if (window.location.protocol === 'https:') {
-    js_base = 'https://pubget-hrd.appspot.com/';
-}
+var js_base = 'https://www.zhaowenxian.com/'; // @@@@ phd.cail.cn
+//if (window.location.protocol === 'https:') {
+//    js_base = 'https://www.zhaowenxian.com/';
+//}
 
 chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey'], function (e) {
     localStorage.setItem('thePaperLink_pubget_js_key', e.thepaperlink_apikey || e.GUEST_APIKEY);

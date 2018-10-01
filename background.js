@@ -18,7 +18,7 @@ var DEBUG = false,
     old_id = '',
     dd = document,
     init_found = localStorage.getItem('id_found') || '',
-    base = 'https://pubget-hrd.appspot.com',
+    base = 'https://www.thepaperlink.com',
     guest_apikey = null,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
     local_mirror,
@@ -246,7 +246,7 @@ function menu_generator() {
         });
       });
     } });
-  chrome.contextMenus.create({'title': 'Inspect logs', 'contexts':['page'],
+  chrome.contextMenus.create({'title': 'Stored search', 'contexts':['page'],
     'onclick': function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.create({
@@ -771,7 +771,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           DEBUG && console.log(d);
         }
       }).fail(function () {
-        if (base === 'https://pubget-hrd.appspot.com') {
+        if (base === 'https://www.thepaperlink.com') {
           localStorage.setItem('https_failed', 1);
           base = 'https://www.zhaowenxian.com';
         }
@@ -858,7 +858,7 @@ function get_request(msg, _port) {
       } else {
         _port.postMessage({except:'Guest usage limited.', tpl:''});
       }
-      if (base === 'https://pubget-hrd.appspot.com') {
+      if (base === 'https://www.thepaperlink.com') {
         localStorage.setItem('https_failed', 1);
         base = 'https://www.zhaowenxian.com';
       }
@@ -1104,7 +1104,7 @@ if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_f
   base = 'https://www.zhaowenxian.com';
 }
 $.ajax({
-  url: 'https://pubget-hrd.appspot.com/static/humans.txt?force_reload=' + Math.random(),
+  url: 'https://www.thepaperlink.com/static/humans.txt?force_reload=' + Math.random(),
   dataType: 'text',
   timeout: 4000
 }).done(function() {
