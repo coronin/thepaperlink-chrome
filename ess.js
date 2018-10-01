@@ -1,5 +1,7 @@
 "use strict";
 
+var _port = chrome.runtime.connect({name: 'background_port'});
+
 function hideMore() {
   $('.moreAbout').addClass('Off');
   $('.AbsButton').removeClass('Off');
@@ -59,6 +61,7 @@ function eFetch(pmid) {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
   }
   $.getJSON(url, args, function (d) {
+    _port.postMessage( {sendID: pmid} );
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
@@ -196,7 +199,6 @@ function eSummary(term, tabId) {
               Pages = $(this).find('Item[Name="Pages"]').text(),
               esum_text,
               tmp;
-          if (tabId && pmid) { chrome.tabs.sendMessage(tabId, {sendID: pmid}); }
 
           a.each(function (j) {
             tmp = $(this).text().replace(/\./g, '');
@@ -209,9 +211,7 @@ function eSummary(term, tabId) {
             }
           });
 
-          if (pmc) {
-            titleLin = '<span class="title" id="' + pmc + '">' + Title + '</span> ';
-          } else if (doi) {
+          if (doi) {
             titleLin = '<span class="title" id="' + doi + '">' + Title + '</span> ';
           } else {
             titleLin = '<span class="title" id="' + pmid + '">' + Title + '</span> ';
@@ -221,7 +221,11 @@ function eSummary(term, tabId) {
           if (Volume) { esum_text += ', ' + Volume; }
           if (Pages) { esum_text += ':' + Pages; }
           esum_text += '.<br/><button class="AbsButton" id="' + pmid + '"> More about </button> <span class="pmid" id="' +
-              pmid + '">PMID:' + pmid + '</span> <img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
+              pmid + '">PMID:' + pmid + '</span> ';
+          if (pmc) {
+            esum_text += '<span class="pmid" id="' + pmc + '">' + pmc + '</span> ';
+          }
+          esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
           $('<div/>').html(esum_text).appendTo('#result');
         });
         $('b.author').on('click', function () { peaks(this.id); });
@@ -251,12 +255,16 @@ function eSS(search_term, tabId) {
   $.get(url,
       function (xml) {
         var WebEnv = $(xml).find('WebEnv').text();
-        chrome.tabs.sendMessage(tabId, {search_term: search_term});
-
-        console.log( $(xml).text() );
-
         if (WebEnv) {
           eSummary(WebEnv, tabId);
+        }
+        var a = $(xml).find('TermSet'), b = 0;
+        a.each(function () {
+          b += parseInt($(this).find('Count').text(), 10);
+        });
+        if (b > 0) {
+          _port.postMessage({search_term: search_term, search_result_count: b,
+                             tabId: tabId});
         }
       },
       'xml'
@@ -299,29 +307,28 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   } else if (tab.url.indexOf('//pubmed.cn/') > 0) {
     ID = tab.url.split('//pubmed.cn/')[1];
     if (/^\d+$/.test(ID)) {
-      $('#found').html('<div id="thepaperlink_bar">PMID found on page '+tab.url+'</div>');
+      $('#found').html('&copy; '+tab.url);
       $('#ess_input').val(ID);
       eSummary(ID, tab.id);
-      //chrome.tabs.sendMessage(tab.id, {from_nonF1000: ID});
     } else {
       eSS( ID.substr(9, ID.indexOf('&')-9).replace(/\+/g, ' '), tab.id );
     }
 
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
     ID = tab.title;
-    $('#found').html('PMID found on /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
+    $('#found').html('&copy; /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
     $('#ess_input').val(ID);
     eSummary(ID, tab.id);
 
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
-    $('#found').html(tab.title.split(':')[0]);
+    $('#found').html('&copy; ' + tab.title.split(':')[0]);
     $('#ess_input').val(ID);
     eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
-    $('#found').html(tab.title.split('::')[1]);
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
     $('#ess_input').val(ID);
     eSummary(ID, tab.id);
 
@@ -329,17 +336,17 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
     ID = dd['tabId:'+tab.id];
     if (/\d{2}\.\d{4}\//.test(ID)) {
-      $('#found').html('Found DOI <span class="eSS" id="' + ID + '">' + ID + '</span>');
+      $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
       $('.eSS').on('click', function () {
         eSS(this.id, tab.id);
       });
     } else if (/^PMC\d+$/.test(ID)) {
-      $('#found').html('Found PMCID <span class="eSS" id="' + ID + '">' + ID + '</span>');
+      $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
       $('.eSS').on('click', function () {
         eSS(this.id, tab.id);
       });
     } else if (/^\d+$/.test(ID)) {
-      $('#found').html('Maybe PMID <span>' + ID + '</span>');
+      $('#found').html('&copy; <span>' + ID + '</span>');
       eSummary(ID, tab.id);
     } else {
       $('#result').addClass('Off');
@@ -348,6 +355,12 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 });
 
 chrome.runtime.onMessage.addListener(function (msg) {
-    // @@@@
-    chrome.extension.getBackgroundPage().console.log(msg);
+  // @@@@
+  console.log('runtime msg');
+  console.log(msg);
+});
+_port.onMessage.addListener(function (msg) {
+  // @@@@
+  console.log('bkg _port msg');
+  console.log(msg);
 });

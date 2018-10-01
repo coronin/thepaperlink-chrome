@@ -764,8 +764,10 @@ function get_request(msg, _port) {
   DEBUG && console.log(msg);
   var sender_tab_id = null,
       pmid, extra, tmp;
-  if (_port && _port.sender) {
+  if (_port && _port.sender && _port.sender.tab) {
     sender_tab_id = _port.sender.tab.id;
+  } else if (_port && _port.sender && msg.tabId) {
+    sender_tab_id = msg.tabId; // ess.js
   }
   if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
     base = 'https://www.zhaowenxian.com';
@@ -876,10 +878,12 @@ function get_request(msg, _port) {
       // chrome.pageAction.show(sender_tab_id);
       if ( alldigi.test(msg.sendID) ) {
         save_visited_ID(msg.sendID);
-        aKey = {};
-        aKey['tabId:' + sender_tab_id] = msg.sendID;
-        chrome.storage.local.set(aKey);
-      } else {
+        if (sender_tab_id) {
+          aKey = {};
+          aKey['tabId:' + sender_tab_id] = msg.sendID;
+          chrome.storage.local.set(aKey);
+        }
+      } else if (sender_tab_id) {
         eSearch(msg.sendID, sender_tab_id);
       }
     } else {
