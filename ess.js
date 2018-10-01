@@ -299,7 +299,7 @@ $(document).ready(function () {
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var tab = tabs[0], ID;
-  document.title = '' + tab.id;
+  document.title = '' + tab.id; // ess.html
   $('#result').removeClass('Off');
   if (tab.url.indexOf('chrome-extension://') === 0) {
     $('#result').html('ess.js used in history.html');
@@ -308,39 +308,57 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     ID = tab.url.split('//pubmed.cn/')[1];
     if (/^\d+$/.test(ID)) {
       $('#found').html('&copy; '+tab.url);
-      $('#ess_input').val(ID);
       eSummary(ID, tab.id);
     } else {
       eSS( ID.substr(9, ID.indexOf('&')-9).replace(/\+/g, ' '), tab.id );
     }
 
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
-    ID = tab.title;
     $('#found').html('&copy; /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
-    $('#ess_input').val(ID);
-    eSummary(ID, tab.id);
+    eSummary(tab.title, tab.id);
 
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
-    $('#ess_input').val(ID);
     eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
-    $('#ess_input').val(ID);
     eSummary(ID, tab.id);
 
-  } else { // @@@@
-  chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
+  } else if (tab.url.indexOf('.nature.com/articles/') > 0) {
+    ID = '10.1038/' + tab.url.split('.nature.com/articles/')[1];
+    $('#found').html('&copy; ' + ID);
+    eSS(ID, tab.id);
+
+  } else if (tab.url.indexOf('sciencemag.org/') > 0) {
+    var urlBreaks = tab.url.split('/');
+    ID = '10.1126/';
+    if (urlBreaks[2] === 'immunology.sciencemag.org') {
+      ID += 'sciimmunol.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    } else if (urlBreaks[2] === 'stke.sciencemag.org') {
+      ID += 'scisignal.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    } else if (urlBreaks[2] === 'stm.sciencemag.org') {
+      ID += 'scitranslmed.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    //} else if (urlBreaks[2] === 'robotics.sciencemag.org') {
+    //  ID += 'scirobotics.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    //} else if (urlBreaks[2] === 'advances.sciencemag.org') {
+    //  ID += 'sciadv.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    } else if (urlBreaks[2] === 'spj.sciencemag.org' && urlBreaks[3] === 'research') {
+      ID = '10.1155/' + urlBreaks[4] + '/' + urlBreaks[5];
+    }
+    if (ID !== '10.1126/') {
+      $('#found').html('&copy; ' + ID);
+      eSS(ID, tab.id);
+    } else {
+      eSS(tab.title.split(' | ')[0], tab.id);
+    }
+
+  } else { chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
+    // @@@@
     ID = dd['tabId:'+tab.id];
-    if (/\d{2}\.\d{4}\//.test(ID)) {
-      $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
-      $('.eSS').on('click', function () {
-        eSS(this.id, tab.id);
-      });
-    } else if (/^PMC\d+$/.test(ID)) {
+    if (/\d{2}\.\d{4}\//.test(ID) || /^PMC\d+$/.test(ID)) {
       $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
       $('.eSS').on('click', function () {
         eSS(this.id, tab.id);
