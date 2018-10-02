@@ -1,11 +1,20 @@
 "use strict";
 
-var _port = chrome.runtime.connect({name: 'background_port'});
+var _port = chrome.runtime.connect({name: 'background_port'}),
+    clippy_file = chrome.extension.getURL('clippyIt.png');
 
 function hideMore() {
   $('.moreAbout').addClass('Off');
   $('.AbsButton').removeClass('Off');
   $('.eSum').removeClass('Off');
+  $('.pl4_clippy').fadeIn(1000);
+}
+
+function t_cont(copyId) {
+  var cont = $('p#' + copyId.substr(4,copyId.length-4) ).text();
+  _port.postMessage({
+    t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:\/-]/g, '').replace(/^\s+|\s+$/g, '') });
+  $('#'+copyId).delay(200).fadeOut(500);
 }
 
 function peaks(name) {
@@ -218,28 +227,32 @@ function eSummary(term, tabId) {
           });
 
           if (doi) {
-            titleLin = '<span class="title" id="' + doi + '">' + Title + '</span> ';
+            titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span><span class="down" id="' + doi + '">&nbsp;&#8623;</span> ';
           } else {
-            titleLin = '<span class="title" id="' + pmid + '">' + Title + '</span> ';
+            titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span> ';
           }
 
-          esum_text = '<p class="eSum" id="' + pmid + '">' + author_list + ' (' + PubDate + '). ' + titleLin + '<i>' + Source + '</i>';
+          esum_text = '<p class="eSum" id="' + pmid + '">' + author_list + titleLin + '<i>' + Source + '</i>, ' + PubDate;
           if (Volume) { esum_text += ', ' + Volume; }
-          if (Pages) { esum_text += ':' + Pages; }
-          esum_text += '.<br/><button class="AbsButton" id="' + pmid + '"> More about </button> <span class="pmid" id="' +
-              pmid + '">PMID:' + pmid + '</span> ';
+          if (Pages) { esum_text += ': ' + Pages; }
+          esum_text += '.<br/><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
           if (pmc) {
-            esum_text += '<span class="pmid" id="' + pmc + '">' + pmc + '</span> ';
+            esum_text += '&nbsp;<span class="pmid" id="' + pmc + '">' + pmc + '</span> ';
           }
+          if (doi) {
+            esum_text += '&nbsp;<span class="pmid" id="' + doi + '">DOI:' + doi + '</span> ';
+          }
+          esum_text += '<br/><button class="AbsButton" id="' + pmid + '"> Check abstract </button> ';
+          esum_text += '<span style="display:inline-block;float:right"><img class="pl4_clippy" title="copy to clipboard" src="' +
+              clippy_file + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
           esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
           $('<div/>').html(esum_text).appendTo('#result');
         });
         $('b.author').on('click', function () { peaks(this.id); });
-        $('b.author').css('cursor', 'pointer');
         $('span.title').on('click', function () { titleLink(this.id); });
-        $('span.title').css({'cursor':'pointer', 'font-weight':'bold', 'color':'blue'});
+        $('span.down').on('click', function () { titleLink(this.id); });
         $('span.pmid').on('click', function () { titleLink(this.id); });
-        $('span.pmid').css('cursor', 'pointer');
+        $('img.pl4_clippy').on('click', function () { t_cont(this.id); });
         $('.AbsButton').on('click', function () { eFetch(this.id); });
       },
       'xml'
@@ -271,6 +284,10 @@ function eSS(search_term, tabId) {
         if (b > 0) {
           _port.postMessage({search_term: search_term, search_result_count: b,
                              tabId: tabId});
+          if ($('#found')) {
+            $('#found').append('<span id="moreHits">[get more hits]</span>');
+            $('#moreHits').on('click', function () { titleLink(search_term); });
+          }
         }
       },
       'xml'
