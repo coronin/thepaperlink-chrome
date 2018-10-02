@@ -10,17 +10,23 @@ function hideMore() {
 
 function peaks(name) {
   if (!name) { return; }
-  var peaksURL = 'https://2.thepaperlink.com/?term=';
+  var peaksURL = 'https://2.thepaperlink.com/?term=',
+      tpl = localStorage.getItem('thepaperlink_apikey') || '';
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
     peaksURL = 'https://2.zhaowenxian.com/?term=';
   }
-  chrome.tabs.create({url: peaksURL + name, active: false});
+  if (tpl) { tpl = '&apikey=' + tpl; }
+  chrome.tabs.create({url: peaksURL + name + tpl, active: false});
 }
 
 function titleLink(ID) {
-  var doiURL = 'https://dx.doi.org';
+  var doiURL = 'https://dx.doi.org',
+      base = 'https://www.thepaperlink.com';
   if (localStorage.getItem('local_mirror')) {
     doiURL = 'https://' + localStorage.getItem('local_mirror');
+  }
+  if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
+    base = 'https://www.zhaowenxian.com';
   }
   if (/\d{2}\.\d{4,5}\//.test(ID)) {
     chrome.tabs.create({url: doiURL + '/' + ID, active: false});
@@ -29,10 +35,10 @@ function titleLink(ID) {
     chrome.tabs.create({url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/' + ID + '/?tool=thepaperlink_chrome',
                         active: false });
   } else if (/^\d+$/.test(ID)) {
-    chrome.tabs.create({url: 'https://www.ncbi.nlm.nih.gov/pubmed/' + ID + '/?tool=thepaperlink_chrome',
+    chrome.tabs.create({url: base + '/:' + ID,
                         active: false });
   } else {
-    chrome.tabs.create({url: 'https://www.ncbi.nlm.nih.gov/pubmed/?term=' + ID + '&tool=thepaperlink_chrome',
+    chrome.tabs.create({url: base + '/?q=' + ID,
                         active: false });
   }
 }
@@ -80,9 +86,9 @@ function eFetch(pmid) {
       len = l.MedlineCitation.CommentsCorrectionsList.length;
       for (j = 0; j < len; j += 1) {
         if (j === 0) {
-          tmp = '<a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
+          tmp = '<a target="_blank" href="https://www.thepaperlink.com/:' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
         } else {
-          tmp = '; <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '/?tool=thepaperlink_chrome">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
+          tmp = '; <a target="_blank" href="https://www.thepaperlink.com/:' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
         }
         ref_list += tmp;
       }
