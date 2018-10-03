@@ -217,6 +217,7 @@ function eSummary(term, tabId) {
               esum_text,
               tmp;
 
+          if (a.length === 0) { return 1; } // 2018-10-4
           a.each(function (j) {
             tmp = $(this).text().replace(/\./g, '');
             if (j === 0) {
@@ -250,6 +251,12 @@ function eSummary(term, tabId) {
           esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
           $('<div/>').html(esum_text).appendTo('#result');
         });
+        if ($('#result').text() === '') {
+          $('#result').text('There was a glitch. Please try another search term.');
+          $('#ess_input').val('');
+          $('#ess_input').focus();
+          return;
+        }
         $('b.author').on('click', function () { peaks(this.id); });
         $('span.title').on('click', function () { titleLink(this.id); });
         $('span.down').on('click', function () { titleLink(this.id); });
@@ -259,7 +266,7 @@ function eSummary(term, tabId) {
       },
       'xml'
   ).fail(function () {
-    $('#result').html('I failed to fetch the summary. Try later?');
+    $('#result').text('I failed to fetch anything. Try later?');
   });
 }
 
