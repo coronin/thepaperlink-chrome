@@ -147,7 +147,7 @@ function order_gs() { // 2018 Oct
     byID('gs_res_ccl_mid').removeChild( byID('_thepaperlink_' + tobe[i]) );
   }
   for (i = 0, len = nodes.length; i < len; i += 1) {
-    byID('gs_res_ccl_mid').insertBefore(nodes[i], byID('_thepaperlink_pos0'));
+    byID('gs_res_ccl_mid').insertBefore(nodes[i], undefined);
   }
   nodes = null;
   byID('gs_res_ccl_mid').style.display = 'block';
@@ -156,6 +156,7 @@ function order_gs() { // 2018 Oct
 function process_googlescholar() { // 2018 Oct
   var i, ilen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
+    if (!nodes[i]) { continue; }
     a = nodes[i].textContent;
     if (!nodes[i].lastChild || !a) { continue; }
     if (a.indexOf(' Cited by ') < 0) {
@@ -163,7 +164,6 @@ function process_googlescholar() { // 2018 Oct
     } else {
       b = a.split(' Cited by ')[1];
       if (b.indexOf('Related article') < 0) {
-        //171   All 10 versions
         if ( b.match(/\d{1,5}\s+All\ \d/) ) {
           c = parseInt(b.split(' ')[0], 10);
         } else {
@@ -182,18 +182,26 @@ function process_googlescholar() { // 2018 Oct
     }
   }
   if (d.length > 0) {
-    tmp = page_d.createElement('div');
-    tmp.setAttribute('style', 'float:right;cursor:pointer;color:red');
-    tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">results on this page ' +
-        '<span id="_thepaperlink_order_status">0</span>&nbsp; (0:original; 1:decreased; 2:increased)</span>' +
-        '<span id="_thepaperlink_order_lists" style="display:none">' +
-        d.join(',') + ';' +
-        d.sort(function(u,v){return v-u;}).join(',') + ';' +
-        d.sort(function(u,v){return u-v;}).join(',') + '</span>';
-    // If compare function is not supplied, elements are sorted by converting them
-    //  to strings and comparing strings in lexicographic order.
-    byID('gs_ab_md').appendChild(tmp);
-    byID('_thepaperlink_order_gs').onclick = function () { order_gs(); };
+    if (byID('_thepaperlink_cited_order')){
+      byID('_thepaperlink_order_lists').textContent = d.join(',') + ';' +
+          d.sort(function(u,v){return v-u;}).join(',') + ';' +
+          d.sort(function(u,v){return u-v;}).join(',');
+    } else {
+      tmp = page_d.createElement('div');
+      tmp.setAttribute('style', 'float:right;cursor:pointer;color:red');
+      tmp.setAttribute('id', '_thepaperlink_cited_order');
+      tmp.innerHTML = '&nbsp;&nbsp;<span id="_thepaperlink_order_gs">cited order ' +
+          '<span id="_thepaperlink_order_status">0</span>&nbsp; <span style="background-color:yellow">' +
+          '(0:original; 1:decreased; 2:increased)</span></span>' +
+          '<span id="_thepaperlink_order_lists" style="display:none">' +
+          d.join(',') + ';' +
+          d.sort(function(u,v){return v-u;}).join(',') + ';' +
+          d.sort(function(u,v){return u-v;}).join(',') + '</span>';
+      // If compare function is not supplied, elements are sorted by converting them
+      //  to strings and comparing strings in lexicographic order.
+      byID('gs_ab_md').appendChild(tmp);
+      byID('_thepaperlink_order_gs').onclick = function () { order_gs(); };
+    }
   }
 }
 
