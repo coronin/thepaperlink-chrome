@@ -123,7 +123,7 @@ function process_f1000() { // 2018 Sep
            pmid: pmid});
 }
 
-function order_gs() { // 2018 Sep @@@@
+function order_gs() { // 2018 Oct
   var i, len, tobe = [], nodes = [],
       lists = byID('_thepaperlink_order_lists').textContent.split(';');
   if (byID('_thepaperlink_order_status').textContent === '0') {
@@ -153,21 +153,40 @@ function order_gs() { // 2018 Sep @@@@
   byID('gs_res_ccl_mid').style.display = 'block';
 }
 
-function process_googlescholar() { // 2018 Sep @@@@
+var alphanum_range = (function() {
+  var data = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('');
+  return function (start,stop) {
+    start = data.indexOf(start);
+    stop = data.indexOf(stop);
+    return (!~start || !~stop) ? null : data.slice(start,stop+1);
+  };
+})();
+
+function process_googlescholar() { // 2018 Oct
   var i, ilen, j, jlen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
+  var az = [''] + alphanum_range('a','z'), azi;
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
-    if (nodes[i].className === 'gs_alrt_btm') {
+    if (nodes[i].className === 'gs_alrt_btm' ||
+        (nodes[i].className === 'gs_alrt_btm' && nodes[i].textContent.indexOf(' result') > 0)
+       ) {
       nodes[i].setAttribute('id', '_thepaperlink_pos0');
       continue;
     }
-    a = nodes[i].lastChild; // class: gs_r gs_or gs_scl -> gs_ri
-    if (!a) { continue; }
-    b = a.childNodes[3].textContent.trim(); // class: gs_r gs_or gs_scl -> gs_ri -> gs_fl
-    if (b.substr(0, 9) === 'Cited by ') {
-      c = parseInt(b.substr(9,7), 10);
-      nodes[i].setAttribute('id', '_thepaperlink_' + c);
-      d.push(c);
+    a = nodes[i].textContent;
+    if (!nodes[i].lastChild || !a) { continue; }
+    if (a.indexOf(' Cited by ') < 0) {
+      c = 0;
+    } else {
+      b = a.split(' Cited by ')[1];
+      if (b.indexOf('Related article') < 0) {
+        alert('I ignored: ' + nodes[i].textContent);
+        continue;
+      } else {
+        c = parseInt(b.split('Related article')[0], 10);
+      }
     }
+    nodes[i].setAttribute('id', c);
+    d.push(c);
   }
   if (d.length > 0) {
     tmp = page_d.createElement('div');
@@ -176,8 +195,10 @@ function process_googlescholar() { // 2018 Sep @@@@
         '<span id="_thepaperlink_order_status">0</span>&nbsp; (0:original; 1:decreased; 2:increased)</span>' +
         '<span id="_thepaperlink_order_lists" style="display:none">' +
         d.join(',') + ';' +
-        d.sort(function(u,v){return v-u;}).join(',') + ';' +
-        d.sort(function(u,v){return u-v;}).join(',') + '</span>';
+        d.sort( function(u,v){return v-u;} ).join(',') + ';' +
+        d.sort( function(u,v){return u-v;} ).join(',') + '</span>';
+    // If compare function is not supplied, elements are sorted by converting them
+    //  to strings and comparing strings in lexicographic order.
     byID('gs_ab_md').appendChild(tmp);
     byID('_thepaperlink_order_gs').onclick = function () { order_gs(); };
   }
