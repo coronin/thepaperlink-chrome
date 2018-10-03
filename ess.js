@@ -188,7 +188,7 @@ function eSummary(term, tabId) {
       limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
-  if (term.substr(0,5) !== 'NCID_') {
+  if ((''+term).substr(0,5) !== 'NCID_') {
     $('#ess_input').val(term);
   }
   if (webenvCheck.test(term)) {
@@ -400,7 +400,6 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     }
 
   } else { chrome.storage.local.get(['tabId:'+tab.id], function (dd) {
-    // @@@@
     ID = dd['tabId:'+tab.id];
     if (/\d{2}\.\d{4,5}\//.test(ID) || /^PMC\d+$/.test(ID)) {
       $('#found').html('&copy; <span class="eSS" id="' + ID + '">' + ID + '</span>');
@@ -416,8 +415,8 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   }); }
 });
 
-chrome.runtime.onMessage.addListener(function (msg) {
-  alert('check runtime msg'); // @@@@
+chrome.runtime.onMessage.addListener(function (msg) { // @@@@
+  alert('check runtime msg');
   console.log(msg);
 });
 _port.onMessage.addListener(function (msg) {

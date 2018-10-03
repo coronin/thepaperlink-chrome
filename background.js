@@ -1050,7 +1050,7 @@ function get_request(msg, _port) {
         failed_times = 0;
     if (failed_terms) {
 
-console.log(failed_terms); // @@@@
+      console.log(failed_terms); // @@@@
 
       failed_times = ( failed_terms.match(/","/g) ).length + 1;
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
@@ -1189,7 +1189,7 @@ chrome.runtime.onInstalled.addListener(function () {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed/' } }) // @@@@
+                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }, {
