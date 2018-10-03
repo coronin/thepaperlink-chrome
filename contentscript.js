@@ -124,8 +124,17 @@ function process_f1000() { // 2018 Sep
 }
 
 function order_gs() { // 2018 Oct
-  var i, len, tobe = [], nodes = [],
+  var i, tobe = [], nodes = [],
       lists = byID('_thepaperlink_order_lists').textContent.split(';');
+  var canNot = document.getElementsByClassName('_thepaperlink_cannNot_order'),
+      len = canNot.length;
+  for (i = 0; i < len; i += 1) {
+    byID('gs_res_ccl_mid').removeChild( canNot[i] );
+  }
+  if (len > 0) {
+    //byID('gs_ab_md'). = '-' + len;
+    alert(len);
+  }
   if (byID('_thepaperlink_order_status').textContent === '0') {
     if (lists[1] === lists[0]) {
       tobe = lists[2].split(',');
@@ -153,18 +162,8 @@ function order_gs() { // 2018 Oct
   byID('gs_res_ccl_mid').style.display = 'block';
 }
 
-var alphanum_range = (function() {
-  var data = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split('');
-  return function (start,stop) {
-    start = data.indexOf(start);
-    stop = data.indexOf(stop);
-    return (!~start || !~stop) ? null : data.slice(start,stop+1);
-  };
-})();
-
 function process_googlescholar() { // 2018 Oct
   var i, ilen, j, jlen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
-  var az = [''] + alphanum_range('a','z'), azi;
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
     if (nodes[i].className === 'gs_alrt_btm' ||
         (nodes[i].className === 'gs_alrt_btm' && nodes[i].textContent.indexOf(' result') > 0)
@@ -179,14 +178,23 @@ function process_googlescholar() { // 2018 Oct
     } else {
       b = a.split(' Cited by ')[1];
       if (b.indexOf('Related article') < 0) {
-        alert('I ignored: ' + nodes[i].textContent);
-        continue;
+        //171   All 10 versions
+        if ( b.match(/\d{1,5}\s+All\ \d/) ) {
+          c = parseInt(b.split(' ')[0], 10);
+        } else {
+          DEBUG && console.log('>> ignored: ' + a);
+          continue;
+        }
       } else {
         c = parseInt(b.split('Related article')[0], 10);
       }
     }
-    nodes[i].setAttribute('id', c);
-    d.push(c);
+    if (c) {
+      nodes[i].setAttribute('id', '_thepaperlink_' + c);
+      d.push(c);
+    } else {
+      nodes[i].setAttribute('class', '_thepaperlink_cannNot_order');
+    }
   }
   if (d.length > 0) {
     tmp = page_d.createElement('div');
