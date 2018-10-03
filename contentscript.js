@@ -124,17 +124,8 @@ function process_f1000() { // 2018 Sep
 }
 
 function order_gs() { // 2018 Oct
-  var i, tobe = [], nodes = [],
+  var i, len, tobe = [], nodes = [],
       lists = byID('_thepaperlink_order_lists').textContent.split(';');
-  var canNot = document.getElementsByClassName('_thepaperlink_cannNot_order'),
-      len = canNot.length;
-  for (i = 0; i < len; i += 1) {
-    byID('gs_res_ccl_mid').removeChild( canNot[i] );
-  }
-  if (len > 0) {
-    //byID('gs_ab_md'). = '-' + len;
-    alert(len);
-  }
   if (byID('_thepaperlink_order_status').textContent === '0') {
     if (lists[1] === lists[0]) {
       tobe = lists[2].split(',');
@@ -163,14 +154,8 @@ function order_gs() { // 2018 Oct
 }
 
 function process_googlescholar() { // 2018 Oct
-  var i, ilen, j, jlen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
+  var i, ilen, tmp, nodes = byID('gs_res_ccl_mid').childNodes, a, b, c, d = [];
   for (i = 0, ilen = nodes.length; i < ilen; i += 1) {
-    if (nodes[i].className === 'gs_alrt_btm' ||
-        (nodes[i].className === 'gs_alrt_btm' && nodes[i].textContent.indexOf(' result') > 0)
-       ) {
-      nodes[i].setAttribute('id', '_thepaperlink_pos0');
-      continue;
-    }
     a = nodes[i].textContent;
     if (!nodes[i].lastChild || !a) { continue; }
     if (a.indexOf(' Cited by ') < 0) {
@@ -193,7 +178,7 @@ function process_googlescholar() { // 2018 Oct
       nodes[i].setAttribute('id', '_thepaperlink_' + c);
       d.push(c);
     } else {
-      nodes[i].setAttribute('class', '_thepaperlink_cannNot_order');
+      byID('gs_res_ccl_mid').removeChild( nodes[i] );
     }
   }
   if (d.length > 0) {
@@ -203,8 +188,8 @@ function process_googlescholar() { // 2018 Oct
         '<span id="_thepaperlink_order_status">0</span>&nbsp; (0:original; 1:decreased; 2:increased)</span>' +
         '<span id="_thepaperlink_order_lists" style="display:none">' +
         d.join(',') + ';' +
-        d.sort( function(u,v){return v-u;} ).join(',') + ';' +
-        d.sort( function(u,v){return u-v;} ).join(',') + '</span>';
+        d.sort(function(u,v){return v-u;}).join(',') + ';' +
+        d.sort(function(u,v){return u-v;}).join(',') + '</span>';
     // If compare function is not supplied, elements are sorted by converting them
     //  to strings and comparing strings in lexicographic order.
     byID('gs_ab_md').appendChild(tmp);
