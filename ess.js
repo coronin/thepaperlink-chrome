@@ -1,7 +1,8 @@
 "use strict";
 
 var _port = chrome.runtime.connect({name: 'background_port'}),
-    clippy_file = chrome.extension.getURL('clippyIt.png');
+    clippy_file = chrome.extension.getURL('clippyIt.png'),
+    foundOrig = undefined;
 
 function hideMore() {
   $('.moreAbout').addClass('Off');
@@ -186,6 +187,7 @@ function eSummary(term, tabId) {
   var webenvCheck = /[a-zA-Z]/,
       limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
+  if (foundOrig === undefined) { foundOrig = $('#found').text(); }
   if (term.substr(0,5) !== 'NCID_') {
     $('#ess_input').val(term);
   }
@@ -266,6 +268,7 @@ function eSS(search_term, tabId) {
   if (!tabId) {
     tabId = parseInt(document.title, 10);
   }
+  if (foundOrig !== undefined) { $('#found').text(foundOrig); }
   var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   if ( $('#result').hasClass('Off') ) {
@@ -301,6 +304,7 @@ $(document).ready(function () {
     $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="..." />');
     $('#result').addClass('Off');
     $('#ess_input').val('Search PubMed');
+    $('#found').text(foundOrig || '');
   });
 
   $('#ess_input').focus(function () {
@@ -406,12 +410,15 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 });
 
 chrome.runtime.onMessage.addListener(function (msg) {
-  // @@@@
-  console.log('runtime msg');
+  alert('check runtime msg'); // @@@@
   console.log(msg);
 });
 _port.onMessage.addListener(function (msg) {
-  // @@@@
-  console.log('bkg _port msg');
   console.log(msg);
+  if (msg && msg.search_trend) {
+    $('#found').append('<span style="color:red;background-color:yellow;text-decoration:none;">&nbsp;' +
+                       msg.search_trend + '&nbsp;<span>');
+    //sendResponse({});
+    return;
+  }
 });
