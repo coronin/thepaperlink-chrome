@@ -1,7 +1,8 @@
 "use strict";
 
 var DEBUG = false,
-    i, len, aKey, aVal, ws, ws_timer,
+    i, len, aKey, aVal,
+    ws, ws_timer,
     ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081',
     uid = localStorage.getItem('ip_time_uid') || null,
     scholar_count = 0,
@@ -13,24 +14,19 @@ var DEBUG = false,
     loading_theServer = false,
     load_try = 10,
     local_ip = '',
-    new_tabId = null,
     alldigi = /^\d+$/,
-    old_id = '',
     dd = document,
-    init_found = localStorage.getItem('id_found') || '',
     base = 'https://www.thepaperlink.com',
     guest_apikey = null,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
-    local_mirror,
-    ezproxy_prefix,
-    cc_address,
+    local_mirror, ezproxy_prefix, cc_address,
     pubmeder_ok = false,
     broadcast_loaded = false,
     extension_load_date = new Date(),
     date_str = 'day_' + extension_load_date.getFullYear() +
         '_' + (extension_load_date.getMonth() + 1) +
-        '_' + extension_load_date.getDate(),
-    last_date = localStorage.getItem('last_date_str') || '';
+        '_' + extension_load_date.getDate();
+
 
 function ez_format_link(prefix, url){
   if (!prefix) {
@@ -204,8 +200,7 @@ function open_new_tab(url, winId, idx) {
   }
   DEBUG && console.log('tab_obj', tab_obj);
   chrome.tabs.create(tab_obj, function (tab) {
-    new_tabId = tab.id;
-    DEBUG && console.log('>> a new tab for you, #' + new_tabId);
+    DEBUG && console.log('>> a new tab for you, #' + tab.id);
   });
 }
 
@@ -1059,7 +1054,10 @@ function get_request(msg, _port) {
 
       console.log(failed_terms); // @@@@
 
-      failed_times = ( failed_terms.match(/","/g) ).length + 1;
+      var failed_match = failed_terms.match(/","/g);
+      if (failed_match) {
+        failed_times = failed_match.length + 1;
+      }
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
         localStorage.removeItem('https_failed'); // 2018-9-27
@@ -1123,9 +1121,9 @@ $.ajax({
   console.timeEnd("Call theServer to validate connection");
 });
 
-if (last_date !== date_str) {
-  localStorage.setItem('last_date_str', date_str);
-  DEBUG && console.log('>> a new day! start with some housekeeping tasks');
+function newdayRoutine() {
+  var old_id = '',
+      init_found = localStorage.getItem('id_found') || '';
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     if (aKey && aKey.substr(0,6) === 'tabId:') {
@@ -1138,6 +1136,7 @@ if (last_date !== date_str) {
       }
     } else if (aKey && aKey.substr(0,6) === 'email_') {
       aVal = aKey.split('_');
+      // @@@@
     } else if (aKey && aKey.substr(0,7) === 'pubmed_') {
       aVal = aKey.split('_');
       localStorage.removeItem(aKey);
@@ -1146,10 +1145,14 @@ if (last_date !== date_str) {
     //  localStorage.removeItem(aKey);
     //}
   }
+  if (old_id) {
+    localStorage.setItem('id_found', init_found + ' ' + old_id);
+  }
 }
-
-if (old_id) {
-  localStorage.setItem('id_found', init_found + ' ' + old_id);
+if (localStorage.getItem('last_date_str') !== date_str) {
+  localStorage.setItem('last_date_str', date_str);
+  DEBUG && console.log('>> a new day! start with some housekeeping tasks');
+  newdayRoutine();
 }
 
 function adjustStorage(rst, newOnly) {

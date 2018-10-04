@@ -1,8 +1,8 @@
 "use strict";
 
 var _port = chrome.runtime.connect({name: 'background_port'}),
-    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i,
-    bkg = chrome.extension.getBackgroundPage();
+    _bkg = chrome.extension.getBackgroundPage(),
+    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 
 function adjust_keywords() {
   var keyword_selected = '';
@@ -60,7 +60,7 @@ function reset_key(v) {
 }
 
 function valid_thepaperlink(ak) {
-  bkg.console.time("Call theServer to validate apikey");
+  _bkg.console.time("Call theServer to validate apikey");
   return $.get('https://www.zhaowenxian.com/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
@@ -72,12 +72,12 @@ function valid_thepaperlink(ak) {
         }
       }, 'json'
   ).always(function() {
-    bkg.console.timeEnd("Call theServer to validate apikey");
+    _bkg.console.timeEnd("Call theServer to validate apikey");
   });
 }
 
 function valid_pubmeder(e,ak) {
-  bkg.console.time("Call theServer to validate pubmeder");
+  _bkg.console.time("Call theServer to validate pubmeder");
   return $.get('http://pubmeder.cailiang.net/input?pmid=999999999&apikey=' + ak + '&email=' + e,
       function (txt) {
         if (txt === 'correct') {
@@ -87,7 +87,7 @@ function valid_pubmeder(e,ak) {
         }
       }, 'text'
   ).always(function() {
-    bkg.console.timeEnd("Call theServer to validate pubmeder");
+    _bkg.console.timeEnd("Call theServer to validate pubmeder");
   });
 }
 
@@ -179,7 +179,7 @@ function saveOptions() {
         localStorage.setItem('shark_limit', a);
       }
     } catch (err) {
-      bkg.console.log(err);
+      _bkg.console.log(err);
     }
   }
   if (pubmed_limit) {
@@ -189,7 +189,7 @@ function saveOptions() {
         localStorage.setItem('pubmed_limit', a);
       }
     } catch (err) {
-      bkg.console.log(err);
+      _bkg.console.log(err);
     }
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
@@ -525,7 +525,7 @@ $(document).ready(function () {
         if (c[a] && get_end_num(c[a]) >= get_end_num(b)) {
           localStorage.removeItem(terms[i]);
         } else if (c[a]) { // get_end_num  c[a] < b
-          bkg.console.log('count should only increase "' + a + '"');
+          _bkg.console.log('count should only increase "' + a + '"');
         } else {
           c.push( {key:a, value:b} );
           tmp.append(

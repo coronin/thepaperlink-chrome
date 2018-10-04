@@ -1,7 +1,6 @@
 "use strict";
 
 var _port = chrome.runtime.connect({name: 'background_port'}),
-    clippy_file = chrome.extension.getURL('clippyIt.png'),
     foundOrig = undefined;
 
 function hideMore() {
@@ -247,7 +246,7 @@ function eSummary(term, tabId) {
           }
           esum_text += '<br/><button class="AbsButton" id="' + pmid + '"> Check abstract </button> ';
           esum_text += '<span style="display:inline-block;float:right"><img class="pl4_clippy" title="copy to clipboard" src="' +
-              clippy_file + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
+              chrome.extension.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
           esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
           $('<div/>').html(esum_text).appendTo('#result');
         });
