@@ -18,17 +18,15 @@ var DEBUG = false,
     page_url = page_d.URL,
     loading_gif = chrome.extension.getURL('loadingLine.gif'),
     clippy_file = chrome.extension.getURL('clippyIt.png'),
-    doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/,
-    pmids = '',
+    _port = chrome.runtime.connect({name: 'background_port'}),
+    pmidString = '',
     pmidArray = [],
     old_title = '',
     search_term = '',
     search_result_count = '',
     onePage_calls = 0,
-    local_mirror = '',
     absNeeded = 0,
-    _port = chrome.runtime.connect({name: 'background_port'});
-
+    local_mirror = '';
 
 var thePaperLink_chrome_limited = true,
     limited = page_d.createElement('div');
@@ -59,6 +57,7 @@ function a_proxy(d) {
   _port.postMessage(d);
 }
 a_proxy({load_local_mirror: 1});
+
 
 function ez_format_link(p, url){
   if (!p) { return url; }
@@ -229,6 +228,7 @@ function parse_id(a) {
   var regpmid = /pmid\s*:?\s*(\d+)\s*/i,
       regdoi = /doi\s*:?\s*\d{2}\.\d{4,5}\//i,
       regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i,
+      doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/,
       ID = null;
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -311,7 +311,7 @@ function getPmid(zone, num) {
         byTag(zone)[num + 1].appendChild(b);
         a_proxy({pageAbs: byTag(zone)[num + 8].textContent, pmid: ID[1]});
       }
-      pmids += ',' + ID[1];
+      pmidString += ',' + ID[1];
       if (a.indexOf('- in process') < 0) {
         c = page_d.createElement('span');
         c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
@@ -389,14 +389,14 @@ function run() {
       }
     }
   }
-  pmids = pmids.substr(1, pmids.length);
-  pmidArray = pmids.split(',');
+  pmidString = pmidString.substr(1, pmidString.length);
+  pmidArray = pmidString.split(',');
   if (pmidArray.length > 0) {
     a_proxy({sendID: pmidArray});
   }
-  if (pmids) {
+  if (pmidString) {
     localStorage.setItem('thePaperLink_ID', pmidArray[0]);
-    get_Json(pmids);
+    get_Json(pmidString);
   }
 }
 
@@ -503,13 +503,14 @@ function get_request(msg) {
     }
     if (!search_term) {
       search_term = localStorage.getItem('thePaperLink_ID');
+    } else {
+      a_proxy({failed_term: search_term});
     }
     byID('pl4_title').innerHTML = old_title +
         ' <span style="font-size:12px;font-weight:normal;color:red;background-color:yellow;cursor:pointer" id="thepaperlink_alert">' +
         'Error!&nbsp;&nbsp;' + msg.except +
         '&nbsp;<a href="https://www.thepaperlink.com/?q=' + search_term +
         '" target="_blank">[?]</a></span>';
-    a_proxy({failed_term: search_term});
     byID('thepaperlink_alert').onclick = function () {
       var answer = confirm('\n do you want to alert the developer about this error?\n');
       if (answer) {
@@ -668,7 +669,7 @@ function get_request(msg) {
   }
   if (msg.pubmeder) {
     bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
-        pmids + '\',\'' + msg.save_key + '\',\'' + msg.save_email + '\')">save&nbsp;page</span></div>';
+        pmidString + '\',\'' + msg.save_key + '\',\'' + msg.save_email + '\')">save&nbsp;page</span></div>';
   } else {
     bookmark_div += 'save what you are reading? try <a href="http://pubmeder.cailiang.net/registration" target="_blank">PubMed-er</a></div>';
   }

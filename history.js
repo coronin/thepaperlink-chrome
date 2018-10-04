@@ -1,9 +1,7 @@
 "use strict";
 
-var DEBUG = false,
-    i, len, aKey, aVal,
-    _port = chrome.runtime.connect({name: 'background_port'}),
-    bkg = chrome.extension.getBackgroundPage();
+var _port = chrome.runtime.connect({name: 'background_port'}),
+    _bkg = chrome.extension.getBackgroundPage();
 
 function format_a_li(category, pmid, url, num) {
   var categoryLen = category.length;
@@ -39,7 +37,7 @@ function do_syncValues_post() {
 
 // 2015-12-9, 2018-10-1
 function load_ALL_localStorage() {
-  var a_key_split, a_url, dictKey,
+  var i, len, aKey, aVal, a_key_split, a_url, dictKey,
       syncValues = {};
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
@@ -100,10 +98,10 @@ function load_ALL_localStorage() {
       syncValues[aKey] = '' + aVal;
     }
   }
-  bkg.console.time('Add to storage.sync');
+  _bkg.console.time('Add to storage.sync');
   $('#undefined_clean').append('<li>Add to storage.sync '+Object.keys(syncValues).length+' items</li>');
   chrome.storage.sync.set(syncValues, function () {
-    bkg.console.timeEnd('Add to storage.sync');
+    _bkg.console.timeEnd('Add to storage.sync');
   });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
