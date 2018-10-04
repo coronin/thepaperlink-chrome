@@ -1122,6 +1122,7 @@ $.ajax({
 });
 
 function newdayRoutine() {
+  console.log('>> a new day! housekeeping first');
   var old_id = '',
       init_found = localStorage.getItem('id_found') || '';
   for (i = 0, len = localStorage.length; i < len; i += 1) {
@@ -1149,11 +1150,19 @@ function newdayRoutine() {
     localStorage.setItem('id_found', init_found + ' ' + old_id);
   }
 }
-if (localStorage.getItem('last_date_str') !== date_str) {
-  localStorage.setItem('last_date_str', date_str);
-  DEBUG && console.log('>> a new day! start with some housekeeping tasks');
+if (localStorage.getItem('last_chrome_open_str') !== date_str) {
+  localStorage.setItem('last_chrome_open_str', date_str);
   newdayRoutine();
 }
+setInterval(newdayRoutine, 24*60*60*60);
+
+$(document).ready(function () {
+  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
+    load_broadcast();
+    get_server_data(0);
+  }
+});
+
 
 function adjustStorage(rst, newOnly) {
   var toRemove = [];
@@ -1280,11 +1289,4 @@ chrome.omnibox.onInputEntered.addListener(
   function (text) {
     var newURL = base + '?q=' + text;
     chrome.tabs.create({ url: newURL });
-});
-
-$(document).ready(function () {
-  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
-    load_broadcast();
-    get_server_data(0);
-  }
 });
