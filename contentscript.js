@@ -164,7 +164,7 @@ function process_googlescholar() { // 2018 Oct
     } else {
       b = a.split(' Cited by ')[1];
       if (b.indexOf('Related article') < 0) {
-        if ( b.match(/\d{1,5}\s+All\ \d/) ) {
+        if ( /\d{1,5}\s+All\ \d/.test(b) ) {
           c = parseInt(b.split(' ')[0], 10);
         } else {
           DEBUG && console.log('>> ignored: ' + a);
@@ -216,7 +216,7 @@ function process_pubmedTrending() {
     }
   }
   if (trending.length > 0) {
-    a_proxy({sendID: trending[0]});
+    a_proxy({sendID: trending});
   } else {
     chrome.storage.sync.get(['thepaperlink_apikey'], function (e) {
       if (e.thepaperlink_apikey) {
@@ -392,7 +392,7 @@ function run() {
   pmids = pmids.substr(1, pmids.length);
   pmidArray = pmids.split(',');
   if (pmidArray.length > 0) {
-    a_proxy({sendID: pmidArray[0]});
+    a_proxy({sendID: pmidArray});
   }
   if (pmids) {
     localStorage.setItem('thePaperLink_ID', pmidArray[0]);

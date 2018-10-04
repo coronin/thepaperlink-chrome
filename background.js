@@ -876,7 +876,14 @@ function get_request(msg, _port) {
   } else if (msg.sendID) {
     if (localStorage.getItem('co_pubmed') !== 'no') {
       // chrome.pageAction.show(sender_tab_id);
-      if ( alldigi.test(msg.sendID) ) {
+      if (Array.isArray(msg.sendID)) {
+        if (sender_tab_id) {
+          aKey = {};
+          aKey['tabId:' + sender_tab_id] = msg.sendID.join(',');
+          chrome.storage.local.set(aKey);
+        }
+        //save_visited_ID(msg.sendID); // @@@@
+      } else if ( alldigi.test(msg.sendID) ) {
         save_visited_ID(msg.sendID);
         if (sender_tab_id) {
           aKey = {};

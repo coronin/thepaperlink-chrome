@@ -188,7 +188,7 @@ function eSummary(term, tabId) {
       limit = localStorage.getItem('pubmed_limit') || '5',
       urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
-  if ((''+term).substr(0,5) !== 'NCID_') {
+  if ((''+term).substr(0,5) !== 'NCID_' && !(/^[0-9,]+$/.test(''+term))) {
     $('#ess_input').val(term);
   }
   if (webenvCheck.test(term)) {
@@ -406,8 +406,12 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       $('.eSS').on('click', function () {
         eSS(this.id, tab.id);
       });
-    } else if (/^\d+$/.test(ID)) {
-      $('#found').html('&copy; <span>' + ID + '</span>');
+    } else if (/^[0-9,]+$/.test(ID)) { // 2018-10-4
+      if (ID.indexOf(',') > 0) {
+        $('#found').text('Found multiple PMID');
+      } else {
+        $('#found').html('&copy; <span>' + ID + '</span>');
+      }
       eSummary(ID, tab.id);
     } else {
       $('#result').addClass('Off');
