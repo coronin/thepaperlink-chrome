@@ -696,8 +696,8 @@ function load_broadcast() {
 function reLoad_options() {
   var urlOp = chrome.extension.getURL('options.html');
   chrome.tabs.query({url: urlOp}, function (tabs) {
-    for (i in tabs) {
-      chrome.tabs.update(i.id, {url: urlOp});
+    for (aKey in tabs) {
+      chrome.tabs.update(tabs[aKey].id, {url: urlOp});
     }
   });
 }
