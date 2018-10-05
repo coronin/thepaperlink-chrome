@@ -293,7 +293,7 @@ function eSS(search_term, tabId) {
         if (b > 0) {
           _port.postMessage({search_term: search_term, search_result_count: b,
                              tabId: tabId});
-          if ($('#found')) {
+          if ($('#found').length > 0) {
             $('#found').append('<span id="moreHits">[get more hits]</span>');
             $('#moreHits').on('click', function () { titleLink(search_term); });
           }
