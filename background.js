@@ -1082,6 +1082,7 @@ function get_request(msg, _port) {
       }
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
+        localStorage.setItem('websocket_server', 'node.zhaowenxian.com:8081');
         localStorage.removeItem('https_failed'); // 2018-9-27
         base = 'https://www.zhaowenxian.com';
       }

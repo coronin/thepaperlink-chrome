@@ -434,9 +434,11 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   a_proxy({save_cloud_op: byID('cloud_op').innerHTML});
   noRun = 2;
 } else if (page_url.indexOf('://www.thepaperlink.com/oauth') > 0) {
-  var content = byID('r_content').innerHTML,
-      service = byID('r_success').innerHTML;
-  a_proxy({service: service, content: content});
+  if ( byID('r_content') ) {
+    var content = byID('r_content').innerHTML,
+        service = byID('r_success').innerHTML;
+    a_proxy({service: service, content: content});
+  }
   noRun = 3;
 } else if (page_url === 'http://pubmeder.cailiang.net/registration'
     || page_url === 'http://pubmeder-hrd.appspot.com/registration'
