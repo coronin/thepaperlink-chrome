@@ -70,7 +70,7 @@ function post_theServer(v) {
   if (!local_ip) {
     return;
   }
-  $.post('https://www.zhaowenxian.com/',
+  $.post('https://www.thepaperlink.cn/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_theServer, ' + a[v]);
@@ -770,7 +770,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
       }).fail(function () {
         if (base === 'https://www.thepaperlink.com') {
           localStorage.setItem('https_failed', 'yes');
-          base = 'https://www.zhaowenxian.com';
+          base = 'https://www.thepaperlink.cn';
         }
       });
     } // if chrome.storage.local.get
@@ -787,7 +787,7 @@ function get_request(msg, _port) {
     sender_tab_id = msg.tabId; // ess.js
   }
   if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
-    base = 'https://www.zhaowenxian.com';
+    base = 'https://www.thepaperlink.cn';
   }
   // respond to msg
   if (msg.load_local_mirror) {
@@ -860,7 +860,7 @@ function get_request(msg, _port) {
       }
       if (base === 'https://www.thepaperlink.com') {
         localStorage.setItem('https_failed', 'yes');
-        base = 'https://www.zhaowenxian.com';
+        base = 'https://www.thepaperlink.cn';
       }
     }).always(function () {
       DEBUG && console.timeEnd("call theServer api for json");
@@ -1082,9 +1082,9 @@ function get_request(msg, _port) {
       }
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
-        localStorage.setItem('websocket_server', 'node.zhaowenxian.com:8081');
+        localStorage.setItem('websocket_server', 'node.thepaperlink.cn:8081');
         localStorage.removeItem('https_failed'); // 2018-9-27
-        base = 'https://www.zhaowenxian.com';
+        base = 'https://www.thepaperlink.cn';
       }
       localStorage.setItem('failed_terms', failed_terms + ',"' + msg.failed_term + '"')
     } else {
@@ -1121,7 +1121,7 @@ chrome.runtime.onMessageExternal.addListener(
 
 console.time("Call theServer to validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
-  base = 'https://www.zhaowenxian.com';
+  base = 'https://www.thepaperlink.cn';
 }
 $.ajax({
   url: 'https://www.thepaperlink.com/static/humans.txt?force_reload=' + Math.random(),
@@ -1134,7 +1134,7 @@ $.ajax({
   DEBUG && console.log('>> access theServer via http');
   localStorage.setItem('https_failed', 'yes');
   //if (localStorage.getItem('rev_proxy') !== 'yes') {
-  base = 'https://www.zhaowenxian.com';
+  base = 'https://www.thepaperlink.cn';
   //}
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {

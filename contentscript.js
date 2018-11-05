@@ -426,10 +426,10 @@ if (page_url === 'https://www.thepaperlink.com/reg'
     || page_url === 'https://www.thepaperlink.com/settings'
     || page_url === 'http://www.thepaperlink.com/reg'
     || page_url === 'http://www.thepaperlink.com/settings'
-    || page_url === 'https://www.zhaowenxian.com/settings'
-    || page_url === 'https://www.zhaowenxian.com/reg'
-    || page_url === 'http://www.zhaowenxian.com/settings'
-    || page_url === 'http://www.zhaowenxian.com/reg') { // storage data for access the api server
+    || page_url === 'https://www.thepaperlink.cn/settings'
+    || page_url === 'https://www.thepaperlink.cn/reg'
+    || page_url === 'http://www.thepaperlink.cn/settings'
+    || page_url === 'http://www.thepaperlink.cn/reg') { // storage data for access the api server
   a_proxy({save_apikey: byID('apikey').innerHTML, save_email: null});
   a_proxy({save_cloud_op: byID('cloud_op').innerHTML});
   noRun = 2;
@@ -480,7 +480,7 @@ if (!noRun) {
   chrome.storage.sync.get(['rev_proxy', 'https_failed'], function (e) {
     var jss_base = 'https://www.thepaperlink.com/';
     if (e.https_failed || (e.rev_proxy && e.rev_proxy === 'yes')) {
-      jss_base = 'https://www.zhaowenxian.com/';
+      jss_base = 'https://www.thepaperlink.cn/';
     }
     if (!byID('paperlink2_display')) {
       var peaks = document.createElement('script');
