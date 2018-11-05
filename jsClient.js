@@ -4,7 +4,7 @@ chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey',
                          'rev_proxy', 'https_failed'], function (e) {
     var js_base = 'https://www.thepaperlink.com/';
     if (e.https_failed || (e.rev_proxy && e.rev_proxy === 'yes')) {
-      js_base = 'https://www.zhaowenxian.com/';
+      js_base = 'https://www.thepaperlink.cn/';
     }
     localStorage.setItem('thePaperLink_pubget_js_key', e.thepaperlink_apikey || e.GUEST_APIKEY);
     localStorage.setItem('thePaperLink_pubget_js_base', js_base);

@@ -61,7 +61,7 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   _bkg.console.time("Call theServer to validate apikey");
-  return $.get('https://www.zhaowenxian.com/api',
+  return $.get('https://www.thepaperlink.cn/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
       function (txt) {
@@ -146,7 +146,7 @@ function saveOptions() {
   }
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
-    localStorage.setItem('websocket_server', 'node.zhaowenxian.com:8081');
+    localStorage.setItem('websocket_server', 'node.thepaperlink.cn:8081');
     localStorage.removeItem('https_failed'); // 2018-9-27
     localStorage.setItem('scholar_once', 'yes'); // ws_items + route to google
   } else {
@@ -241,7 +241,7 @@ function saveOptions() {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
       if (localStorage.getItem('rev_proxy') === 'yes') {
-        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.zhaowenxian.com/reg\n');
+        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.cn/reg\n');
       } else {
         window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.com/reg\n');
       }
@@ -437,10 +437,10 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>the HTTP method</b> to access "the paper link".' +
         ' It is unsecured.');
-    $('#api_server').text('http://www.zhaowenxian.com');
-    $('.reg_thepaperlink').text('https://www.zhaowenxian.com/reg');
-    $('.reg_thepaperlink').attr('href', 'https://www.zhaowenxian.com/reg');
-    $('#alerts_thepaperlink').attr('href', 'https://www.zhaowenxian.com/alerts');
+    $('#api_server').text('http://www.thepaperlink.cn');
+    $('.reg_thepaperlink').text('https://www.thepaperlink.cn/reg');
+    $('.reg_thepaperlink').attr('href', 'https://www.thepaperlink.cn/reg');
+    $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
     $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
     $('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
     $('#scholar_once_info').addClass('Off');
@@ -449,7 +449,7 @@ $(document).ready(function () {
     $('#rev_proxy_content').html(
         '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
         ' <b>check to access</b> our service via HTTP.' );
-    $('#api_server').text('http://www.zhaowenxian.com');
+    $('#api_server').text('http://www.thepaperlink.cn');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
         ' If you really want to, feel free to access our service via HTTP.');

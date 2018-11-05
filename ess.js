@@ -22,7 +22,7 @@ function peaks(name) {
   var peaksURL = 'https://2.thepaperlink.com/?term=',
       tpl = localStorage.getItem('thepaperlink_apikey') || '';
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    peaksURL = 'https://2.zhaowenxian.com/?term=';
+    peaksURL = 'https://2.thepaperlink.cn/?term=';
   }
   if (tpl) { tpl = '&apikey=' + tpl; }
   chrome.tabs.create({url: peaksURL + name + tpl, active: false});
@@ -35,7 +35,7 @@ function titleLink(ID) {
     doiURL = 'https://' + localStorage.getItem('local_mirror');
   }
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    base = 'https://www.zhaowenxian.com';
+    base = 'https://www.thepaperlink.cn';
   }
   if (/\d{2}\.\d{4,5}\//.test(ID)) {
     chrome.tabs.create({url: doiURL + '/' + ID, active: false});
@@ -71,7 +71,7 @@ function eFetch(pmid) {
     db : 'pubmed',
     id : pmid};
   if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'https://www.zhaowenxian.com/entrezajax/efetch';
+    url = 'https://www.thepaperlink.cn/entrezajax/efetch';
   } else {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
   }
