@@ -426,11 +426,7 @@ function alert_dev(req_key) {
 if (page_url === 'https://www.thepaperlink.com/reg'
     || page_url === 'https://www.thepaperlink.com/settings'
     || page_url === 'http://www.thepaperlink.com/reg'
-    || page_url === 'http://www.thepaperlink.com/settings'
-    || page_url === 'https://www.thepaperlink.cn/settings'
-    || page_url === 'https://www.thepaperlink.cn/reg'
-    || page_url === 'http://www.thepaperlink.cn/settings'
-    || page_url === 'http://www.thepaperlink.cn/reg') { // storage data for access the api server
+    || page_url === 'http://www.thepaperlink.com/settings') { // storage data for access the api server
   a_proxy({save_apikey: byID('apikey').innerHTML, save_email: null});
   a_proxy({save_cloud_op: byID('cloud_op').innerHTML});
   noRun = 2;
