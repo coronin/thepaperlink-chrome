@@ -1,12 +1,17 @@
 the paper link 3
 --------
-In addition to PubMed search results, this extension will show links to PDF; display F1000 score and journal impact factor; peak authors; and much more! It is built with passion and love.
+THIS CHROME EXTENSION USES DATA PROVIDED BY www.thepaperlink.com, FOR FAIR USE ONLY.
 
+chrome-extension://obgkooamoiloecoadbfaflephiefbfpn is a re-write of previous //kgdcooicefdfjcplcnehfpbngjccncko and //emdponcknibglcjeidbemionclljooao.
+In addition to PubMed search results, this extension will show links to PDF; display F1000 scores, etc.
 Detailed enhancement includes:
- * Impact Factor of the Journal
- * Direct link to its publisher's PDF file
- * External pages related to the article
- * Faculty 1000 star count and link to its comment page
- * "Peaks" authors, the playground for "Peaks" is at http://2.thepaperlink.com/
+ * Display the Impact Factor of the Journal, updated yearly from https://jcr.incites.thomsonreuters.com/
+ * Direct link to its publisher's web page, based on https://www.doi.org/
+ * Highlight articles published in prestigious journals
+ * Clickable button to add the RIS format reference to the system clipboard
+ * If available, direct link to its Google Scholar page
+ * If available, direct link to its legal fulltext PDF file, most of which are author-posted manuscript files hosted on university and government web servers
+ * If available, Faculty 1000 star counts and links to related comment pages
+ * "Peaks" authors, for more details please visit https://2.thepaperlink.com/
 
-Source of this extension is at https://github.com/coronin/thepaperlink-chrome
+Sources of this extension and previous versions are available at https://github.com/coronin/thepaperlink-chrome as different branches.
