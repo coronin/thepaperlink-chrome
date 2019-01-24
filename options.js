@@ -240,11 +240,7 @@ function saveOptions() {
     if (accessApi.length === 32) {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
-      if (localStorage.getItem('rev_proxy') === 'yes') {
-        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.cn/reg\n');
-      } else {
-        window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.com/reg\n');
-      }
+      window.alert('\n please provide a valid apikey to use the extension\n get it from https://www.thepaperlink.com/reg\n');
       $('#thepaperlink_apikey_input').focus();
       return false;
     }
@@ -437,8 +433,6 @@ $(document).ready(function () {
   if (localStorage.getItem('rev_proxy') === 'yes') {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our servers in Asia</b> to access "the paper link".');
     $('#api_server').text('https://www.thepaperlink.cn');
-    $('.reg_thepaperlink').text('https://www.thepaperlink.cn/reg');
-    $('.reg_thepaperlink').attr('href', 'https://www.thepaperlink.cn/reg');
     $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
     $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
     $('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
