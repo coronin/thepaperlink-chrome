@@ -52,6 +52,8 @@
     "matches": [
       "http://www.thepaperlink.com/*",
       "https://www.thepaperlink.com/*",
+      "http://www.thepaperlink.cn/*",
+      "https://www.thepaperlink.cn/*",
       "https://pubget-hrd.appspot.com/*",
       "http://pubmeder.cailiang.net/registration",
       "http://pubmeder-hrd.appspot.com/registration",
@@ -78,7 +80,6 @@
       "http://www.thepaperlink.com/*",
       "https://www.thepaperlink.com/*",
       "https://pubget-hrd.appspot.com/*",
-      "http://pubmeder.cailiang.net/registration",
       "http://pubmeder-hrd.appspot.com/registration",
       "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
