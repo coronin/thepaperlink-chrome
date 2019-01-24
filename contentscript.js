@@ -532,7 +532,7 @@ function get_request(msg) {
     if ( !byID('citedBy' + msg.pmid) ) { return 0; }
     try {
       if (msg.g_num === 1 && msg.g_link === 1) {
-        byID('citedBy' + msg.pmid).innerText = 'trying';
+        byID('citedBy' + msg.pmid).textContent = 'trying';
       } else if (msg.g_num === 0 && msg.g_link === 0) {
         byID('citedBy' + msg.pmid).innerHTML = '<i>Really? No citation yet. Is it a very recent publication?</i>';
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0) {
@@ -564,9 +564,9 @@ function get_request(msg) {
           byID(msg.el_id).innerHTML = '&raquo; <a target="_blank" href="' + msg.el_data + '">the file link</a>';
         }
       } else if (msg.el_data === 1 && page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1) {
-        byID(msg.el_id).innerText = 'trying';
+        byID(msg.el_id).textContent = 'trying';
       } else {
-        byID(msg.el_id).innerText = msg.el_data;
+        byID(msg.el_id).textContent = msg.el_data;
       }
     } catch (err) {
       DEBUG && console.log(err);
@@ -701,11 +701,18 @@ function get_request(msg) {
         msg.uri + '/?q=pmid:' + pmid + '" target="_blank">the paper link</a>: ';
     var slfoV = parseFloat(r.item[i].slfo);
     if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
-      var impact3 = byID('thepaperlink_if' + pmid),
-          impact3_span = page_d.createElement('span');
+      var impact3 = byID('thepaperlink_if' + pmid);
       if (impact3 !== null) {
-        impact3_span.innerHTML = '<span style="background:#e0ecf1;margin-right:2px">' + r.item[i].slfo + '</span>';
-        impact3.prepend(impact3_span);
+        var i3t = impact3.textContent,
+            i3s = page_d.createElement('span');
+        impact3.style.border = '1px #e0ecf1 solid';
+        i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
+        if (i3t.indexOf('.') > 0) { // abstract page
+          impact3.textContent = i3t.replace( /\.$/, '' );
+          impact3.appendChild(i3s);
+        } else {
+          impact3.prepend(i3s);
+        }
       } else {
         tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
         div_html += tmp;
