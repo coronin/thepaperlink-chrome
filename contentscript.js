@@ -181,7 +181,7 @@ function process_googlescholar() { // 2018 Oct
     }
   }
   if (d.length > 0) {
-    if (byID('_thepaperlink_cited_order')){
+    if (byID('_thepaperlink_cited_order') !== null){
       byID('_thepaperlink_order_lists').textContent = d.join(',') + ';' +
           d.sort(function(u,v){return v-u;}).join(',') + ';' +
           d.sort(function(u,v){return u-v;}).join(',');
@@ -306,7 +306,7 @@ function getPmid(zone, num) {
           '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
       b.onclick = function () { a_proxy({t_cont: t_cont}); };
       c = page_d.createElement('span');
-      c.setAttribute('style', 'border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;font-size:11px');
+      c.setAttribute('style', 'font-size:11px'); // border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;
       c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // @@@@ 'Access-Control-Allow-Origin' header is present on the requested resource.
       if (byTag(zone)[num].className === 'rprt') {
         byTag(zone)[num + 3].appendChild(b);
@@ -466,15 +466,15 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   }
   noRun = 1;
 }
-if (byID('ta_ad_title') && byID('ta_ad_title').textContent.indexOf(
+if (byID('ta_ad_title') !== null && byID('ta_ad_title').textContent.indexOf(
     'records with recent increases') > 0) {
   process_pubmedTrending();
   noRun = 99;
 }
-if (byID('_thepaperlink_client_status')) { // noRun = 2
+if (byID('_thepaperlink_client_status') !== null) { // noRun = 2
   byID('_thepaperlink_client_status').innerHTML = chrome.runtime.id;
 }
-if (byID('_thepaperlink_client_modify_it')) { // noRun = 2
+if (byID('_thepaperlink_client_modify_it') !== null) { // noRun = 2
   byID('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
@@ -585,7 +585,7 @@ function get_request(msg) {
   } else if (msg.returnAbs) { // 2018-9-14
     byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
     alert(msg.returnAbs);
-    if (byID('thepaperlink_text' + msg.pmid)) {
+    if (byID('thepaperlink_text' + msg.pmid) !== null) {
       byID('thepaperlink_text' + msg.pmid).style.display = 'block';
       byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
     }
@@ -692,7 +692,7 @@ function get_request(msg) {
         pmidArray = pmidArray.slice(0, j).concat(pmidArray.slice(j + 1, k));
       }
     }
-    if (byID('pl4_once_' + pmid)) {
+    if (byID('pl4_once_' + pmid) !== null) {
       continue;
     }
     div = page_d.createElement('div');
@@ -719,7 +719,7 @@ function get_request(msg) {
       }
     }
     if (absNeeded) { // 2018 Sep
-      tmp = '<span class="thepaperlink-abs" id="thepaperlink_abs' + pmid + '">&nbsp;abs</span>';
+      tmp = '<span class="thepaperlink-abs" id="thepaperlink_abs' + pmid + '">abstract</span>';
       div_html += tmp;
     }
     if (r.item[i].pdf) {
@@ -782,7 +782,7 @@ function get_request(msg) {
           uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) { // check on 2018-9-14
+    if (msg.tpl) { // @@@@ 2019-1-24 not working
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
           pmid + '\',\'' + uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.tpll) +
@@ -797,7 +797,7 @@ function get_request(msg) {
     byID(pmid).appendChild(div);
     k += 1;
 
-    if (byID('thepaperlink_abs' + pmid)) {
+    if (byID('thepaperlink_abs' + pmid) !== null) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
         byID(this.id).textContent = 'trying';
         a_proxy({ajaxAbs:this.id.substr(16)});
@@ -821,7 +821,7 @@ function get_request(msg) {
       }
     }
 
-    if (byID('thepaperlink_hidden' + pmid)) { // @@@@
+    if (byID('thepaperlink_hidden' + pmid) !== null) { // @@@@
       byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
         var eventData = this.textContent,
             evt_pmid = this.id.substr(19),
