@@ -18,7 +18,7 @@ var DEBUG = false,
     page_url = page_d.URL,
     loading_gif = chrome.extension.getURL('loadingLine.gif'),
     clippy_file = chrome.extension.getURL('clippyIt.png'),
-    _port = chrome.runtime.connect({name: 'background_port'}),
+    _port = null,
     pmidString = '',
     pmidArray = [],
     old_title = '',
@@ -40,6 +40,12 @@ if (typeof uneval === 'undefined') {
   };
 }
 
+try {
+  _port = chrome.runtime.connect({name: 'background_port'});
+} catch (err) {
+  console.log('>> ' + err);
+}
+
 function uneval_trim(a) {
   var b = uneval(a) || '""';
   return b.substr(1, b.length - 2);
@@ -52,9 +58,9 @@ function byID(d) { return page_d.getElementById(d); }
 function trim(s) { return ( s || '' ).replace( /^\s+|\s+$/g, '' ); }
 
 function a_proxy(d) {
-  DEBUG && console.log('>> sendRequest to background.js');
   //chrome.extension.sendRequest(d);
-  _port.postMessage(d);
+  _port && _port.postMessage(d);
+  _port || console.log('>> runtime fail to connect background_port');
 }
 a_proxy({load_local_mirror: 1});
 
@@ -116,7 +122,7 @@ function process_f1000() { // 2018 Sep
     page_d.title = pmid + '::' + doi; // ess.js
     a_proxy({from_f1000: pmid + ',' + fid + ',' + f_v});
   } else {
-    DEBUG && console.log('>> process_f1000: '+pmid+','+fid+','+f_v);
+    DEBUG && console.log('process_f1000: '+pmid+','+fid+','+f_v);
   }
   a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]),
            pmid: pmid});
@@ -166,7 +172,7 @@ function process_googlescholar() { // 2018 Oct
         if ( /\d{1,5}\s+All\ \d/.test(b) ) {
           c = parseInt(b.split(' ')[0], 10);
         } else {
-          DEBUG && console.log('>> ignored: ' + a);
+          DEBUG && console.log('process_googlescholar', a);
           continue;
         }
       } else {
@@ -245,7 +251,7 @@ function getPmid(zone, num) {
   var a = byTag(zone)[num].textContent,
       regpmid = /PMID:\s(\d+)\s/,
       ID, b, c, t_cont, t_strings, t_title, t_i;
-  DEBUG && console.log(a);
+  DEBUG && console.log('zone.textContent', a);
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
     if (ID[1]) {
@@ -299,7 +305,7 @@ function getPmid(zone, num) {
         }
       }
       t_cont += '  PMID:' + ID[1] + '\r\n';
-      DEBUG && console.log(t_cont);
+      DEBUG && console.log('t_cont', t_cont);
       b = page_d.createElement('div');
       b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
           '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
@@ -374,7 +380,7 @@ function run() {
   try {
     search_term = byID('term').value; // 2013-3-26, 2018-9-14
   } catch (err) {
-    DEBUG && console.log(err);
+    DEBUG && console.log('search_term', err);
   }
   a_proxy({reset_counts: 1});
   for (i = 0, len = byTag('div').length; i < len; i += 1) {
@@ -410,7 +416,7 @@ function alert_dev(req_key) {
         if (oXHR.status === 200) {
           byID('thepaperlink_alert').innerHTML = '&lt;!&gt; Alert sent.';
         } else {
-          DEBUG && console.log('Error', oXHR.statusText);
+          DEBUG && console.log('alert_dev', oXHR.statusText);
         }  }
     };
     setTimeout(function () {
@@ -461,7 +467,7 @@ if (page_url === 'https://www.thepaperlink.com/reg'
         && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) { // content_scripts, externally_connectable
   var ID = parse_id(page_d.body.textContent) || parse_id(page_d.body.innerHTML);
   if (ID !== null && ID[1] !== '999999999') {
-    DEBUG && console.log('>> other sites, got ID ' + ID[1]);
+    DEBUG && console.log('other site ID', ID[1]);
     a_proxy({sendID: ID[1]});
   }
   noRun = 1;
@@ -494,7 +500,7 @@ if (!noRun) {
 }
 
 function get_request(msg) {
-  DEBUG && console.log(msg);
+  DEBUG && console.log('get_request', msg);
   if (msg.local_mirror) {
     local_mirror = msg.local_mirror;
     //sendResponse({});
@@ -543,7 +549,7 @@ function get_request(msg) {
           msg.g_link + '">Google Scholar ' + msg.g_num + ' times</a>';
       }
     } catch (err) {
-      DEBUG && console.log(err);
+      DEBUG && console.log('g_scholar', err);
       byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
     }
     //sendResponse({});
@@ -569,7 +575,7 @@ function get_request(msg) {
         byID(msg.el_id).textContent = msg.el_data;
       }
     } catch (err) {
-      DEBUG && console.log(err);
+      DEBUG && console.log('el_data', err);
     }
     //sendResponse({});
     return;
@@ -679,7 +685,7 @@ function get_request(msg) {
     bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
         pmidString + '\',\'' + msg.save_key + '\',\'' + msg.save_email + '\')">save&nbsp;page</span></div>';
   } else {
-    bookmark_div += 'save what you are reading? try <a href="http://pubmeder.cailiang.net/registration" target="_blank">PubMed-er</a></div>';
+    bookmark_div += 'save what you are reading? try <a href="https://pubmeder-hrd.appspot.com/registration" target="_blank">PubMed-er</a></div>';
   }
   if (old_title) {
     byID('pl4_title').innerHTML = old_title + bookmark_div;
@@ -836,7 +842,7 @@ function get_request(msg) {
           try {
             byID('thepaperlink_D' + evt_pmid).setAttribute('class', 'thepaperlink_Off');
           } catch (err) {
-            DEBUG && console.log(err);
+            DEBUG && console.log('thepaperlink_hidden', err);
           }
         }
       });
@@ -844,18 +850,18 @@ function get_request(msg) {
   } // for loop r.count
   if (pmidArray.length > 0 && onePage_calls) { // && onePage_calls < 10
     if (pmidArray.length === k) {
-      DEBUG && console.log('>> got nothing; stopped. ' + k);
+      DEBUG && console.log('got nothing; stopped. ' + k);
     } else {
-      DEBUG && console.log('>> call for ' + k + ', not get ' + pmidArray.length);
+      DEBUG && console.log('call for ' + k + ', not get ' + pmidArray.length);
       byID('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
       onePage_calls += 1; // @@@@
       a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
     }
   }
-  DEBUG && console.log('>> onePage_calls: ' + onePage_calls);
+  DEBUG && console.log('onePage_calls', onePage_calls);
   //sendResponse({});
 }
 //chrome.extension.onRequest.addListener(get_request);
-chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
-_port.onMessage.addListener(get_request);
+_port && _port.onMessage.addListener(get_request);
+_port && chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
