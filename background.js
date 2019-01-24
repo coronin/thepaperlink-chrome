@@ -302,9 +302,9 @@ function saveIt_pubmeder(pmid) {
               'email' : pubmeder_email,
               'pmid' : pmid},
       url = 'https://pubmeder-hrd.appspot.com/input';
-  if (localStorage.getItem('rev_proxy') === 'yes') {
-    url = 'http://pubmeder.cailiang.net/input';
-  }
+  //if (localStorage.getItem('rev_proxy') === 'yes') {
+  //  url = 'http://pubmeder.cailiang.net/input';
+  //}
   $.getJSON(url, args, function (d) {
     if (d.respond > 1) {
       var pre_history = localStorage.getItem('id_history') || '';

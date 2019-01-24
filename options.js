@@ -78,7 +78,7 @@ function valid_thepaperlink(ak) {
 
 function valid_pubmeder(e,ak) {
   _bkg.console.time("Call theServer to validate pubmeder");
-  return $.get('http://pubmeder.cailiang.net/input?pmid=999999999&apikey=' + ak + '&email=' + e,
+  return $.get('https://pubmeder-hrd.appspot.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
       function (txt) {
         if (txt === 'correct') {
           _port.postMessage({save_apikey: ak, save_email: e});
@@ -253,7 +253,7 @@ function saveOptions() {
       $('#pubmeder_email_input').focus();
       return false;
     } else if (userEmail && (!userApi || userApi.length !== 32)) {
-      window.alert('\n please provide a valid apikey\n get it from http://pubmeder.cailiang.net/registration\n');
+      window.alert('\n please provide a valid apikey\n get it from https://pubmeder-hrd.appspot.com/registration\n');
       $('#pubmeder_apikey_input').focus();
       return false;
     } else if (userEmail && userApi.length === 32) {
@@ -434,8 +434,8 @@ $(document).ready(function () {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our servers in Asia</b> to access "the paper link".');
     $('#api_server').text('https://www.thepaperlink.cn');
     $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
-    $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
-    $('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
+    //$('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
+    //$('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
     $('#scholar_once_info').addClass('Off');
     $('#shark_dropbox').addClass('Off');
   } else if (localStorage.getItem('https_failed')) {
