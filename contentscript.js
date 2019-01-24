@@ -74,7 +74,7 @@ function ez_format_link(p, url){
   }
 }
 
-function process_storkapp() { // 2018 Sep
+function process_storkapp() { // 2018 Dec
   var i, len, ele, pmid = '';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
     ele = byTag('a')[i];
@@ -83,8 +83,8 @@ function process_storkapp() { // 2018 Sep
       page_d.title = pmid; // ess.js
       a_proxy({from_nonF1000: pmid});
       ele.setAttribute('id', 'thepaperlink_bar');
-      ele.innerHTML = '';
-      ele.href = '#';
+      ele.innerHTML = ' the paper link';
+      ele.href = 'https://www.thepaperlink.com/:' + pmid;
       ele.onclick = null;
       break;
     }
@@ -645,6 +645,9 @@ function get_request(msg) {
         msg.pmid + '" target="_blank">the paper link</a>';
     div_html += msg.extra;
     div.innerHTML = div_html;
+    if (byID(msg.to_other_sites).textContent === ' the paper link') {
+      byID(msg.to_other_sites).innerHTML = '';
+    }
     byID(msg.to_other_sites).appendChild(div);
     //sendResponse({});
     return;

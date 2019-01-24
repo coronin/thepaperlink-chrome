@@ -70,7 +70,7 @@ function post_theServer(v) {
   if (!local_ip) {
     return;
   }
-  $.post('https://www.thepaperlink.cn/',
+  $.post('https://www.thepaperlink.com/',
       {'pmid':'1', 'title':a[v], 'ip':local_ip, 'a':version},
       function (d) {
         DEBUG && console.log('>> post_theServer, ' + a[v]);

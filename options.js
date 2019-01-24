@@ -61,7 +61,7 @@ function reset_key(v) {
 
 function valid_thepaperlink(ak) {
   _bkg.console.time("Call theServer to validate apikey");
-  return $.get('https://www.thepaperlink.cn/api',
+  return $.get('https://www.thepaperlink.com/api',
       { validate: ak,
          runtime: '' + chrome.runtime.id },
       function (txt) {
@@ -435,9 +435,8 @@ $(document).ready(function () {
     localStorage.removeItem('alert_outdated');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>the HTTP method</b> to access "the paper link".' +
-        ' It is unsecured.');
-    $('#api_server').text('http://www.thepaperlink.cn');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our servers in Asia</b> to access "the paper link".');
+    $('#api_server').text('https://www.thepaperlink.cn');
     $('.reg_thepaperlink').text('https://www.thepaperlink.cn/reg');
     $('.reg_thepaperlink').attr('href', 'https://www.thepaperlink.cn/reg');
     $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
@@ -448,11 +447,11 @@ $(document).ready(function () {
   } else if (localStorage.getItem('https_failed')) {
     $('#rev_proxy_content').html(
         '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
-        ' <b>check to access</b> our service via HTTP.' );
-    $('#api_server').text('http://www.thepaperlink.cn');
+        ' <b>check to access</b> our servers in Asia.' );
+    $('#api_server').text('https://www.thepaperlink.cn');
   } else {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this, which is unsecured.' +
-        ' If you really want to, feel free to access our service via HTTP.');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this.' +
+        ' If you want to, feel free to access our servers in Asia.');
     $('#api_server').text('https://www.thepaperlink.com');
   }
   $('#rev_proxy').on('change', function () {
