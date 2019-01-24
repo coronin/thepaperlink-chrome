@@ -1,6 +1,6 @@
 {
   "name": "the paper link 3",
-  "version": "2.9.18",
+  "version": "2.9.19",
   "minimum_chrome_version": "39",
   "description": "Show links to PDF; display F1000 score and journal impact factor; peak authors; ... by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
