@@ -682,8 +682,7 @@ function get_request(msg) {
     //GM_addStyle(styles);
   }
   if (msg.pubmeder) {
-    bookmark_div += '<span id="thepaperlink_saveAll" onclick="saveIt_pubmeder(\'' +
-        pmidString + '\',\'' + msg.save_key + '\',\'' + msg.save_email + '\')">save&nbsp;page</span></div>';
+    bookmark_div += '<span id="thepaperlink_saveAll" class="' + pmidString + '">save&nbsp;page</span></div>';
   } else {
     bookmark_div += 'save what you are reading? try <a href="https://pubmeder-hrd.appspot.com/registration" target="_blank">PubMed-er</a></div>';
   }
@@ -846,6 +845,19 @@ function get_request(msg) {
             byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
         }
+      };
+    }
+
+    if (byID('thepaperlink_save' + pmid) !== null) {
+      byID('thepaperlink_save' + pmid).onclick = function () {
+        a_proxy({saveIt: this.id.substr(17)});
+        byID(this.id).setAttribute('class', 'thepaperlink_Off');
+      };
+    }
+    if (byID('thepaperlink_saveAll') !== null) {
+      byID('thepaperlink_saveAll').onclick = function () {
+        a_proxy({saveIt: this.className});
+        byID(this.id).setAttribute('class', 'thepaperlink_Off');
       };
     }
 
