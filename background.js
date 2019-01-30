@@ -461,7 +461,7 @@ function scholar_title(pmid, t, tabId) {
             h = reg.exec(r),
             g_num = [], g_link = [];
         if (h && h.length) {
-          DEBUG && console.log(h);
+          // console.log(h);
           g_num = />Cited\ by\ (\d+)</.exec(h[0]);
           g_link = /href="([^"]+)"/.exec(h[0]);
           if (g_num.length === 2 && g_link.length === 2) {
@@ -470,7 +470,7 @@ function scholar_title(pmid, t, tabId) {
               g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
             });
             $.post(base + '/',
-                {'apikey': req_key, 'pmid': pmid, 'g_num': g_num[1], 'g_link': g_link[1]},
+                {'apikey':req_key, 'pmid':pmid, 'g_num':g_num[1], 'g_link':g_link[1]},
                 function (d) {
                   DEBUG && console.log('>> post g_num and g_link (empty is a success): ' + d);
                 }, 'json'
@@ -758,7 +758,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           chrome.storage.local.set(aKey);
           if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
             $.post(base + '/',
-                {'apikey': req_key, 'pmid': pmid, 'fid': fid, 'f_v': f_v},
+                {'apikey':req_key, 'pmid':pmid, 'fid':fid, 'f_v':f_v},
                 function (d) {
                   DEBUG && console.log('>> post f1000 data (empty is a success): ' + d);
                 }, 'json'
@@ -778,7 +778,7 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
 }
 
 function get_request(msg, _port) {
-  DEBUG && console.log(msg);
+  // console.log(msg);
   var sender_tab_id = null,
       pmid, extra, tmp;
   if (_port && _port.sender && _port.sender.tab) {
@@ -831,8 +831,8 @@ function get_request(msg, _port) {
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         _port.postMessage(
-            {r:d, tpl:apikey, pubmeder:pubmeder_ok, cloud_op:cloud_op,
-              uri:base, p:ezproxy_prefix, tpll:cc_address}
+          { r:d, tpl:apikey, pubmeder:pubmeder_ok, cloud_op:cloud_op,
+            uri:base, p:ezproxy_prefix }
         );
         if (d && d.count) {
           tmp = {};
@@ -933,7 +933,71 @@ function get_request(msg, _port) {
           console.log('>> saveIt success: ' + msg.saveIt);
         }).fail(function () {
           console.log('>> saveIt fail: ' + msg.saveIt);
+      });
+    }
+
+  } else if (msg.money_emailIt ||
+             msg.money_reportWrongLink ||
+             msg.money_needInfo ||
+             msg.money_email_pdf) {
+    var post_action = '',
+        action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
+    if (msg.money_emailIt) {
+      post_action = 'email';
+      _port.postMessage({Off_id: 'thepaperlink_A' + action_pmid});
+      _port.postMessage({Off_id: 'thepaperlink_D' + action_pmid}); // _email_pdf @@@@
+    } else if (msg.money_reportWrongLink) {
+      post_action = 'wrong_link';
+      _port.postMessage({Off_id: 'thepaperlink_B' + action_pmid});
+    } else if (msg.money_needInfo) {
+      post_action = 'more_info';
+      _port.postMessage({Off_id: 'thepaperlink_C' + action_pmid});
+    } else if (msg.money_email_pdf) {
+      _port.postMessage({Off_id: 'thepaperlink_D' + msg.money_email_pdf}); // @@@@
+/*if (typeof window.email_pdf === 'undefined') {
+  window.email_pdf = function (pmid, apikey, no_email) {
+      var bv = jq183Tpl('#thepaperlink_A' + pmid).html(),
+        args = {'apikey': apikey},
+        answer = null;
+      if (no_email) {
+        args = {'apikey': apikey, 'no_email': 1};
+      } else {
+        answer = confirm('\nEmail the pdf of this paper to you?\n\nCaution: it might fail, then only the abstract will be sent [' + bv + ']\n');
+      }
+      if (answer || no_email) {
+        jq183Tpl.ajax({
+          url: thepaperlink_base + 'file/new',
+          dataType: 'jsonp',
+          data: args,
+          //async: false,
+          success: function (upload_url) {
+            var dom = document.getElementById('thepaperlink_hidden' + pmid),
+              customEvent = document.createEvent('Event');
+            customEvent.initEvent('email_pdf', true, true);
+            dom.innerText = upload_url;
+            if (!no_email) {
+              jq183Tpl('#thepaperlink_D' + pmid).fadeOut('fast');
+            } else {
+              jq183Tpl('#thepaperlink_save' + pmid).addClass('no_email');
+            }
+            dom.dispatchEvent(customEvent);
+          }
         });
+      }
+    };
+}*/
+    }
+    if (apikey && post_action !== '') {
+      var args = {'pmid':action_pmid, 'apikey':apikey, 'action':post_action};
+      if (post_action === 'email' && cc_address) {
+        args.cc = cc_address;
+      }
+      $.post(base, args,
+        function () {
+          console.log('>> action ' + post_action + ' success: ' + action_pmid);
+        }).fail(function () {
+          console.log('>> action ' + post_action + ' fail: ' + action_pmid);
+      });
     }
 
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {

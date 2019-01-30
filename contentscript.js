@@ -555,6 +555,11 @@ function get_request(msg) {
     //sendResponse({});
     return;
 
+  } else if (msg.Off_id) {
+    if (byID(msg.Off_id) !== null) {
+      byID(msg.Off_id).setAttribute('class', 'thepaperlink_Off');
+    }
+
   } else if (msg.el_id && msg.el_data) { // _pdf, pl4_scopus, _shark
     try {
       if (msg.el_data && msg.el_data.indexOf('://') > -1) {
@@ -787,7 +792,7 @@ function get_request(msg) {
           '" class="thepaperlink-home">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) { // @@@@ 2019-1-24 not working, 1-30 re-write
+    if (msg.tpl) { // 2019-1-30 re-write
       tmp = '<span id="thepaperlink_rpt' + pmid +
           '" class="thepaperlink-home">&hellip;</span>';
       div_html += tmp;
@@ -798,7 +803,7 @@ function get_request(msg) {
 
     if (msg.tpl && byID('thepaperlink_rpt' + pmid) !== null) {
       byID('thepaperlink_rpt' + pmid).onclick = function () {
-        byID(this.id).textContent = '|';
+        byID(this.id).innerHTML = '&nbsp;<br/>&nbsp;&nbsp;';
         var moneyEmail, moneyPDF, moneyError, moneyMore;
         moneyEmail = page_d.createElement('span');
         moneyEmail.textContent = 'email it';
@@ -817,32 +822,27 @@ function get_request(msg) {
           moneyPDF.textContent = 'email pdf';
           moneyPDF.id = 'thepaperlink_D' + pmid;
           moneyPDF.className = 'thepaperlink-home';
-          byID(this.id).appendChild(moneyPDF);
+          byID(this.id).parentNode.appendChild(moneyPDF);
           byID('thepaperlink_D' + pmid).onclick = function () {
-            a_proxy({money_emailIt: this.id.substr(14)}); // email_pdf @@@@
+            a_proxy({money_emailIt: this.id.substr(14)}); // _email_pdf @@@@
             alert( byID('thepaperlink_pdf' + pmid).href );
-            byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
-          byID(this.id).appendChild(moneyError);
+          byID(this.id).parentNode.appendChild(moneyError);
           byID('thepaperlink_B' + pmid).onclick = function () {
             a_proxy({money_reportWrongLink: this.id.substr(14)});
-            byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
-          byID(this.id).appendChild(moneyMore);
+          byID(this.id).parentNode.appendChild(moneyMore);
           byID('thepaperlink_C' + pmid).onclick = function () {
             a_proxy({money_needInfo: this.id.substr(14)});
-            byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
         } else {
-          byID(this.id).appendChild(moneyEmail);
+          byID(this.id).parentNode.appendChild(moneyEmail);
           byID('thepaperlink_A' + pmid).onclick = function () {
             a_proxy({money_emailIt: this.id.substr(14)});
-            byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
-          byID(this.id).appendChild(moneyMore);
+          byID(this.id).parentNode.appendChild(moneyMore);
           byID('thepaperlink_C' + pmid).onclick = function () {
             a_proxy({money_needInfo: this.id.substr(14)});
-            byID(this.id).setAttribute('class', 'thepaperlink_Off');
           };
         }
       };
@@ -857,7 +857,7 @@ function get_request(msg) {
     if (byID('thepaperlink_saveAll') !== null) {
       byID('thepaperlink_saveAll').onclick = function () {
         a_proxy({saveIt: this.className});
-        byID(this.id).setAttribute('class', 'thepaperlink_Off');
+        byID(this.id).parentNode.setAttribute('class', 'thepaperlink_Off');
       };
     }
 
