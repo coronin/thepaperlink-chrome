@@ -831,8 +831,8 @@ function get_request(msg, _port) {
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         _port.postMessage(
-            {r:d, tpl:apikey, pubmeder:pubmeder_ok, save_key:pubmeder_apikey, save_email:pubmeder_email,
-              cloud_op:cloud_op, uri:base, p:ezproxy_prefix, tpll:cc_address}
+            {r:d, tpl:apikey, pubmeder:pubmeder_ok, cloud_op:cloud_op,
+              uri:base, p:ezproxy_prefix, tpll:cc_address}
         );
         if (d && d.count) {
           tmp = {};
@@ -920,6 +920,20 @@ function get_request(msg, _port) {
       // just generated context menu
     } else {
       DEBUG && console.log('>> no need to update context menu');
+    }
+
+  } else if (msg.saveIt && (apikey || pubmeder_ok)) {
+    if (pubmeder_ok) {
+      saveIt_pubmeder(msg.saveIt);
+    }
+    if (apikey && msg.saveIt.indexOf(',') < 0) {
+      $.post(base + '/api',
+        {'pmid':msg.saveIt, 'apikey':apikey},
+        function () {
+          console.log('>> saveIt success: ' + msg.saveIt);
+        }).fail(function () {
+          console.log('>> saveIt fail: ' + msg.saveIt);
+        });
     }
 
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {
