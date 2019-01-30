@@ -783,27 +783,71 @@ function get_request(msg) {
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
-    if (msg.pubmeder || msg.cloud_op) {
+    if (msg.pubmeder || msg.cloud_op) { // @@@@
       tmp = '<span id="thepaperlink_save' + pmid +
-          '" class="thepaperlink-home" onclick="saveIt(\'' + pmid +
-          '\',\'' + uneval_trim(msg.save_key) + '\',\'' + uneval_trim(msg.save_email) + '\',\'' +
-          uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.cloud_op) + '\')">save&nbsp;it</span>';
+          '" class="thepaperlink-home">save&nbsp;it</span>';
       div_html += tmp;
     }
-    if (msg.tpl) { // @@@@ 2019-1-24 not working
+    if (msg.tpl) { // @@@@ 2019-1-24 not working, 1-30 re-write
       tmp = '<span id="thepaperlink_rpt' + pmid +
-          '" class="thepaperlink-home" onclick="show_me_the_money(\'' +
-          pmid + '\',\'' + uneval_trim(msg.tpl) + '\',\'' + uneval_trim(msg.tpll) +
-          '\')">&hellip;</span>';
-      div_html += tmp;
-    }
-    if (msg.tpl && r.item[i].pdf) {
-      tmp = '<span class="thepaperlink_Off" id="thepaperlink_hidden' + pmid + '"></span>';
+          '" class="thepaperlink-home">&hellip;</span>';
       div_html += tmp;
     }
     div.innerHTML = div_html;
     byID(pmid).appendChild(div);
     k += 1;
+
+    if (msg.tpl && byID('thepaperlink_rpt' + pmid) !== null) {
+      byID('thepaperlink_rpt' + pmid).onclick = function () {
+        byID(this.id).textContent = '|';
+        var moneyEmail, moneyPDF, moneyError, moneyMore;
+        moneyEmail = page_d.createElement('span');
+        moneyEmail.textContent = 'email it';
+        moneyEmail.id = 'thepaperlink_A' + pmid;
+        moneyEmail.className = 'thepaperlink-home';
+        moneyMore = page_d.createElement('span');
+        moneyMore.textContent = 'more info?';
+        moneyMore.id = 'thepaperlink_C' + pmid;
+        moneyMore.className = 'thepaperlink-home';
+        if (byID('thepaperlink_pdf' + pmid) !== null) {
+          moneyError = page_d.createElement('span');
+          moneyError.textContent = 'wrong link?';
+          moneyError.id = 'thepaperlink_B' + pmid;
+          moneyError.className = 'thepaperlink-home';
+          moneyPDF = page_d.createElement('span');
+          moneyPDF.textContent = 'email pdf';
+          moneyPDF.id = 'thepaperlink_D' + pmid;
+          moneyPDF.className = 'thepaperlink-home';
+          byID(this.id).appendChild(moneyPDF);
+          byID('thepaperlink_D' + pmid).onclick = function () {
+            a_proxy({money_emailIt: this.id.substr(14)}); // email_pdf @@@@
+            alert( byID('thepaperlink_pdf' + pmid).href );
+            byID(this.id).setAttribute('class', 'thepaperlink_Off');
+          };
+          byID(this.id).appendChild(moneyError);
+          byID('thepaperlink_B' + pmid).onclick = function () {
+            a_proxy({money_reportWrongLink: this.id.substr(14)});
+            byID(this.id).setAttribute('class', 'thepaperlink_Off');
+          };
+          byID(this.id).appendChild(moneyMore);
+          byID('thepaperlink_C' + pmid).onclick = function () {
+            a_proxy({money_needInfo: this.id.substr(14)});
+            byID(this.id).setAttribute('class', 'thepaperlink_Off');
+          };
+        } else {
+          byID(this.id).appendChild(moneyEmail);
+          byID('thepaperlink_A' + pmid).onclick = function () {
+            a_proxy({money_emailIt: this.id.substr(14)});
+            byID(this.id).setAttribute('class', 'thepaperlink_Off');
+          };
+          byID(this.id).appendChild(moneyMore);
+          byID('thepaperlink_C' + pmid).onclick = function () {
+            a_proxy({money_needInfo: this.id.substr(14)});
+            byID(this.id).setAttribute('class', 'thepaperlink_Off');
+          };
+        }
+      };
+    }
 
     if (byID('thepaperlink_abs' + pmid) !== null) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
@@ -829,24 +873,6 @@ function get_request(msg) {
       }
     }
 
-    if (byID('thepaperlink_hidden' + pmid) !== null) { // @@@@
-      byID('thepaperlink_hidden' + pmid).addEventListener('email_pdf', function () {
-        var eventData = this.textContent,
-            evt_pmid = this.id.substr(19),
-            pdf = byID('thepaperlink_pdf' + evt_pmid).href,
-            no_email_span = byID('thepaperlink_save' + evt_pmid).className;
-        if ( (' ' + no_email_span + ' ').indexOf(' no_email ') > -1 ) {
-          a_proxy({upload_url: eventData, pdf: pdf, pmid: evt_pmid, no_email: 1});
-        } else {
-          a_proxy({upload_url: eventData, pdf: pdf, pmid: evt_pmid, no_email: 0});
-          try {
-            byID('thepaperlink_D' + evt_pmid).setAttribute('class', 'thepaperlink_Off');
-          } catch (err) {
-            DEBUG && console.log('thepaperlink_hidden', err);
-          }
-        }
-      });
-    }
   } // for loop r.count
   if (pmidArray.length > 0 && onePage_calls) { // && onePage_calls < 10
     if (pmidArray.length === k) {
