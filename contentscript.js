@@ -820,8 +820,13 @@ function get_request(msg) {
           moneyError.className = 'thepaperlink-home';
           byID(this.id).parentNode.appendChild(moneyEmail);
           byID('thepaperlink_A' + pmid).onclick = function () {
-            a_proxy({money_emailIt: this.id.substr(14)}); // _email_pdf @@@@
-            alert( byID('thepaperlink_pdf' + pmid).href );
+            var a = this.id.substr(14),
+                b = {money_emailIt: a,
+                     pdf: byID('thepaperlink_pdf' + a).href};
+            if (byID('thepaperlink_doi' + a) !== null) {
+              b.doi = byID('thepaperlink_doi' + a).href.substr(18);
+            }
+            a_proxy(b);
           };
           byID(this.id).parentNode.appendChild(moneyError);
           byID('thepaperlink_B' + pmid).onclick = function () {
