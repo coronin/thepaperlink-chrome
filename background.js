@@ -944,16 +944,8 @@ function get_request(msg, _port) {
         action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
     if (msg.money_emailIt) {
       post_action = 'email';
-      _port.postMessage({Off_id: 'thepaperlink_A' + action_pmid});
-      _port.postMessage({Off_id: 'thepaperlink_D' + action_pmid}); // _email_pdf @@@@
-    } else if (msg.money_reportWrongLink) {
-      post_action = 'wrong_link';
-      _port.postMessage({Off_id: 'thepaperlink_B' + action_pmid});
-    } else if (msg.money_needInfo) {
-      post_action = 'more_info';
-      _port.postMessage({Off_id: 'thepaperlink_C' + action_pmid});
-    } else if (msg.money_email_pdf) {
-      _port.postMessage({Off_id: 'thepaperlink_D' + msg.money_email_pdf}); // @@@@
+      _port.postMessage({Off_id: 'thepaperlink_A' + action_pmid}); // _email_pdf @@@@
+
 /*if (typeof window.email_pdf === 'undefined') {
   window.email_pdf = function (pmid, apikey, no_email) {
       var bv = jq183Tpl('#thepaperlink_A' + pmid).html(),
@@ -986,6 +978,13 @@ function get_request(msg, _port) {
       }
     };
 }*/
+
+    } else if (msg.money_reportWrongLink) {
+      post_action = 'wrong_link';
+      _port.postMessage({Off_id: 'thepaperlink_B' + action_pmid});
+    } else if (msg.money_needInfo) {
+      post_action = 'more_info';
+      _port.postMessage({Off_id: 'thepaperlink_C' + action_pmid});
     }
     if (apikey && post_action !== '') {
       var args = {'pmid':action_pmid, 'apikey':apikey, 'action':post_action};

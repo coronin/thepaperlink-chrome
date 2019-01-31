@@ -789,7 +789,7 @@ function get_request(msg) {
     }
     if (msg.pubmeder || msg.cloud_op) { // @@@@
       tmp = '<span id="thepaperlink_save' + pmid +
-          '" class="thepaperlink-home">save&nbsp;it</span>';
+          '" class="thepaperlink-home">save</span>';
       div_html += tmp;
     }
     if (msg.tpl) { // 2019-1-30 re-write
@@ -804,9 +804,9 @@ function get_request(msg) {
     if (msg.tpl && byID('thepaperlink_rpt' + pmid) !== null) {
       byID('thepaperlink_rpt' + pmid).onclick = function () {
         byID(this.id).innerHTML = '&nbsp;<br/>&nbsp;&nbsp;';
-        var moneyEmail, moneyPDF, moneyError, moneyMore;
+        var moneyEmail, moneyError, moneyMore;
         moneyEmail = page_d.createElement('span');
-        moneyEmail.textContent = 'email it';
+        moneyEmail.textContent = 'email';
         moneyEmail.id = 'thepaperlink_A' + pmid;
         moneyEmail.className = 'thepaperlink-home';
         moneyMore = page_d.createElement('span');
@@ -818,12 +818,8 @@ function get_request(msg) {
           moneyError.textContent = 'wrong link?';
           moneyError.id = 'thepaperlink_B' + pmid;
           moneyError.className = 'thepaperlink-home';
-          moneyPDF = page_d.createElement('span');
-          moneyPDF.textContent = 'email pdf';
-          moneyPDF.id = 'thepaperlink_D' + pmid;
-          moneyPDF.className = 'thepaperlink-home';
-          byID(this.id).parentNode.appendChild(moneyPDF);
-          byID('thepaperlink_D' + pmid).onclick = function () {
+          byID(this.id).parentNode.appendChild(moneyEmail);
+          byID('thepaperlink_A' + pmid).onclick = function () {
             a_proxy({money_emailIt: this.id.substr(14)}); // _email_pdf @@@@
             alert( byID('thepaperlink_pdf' + pmid).href );
           };
