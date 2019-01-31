@@ -113,9 +113,9 @@ function post_theServer(v) {
 
 function get_local_ip() {
   console.time("Call theServer for local IP");
-  return $.getJSON('http://node.thepaperlink.com:8089/', function (d) {
-    local_ip = d['x-forwarded-for'];
-    if (local_ip && local_ip.substr(0,7) === '::ffff:') {
+  return $.get('https://node.thepaperlink.com:8081', function (d) {
+    local_ip = d.split(' | ')[3];
+    if (local_ip && local_ip.indexOf('::ffff:') > -1 ) {
       local_ip = local_ip.split('::ffff:')[1];
     }
     if (local_ip && !uid) {
@@ -123,7 +123,7 @@ function get_local_ip() {
       uid += extension_load_date.getTime();
       localStorage.setItem('ip_time_uid', uid);
     }
-    DEBUG && console.log('>> get_local_ip: ' + local_ip);
+    console.log('>> get_local_ip: ' + local_ip);
   }).fail(function() {
     DEBUG && console.log('>> get_local_ip error');
   }).always(function() {
@@ -944,7 +944,13 @@ function get_request(msg, _port) {
         action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
     if (msg.money_emailIt) {
       post_action = 'email';
-      _port.postMessage({Off_id: 'thepaperlink_A' + action_pmid}); // _email_pdf @@@@
+      _port.postMessage({Off_id: 'thepaperlink_A' + action_pmid});
+      if (msg.pdf) {
+        console.log('@@@@ ' + msg.pdf);
+      }
+      if (apikey && ws && msg.doi) {
+        ws.send({'apikey': apikey, 'doi': msg.doi});
+      }
 
 /*if (typeof window.email_pdf === 'undefined') {
   window.email_pdf = function (pmid, apikey, no_email) {
