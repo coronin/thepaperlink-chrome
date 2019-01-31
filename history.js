@@ -38,7 +38,7 @@ function do_syncValues_post() {
 // 2015-12-9, 2018-10-1
 function load_ALL_localStorage() {
   var i, len, aKey, aVal, a_key_split, a_url, dictKey,
-      syncValues = {};
+      syncValues = {}, regAddr = /^1[A-Z]/;
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
@@ -54,7 +54,7 @@ function load_ALL_localStorage() {
       continue;
     }
     if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
-      $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
+      $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; DELETED</li>');
       localStorage.removeItem(aKey);
       continue;
     }
@@ -74,7 +74,7 @@ function load_ALL_localStorage() {
       } else if (aKey.indexOf('shark_') === 0) {
         a_url = aVal.split(',')[1];
         if (a_url.indexOf('googletagmanager.com') > 0) {
-          $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; ACTION: REMOVE</li>');
+          $('#undefined_clean').append('<li>'+aKey+' : '+aVal+' &rarr; REMOVED</li>');
           localStorage.removeItem(aKey);
           continue;
         }
@@ -91,6 +91,15 @@ function load_ALL_localStorage() {
         a_url = 'https://scholar.google.com' + aVal.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, aVal.split(',')[1]);
       } else if (aKey.indexOf('abs_') === 0) {
+        if (aVal.indexOf('PMID: ') === 0 ||
+            aVal.indexOf('Free ') === 0 ||
+            aVal.indexOf(' [Indexed for ') === 0 ||
+            aVal.indexOf('Loading ..') === 0 ||
+            regAddr.test(aVal) ) {
+          $('#undefined_clean').append('<li>'+aKey+' &rarr; REMOVE UNVALID ABSTRACT</li>');
+          localStorage.removeItem(aKey);
+          continue;
+        }
         // 2018-10-1: chrome.storage.sync has a storage limit of only 100kb
         format_a_li('abstract', a_key_split[1]+'===='+aVal, null, null);
       }
