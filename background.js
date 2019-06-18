@@ -949,7 +949,7 @@ function get_request(msg, _port) {
         console.log('@@@@ ' + msg.pdf);
       }
       if (apikey && ws && msg.doi) {
-        ws.send({'apikey': apikey, 'doi': msg.doi});
+        ws.send('{"apikey":"' + apikey + '","doi":"' + msg.doi + '"}');
       }
 
 /*if (typeof window.email_pdf === 'undefined') {
