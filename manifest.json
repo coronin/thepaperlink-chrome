@@ -1,6 +1,6 @@
 {
   "name": "the paper link 3",
-  "version": "2.9.20",
+  "version": "2.9.21",
   "minimum_chrome_version": "39",
   "description": "Show direct links; Display F1000 scores; Peak authors; etc. Built by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
