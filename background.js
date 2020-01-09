@@ -721,7 +721,7 @@ function common_dThree(itemZero, withRed) {
       extra += tmp;
   }
   if (itemZero.doi && local_mirror) {
-      tmp = '<a href="https://' + local_mirror +'/'+ itemZero.doi + '#" target="_blank">local</a>';
+      tmp = '<a href="https://' + local_mirror +'/'+ itemZero.doi + '#" target="_blank">&#8623;</a>';
       extra += tmp;
   }
   return extra;

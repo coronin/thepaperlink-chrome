@@ -95,8 +95,10 @@ function process_storkapp() { // 2018 Dec
       break;
     }
   }
-  a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
-           pmid: pmid});
+  if (byID('abstractHolder') !== null) {  // 2020-1-10
+    a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
+             pmid: pmid});
+  } else { console.log('process_storkapp: #abstractHolder N/A'); }
 }
 
 function process_f1000() { // 2018 Sep
@@ -757,7 +759,7 @@ function get_request(msg) {
       if (local_mirror) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/' + uneval_trim(r.item[i].doi) +
-          '#" target="_blank">local</a>';
+          '#" target="_blank">&#8623;</a>';
       }
       div_html += tmp;
     } else if (r.item[i].pii) {
@@ -768,7 +770,7 @@ function get_request(msg) {
       if (local_mirror) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
-          '" target="_blank">local</a>';
+          '" target="_blank">&#8623;</a>';
       }
       div_html += tmp;
     }
