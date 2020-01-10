@@ -294,7 +294,7 @@ function eSS(search_term, tabId) {
           _port.postMessage({search_term: search_term, search_result_count: b,
                              tabId: tabId});
           if ($('#found').length > 0) {
-            $('#found').append('<span id="moreInfo">[more details]</span><br/>');
+            $('#found').append('<span id="moreInfo">[more details]</span>');
             $('#moreInfo').on('click', function () { titleLink(search_term); });
           }
         }
@@ -346,7 +346,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       eSS( ID.substr(9, ID.indexOf('&')-9).replace(/\+/g, ' '), tab.id );
     }
 
-  } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {
+  } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) {  // @@@@
     $('#found').html('&copy; /showPaper.php?'+tab.url.split('/showPaper.php?')[1]);
     eSummary(tab.title, tab.id);
 
@@ -354,6 +354,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
     eSS(ID, tab.id);
+
+  } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
+    $('#found').html('ajax');  // @@@@
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
@@ -375,6 +378,10 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
 
+  } else if (tab.url.indexOf('.cell.com/') > 0) {
+    $('#found').html('&nbsp;');
+    eSS(tab.title.split(': ')[0], tab.id);
+
   } else if (tab.url.indexOf('sciencemag.org/') > 0) {
     var urlBreaks = tab.url.split('/');
     ID = '10.1126/';
@@ -384,6 +391,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       ID += 'scisignal.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
     } else if (urlBreaks[2] === 'stm.sciencemag.org') {
       ID += 'scitranslmed.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
+    // robotics, advances NOT in DOI
     //} else if (urlBreaks[2] === 'robotics.sciencemag.org') {
     //  ID += 'scirobotics.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
     //} else if (urlBreaks[2] === 'advances.sciencemag.org') {
@@ -395,6 +403,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       $('#found').html('&copy; ' + ID);
       eSS(ID, tab.id);
     } else {
+      $('#found').html('&nbsp;');
       eSS(tab.title.split(' | ')[0], tab.id);
     }
 
@@ -425,7 +434,7 @@ chrome.runtime.onMessage.addListener(function (msg) { // @@@@
 _port.onMessage.addListener(function (msg) {
   console.log(msg);
   if (msg && msg.search_trend) {
-    $('#found').append('<span style="color:red;background-color:yellow;text-decoration:none;">&nbsp;' +
+    $('#found').append('<span style="color:cyan;text-decoration:none;">&#x1f4c8;' +
                        msg.search_trend + '&nbsp;<span>');
     //sendResponse({});
     return;
