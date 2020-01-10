@@ -126,8 +126,10 @@ function process_f1000() { // 2018 Sep
   } else {
     DEBUG && console.log('process_f1000: '+pmid+','+fid+','+f_v);
   }
-  a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]),
-           pmid: pmid});
+  if (byID('abstract-tab-content') !== null) {  // handle login page
+    a_proxy({pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]),
+             pmid: pmid});
+  }
 }
 
 function order_gs() { // 2018 Oct
