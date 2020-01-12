@@ -301,11 +301,11 @@ function saveIt_pubmeder(pmid) {
   var args = {'apikey' : pubmeder_apikey,
               'email' : pubmeder_email,
               'pmid' : pmid},
-      url = 'https://pubmeder-hrd.appspot.com/input';
-  //if (localStorage.getItem('rev_proxy') === 'yes') {
-  //  url = 'http://pubmeder.cailiang.net/input';
-  //}
-  $.getJSON(url, args, function (d) {
+      saveurl = 'https://1.thepaperlink.com/input';  // 2020-1-12
+  if (localStorage.getItem('rev_proxy') === 'yes') {
+    saveurl = 'https://1.thepaperlink.cn/input';  // 2020-1-12
+  }
+  $.getJSON(saveurl, args, function (d) {
     if (d.respond > 1) {
       var pre_history = localStorage.getItem('id_history') || '';
       pre_history.replace( /^,+|,+$/g, '' );
@@ -913,6 +913,11 @@ function get_request(msg, _port) {
     } else {
       DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
     }
+
+  } else if (msg.prjID && msg.doi) {
+    $.getJSON(request_url, {prjID: msg.prjID, doi: msg.doi}, function (d) {
+      console.log(console.log(msg.prjID+'->'+msg.doi, d);
+    })
 
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
