@@ -294,7 +294,7 @@ function eSS(search_term, tabId) {
           _port.postMessage({search_term: search_term, search_result_count: b,
                              tabId: tabId});
           if ($('#found').length > 0) {
-            $('#found').append('<span id="moreInfo">[more details]</span>');
+            $('#found').append('<span id="moreInfo">[more]</span>');
             $('#moreInfo').on('click', function () { titleLink(search_term); });
           }
         }
@@ -356,19 +356,39 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
-
     var hrefStr = tab.url.split('/'),
         l = hrefStr.length,
-        paperId = decodeURI(hrefStr[l - 1]);
-    $.postJSON('http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
-               {'achievementID': paperId}, function (d) {
-
-      _port.postMessage( {ajaxPage: d} );
-    });
-    //////
-
-    $('#found').html('ajax');
-    // @@@@
+        paperId = decodeURI(hrefStr[l - 1]),
+        queryJson = {achievementID: paperId};
+    $.ajax({
+      type: 'POST',
+      url: 'http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
+      data: JSON.stringify(queryJson),
+      contentType: 'application/json',
+        success:function(resData, textStatus, jqXHR) {
+          console.log(resData);
+          resData = JSON.parse(resData);
+          if (resData.code === '200' && resData.data[0].doi) {
+            ID = resData.data[0].doi;
+            $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
+                             ) + ' ' + (resData.data[0].fundProject || ''
+                             ) + ' ' + (resData.data[0].fieldCode || '') );
+            // achievementID
+            _port.postMessage({doi: resData.data[0].doi,
+                               prjID: resData.data[0].fundProjectNo});
+            eSS(ID, tab.id);
+          } else if (resData.code === '200') {
+            ID = resData.data[0].englishTitle || resData.data[0].chineseTitle;
+            $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
+                             ) + ' ' + (resData.data[0].fundProject || ''
+                             ) + ' ' + (resData.data[0].fieldCode || '') );
+            // achievementID
+            eSS(ID, tab.id);
+          } else {
+            $('#found').html(textStatus);
+          }
+        }
+      });
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
