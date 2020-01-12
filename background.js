@@ -1353,8 +1353,9 @@ chrome.runtime.onInstalled.addListener(function () {
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '.embopress.org/' } }),
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '.cell.com/' } })
-
+                pageUrl: { urlContains: '.cell.com/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }

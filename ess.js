@@ -245,7 +245,7 @@ function eSummary(term, tabId) {
             esum_text += '&nbsp;<span class="pmid" id="' + doi + '">DOI:' + doi + '</span> ';
           }
           esum_text += '<br/><button class="AbsButton" id="' + pmid + '"> Check abstract </button> ';
-          esum_text += '<span style="display:inline-block;float:right"><img class="pl4_clippy" title="copy to clipboard" src="' +
+          esum_text += '<span style="display:inline-block;float:right;cursor:pointer"><img class="pl4_clippy" title="copy to clipboard" src="' +
               chrome.extension.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
           esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
           $('<div/>').html(esum_text).appendTo('#result');
@@ -356,7 +356,19 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     eSS(ID, tab.id);
 
   } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
-    $('#found').html('ajax');  // @@@@
+
+    var hrefStr = tab.url.split('/'),
+        l = hrefStr.length,
+        paperId = decodeURI(hrefStr[l - 1]);
+    $.postJSON('http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
+               {'achievementID': paperId}, function (d) {
+
+      _port.postMessage( {ajaxPage: d} );
+    });
+    //////
+
+    $('#found').html('ajax');
+    // @@@@
 
   } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
     ID = tab.title.split('::')[0];
@@ -434,7 +446,7 @@ chrome.runtime.onMessage.addListener(function (msg) { // @@@@
 _port.onMessage.addListener(function (msg) {
   console.log(msg);
   if (msg && msg.search_trend) {
-    $('#found').append('<span style="color:cyan;text-decoration:none;">&#x1f4c8;' +
+    $('#found').append('<span style="color:blue;text-decoration:none;">&#x1f4c8;' +
                        msg.search_trend + '&nbsp;<span>');
     //sendResponse({});
     return;
