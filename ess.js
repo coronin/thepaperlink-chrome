@@ -359,7 +359,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     var hrefStr = tab.url.split('/'),
         l = hrefStr.length,
         paperId = decodeURI(hrefStr[l - 1]),
-        queryJson = {achievementID: paperId};
+        queryJson = {achievementID: paperId};  //  javascripts/paperDetail.js
     $.ajax({
       type: 'POST',
       url: 'http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
@@ -373,7 +373,6 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
                              ) + ' ' + (resData.data[0].fundProject || ''
                              ) + ' ' + (resData.data[0].fieldCode || '') );
-            // achievementID
             _port.postMessage({doi: resData.data[0].doi,
                                prjID: resData.data[0].fundProjectNo});
             eSS(ID, tab.id);
@@ -382,7 +381,6 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
                              ) + ' ' + (resData.data[0].fundProject || ''
                              ) + ' ' + (resData.data[0].fieldCode || '') );
-            // achievementID
             eSS(ID, tab.id);
           } else {
             $('#found').html(textStatus);

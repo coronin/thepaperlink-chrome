@@ -915,9 +915,11 @@ function get_request(msg, _port) {
     }
 
   } else if (msg.prjID && msg.doi) {
-    $.getJSON(request_url, {prjID: msg.prjID, doi: msg.doi}, function (d) {
-      console.log(console.log(msg.prjID+'->'+msg.doi, d);
-    })
+    $.getJSON(base + '/api',
+      {'prjID':msg.prjID, 'doi':msg.doi, 'apikey':apikey, 'input':1},
+      function (d) {
+        console.log(msg.prjID, msg.doi, d);
+    });
 
   } else if (msg.menu_display) {
     if (localStorage.getItem('contextMenu_shown') !== 'no') {
