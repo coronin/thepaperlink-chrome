@@ -1327,6 +1327,12 @@ chrome.runtime.onInstalled.addListener(function () {
     }, {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//pubmed.ncbi.nlm.nih.gov/' } })
+        ],
+        actions: [ new chrome.declarativeContent.ShowPageAction() ]
+    }, {
+        conditions: [
+            new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//pubmed.cn/' },
                 css: [ "p[class='pmid']" ] }),
             new chrome.declarativeContent.PageStateMatcher({

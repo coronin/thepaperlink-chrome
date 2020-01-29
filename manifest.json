@@ -1,6 +1,6 @@
 {
   "name": "the paper link 3",
-  "version": "2.9.21",
+  "version": "2.9.22",
   "minimum_chrome_version": "39",
   "description": "Show direct links; Display F1000 scores; Peak authors; etc. Built by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
@@ -20,7 +20,6 @@
     "declarativeContent",
     "activeTab",
     "*://pubmed.cn/*",
-    "http://or.nsfc.gov.cn/handle/*",
     "storage",
     "unlimitedStorage"
   ],
@@ -64,7 +63,8 @@
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*"
+      "https://www.ncbi.nlm.nih.gov/*",
+      "https://pubmed.ncbi.nlm.nih.gov/*"
     ],
     "exclude_globs": [
       "*://www.ncbi.nlm.nih.gov/sites/entrez/",
@@ -86,7 +86,8 @@
       "https://f1000.com/prime/*",
       "https://www.storkapp.me/paper/*",
       "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*"
+      "https://www.ncbi.nlm.nih.gov/*",
+      "https://pubmed.ncbi.nlm.nih.gov/*"
     ]
   },
   "manifest_version": 2
