@@ -342,27 +342,29 @@ function new_pubmed_single(zone, num) {
   var ID, b, c, t_cont, t_title, author_multi;
   ID = byTag('strong')[0].textContent;
   byID('full-view-journal-trigger').parentNode.id = 'thepaperlink_if' + ID;
-  pmidString += ',' + ID;
+  if (pmidString.indexOf(ID) < 0) {
+    pmidString += ',' + ID;
+  }
   byTag(zone)[num].setAttribute('id', ID);  //@@@@
   t_title = trim( byTag('h1')[0].textContent );
   author_multi = ', et al.\r\n';
   if (byID('full-article-details').getElementsByClassName('authors-list-item').length === 1) {
     author_multi = '\r\n';
   } else if (byID('full-article-details').getElementsByClassName('authors-list-item').length > 2) {
-    author_multi = ', ' + byID('full-article-details').
+    author_multi = ', ' + trim( byID('full-article-details').
       getElementsByClassName('authors-list-item')[
         byID('full-article-details').getElementsByClassName('authors-list-item').length-1 ].
-      getElementsByTagName('a')[0].textContent + author_multi;
+      getElementsByTagName('a')[0].textContent ) + author_multi;
   }
   if ( byClassOne('volume-issue-pages') ) {
     t_cont = t_title + '.\r\n' +
-      byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent + author_multi +
+      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
       trim( byID('full-view-journal-trigger').textContent ) + ', ' +
       trim( byClassOne('volume-issue-pages').textContent ) + ' (' +
       trim( byTag('time')[0].textContent ) + '). ';
   } else {
     t_cont = t_title + '.\r\n' +
-      byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent + author_multi +
+      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
       trim( byID('full-view-journal-trigger').textContent ) + ' (' +
       trim( byTag('time')[0].textContent ) + '). ';
   }
@@ -374,7 +376,6 @@ function new_pubmed_single(zone, num) {
       '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
   byTag(zone)[num].appendChild(b);
-//@@@@ tab: Found multiple PMID
   a_proxy({pageAbs: trim( byID('en-abstract').textContent.replace( /\s\s+/g, ' ' ) ), pmid: ID});
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
@@ -384,14 +385,20 @@ function new_pubmed_single(zone, num) {
 }
 
 function new_pubmed_multi(zone, num) {
-  var ID, b, c, t_cont, t_title;
+  var ID, b, c, t_cont, t_title, t_strings;
   ID = byTag(zone)[num].getElementsByClassName('docsum-pmid')[0].textContent;
-  byTag(zone)[num].getElementsByTagName('b')[0].id = 'thepaperlink_if' + ID;
-  pmidString += ',' + ID;
+  if (byTag(zone)[num].getElementsByTagName('b')[0]) {
+    byTag(zone)[num].getElementsByTagName('b')[0].id = 'thepaperlink_if' + ID;
+  }
+  if (pmidString.indexOf(ID) < 0) {
+    pmidString += ',' + ID;
+  }
   byTag(zone)[num].parentNode.parentNode.getElementsByClassName('result-actions-bar')[0].id = ID;
-  t_title = byTag(zone)[num].parentNode.getElementsByTagName('a')[0].textContent;
+  t_title = trim( byTag(zone)[num].parentNode.getElementsByTagName('a')[0].textContent );
+  t_strings = trim( byTag(zone)[num].textContent ).replace( /\s\s+/g, ' ' );
   t_cont = t_title + '\r\n' +
-    trim( byTag(zone)[num].textContent ).replace( /\s\s+/g, ' ' );  //@@@@
+           t_strings.substr(0, t_strings.indexOf('. ')) + '.\r\n' +
+           t_strings.substr(t_strings.indexOf('. ')+2);
 
 console.log('t_cont', t_cont);
 
@@ -401,8 +408,6 @@ console.log('t_cont', t_cont);
       '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
   byTag(zone)[num].appendChild(b);
-//@@@@ tab: Found multiple PMID
-
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
@@ -472,6 +477,7 @@ function run() {
       getPmid('div', i);
     } else if (byTag('div')[i].className === 'article-source') {
       new_pubmed_single('div', i);
+      break;
     } else if (byTag('div')[i].className === 'labs-docsum-citation') {
       new_pubmed_multi('div', i);
     }
