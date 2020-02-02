@@ -341,7 +341,9 @@ function getPmid(zone, num) {
 function new_pubmed_single(zone, num) {
   var ID, b, c, t_cont, t_title, author_multi;
   ID = byTag('strong')[0].textContent;
-  byTag(zone)[num].setAttribute('id', ID);
+  byID('full-view-journal-trigger').parentNode.id = 'thepaperlink_if' + ID;
+  pmidString += ',' + ID;
+  byTag(zone)[num].setAttribute('id', ID);  //@@@@
   t_title = trim( byTag('h1')[0].textContent );
   author_multi = ', et al.\r\n';
   if (byID('full-article-details').getElementsByClassName('authors-list-item').length === 1) {
@@ -372,21 +374,41 @@ function new_pubmed_single(zone, num) {
       '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
   byTag(zone)[num].appendChild(b);
-// @@@@ tab: Found multiple PMID
+//@@@@ tab: Found multiple PMID
+  a_proxy({pageAbs: trim( byID('en-abstract').textContent.replace( /\s\s+/g, ' ' ) ), pmid: ID});
+  c = page_d.createElement('span');
+  c.setAttribute('style', 'font-size:11px');
+  c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
+  byTag(zone)[num].appendChild(c);  //@@@@
+  a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
+}
 
-  a_proxy({pageAbs: byID('abstract').textContent, pmid: ID});
+function new_pubmed_multi(zone, num) {
+  var ID, b, c, t_cont, t_title;
+  ID = byTag(zone)[num].getElementsByClassName('docsum-pmid')[0].textContent;
+  byTag(zone)[num].getElementsByTagName('b')[0].id = 'thepaperlink_if' + ID;
+  pmidString += ',' + ID;
+  byTag(zone)[num].parentNode.parentNode.getElementsByClassName('result-actions-bar')[0].id = ID;
+  t_title = byTag(zone)[num].parentNode.getElementsByTagName('a')[0].textContent;
+  t_cont = t_title + '\r\n' +
+    trim( byTag(zone)[num].textContent ).replace( /\s\s+/g, ' ' );  //@@@@
+
+console.log('t_cont', t_cont);
+
+  b = page_d.createElement('div');
+  b.innerHTML = '<div style="float:right;z-index:1;cursor:pointer">' +
+      '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
+      '" alt="copy" width="14" height="14" />&nbsp;&nbsp;</div>';
+  b.onclick = function () { a_proxy({t_cont: t_cont}); };
+  byTag(zone)[num].appendChild(b);
+//@@@@ tab: Found multiple PMID
 
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
-  // border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
+  byTag(zone)[num].appendChild(c);
+//@@@@
 
-  // if (a.indexOf('- in process') < 0) {
-  //  byTag(zone)[num + 5].appendChild(c);
-  //}
-
-  byID('full-view-journal-trigger').parentNode.id = 'thepaperlink_if' + ID;
-  pmidString += ',' + ID;
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
 }
 
@@ -429,6 +451,8 @@ function get_json(pmids) {
       byID('messagearea').appendChild(ele);
     } else if ( byID('full-view-heading') ) {
       byID('full-view-heading').appendChild(ele);
+    } else if ( byClassOne('results-amount-container') ) {
+      byClassOne('results-amount-container').appendChild(ele);
     }
   }
   onePage_calls += 1;
@@ -448,6 +472,8 @@ function run() {
       getPmid('div', i);
     } else if (byTag('div')[i].className === 'article-source') {
       new_pubmed_single('div', i);
+    } else if (byTag('div')[i].className === 'labs-docsum-citation') {
+      new_pubmed_multi('div', i);
     }
   }
   if (!search_term) {
