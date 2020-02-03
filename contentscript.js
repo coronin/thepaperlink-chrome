@@ -577,9 +577,9 @@ if (byID('_thepaperlink_client_modify_it') !== null) { // noRun = 2
   byID('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
-  chrome.storage.sync.get(['rev_proxy', 'https_failed'], function (e) {
+  chrome.storage.sync.get(['rev_proxy'], function (e) {
     var jss_base = 'https://www.thepaperlink.com/';
-    if (e.https_failed || (e.rev_proxy && e.rev_proxy === 'yes')) {
+    if (e.rev_proxy && e.rev_proxy === 'yes') {
       jss_base = 'https://www.thepaperlink.cn/';
     }
     if (!byID('paperlink2_display')) {

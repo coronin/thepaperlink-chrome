@@ -768,10 +768,8 @@ function call_from_other_sites(pmid, tabId, fid, f_v) {
           DEBUG && console.log(d);
         }
       }).fail(function () {
-        if (base === 'https://www.thepaperlink.com') {
-          localStorage.setItem('https_failed', 'yes');
-          base = 'https://www.thepaperlink.cn';
-        }
+        base = 'https://www.thepaperlink.cn';
+        console.log('call_from_other_sites fail: access theServer in Asia');
       });
     } // if chrome.storage.local.get
   });
@@ -786,7 +784,7 @@ function get_request(msg, _port) {
   } else if (_port && _port.sender && msg.tabId) {
     sender_tab_id = msg.tabId; // ess.js
   }
-  if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
+  if (localStorage.getItem('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
   }
   // respond to msg
@@ -859,8 +857,8 @@ function get_request(msg, _port) {
         _port.postMessage({except:'Guest usage limited.', tpl:''});
       }
       if (base === 'https://www.thepaperlink.com') {
-        localStorage.setItem('https_failed', 'yes');
         base = 'https://www.thepaperlink.cn';
+        console.log('getJSON fail: access theServer in Asia');
       }
     }).always(function () {
       DEBUG && console.timeEnd("call theServer api for json");
@@ -1173,8 +1171,8 @@ function get_request(msg, _port) {
       if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
         localStorage.setItem('rev_proxy', 'yes');
         localStorage.setItem('websocket_server', 'node.thepaperlink.cn:8081');
-        localStorage.removeItem('https_failed'); // 2018-9-27
         base = 'https://www.thepaperlink.cn';
+        localStorage.removeItem('https_failed');  // 2020-2-3
       }
       localStorage.setItem('failed_terms', failed_terms + ',"' + msg.failed_term + '"')
     } else {
@@ -1210,7 +1208,7 @@ chrome.runtime.onMessageExternal.addListener(
 );
 
 console.time("Call theServer to validate connection");
-if (localStorage.getItem('rev_proxy') === 'yes' || localStorage.getItem('https_failed')) {
+if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
 }
 $.ajax({
@@ -1219,13 +1217,9 @@ $.ajax({
   timeout: 4000
 }).done(function() {
   DEBUG && console.log('>> access theServer via secure https');
-  localStorage.removeItem('https_failed');
 }).fail(function() {
-  DEBUG && console.log('>> access theServer via http');
-  localStorage.setItem('https_failed', 'yes');
-  //if (localStorage.getItem('rev_proxy') !== 'yes') {
   base = 'https://www.thepaperlink.cn';
-  //}
+  console.log('ajax humans fail: access theServer via Asia');
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
     localStorage.setItem('contextMenu_on', 'yes');

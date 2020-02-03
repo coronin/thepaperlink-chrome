@@ -147,7 +147,6 @@ function saveOptions() {
   if (rev_proxy) {
     localStorage.setItem('rev_proxy', 'yes');
     localStorage.setItem('websocket_server', 'node.thepaperlink.cn:8081');
-    localStorage.removeItem('https_failed'); // 2018-9-27
     localStorage.setItem('scholar_once', 'yes'); // ws_items + route to google
   } else {
     localStorage.setItem('rev_proxy', 'no');
@@ -438,11 +437,6 @@ $(document).ready(function () {
     //$('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
     $('#scholar_once_info').addClass('Off');
     $('#shark_dropbox').addClass('Off');
-  } else if (localStorage.getItem('https_failed')) {
-    $('#rev_proxy_content').html(
-        '<input class="settings" type="checkbox" id="rev_proxy" /> If you are getting <span style="color:red">too many errors</span>,' +
-        ' <b>check to access</b> our servers in Asia.' );
-    $('#api_server').text('https://www.thepaperlink.cn');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this.' +
         ' If you want to, feel free to access our servers in Asia.');
