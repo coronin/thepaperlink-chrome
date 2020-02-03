@@ -21,7 +21,7 @@ function peaks(name) {
   if (!name) { return; }
   var peaksURL = 'https://2.thepaperlink.com/?term=',
       tpl = localStorage.getItem('thepaperlink_apikey') || '';
-  if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
+  if (localStorage.getItem('rev_proxy') === 'yes') {
     peaksURL = 'https://2.thepaperlink.cn/?term=';
   }
   if (tpl) { tpl = '&apikey=' + tpl; }
@@ -34,7 +34,7 @@ function titleLink(ID) {
   if (localStorage.getItem('local_mirror')) {
     doiURL = 'https://' + localStorage.getItem('local_mirror');
   }
-  if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
+  if (localStorage.getItem('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
   }
   if (/\d{2}\.\d{4,5}\//.test(ID)) {
@@ -70,7 +70,7 @@ function eFetch(pmid) {
   var url, args = {apikey : localStorage.getItem('GUEST_APIKEY'),
     db : 'pubmed',
     id : pmid};
-  if (localStorage.getItem('https_failed') || localStorage.getItem('rev_proxy') === 'yes') {
+  if (localStorage.getItem('rev_proxy') === 'yes') {
     url = 'https://www.thepaperlink.cn/entrezajax/efetch';
   } else {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
