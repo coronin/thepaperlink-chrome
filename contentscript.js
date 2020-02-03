@@ -379,8 +379,8 @@ function new_pubmed_single(zone, num) {
   a_proxy({pageAbs: trim( byID('en-abstract').textContent.replace( /\s\s+/g, ' ' ) ), pmid: ID});
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
-  c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
-  byTag(zone)[num].appendChild(c);  //@@@@
+  c.innerHTML = '<br/><span id="citedBy' + ID + '">...</span>';
+  byID('full-view-identifiers').appendChild(c);
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
 }
 
@@ -411,9 +411,7 @@ console.log('t_cont', t_cont);
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
-  byTag(zone)[num].appendChild(c);
-//@@@@
-
+  byTag(zone)[num].parentNode.getElementsByClassName('labs-docsum-snippet')[0].appendChild(c);
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
 }
 
