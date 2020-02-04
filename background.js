@@ -1161,9 +1161,7 @@ function get_request(msg, _port) {
     var failed_terms = localStorage.getItem('failed_terms') || '',
         failed_times = 0;
     if (failed_terms) {
-
       console.log(failed_terms); // @@@@
-
       var failed_match = failed_terms.match(/","/g);
       if (failed_match) {
         failed_times = failed_match.length + 1;

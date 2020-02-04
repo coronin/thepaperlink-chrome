@@ -221,7 +221,7 @@ function eSummary(term, tabId) {
             tmp = $(this).text().replace(/\./g, '');
             if (j === 0) {
               author_list = '<b class="author" id="'+tmp+'">' + tmp + '</b>';
-            } else if (j === (a.length - 1)) {
+            } else if (j === (a.length-1)) {
               author_list += ', <b class="author" id="'+tmp+'">' + tmp + '</b>';
             } else {
               author_list += ', ' + tmp;
@@ -457,7 +457,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   }); }
 });
 
-chrome.runtime.onMessage.addListener(function (msg) { // @@@@
+chrome.runtime.onMessage.addListener(function (msg) { // 2020-2-4 ??
   alert('check runtime msg');
   console.log(msg);
 });

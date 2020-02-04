@@ -503,7 +503,7 @@ $(document).ready(function () {
         tmp = $('#keywords_list'),
         t = 0, i, a, b, c = [];
     terms.pop();
-    for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
+    for (i = terms.length-1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
       if (b) {
         a = terms[i].toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
