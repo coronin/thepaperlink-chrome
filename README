@@ -1,8 +1,9 @@
 the paper link 3
 --------
+version 2.9.23: now support the new PubMed web interface.
+
 THIS CHROME EXTENSION USES DATA PROVIDED BY www.thepaperlink.com, FOR FAIR USE ONLY.
 
-chrome-extension://obgkooamoiloecoadbfaflephiefbfpn is a re-write of previous //kgdcooicefdfjcplcnehfpbngjccncko and //emdponcknibglcjeidbemionclljooao.
 In addition to PubMed search results, this extension will show links to PDF; display F1000 scores, etc.
 Detailed enhancement includes:
  * Display the Impact Factor of the Journal, updated yearly from https://jcr.incites.thomsonreuters.com/
