@@ -469,23 +469,33 @@ function new_pubmed_multi(zone, num, ajax=false) {
   if (ajax) {
     found_click = '<span class="paperlink2_found" onclick="showPeaks(this)">';
   }
-  if (t_strings.indexOf(', et al.') > 0) {
-    peakss = t_strings.split(', et al.') ;
-    byTag(zone)[num].innerHTML = found_click + peakss[0] +
-                                 '</span>, <i>et al</i>. ' + id_journal( peakss[1], ID);
-  } else if (t_strings.indexOf(' and ') > 0) {
-    peakss = t_strings.split(' and ') ;
-    byTag(zone)[num].innerHTML = found_click + peakss[0] +
-                                 '</span> and ' + found_click +
-                                 peakss[1].substr(0, peakss[1].indexOf('. ')) +
-                                 '</span>. ' + id_journal( peakss[1].substr(peakss[1].indexOf('. ')+2), ID);
-  } else if (t_strings.indexOf('No authors listed') < 0) {
-    byTag(zone)[num].innerHTML = found_click + t_strings.substr(0, t_strings.indexOf('. ')) +
-                                 '</span>. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
-  } else {
+  if (t_strings.indexOf('No authors listed') > -1) {
     byTag(zone)[num].innerHTML = '[No authors listed] ' + id_journal( t_strings.substr(20), ID);
+  } else if (t_strings.toLowerCase().indexOf('working group') > -1 ||
+             t_strings.toLowerCase().indexOf(' committee') > 0 ||
+             t_strings.toLowerCase().indexOf(' association') > 0 ||
+             t_strings.toLowerCase().indexOf(' team') > 0 ||
+             t_strings.toLowerCase().indexOf(' office') > 0 ||
+             t_strings.toLowerCase().indexOf('society of ') > -1 ||
+             t_strings.toLowerCase().indexOf('group of ') > -1 ) {
+    byTag(zone)[num].innerHTML = trim( t_strings.substr(0, t_strings.indexOf('. ')) ) +
+                                   '. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
+  } else {
+    if (t_strings.indexOf(', et al.') > 0) {
+      peakss = t_strings.split(', et al.') ;
+      byTag(zone)[num].innerHTML = found_click + peakss[0] +
+                                   '</span>, <i>et al</i>. ' + id_journal( peakss[1], ID);
+    } else if (t_strings.indexOf(' and ') > 0) {
+      peakss = t_strings.split(' and ') ;
+      byTag(zone)[num].innerHTML = found_click + peakss[0] +
+                                   '</span> and ' + found_click +
+                                   peakss[1].substr(0, peakss[1].indexOf('. ')) +
+                                   '</span>. ' + id_journal( peakss[1].substr(peakss[1].indexOf('. ')+2), ID);
+    } else {
+      byTag(zone)[num].innerHTML = found_click + t_strings.substr(0, t_strings.indexOf('. ')) +
+                                   '</span>. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
+    }
   }
-
   b = page_d.createElement('div');
   b.setAttribute('style', 'float:right;z-index:1;cursor:pointer');
   b.innerHTML = '&nbsp;<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
@@ -512,7 +522,7 @@ function prep_call(pmids) {
   }
   for (i = 0, len = byTag('h3').length; i < len; i += 1) {
     ele = byTag('h3')[i];
-    if (ele.className.indexOf('result_count') == 0) {
+    if (ele.className.indexOf('result_count') === 0) {
       need_insert = 0;
       ele.id = 'pl4_title';
       old_title = ele.innerHTML;
