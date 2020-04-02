@@ -1,15 +1,16 @@
 "use strict";
 
 /*
- * Copyright (c) 2013-2018 Liang Cai .  All rights reserved.  Use of this
+ * Copyright (c) Liang Cai .  All rights reserved.  Use of this
  * source code is governed by a BSD-style license that can be found in the
  * LICENSE file.
  *
  * http://about.me/cail
  *
  * this started as a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
+ *
  * the paper link 3:
- *   https://chrome.google.com/webstore/detail/obgkooamoiloecoadbfaflephiefbfpn
+ *   https://github.com/coronin/thepaperlink-chrome/releases
  */
 
 var DEBUG = false,
@@ -586,7 +587,7 @@ function parse_page_div(ajax=true) {
     } else if (byTag('div')[i].className === 'article-source') {
       new_pubmed_single();  // 2020-2-4
       break;
-    } else if (byTag('div')[i].className === 'labs-docsum-citation') {
+    } else if (byTag('div')[i].className.indexOf('full-citation') > 0) {  // 2020-4-2
       if (ajax) {
         new_pubmed_multi('div', i, ajax);  // 2020-2-5
       } else {
