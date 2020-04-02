@@ -139,7 +139,7 @@ function saveOptions() {
   } else {
     localStorage.setItem('ws_items', 'no');
   }
-  if (ws_items && scholar_once) {
+  if (scholar_once) {  // && ws_items
     localStorage.setItem('scholar_once', 'yes');
   } else {
     localStorage.setItem('scholar_once', 'no');
@@ -186,8 +186,10 @@ function saveOptions() {
   if (pubmed_limit) {
     try {
       a = parseInt(pubmed_limit, 10);
-      if (a && a !== 10) {
+      if (a && a <= 25) {
         localStorage.setItem('pubmed_limit', a);
+      } else {
+        localStorage.setItem('pubmed_limit', 10);  // 2020-4-2
       }
     } catch (err) {
       _bkg.console.log(err);
@@ -439,7 +441,7 @@ $(document).ready(function () {
     $('#shark_dropbox').addClass('Off');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this.' +
-        ' If you want to, feel free to access our servers in Asia.');
+        ' If you want to, check to <strong>access</strong> our servers in Asia.');
     $('#api_server').text('https://www.thepaperlink.com');
   }
   $('#rev_proxy').on('change', function () {
@@ -465,13 +467,13 @@ $(document).ready(function () {
   }
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
-    if (localStorage.getItem('scholar_once') !== 'no') {
-      $('#scholar_once').prop('checked', true);
-    }
     if (localStorage.getItem('websocket_server')) {
       $('#websocket_server').text( localStorage.getItem('websocket_server') );
     }
     $('#ws_info').removeClass('Off');
+  }
+  if (localStorage.getItem('scholar_once') !== 'no') {
+    $('#scholar_once').prop('checked', true);
   }
   if (localStorage.getItem('ajax_pii_link') !== 'no') {
     $('#ajax_pii_link').prop('checked', true);
