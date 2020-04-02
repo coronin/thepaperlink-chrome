@@ -227,14 +227,12 @@ function eSummary(term, tabId) {
               author_list += ', ' + tmp;
             }
           });
-
+          titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span> ';
+          esum_text = '<p class="eSum" id="' + pmid + '">';
           if (doi) {
-            titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span><span class="down" id="' + doi + '">&nbsp;&#8623;</span> ';
-          } else {
-            titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span> ';
+            esum_text += '<span class="down" id="' + doi + '">&nbsp;&#8623;</span> ';
           }
-
-          esum_text = '<p class="eSum" id="' + pmid + '">' + author_list + titleLin + '<i>' + Source + '</i>, ' + PubDate;
+          esum_text += author_list + titleLin + '<i>' + Source + '</i>, ' + PubDate;
           if (Volume) { esum_text += ', ' + Volume; }
           if (Pages) { esum_text += ': ' + Pages; }
           esum_text += '.<br/><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
@@ -264,8 +262,8 @@ function eSummary(term, tabId) {
         $('.AbsButton').on('click', function () { eFetch(this.id); });
       },
       'xml'
-  ).fail(function () {
-    $('#result').text('I failed to fetch anything. Try later?');
+  ).fail(function (e) {
+    $('#result').text('esummary failed: '+e);
   });
 }
 
@@ -300,8 +298,8 @@ function eSS(search_term, tabId) {
         }
       },
       'xml'
-  ).fail(function () {
-    $('#result').html('I failed to find anything. Try later?');
+  ).fail(function (e) {
+    $('#result').html('eSS failed: '+e);
   });
 }
 
