@@ -376,8 +376,12 @@ function new_pubmed_single() {
   if ( byClassOne('empty-authors') ) {
     t_cont = t_title + '\r\n' +
       trim( byID('full-view-journal-trigger').textContent ) + ', ' +
-      trim( byClassOne('volume-issue-pages').textContent ) + ' (' +
-      trim( byTag('time')[0].textContent ) + '). ';
+      trim( (byClassOne('cit') || byClassOne('volume-issue-pages')).textContent );
+  } else if ( byClassOne('cit') ) {
+    t_cont = t_title + '\r\n' +
+      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
+      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
+      trim( byClassOne('cit').textContent );
   } else if ( byClassOne('volume-issue-pages') ) {
     t_cont = t_title + '\r\n' +
       trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
@@ -389,7 +393,11 @@ function new_pubmed_single() {
       trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
       trim( byID('full-view-journal-trigger').textContent ) + ' (' +
       trim( byTag('time')[0].textContent ) + '). ';
-    byClassOne('ahead-of-print').textContent = '';
+    if ( byClassOne('ahead-of-print') ) {
+      byClassOne('ahead-of-print').textContent = '';
+    } else {
+      alert(ID+' ahead of print?'); // @@@@
+    }
   }
   t_cont += '  PMID:' + ID + '\r\n';
   DEBUG && console.log('t_cont', t_cont);
@@ -427,6 +435,10 @@ function new_pubmed_single() {
 function id_journal(s, pmid) {
   var sa = trim(s),
       sb = '<span id="thepaperlink_if' + pmid + '">';
+  if (sa.indexOf('Among authors: ') === 0) {  // 2020-4-5
+    sb = sa.substr(0, sa.indexOf('. ')+2) + sb;
+    sa = sa.substr(sa.indexOf('. ')+2);
+  }
   if (sa.indexOf(' 20') > 0) {
     sb += sa.substr(0, sa.indexOf('. 20')) +
           '</span>' + sa.substr(sa.indexOf('. 20')+1);
