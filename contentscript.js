@@ -364,43 +364,6 @@ function new_pubmed_single() {
   if (t_title[t_title.length-1] !== '.') {
     t_title += '.';
   }
-  author_multi = ', et al.\r\n';
-  if (byID('full-article-details').getElementsByClassName('authors-list-item').length === 1) {
-    author_multi = '\r\n';
-  } else if (byID('full-article-details').getElementsByClassName('authors-list-item').length > 2) {
-    author_multi = ', ' + trim( byID('full-article-details').
-      getElementsByClassName('authors-list-item')[
-        byID('full-article-details').getElementsByClassName('authors-list-item').length-1 ].
-      getElementsByTagName('a')[0].textContent ) + author_multi;
-  }
-  if ( byClassOne('empty-authors') ) {
-    t_cont = t_title + '\r\n' +
-      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
-      trim( (byClassOne('cit') || byClassOne('volume-issue-pages')).textContent );
-  } else if ( byClassOne('cit') ) {
-    t_cont = t_title + '\r\n' +
-      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
-      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
-      trim( byClassOne('cit').textContent );
-  } else if ( byClassOne('volume-issue-pages') ) {
-    t_cont = t_title + '\r\n' +
-      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
-      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
-      trim( byClassOne('volume-issue-pages').textContent ) + ' (' +
-      trim( byTag('time')[0].textContent ) + '). ';
-  } else {
-    t_cont = t_title + '\r\n' +
-      trim( byClassOne('authors-list-item').getElementsByTagName('a')[0].textContent ) + author_multi +
-      trim( byID('full-view-journal-trigger').textContent ) + ' (' +
-      trim( byTag('time')[0].textContent ) + '). ';
-    if ( byClassOne('ahead-of-print') ) {
-      byClassOne('ahead-of-print').textContent = '';
-    } else {
-      alert(ID+' ahead of print?'); // @@@@
-    }
-  }
-  t_cont += '  PMID:' + ID + '\r\n';
-  DEBUG && console.log('t_cont', t_cont);
   if (byID('en-abstract') !== null) {
     a_proxy({pageAbs: trim( byID('en-abstract').textContent.replace( /\s\s+/g, ' ' ) ), pmid: ID});
   }
@@ -410,14 +373,41 @@ function new_pubmed_single() {
   byTag('time')[0].id = ID;
 
   var peaks = byClassOne('authors-list').getElementsByClassName('authors-list-item'), peaki = 0, peakss;
+  author_multi = '';
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
     peakss = trim( peaks[peaki].textContent.replace(/\s*\d\s*/g, '') );  // @@@@ Affiliations
     if (peakss.indexOf(',') > 0) {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length-1)) + '</span>, ';
+      author_multi += peaks[peaki].textContent;
     } else {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss) + '</span>';
+      author_multi += peaks[peaki].textContent + '.';
     }
   }
+
+  if ( byClassOne('empty-authors') || !author_multi ) {
+    t_cont = t_title + '\r\n' +
+      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
+      trim( (byClassOne('cit') || byClassOne('volume-issue-pages')).textContent );
+  } else if ( byClassOne('cit') ) {
+    t_cont = t_title + '\r\n' + author_multi + '\r\n' +
+      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
+      trim( byClassOne('cit').textContent );
+  } else if ( byClassOne('volume-issue-pages') ) {
+    t_cont = t_title + '\r\n' + author_multi + '\r\n' +
+      trim( byID('full-view-journal-trigger').textContent ) + ', ' +
+      trim( byClassOne('volume-issue-pages').textContent ) + ' (' +
+      trim( byTag('time')[0].textContent ) + '). ';
+  } else {
+    t_cont = t_title + '\r\n' + author_multi + '\r\n' +
+      trim( byID('full-view-journal-trigger').textContent ) + ' (' +
+      trim( byTag('time')[0].textContent ) + '). ';
+  }
+  if ( byClassOne('ahead-of-print') ) {
+    byClassOne('ahead-of-print').textContent = '';
+  }
+  t_cont += '  PMID:' + ID + '\r\n';
+  DEBUG && console.log('t_cont', t_cont);
 
   b = page_d.createElement('div');
   b.setAttribute('style', 'float:left;padding-right:14px;z-index:1;cursor:pointer');
@@ -475,6 +465,8 @@ function new_pubmed_multi(zone, num, ajax=false) {
   byTag(zone)[num].removeChild(
     byTag(zone)[num].getElementsByClassName('short-journal-citation')[0] );
   t_strings = trim( byTag(zone)[num].textContent ).replace( /\s\s+/g, ' ' );
+
+
   if (t_strings.indexOf('No authors listed') < 0 &&
       byTag(zone)[num].getElementsByClassName('short-authors')[0].textContent !== '' ) {
     t_cont = t_title + '\r\n' +
