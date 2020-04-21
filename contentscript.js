@@ -328,7 +328,7 @@ function legacy_pubmed(zone, num) {
         if (a.indexOf('- in process') < 0) {
           byTag(zone)[num + 4].appendChild(c);
         }
-        byID( ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
+        byID('tpl'+ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
       } else { // abstract page
         byTag(zone)[num + 1].appendChild(b);
         a_proxy({pageAbs: byTag(zone)[num + 8].textContent, pmid: ID[1]});
@@ -372,14 +372,6 @@ function new_pubmed_single() {
   }
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
 
-  if (byTag('time')[0].className === 'embargo-date') {  //@@@@ 2020-4-21
-    byTag('time')[1].textContent += '. ';
-    byTag('time')[1].id = 'tpl'+ID;
-  } else {
-    byTag('time')[0].textContent += '. ';
-    byTag('time')[0].id = 'tpl'+ID;
-  }
-
   var peaks = byClassOne('authors-list').getElementsByClassName('authors-list-item'), peaki = 0, peakss;
   author_multi = '';
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
@@ -415,7 +407,7 @@ function new_pubmed_single() {
   DEBUG && console.log('t_cont', t_cont);
 
   b = page_d.createElement('div');
-  b.setAttribute('style', 'float:left;padding-right:14px;z-index:1;cursor:pointer');
+  b.setAttribute('style', 'float:right;padding-right:14px;z-index:1;cursor:pointer');
   b.innerHTML = '<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
       '" alt="copy" width="14" height="14" />';
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
@@ -425,6 +417,10 @@ function new_pubmed_single() {
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<br/><span id="citedBy' + ID + '">...</span>';
   byID('full-view-identifiers').appendChild(c);
+
+  //byTag('time')[0].textContent += '. ';
+  //byTag('time')[0].id = 'tpl'+ID;
+  byID('full-view-identifiers').getElementsByClassName('identifier pubmed')[0].id = 'tpl'+ID;
 }
 
 function id_journal(s, pmid) {
@@ -1065,19 +1061,19 @@ function get_request(msg) {
       };
       if (!slfoV || slfoV < 2.0) {
         byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
-      } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {
-        byID(pmid).style.paddingTop = '10px';
+      } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) {  //@@@@
+        byID('tpl'+pmid).style.paddingTop = '10px';
         var barText = page_d.createElement('textarea');
         barText.style.display = 'none';
         barText.id = 'thepaperlink_text' + pmid;
         barText.className = 'thepaperlink-text';
-        byID(pmid).appendChild(barText);
+        byID('tpl'+pmid).appendChild(barText);
         if (slfoV > 30.0) {
-            byID(pmid).style.borderRight = '6px solid yellow';
+            byID('tpl'+pmid).style.borderRight = '6px solid yellow';
         } else if (slfoV > 20.0) {
-            byID(pmid).style.borderRight = '3px solid yellow';
+            byID('tpl'+pmid).style.borderRight = '3px solid yellow';
         } else {
-            byID(pmid).style.borderRight = '3px solid #e0ecf1';
+            byID('tpl'+pmid).style.borderRight = '3px solid #e0ecf1';
         }
       }
     }
