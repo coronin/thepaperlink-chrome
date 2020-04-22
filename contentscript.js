@@ -353,6 +353,87 @@ function LastFirst(s) {
   return st;
 }
 
+function new_pubmed_single_More(init_pmid, id_obj) {  // div.id: similar, citedby
+  // button: show more & see all
+  // user underline, clippy, bar at PMID
+  var ID, b, c, t_cont, t_title, t_strings;
+  try {
+    ID = id_obj.getElementsByClassName('docsum-pmid')[0].textContent;
+  } catch {
+    return;
+  }
+  if (pmidString.indexOf(ID) < 0) {
+    pmidString += ',' + ID;
+  }
+  t_title = trim( id_obj.getElementsByClassName('labs-docsum-title')[0].textContent );
+  if (t_title[t_title.length-1] !== '.') {
+    t_title += '.';
+  }
+  var authors_str = trim( id_obj.getElementsByClassName('full-authors')[0].textContent );
+  id_obj.getElementsByClassName('full-citation')[0].removeChild(
+    id_obj.getElementsByClassName('short-authors')[0] );
+  id_obj.getElementsByClassName('full-citation')[0].removeChild(
+    id_obj.getElementsByClassName('short-journal-citation')[0] );
+  t_strings = trim( id_obj.getElementsByClassName('full-citation')[0].textContent
+                  ).replace( /\s\s+/g, ' ' );
+  if (t_strings.indexOf('No authors listed') < 0 && authors_str) {
+    t_cont = t_title + '\r\n' +
+             authors_str + '\r\n' +
+             t_strings;
+  } else {
+    t_cont = t_title + '\r\n' + t_strings;
+  }
+  if (t_strings.indexOf('Free PMC article.') > 0) {
+    t_cont = trim( t_cont.split('Free PMC article.')[0] );
+  }
+  if (t_strings.indexOf('Review.') > 0) {
+    t_cont = trim( t_cont.split('Review.')[0] );
+  }
+  if (t_strings.indexOf('Online ahead of print.') > 0) {
+    t_cont = t_cont.replace(/ Online ahead of print\./, '');
+  }
+  DEBUG && console.log('t_cont', t_cont);
+  a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
+  id_obj.getElementsByClassName('docsum-pmid')[0].id = 'tpl'+ID;
+
+  var peakss, found_click = '<span class="paperlink2_found">';
+  if (ajax) {
+    found_click = '<span class="paperlink2_found" onclick="showPeaks(this)">';
+  }
+  var author_obj = id_obj.getElementsByClassName('full-authors')[0];
+  if (authors_str.indexOf('No authors listed') > -1 || authors_str === '') {
+    author_obj.textContent = '[No authors listed]';
+  } else if (authors_str.toLowerCase().indexOf('working group') <0 &&
+             authors_str.toLowerCase().indexOf(' committee') <0 &&
+             authors_str.toLowerCase().indexOf(' association') <0 &&
+             authors_str.toLowerCase().indexOf(' team') <0 &&
+             authors_str.toLowerCase().indexOf(' office') <0 &&
+             authors_str.toLowerCase().indexOf('society of ') <0 &&
+             authors_str.toLowerCase().indexOf('group of ') <0 ) {
+    if (t_strings.indexOf(', ') > 0) {
+      peakss = t_strings.split(', ') ;
+      author_obj.innerHTML = found_click + peakss[0] +
+                             '</span>, ' + peakss[1:peakss.length-1].join(', ') +
+                             found_click + peakss[peakss.length-1].substr(
+                                             0, peakss[peakss.length-1].length-1 ) +
+                             '</span>.';
+    } else {
+      author_obj.innerHTML = found_click + t_strings.substr(0, t_strings.length-1) +
+                             '</span>.';
+    }
+    var cit_obj = id_obj.getElementsByClassName('full-citation')[0];
+    cit_obj.innerHTML = id_journal(cit_obj.textContent, ID);
+  }
+
+  b = page_d.createElement('div');
+  b.setAttribute('style', 'float:right;z-index:1;cursor:pointer');
+  b.innerHTML = '&nbsp;<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
+      '" alt="copy" width="14" height="14" />';
+  b.id = 'clippy' + ID;
+  b.onclick = function () { a_proxy({t_cont: t_cont}); };
+  id_obj.getElementsByClassName('full-citation')[0].appendChild(b);
+}
+
 function new_pubmed_single() {
   var ID, b, c, t_cont, t_title, author_multi;
   ID = byTag('strong')[0].textContent;
