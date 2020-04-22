@@ -1068,7 +1068,7 @@ function get_request(msg, _port) {
       queue_scholar_title();
     }
 
-  } else if (msg.reset_counts) {
+  } else if (msg.reset_gs_counts) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
