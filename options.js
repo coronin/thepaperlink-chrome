@@ -104,6 +104,7 @@ function saveOptions() {
       shark_open_files = $('#shark_open_files').prop('checked'),
       shark_limit = $('#shark_limit').val(),
       pubmed_limit = $('#pubmed_limit').val(),
+      arbitrary_sec = $('#arbitrary_sec').val(),
       ezproxy_prefix = $('#ezproxy_input').val(),
       cc_address = $('#cc_address').val(),
       local_mirror = $('#local_mirror').val(),
@@ -190,6 +191,18 @@ function saveOptions() {
         localStorage.setItem('pubmed_limit', a);
       } else {
         localStorage.setItem('pubmed_limit', 10);  // 2020-4-2
+      }
+    } catch (err) {
+      _bkg.console.log(err);
+    }
+  }
+  if (arbitrary_sec) {
+    try {
+      a = parseInt(arbitrary_sec, 10);
+      if (a && a <= 10) {
+        localStorage.setItem('arbitrary_sec', a);
+      } else {
+        localStorage.setItem('arbitrary_sec', 5);  // 2020-4-23
       }
     } catch (err) {
       _bkg.console.log(err);
@@ -458,6 +471,11 @@ $(document).ready(function () {
     $('#pubmed_limit').on('change', function () {
       $('#save_widget').removeClass('Off');
     });
+  }
+  if (localStorage.getItem('arbitrary_sec')) {
+    $('#arbitrary_sec').val( localStorage.getItem('arbitrary_sec') );
+  } else {
+    $('#arbitrary_sec').val(5);
   }
   if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
