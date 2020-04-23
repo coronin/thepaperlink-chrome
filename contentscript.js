@@ -320,10 +320,10 @@ function legacy_pubmed(zone, num) {
       c.setAttribute('style', 'font-size:11px'); // border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;
       c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // @@@@ 'Access-Control-Allow-Origin' header is present on the requested resource.
       if (byTag(zone)[num].className === 'rprt') {
-        insert_clippy(ID, t_cont, byTag(zone)[num + 3]);
         if (a.indexOf('- in process') < 0) {
           byTag(zone)[num + 4].appendChild(c);
         }
+        insert_clippy(ID, t_cont, byTag(zone)[num + 3], true);
         byID('tpl'+ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
       } else { // abstract page
         insert_clippy(ID, t_cont, byTag(zone)[num + 1]);
@@ -349,9 +349,13 @@ function LastFirst(s) {
   return st;
 }
 
-function insert_clippy(ID, t_cont, _obj) {
+function insert_clippy(ID, t_cont, _obj, multi_left=false) {
   var b = page_d.createElement('div');
-  b.setAttribute('style', 'float:right;z-index:1;cursor:pointer');
+  if (multi_left) {
+    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1em');
+  } else {
+    b.setAttribute('style', 'float:right;z-index:1;cursor:pointer');
+  }
   b.innerHTML = '&nbsp;<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
       '" alt="copy" width="14" height="14" />';
   b.id = 'clippy' + ID;
@@ -618,11 +622,11 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   }
   DEBUG && console.log('t_cont', t_cont);
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
-  insert_clippy(ID, t_cont, byTag(zone)[num]);
+  insert_clippy(ID, t_cont, byTag(zone)[num-1], true);
 
   byTag(zone)[num].parentNode.parentNode.getElementsByClassName('result-actions-bar')[0].id = 'tpl'+ID;
 
-  var peakss, found_click = '<span class="paperlink2_found">';  //@@@@ <b> authors or journal
+  var peakss, found_click = '<span class="paperlink2_found">', peaksss;  //@@@@ <b> authors or journal
   if (ajax) {
     found_click = '<span class="paperlink2_found" onclick="showPeaks(this)">';
   }
@@ -640,18 +644,34 @@ function new_pubmed_multi1(zone, num, ajax=false) {
                                    '. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
   } else {
     if (t_strings.indexOf(', et al.') > 0) {  //@@@@
-      peakss = t_strings.split(', et al.') ;
+      peakss = t_strings.split(', et al.');
       var authors_list = authors_str.substr(0, authors_str.length-1).split(', ');
-      byTag(zone)[num].innerHTML = found_click + peakss[0] +
-                                   '</span>, &hellip;, ' + found_click +
-                                   authors_list[authors_list.length-1] +
-                                   '</span>. ' + id_journal( peakss[1], ID);
+      if (peakss[0].length < 25) {
+        peaksss = found_click + peakss[0] + '</span>, ';
+      } else {
+        peaksss = peakss[0] + ', ';
+      }
+      if (authors_list[authors_list.length-1].length < 25) {
+        byTag(zone)[num].innerHTML = peaksss + '&hellip;, ' + found_click +
+                                     authors_list[authors_list.length-1] + '</span>. ' +
+                                     id_journal( peakss[1], ID);
+      } else {
+        byTag(zone)[num].innerHTML = peaksss + 'et al. ' +
+                                     id_journal( peakss[1], ID);
+      }
     } else if (t_strings.indexOf(' and ') > 0) {  //@@@@
       peakss = t_strings.split(' and ') ;
-      byTag(zone)[num].innerHTML = found_click + peakss[0] +
-                                   '</span> and ' + found_click +
-                                   peakss[1].substr(0, peakss[1].indexOf('. ')) +
-                                   '</span>. ' + id_journal( peakss[1].substr(peakss[1].indexOf('. ')+2), ID);
+      if (peakss[0].length < 25) {
+        peaksss = found_click + peakss[0] + '</span> and ';
+      } else {
+        peaksss = peakss[0] + ' and ';
+      }
+      if (peakss[1].substr(0, peakss[1].indexOf('. ')).length < 25) {
+        peaksss += found_click + peakss[1].substr(0, peakss[1].indexOf('. ')) + '</span>. ';
+      } else {
+        peaksss += peakss[1].substr(0, peakss[1].indexOf('. ')) + '. ';
+      }
+      byTag(zone)[num].innerHTML = peaksss + id_journal( peakss[1].substr(peakss[1].indexOf('. ')+2), ID);
     } else {
       byTag(zone)[num].innerHTML = found_click + t_strings.substr(0, t_strings.indexOf('. ')) +
                                    '</span>. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
@@ -734,7 +754,7 @@ function parse_page_div(ajax=true) {
       break;
     } else if (byTag('div')[i].className.indexOf('full-citation') > 0) {  // 2020-4-2
       if (ajax) {
-        new_pubmed_multi1('div', i, ajax);  // 2020-2-5
+        new_pubmed_multi1('div', i, true);  // 2020-2-5
       } else {
         new_pubmed_multi1('div', i);
       }
@@ -1046,12 +1066,16 @@ function get_request(msg) {
         } else if (i3t.indexOf('.') > 0){   // legacy abstract page
           impact3.textContent = i3t.replace( /\.$/, '' );
         }
-        impact3.appendChild(i3s);
+        if (impact3.className === 'jrnl') {  // legacy multi
+          impact3.parentNode.prepend(i3s);
+        } else {
+          impact3.appendChild(i3s);
+        }
       } else {
         tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
         div_html += tmp;
       }
-    } else if (impact3 !== null) {
+    } else if (impact3 !== null && impact3.className !== 'jrnl') {
       i3t = impact3.textContent;
       impact3.textContent = i3t + '.';
     }
