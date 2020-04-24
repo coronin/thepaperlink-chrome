@@ -351,7 +351,9 @@ function LastFirst(s) {
 
 function insert_clippy(ID, t_cont, _obj, multi_left=false) {
   var b = page_d.createElement('div');
-  if (multi_left) {
+  if (multi_left === 2) {
+    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1rem;margin-top:0.67rem');
+  } else if (multi_left) {
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1em');
   } else {
     b.setAttribute('style', 'float:right;z-index:1;cursor:pointer');
@@ -360,7 +362,11 @@ function insert_clippy(ID, t_cont, _obj, multi_left=false) {
       '" alt="copy" width="14" height="14" />';
   b.id = 'clippy' + ID;
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
-  _obj.appendChild(b);
+  if (multi_left === 2) {
+    _obj.parentNode.getElementsByClassName('cite dropdown-block')[0].prepend(b);  //
+  } else {
+    _obj.appendChild(b);
+  }
 }
 
 function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, citedby
@@ -623,7 +629,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   }
   DEBUG && console.log('t_cont', t_cont);
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
-  insert_clippy(ID, t_cont, byTag(zone)[num-1], true);
+  insert_clippy(ID, t_cont, byTag(zone)[num-1], 2);
 
   byTag(zone)[num].parentNode.parentNode.getElementsByClassName('result-actions-bar')[0].id = 'tpl'+ID;
 
