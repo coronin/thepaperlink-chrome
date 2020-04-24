@@ -1,7 +1,8 @@
 "use strict";
 
 var _port = chrome.runtime.connect({name: 'background_port'}),
-    _bkg = chrome.extension.getBackgroundPage();
+    _bkg = chrome.extension.getBackgroundPage(),
+    alldigi = /^\d+$/;
 
 function format_a_li(category, pmid, url, num) {
   var categoryLen = category.length;
@@ -31,7 +32,7 @@ function format_a_li(category, pmid, url, num) {
       $('#'+category+pmid).text(pmid + ' cited ' + num + ' times');
     }
   }
-  if ( $('#'+category+'_h2').hasClass('Off') ) {
+  if ( $('#'+category+'_h2').hasClass('Off') && $('#'+category+'_').text() !== '' ) {
     $('#'+category+'_h2').removeClass('Off');
   }
 }
@@ -73,6 +74,11 @@ function load_ALL_localStorage() {
            aKey.indexOf('scholar_') === 0 ) &&
           a_key_split[1] && aVal.indexOf(a_key_split[1]) === 0) ||
          aKey.indexOf('abs_') === 0 ) {
+      if ( a_key_split[1] && !alldigi.test(a_key_split[1]) ) {
+        $('#undefined_clean').append('<li>'+aKey+' &rarr; REMOVED</li>');
+        localStorage.removeItem(aKey);
+        continue;
+      }
       dictKey = 'pmid_'+a_key_split[1];
       if (aKey.indexOf('email_') === 0) {
         if (!syncValues[dictKey]) {
