@@ -13,7 +13,7 @@
  *   https://github.com/coronin/thepaperlink-chrome/releases
  */
 
-var DEBUG = false,
+var DEBUG = true,
     noRun = 0,
     page_d = document,
     page_url = page_d.URL,
@@ -371,13 +371,16 @@ function insert_clippy(ID, t_cont, _obj, multi_left=false) {
 
 function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, citedby
   var ID, t_title;
-  if (pmidString !== '' && pmidString.substr(0, init_pmid.length+1) !== '!'+init_pmid) {
+  if (pmidString !== '' && pmidString.substr(0, init_pmid.length+1) !== ','+init_pmid) {
     alert(pmidString);  //@@@@
   }
   for (var i = 0, len = id_obj.getElementsByClassName('docsum-pmid').length;
        i < len; i += 1) {
     try {
       ID = id_obj.getElementsByClassName('docsum-pmid')[i].textContent;
+      if (ID.indexOf('the paper link:') > 0) {
+        continue;
+      }
     } catch {
       return;
     }
@@ -462,11 +465,11 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
   }
 
   if (ajax) {
-    pmidArray = pmidString.substr(1, pmidString.length).split(',');  // @@@@
-    if (pmidArray.length > 0) {
-      a_proxy({sendID: pmidArray});
-    }
+    pmidArray = pmidString.substr(1, pmidString.length).split(',');
     if (pmidString) {
+      DEBUG && console.log('pmidString', pmidString);
+      DEBUG && console.log('pmidArray', pmidArray);
+      a_proxy({sendID: pmidArray});
       prep_call(pmidString);
     }
   }
@@ -482,10 +485,10 @@ function new_pubmed_single_More_citedby() {
 }
 
 function new_pubmed_single() {
-  var ID, c, t_cont, t_title, author_multi;
+  var ID, c, z, t_cont, t_title, author_multi;
   ID = byTag('strong')[0].textContent;
   byID('full-view-journal-trigger').parentNode.id = 'thepaperlink_if' + ID;
-  pmidString = '!' + ID;  // parse_div will remove the first ch
+  pmidString = ',' + ID;  // parse_div will remove the first ch
   byID('full-view-identifiers').getElementsByClassName('identifier pubmed')[0].id = 'tpl'+ID;
 
   if ( byClassOne('ahead-of-print') ) {
@@ -567,8 +570,14 @@ function new_pubmed_single() {
     if (byID('references').getElementsByClassName('show-all')[0] && !byID('references_all')) {
       byID('references').getElementsByClassName('show-all')[0].id = 'references_all';
       byID('references_all').onclick = function () {
+        byID('tpl_manual_references_all').removeAttribute('class');
         setTimeout(new_pubmed_references_More, arbitrary_pause);
       };
+      z = page_d.createElement('span');
+      z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+      z.id = 'tpl_manual_references_all';
+      z.className = 'thepaperlink_Off';
+      byID('references').getElementsByTagName('h3')[0].appendChild(z);
     }
   }
 }
@@ -603,11 +612,11 @@ function new_pubmed_references_More(ajax=true) {
     }
   }
   if (ajax) {
-    pmidArray = pmidString.substr(1, pmidString.length).split(',');  // @@@@
-    if (pmidArray.length > 0) {
-      a_proxy({sendID: pmidArray});
-    }
+    pmidArray = pmidString.substr(1, pmidString.length).split(',');
     if (pmidString) {
+      DEBUG && console.log('pmidString', pmidString);
+      DEBUG && console.log('pmidArray', pmidArray);
+      a_proxy({sendID: pmidArray});
       prep_call(pmidString);
     }
   }
@@ -646,7 +655,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   //}
   if (pmidString.indexOf(ID) < 0) {
     pmidString += ',' + ID;
-    byTag(zone)[num].parentNode.parentNode.getElementsByClassName('result-actions-bar')[0].id = 'tpl'+ID;
+    byTag(zone)[num].parentNode.nextElementSibling.id = 'tpl'+ID;
   }
   t_title = trim( byTag(zone)[num].parentNode.getElementsByTagName('a')[0].textContent );
   if (t_title[t_title.length-1] !== '.') {
@@ -848,11 +857,11 @@ function parse_page_div(ajax=true) {
       }
     }
   }
-  pmidArray = pmidString.substr(1, pmidString.length).split(',');  // @@@@
-  if (pmidArray.length > 0) {
-    a_proxy({sendID: pmidArray});
-  }
+  pmidArray = pmidString.substr(1, pmidString.length).split(',');
   if (pmidString) {
+    DEBUG && console.log('pmidString', pmidString);
+    DEBUG && console.log('pmidArray', pmidArray);
+    a_proxy({sendID: pmidArray});
     localStorage.setItem('thePaperLink_ID', pmidArray[0]);
     prep_call(pmidString);
   }
@@ -886,6 +895,9 @@ function get_request(msg) {
   }
   if (byID('tpl_manual_ajax_prev') !== null) {  // 2020-2-4
     byID('tpl_manual_ajax_prev').setAttribute('class', 'thepaperlink_Off');
+  }
+  if (byID('tpl_manual_references_all') !== null) {  // 2020-2-4
+    byID('tpl_manual_references_all').setAttribute('class', 'thepaperlink_Off');
   }
   if (msg.local_mirror) {
     local_mirror = msg.local_mirror;
@@ -959,7 +971,7 @@ function get_request(msg) {
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
           } else {
-            e.removeClass('thepaperlink_Off');
+            e.removeClass('thepaperlink_Off');  // removeAttribute('class')
             e.href = msg.el_data;
           }
         } else {
@@ -1118,7 +1130,11 @@ function get_request(msg) {
         i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
         if (i3t.indexOf(' Actions') > 0) {  // new abstract page, 2020-2-23
           impact3.textContent = i3t.replace( /^\s+/, '' ).split(' Actions')[0];
-          byClassOne('period').innerHTML = '<br/>';  // 2020-4-23
+          if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
+            byClassOne('period').textContent = ' ';  // 2020-4-24
+          } else {
+            byClassOne('period').innerHTML = '<br/>';  // 2020-4-23
+          }
         } else if (i3t.indexOf('.') > 0){   // legacy abstract page
           impact3.textContent = i3t.replace( /\.$/, '' );
         }
@@ -1269,7 +1285,7 @@ function get_request(msg) {
         byID(this.id).setAttribute('class', 'thepaperlink_Off');
       };
     }
-    if (byID('thepaperlink_saveAll') !== null) {
+    if (byID('thepaperlink_saveAll') !== null) {  // @@@@ new interface
       byID('thepaperlink_saveAll').onclick = function () {
         a_proxy({saveIt: this.className});
         byID(this.id).parentNode.setAttribute('class', 'thepaperlink_Off');
