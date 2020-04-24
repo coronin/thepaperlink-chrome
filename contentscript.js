@@ -13,7 +13,7 @@
  *   https://github.com/coronin/thepaperlink-chrome/releases
  */
 
-var DEBUG = true,
+var DEBUG = false,
     noRun = 0,
     page_d = document,
     page_url = page_d.URL,
@@ -471,6 +471,8 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
       DEBUG && console.log('pmidArray', pmidArray);
       a_proxy({sendID: pmidArray});
       prep_call(pmidString);
+    } else {
+      id_obj.getElementsByClassName('show-more')[0].setAttribute('class', 'thepaperlink_Off');
     }
   }
 }
@@ -1324,7 +1326,7 @@ function get_request(msg) {
       DEBUG && console.log('call for ' + k + ', not get ' + pmidArray.length);
       byID('pl4_title').innerHTML = old_title + bookmark_div + '&nbsp;&nbsp;<img src="' +
           loading_gif + '" width="16" height="11" alt="loading" />';
-      onePage_calls += 1; // @@@@
+      onePage_calls += 1;
       a_proxy({url: '/api?a=chrome2&pmid=' + pmidArray.join(',') + '&apikey='});
     }
   }
