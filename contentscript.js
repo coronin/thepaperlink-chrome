@@ -376,11 +376,12 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
       return;
     }
     if (byID('tpl'+ID) !== null || byID('thepaperlink_if'+ID) !== null) {
+      d_obj.getElementsByClassName('docsum-pmid')[i].css.opacity = 0.2;  //@@@@
       continue;
     } else if (pmidString.indexOf(ID) < 0) {
       pmidString += ',' + ID;
     } else {
-      break;
+      break;  //@@@@
     }
     t_title = trim( id_obj.getElementsByClassName('labs-docsum-title')[i].textContent );
     if (t_title[t_title.length-1] !== '.') {
@@ -954,8 +955,12 @@ function get_request(msg) {
           '  background: #e0ecf1;' +
           '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
           '  padding: 2px 4px;' +
-          '  border-radius: 4px;' +
-          '  display: inline-block' +
+          '  border-radius: 4px;',
+      r = msg.r;
+  if (page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') > 0) {
+    styles += '  line-height:1.5rem; font-size:1.25rem;';
+  }
+  styles+='  display: inline-block' +
           '}' +
           '.thepaperlink_Off {' +
           '  display: none !important' +
@@ -986,8 +991,8 @@ function get_request(msg) {
           '}' +
           'textarea.thepaperlink-text {' +
           '  overflow:auto; padding-right:10px; outline:none; border:0; width:440px; height:200px; font-size:11px; color:grey; line-height:1.8; font-family:sans-serif' +
-          '}',
-      r = msg.r;
+          '}';
+
 
   if (msg.to_other_sites) { // respond to from_xx, style
     insert_style = page_d.createElement('style');
