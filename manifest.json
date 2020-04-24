@@ -68,7 +68,8 @@
     ],
     "exclude_globs": [
       "*://www.ncbi.nlm.nih.gov/sites/entrez/",
-      "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed"
+      "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed",
+      "https://pubmed.ncbi.nlm.nih.gov/advanced/"
     ],
     "js": [ "contentscript.js" ],
     "run_at" : "document_end",
