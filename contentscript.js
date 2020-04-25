@@ -540,7 +540,7 @@ function new_pubmed_single() {
   t_cont += '  PMID:' + ID + '\r\n';
   DEBUG && console.log('t_cont', t_cont);
 
-  insert_clippy(ID, t_cont, byClassOne('article-citation'), true);  // byID('full-view-identifiers')
+  insert_clippy(ID, t_cont, byClassOne('actions-buttons inline'), true);
 
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
@@ -678,6 +678,9 @@ function new_pubmed_multi1(zone, num, ajax=false) {
              t_strings.substr(t_strings.indexOf('. ')+2);  // t_strings.substr(0, t_strings.indexOf('. '))
   } else {
     t_cont = t_title + '\r\n' + t_strings;
+  }
+  if (t_strings.indexOf('Free article.') > 0) {
+    t_cont = trim( t_cont.split('Free article.')[0] );
   }
   if (t_strings.indexOf('Free PMC article.') > 0) {
     t_cont = trim( t_cont.split('Free PMC article.')[0] );
@@ -1017,13 +1020,21 @@ function get_request(msg) {
   } else if (msg.search_trend) { // after msg.search_term
     if (byID('myncbiusername') !== null) {
       var hook = byID('myncbiusername').textContent;
-      byID('myncbiusername').innerHTML = '<span style="color:yellow">&nbsp;' +
-          msg.search_trend + '&nbsp;</span> ' + hook;
+      byID('myncbiusername').innerHTML = '<a rel="external" href="' +
+          'https://tpl.ltd/' + search_term +
+          '" style="color:yellow" target="_blank">&nbsp;' +
+          msg.search_trend + '&nbsp;</a> ' + hook;
       byID('myncbiusername').style.display = 'inline';
     } else if (byID('search-create-rss') !== null) {
       var z = page_d.createElement('span');
-      z.innerHTML = msg.search_trend;
-      z.style.color = '#0071bc';
+      z.innerHTML = '<a rel="external" href="' + 'https://tpl.ltd/' +
+          search_term + '" target="_blank">&nbsp;' +
+          msg.search_trend + '&nbsp;</a>';
+      //z.style.color = '#0071bc';
+      z.id = 'thepaperlink_hook';
+      if (byID('thepaperlink_hook') !== null) {
+        byID('thepaperlink_hook').parentNode.removeChild( byID('thepaperlink_hook') );
+      }
       byID('search-create-rss').parentNode.appendChild(z);
     }
     //sendResponse({});
