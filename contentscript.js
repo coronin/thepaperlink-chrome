@@ -353,6 +353,8 @@ function insert_clippy(ID, t_cont, _obj, multi_left=false) {
   var b = page_d.createElement('div');
   if (multi_left === 2) {
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1rem;margin-top:0.67rem');
+  } else if (multi_left === 3) {
+    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin:1.6rem 1.6rem 0 0');
   } else if (multi_left) {
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1em');
   } else {
@@ -540,7 +542,10 @@ function new_pubmed_single() {
   t_cont += '  PMID:' + ID + '\r\n';
   DEBUG && console.log('t_cont', t_cont);
 
-  insert_clippy(ID, t_cont, byClassOne('actions-buttons inline'), true);
+  // #full-view-identifiers
+  // .actions-buttons inline NOT ALL
+  // .article-citation
+  insert_clippy(ID, t_cont, byClassOne('short-article-details'), 3);
 
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
