@@ -428,8 +428,12 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
         } else {
           peaksss = peakss[0] + ', ';
         }
-        if (peakss.length > 2) {
+        if (peakss.length > 3) {
           peaksss += '&hellip;, ';
+        } else if (peakss.length === 3 && peakss[1].length < 25) {
+          peaksss += found_click + peakss[1] + '</span>, ';
+        } else if (peakss.length === 3 && peakss[1].length > 24) {
+          peaksss += peakss[1] + ', ';
         }
         if (peakss[peakss.length-1].length < 25) {
           peaksss += found_click +
@@ -438,6 +442,7 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
         } else {
           peaksss += peakss[peakss.length-1];
         }
+
         author_obj.innerHTML = peaksss;
       } else if (authors_str.length < 25) {
         author_obj.innerHTML = found_click + authors_str.substr(0, authors_str.length-1) +
@@ -725,12 +730,19 @@ function new_pubmed_multi1(zone, num, ajax=false) {
       } else {
         peaksss = peakss[0] + ', ';
       }
+      if (authors_list.length > 3) {
+        peaksss += '&hellip;, ';
+      } else if (authors_list.length === 3 && authors_list[1].length < 25) {
+        peaksss += found_click + peakss[1] + '</span>, ';
+      } else if (authors_list.length === 3 && authors_list[1].length > 24) {
+        peaksss += peakss[1] + ', ';
+      }
       if (authors_list[authors_list.length-1].length < 25) {
-        byTag(zone)[num].innerHTML = peaksss + '&hellip;, ' + found_click +
+        byTag(zone)[num].innerHTML = peaksss + found_click +
                                      authors_list[authors_list.length-1] + '</span>. ' +
                                      id_journal( peakss[1], ID);
       } else {
-        byTag(zone)[num].innerHTML = peaksss + 'et al. ' +
+        byTag(zone)[num].innerHTML = peaksss + authors_list[authors_list.length-1] + '. ' +
                                      id_journal( peakss[1], ID);
       }
     } else if (t_strings.indexOf(' and ') > 0) {  //@@@@
@@ -791,7 +803,7 @@ function prep_call(pmids) {
     }
   } else {
     for (var i = 0, len = byTag('h3').length; i < len; i += 1) {
-      if (byTag('h3')[i].className.indexOf('result_count') === 0) {  // legacy interface
+      if (byTag('h3')[i].className.indexOf('result_count') === 0) {  // legacy multi
         if (search_term) {
           search_result_count = byTag('h3')[i].textContent;
           if (search_result_count.indexOf(' of ') > 0) {
@@ -812,15 +824,13 @@ function prep_call(pmids) {
     }
   }
   if (need_insert && !byID('pl4_title')) {
-    var ele = page_d.createElement('h2');
+    var ele = page_d.createElement('div');
     ele.innerHTML = loading_span;
     ele.id = 'pl4_title';
-    if ( byID('messagearea') !== null ) {
+    if ( byID('messagearea') !== null ) {  // legacy single
       byID('messagearea').appendChild(ele);
-    } else if ( byID('full-view-heading') !== null ) {
+    } else if ( byID('full-view-heading') !== null ) {  // new single
       byID('full-view-heading').appendChild(ele);
-    } else if ( byClassOne('results-amount-container') ) {
-      byClassOne('results-amount-container').appendChild(ele);
     }
   }
 }
