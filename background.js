@@ -20,6 +20,7 @@ var DEBUG = false,
     guest_apikey = null,
     apikey, req_key, pubmeder_apikey, pubmeder_email,
     local_mirror, ezproxy_prefix, cc_address,
+    arbitrary_sec = 5,
     pubmeder_ok = false,
     broadcast_loaded = false,
     extension_load_date = new Date(),
@@ -158,7 +159,7 @@ function load_common_values(newday) {
     if (req_key === null && load_try > -4 && window.navigator.onLine) {
       load_try -= 1;
       get_server_data(1);
-      setTimeout(load_common_values, arbitrary_pause);
+      setTimeout(load_common_values, arbitrary_sec*1000);
       return;
     }
     localStorage.removeItem('mendeley_status');
@@ -181,6 +182,7 @@ function load_common_values(newday) {
   local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
   ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   cc_address = localStorage.getItem('cc_address') || '';
+  arbitrary_sec = localStorage.getItem('arbitrary_sec') || 5;
   if (newday === undefined) {
     var syncValues = {};
     for (i = 0, len = localStorage.length; i < len; i += 1) {
@@ -790,7 +792,7 @@ function get_request(msg, _port) {
   // respond to msg
   if (msg.load_local_mirror) {
     _port.postMessage({local_mirror:local_mirror,
-                       arbitrary_pause: localStorage.getItem('arbitrary_sec')*1000 });
+                       arbitrary_pause: arbitrary_sec*1000 });
 
   } else if (msg.url) {
     var request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id,

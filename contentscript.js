@@ -733,9 +733,9 @@ function new_pubmed_multi1(zone, num, ajax=false) {
       if (authors_list.length > 3) {
         peaksss += '&hellip;, ';
       } else if (authors_list.length === 3 && authors_list[1].length < 25) {
-        peaksss += found_click + peakss[1] + '</span>, ';
+        peaksss += found_click + authors_list[1] + '</span>, ';
       } else if (authors_list.length === 3 && authors_list[1].length > 24) {
-        peaksss += peakss[1] + ', ';
+        peaksss += authors_list[1] + ', ';
       }
       if (authors_list[authors_list.length-1].length < 25) {
         byTag(zone)[num].innerHTML = peaksss + found_click +
@@ -773,7 +773,9 @@ function new_pubmed_multi1(zone, num, ajax=false) {
 function prep_call(pmids) {
   var need_insert = 1,
       url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
-      loading_span = '<span style="font-weight:normal;font-style:italic"> loading from "the paper link"</span>&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+      loading_span = '<span style="font-weight:normal;font-style:italic"> loading from "the paper link"</span>' +
+                     ' (fast Internet may needed to reduce stalling)' +
+                     '&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
   } else {
@@ -870,25 +872,31 @@ function parse_page_div(ajax=true) {
       byClassOne('load-button next-page').getElementsByTagName('span')[0].id = 'tpl_load_next';
       byID('tpl_load_next').onclick = function () {
         pmidString = '';
-        byID('tpl_manual_ajax_next').removeAttribute('class');
+        if (byID('tpl_manual_ajax_next') !== null) {
+          byID('tpl_manual_ajax_next').removeAttribute('class');
+        } else {
+          z = page_d.createElement('span');
+          z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+          z.id = 'tpl_manual_ajax_next';
+          byID('tpl_load_next').parentNode.appendChild(z);
+        }
         setTimeout(parse_page_div, arbitrary_pause);
       };
-      z = page_d.createElement('span');
-      z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
-      z.id = 'tpl_manual_ajax_next';
-      byID('tpl_load_next').parentNode.appendChild(z);
     }
     if (byClassOne('load-button prev-page') && !byID('tpl_load_prev')) {
       byClassOne('load-button prev-page').getElementsByTagName('span')[0].id = 'tpl_load_prev';
       byID('tpl_load_prev').onclick = function () {
         pmidString = '';
-        byID('tpl_manual_ajax_prev').removeAttribute('class');
+        if (byID('tpl_manual_ajax_prev') !== null) {
+          byID('tpl_manual_ajax_prev').removeAttribute('class');
+        } else {
+          z = page_d.createElement('span');
+          z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+          z.id = 'tpl_manual_ajax_prev';
+          byID('tpl_load_prev').parentNode.appendChild(z);
+        }
         setTimeout(parse_page_div, arbitrary_pause);
       };
-      z = page_d.createElement('span');
-      z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
-      z.id = 'tpl_manual_ajax_prev';
-      byID('tpl_load_prev').parentNode.appendChild(z);
     }
   }
   if (!search_term) {
@@ -1189,8 +1197,9 @@ function get_request(msg) {
       if (impact3 !== null) {
         i3t = impact3.textContent;
         var i3s = page_d.createElement('span');
-        impact3.style.border = '1px #e0ecf1 solid';
         i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
+        impact3.style.border = '1px #e0ecf1 solid';
+        impact3.style.lineHeight = '1';
         if (i3t.indexOf(' Actions') > 0) {  // new abstract page, 2020-2-23
           impact3.textContent = i3t.replace( /^\s+/, '' ).split(' Actions')[0];
           if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
