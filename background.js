@@ -718,7 +718,7 @@ function common_dThree(itemZero, withRed) {
   }
   if (withRed && itemZero.f_v && itemZero.fid) {
       tmp = '<a class="thepaperlink-red" href="' +
-          ez_format_link(ezproxy_prefix, 'https://f1000.com/prime/' + itemZero.fid) +
+          ez_format_link(ezproxy_prefix, 'https://facultyopinions.com/prime/' + itemZero.fid) +
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
       extra += tmp;
   }
@@ -1344,6 +1344,8 @@ chrome.runtime.onInstalled.addListener(function () {
                 css: [ "p[class='view_pmid']" ] }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//f1000.com/prime/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//facultyopinions.com/prime/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
             new chrome.declarativeContent.PageStateMatcher({

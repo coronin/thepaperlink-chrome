@@ -391,6 +391,11 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
 
+  } else if (tab.url.indexOf('//facultyopinions.com/prime/') > 0) {
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
+
   } else if (tab.url.indexOf('.nature.com/articles/') > 0) {
     ID = '10.1038/' + tab.url.split('.nature.com/articles/')[1];
     $('#found').html('&copy; ' + ID);
