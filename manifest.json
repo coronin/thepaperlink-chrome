@@ -59,6 +59,8 @@
       "https://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
+      "http://facultyopinions.com/prime/*",
+      "https://facultyopinions.com/prime/*",
       "https://www.storkapp.me/paper/*",
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
@@ -80,6 +82,8 @@
     "matches": [
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
+      "http://facultyopinions.com/prime/*",
+      "https://facultyopinions.com/prime/*",
       "https://www.storkapp.me/paper/*",
       "https://www.thepaperlink.com/*",
       "http://www.ncbi.nlm.nih.gov/*",

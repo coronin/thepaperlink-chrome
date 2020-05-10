@@ -106,7 +106,7 @@ function process_storkapp() { // 2018 Dec
 function process_f1000() { // 2018 Sep
   var i, len, pmid = '', doi = '',
       f_v = 0,
-      fid = parseInt(page_url.split('://f1000.com/prime/')[1], 10);
+      fid = parseInt(page_url.split('.com/prime/')[1], 10);
   for (i = 0; i < byTag('meta').length; i += 1) {
     if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
       pmid += byTag('meta')[i].getAttribute('content');
@@ -1280,7 +1280,7 @@ function get_request(msg) {
     if (r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-              'https://f1000.com/prime/' + uneval_trim(r.item[i].fid)
+              'https://facultyopinions.com/prime/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
@@ -1434,6 +1434,9 @@ if (page_url === 'https://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://f1000.com/prime/') > 0) {
   process_f1000();
   noRun = 30;
+} else if (page_url.indexOf('://facultyopinions.com/prime/') > 0) {
+  process_f1000();
+  noRun = 31;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0) {
   process_storkapp();
   noRun = 20;
