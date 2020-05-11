@@ -324,14 +324,22 @@ function legacy_pubmed(zone, num) {
           byTag(zone)[num + 4].appendChild(c);
         }
         insert_clippy(ID, t_cont, byTag(zone)[num + 3], true);
-        byID('tpl'+ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
+        try {
+          byID('tpl'+ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
+        } catch {
+          console.log('Not a journal article', ID[1]);
+        }
       } else { // abstract page
         insert_clippy(ID, t_cont, byTag(zone)[num + 1]);
         a_proxy({pageAbs: byTag(zone)[num + 8].textContent, pmid: ID[1]});
         if (a.indexOf('- in process') < 0) {
           byTag(zone)[num + 5].appendChild(c);
         }
-        byClassOne('cit').getElementsByTagName('span')[0].id = 'thepaperlink_if' + ID[1]; // div.cit span
+        try {
+          byClassOne('cit').getElementsByTagName('span')[0].id = 'thepaperlink_if' + ID[1]; // div.cit span
+        } catch {
+          console.log('Not a journal article', ID[1]);
+        }
       }
       pmidString += ',' + ID[1];
       a_proxy({a_pmid: ID[1], a_title: t_title}); // queue_scholar_title
@@ -365,7 +373,7 @@ function insert_clippy(ID, t_cont, _obj, multi_left=false) {
   b.id = 'clippy' + ID;
   b.onclick = function () { a_proxy({t_cont: t_cont}); };
   if (multi_left === 2) {
-    _obj.parentNode.getElementsByClassName('cite dropdown-block')[0].prepend(b);  //
+    _obj.parentNode.getElementsByClassName('cite dropdown-block')[0].prepend(b);
   } else {
     _obj.appendChild(b);
   }
@@ -643,21 +651,22 @@ function id_journal(s, pmid) {
     sb = sa.substr(0, sa.indexOf('. ')+2) + sb;
     sa = sa.substr(sa.indexOf('. ')+2);
   }
-  if (sa.indexOf(' 20') > 0) {
+  if (sa.indexOf('. 20') > 0) {
     sb += sa.substr(0, sa.indexOf('. 20')) +
           '</span>' + sa.substr(sa.indexOf('. 20')+1);
   } else if (sa.indexOf('. 19') > 0 || sa.indexOf('. 18') > 0) {
     sb += sa.substr(0, sa.indexOf('. 1')) +
           '</span>' + sa.substr(sa.indexOf('. 1')+1);
   } else {
-    window.alert('You are reading a really old article. ' + s);
+    if (s.indexOf(' Books & Documents.') < 0) {
+      window.alert('You may be reading a really old article >> ' + s);
+    }
     return s;
   }
-  return sb;
 }
 
 function new_pubmed_multi1(zone, num, ajax=false) {
-  var ID, b, c, t_cont, t_title, t_strings;
+  var ID, b, c, t_cont, t_title, t_strings, not_insert = false;
   try {
     ID = byTag(zone)[num].getElementsByClassName('docsum-pmid')[0].textContent;
   } catch {
@@ -669,7 +678,13 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   //}
   if (pmidString.indexOf(ID) < 0) {
     pmidString += ',' + ID;
-    byTag(zone)[num].parentNode.nextElementSibling.id = 'tpl'+ID;
+    try {
+      byTag(zone)[num].parentNode.nextElementSibling.id = 'tpl'+ID;
+    } catch {
+      console.log('New PubMed, not a journal article', ID);
+      byTag(zone)[num].id = 'tpl'+ID;
+      not_insert = true;
+    }
   }
   t_title = trim( byTag(zone)[num].parentNode.getElementsByTagName('a')[0].textContent );
   if (t_title[t_title.length-1] !== '.') {
@@ -703,7 +718,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   }
   DEBUG && console.log('t_cont', t_cont);
   a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
-  insert_clippy(ID, t_cont, byTag(zone)[num-1], 2);
+  not_insert || insert_clippy(ID, t_cont, byTag(zone)[num-1], 2);
 
   var peakss, found_click = '<span class="paperlink2_found">', peaksss;  //@@@@ <b> authors or journal
   if (ajax) {
@@ -767,7 +782,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
-  byTag(zone)[num].parentNode.getElementsByClassName('labs-docsum-snippet')[0].appendChild(c);
+  not_insert || byTag(zone)[num].parentNode.getElementsByClassName('labs-docsum-snippet')[0].appendChild(c);
 }
 
 function prep_call(pmids) {
