@@ -379,6 +379,23 @@ function insert_clippy(ID, t_cont, _obj, multi_left=false) {
   }
 }
 
+function grp_author_name(ts) {
+  var tsLower = ts.toLowerCase();
+  if (tsLower.indexOf('working group') > -1 ||
+      tsLower.indexOf('network ') > -1 ||
+      tsLower.indexOf('network@') > -1 ||
+      tsLower.indexOf(' committee') > 0 ||
+      tsLower.indexOf(' association') > 0 ||
+      tsLower.indexOf(' team') > 0 ||
+      tsLower.indexOf(' office') > 0 ||
+      tsLower.indexOf('society of ') > -1 ||
+      tsLower.indexOf('group of ') > -1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, citedby
   var ID, t_title;
   if (pmidString !== '' && pmidString.substr(0, init_pmid.length+1) !== ','+init_pmid) {
@@ -422,13 +439,7 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
 
     if (authors_str.indexOf('No authors listed') > -1 || authors_str === '') {
       author_obj.textContent = '[No authors listed]';
-    } else if (authors_str.toLowerCase().indexOf('working group') <0 &&
-               authors_str.toLowerCase().indexOf(' committee') <0 &&
-               authors_str.toLowerCase().indexOf(' association') <0 &&
-               authors_str.toLowerCase().indexOf(' team') <0 &&
-               authors_str.toLowerCase().indexOf(' office') <0 &&
-               authors_str.toLowerCase().indexOf('society of ') <0 &&
-               authors_str.toLowerCase().indexOf('group of ') <0 ) {
+    } else if ( !grp_author_name(authors_str) ) {
       if (authors_str.indexOf(', ') > 0) {
         peakss = authors_str.split(', ') ;
         if (peakss[0].length < 25) {
@@ -525,7 +536,9 @@ function new_pubmed_single() {
   author_multi = '';
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
     peakss = trim( peaks[peaki].textContent.replace(/\s*\d\s*/g, '') );  // @@@@ Affiliations
-    if (peakss.indexOf(',') > 0) {
+    if ( grp_author_name(peakss) ) {
+      author_multi += peaks[peaki].textContent;
+    } else if (peakss.indexOf(',') > 0) {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length-1)) + '</span>, ';
       author_multi += peaks[peaki].textContent;
     } else {
@@ -663,6 +676,7 @@ function id_journal(s, pmid) {
     }
     return s;
   }
+  return sb;
 }
 
 function new_pubmed_multi1(zone, num, ajax=false) {
@@ -727,13 +741,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   if (t_strings.indexOf('No authors listed') > -1 ||
       byTag(zone)[num].getElementsByClassName('short-authors')[0].textContent === '') {
     byTag(zone)[num].innerHTML = '[No authors listed] ' + id_journal( t_strings.substr(20), ID);
-  } else if (t_strings.toLowerCase().indexOf('working group') > -1 ||
-             t_strings.toLowerCase().indexOf(' committee') > 0 ||
-             t_strings.toLowerCase().indexOf(' association') > 0 ||
-             t_strings.toLowerCase().indexOf(' team') > 0 ||
-             t_strings.toLowerCase().indexOf(' office') > 0 ||
-             t_strings.toLowerCase().indexOf('society of ') > -1 ||
-             t_strings.toLowerCase().indexOf('group of ') > -1 ) {
+  } else if ( grp_author_name(t_strings) ) {
     byTag(zone)[num].innerHTML = trim( t_strings.substr(0, t_strings.indexOf('. ')) ) +
                                    '. ' + id_journal( t_strings.substr(t_strings.indexOf('. ')+2), ID);
   } else {
