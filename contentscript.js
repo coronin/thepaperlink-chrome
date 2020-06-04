@@ -1016,7 +1016,8 @@ function get_request(msg) {
       } else if (msg.g_num === 0 && msg.g_link === 0) {
         byID('citedBy' + msg.pmid).innerHTML = '<i>Really? No citation yet. Is it a very recent publication?</i>';
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0 ||
-            page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') > 0) {  // 2020-2-4
+            page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') > 0 ||
+            page_url.indexOf('://pmlegacy.ncbi.nlm.nih.gov/') > 0) {  // 2020-6-4
           byID('citedBy' + msg.pmid).parentNode.setAttribute('class', 'thepaperlink_Off');
         }
       } else if (msg.g_num && msg.g_link) {
@@ -1039,7 +1040,8 @@ function get_request(msg) {
     try {
       if (msg.el_data && msg.el_data.indexOf('://') > -1) {
         if (page_url.indexOf('://www.ncbi.nlm.nih.gov/') > 0 ||
-            page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') > 0) {  // 2020-2-4
+            page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') > 0 ||
+            page_url.indexOf('://pmlegacy.ncbi.nlm.nih.gov/') > 0) {  // 2020-6-4
           var e = byID('thepaperlink' + msg.el_id);
           if (msg.el_data === '://') {
             e.parentNode.removeChild(e);
@@ -1052,7 +1054,8 @@ function get_request(msg) {
         }
       } else if (msg.el_data === 1 &&
           page_url.indexOf('://www.ncbi.nlm.nih.gov/') === -1 &&
-          page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') === -1) {  // 2020-2-4
+          page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') === -1 &&
+          page_url.indexOf('://pmlegacy.ncbi.nlm.nih.gov/') === -1) {  // 2020-6-4
         byID(msg.el_id).textContent = 'trying';
       } else {
         byID(msg.el_id).textContent = msg.el_data;
@@ -1467,6 +1470,7 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   process_googlescholar();
   noRun = 10;
 } else if (page_url.indexOf('://pubmed.ncbi.nlm.nih.gov/') === -1
+        && page_url.indexOf('://pmlegacy.ncbi.nlm.nih.gov/') === -1
         && page_url.indexOf('://www.ncbi.nlm.nih.gov/pubmed') === -1
         && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&') === -1
         && page_url.indexOf('://www.ncbi.nlm.nih.gov/sites/entrez') === -1) { // content_scripts, externally_connectable

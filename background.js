@@ -1316,7 +1316,9 @@ chrome.runtime.onInstalled.addListener(function () {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed' } })
+                pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//pmlegacy.ncbi.nlm.nih.gov/' } })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }, {
