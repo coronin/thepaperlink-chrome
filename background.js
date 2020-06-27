@@ -234,6 +234,12 @@ function generic_on_click(info, tab) {
   open_new_tab(base, tab.windowId, tab.index);
 }
 
+function js_on_click(info, tab) {
+  DEBUG && console.log('info', JSON.stringify(info));
+  DEBUG && console.log('tab', JSON.stringify(tab));
+  open_new_tab(base+'/js/', tab.windowId, tab.index);
+}
+
 function select_on_click(info, tab) {
   var url = base;
   if ( alldigi.test(info.selectionText) ) {
@@ -258,6 +264,8 @@ function menu_generator() {
     'contexts':['selection'], 'onclick': select_on_click});
   chrome.contextMenus.create({'title': 'Visit our website',
     'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
+  chrome.contextMenus.create({'title': 'Bookmark search',
+    'contexts':['page'], 'onclick': js_on_click});
   chrome.contextMenus.create({'type': 'separator',
     'contexts':['page']});
   chrome.contextMenus.create({'title': 'extension Options', 'contexts':['page'],
@@ -1328,18 +1336,18 @@ chrome.runtime.onInstalled.addListener(function () {
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
     }, {
-        conditions: [
-            new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//pubmed.cn/' },
-                css: [ "p[class='pmid']" ] }),
-            new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
-        ],
-        actions: [
-            new chrome.declarativeContent.RequestContentScript({js: ["jsClient.js"]}),
-            new chrome.declarativeContent.ShowPageAction()
-        ]
-    }, {
+//        conditions: [
+//            new chrome.declarativeContent.PageStateMatcher({
+//                pageUrl: { urlContains: '//pubmed.cn/' },
+//                css: [ "p[class='pmid']" ] }),
+//            new chrome.declarativeContent.PageStateMatcher({
+//                pageUrl: { urlContains: '//or.nsfc.gov.cn/handle/' } })
+//        ],
+//        actions: [
+//            new chrome.declarativeContent.RequestContentScript({js: ["jsClient.js"]}),
+//            new chrome.declarativeContent.ShowPageAction()
+//       ]
+//    }, {
         conditions: [
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//pubmed.cn/' },
