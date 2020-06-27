@@ -8,7 +8,7 @@ chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey',
     }
     localStorage.setItem('thePaperLink_pubget_js_key', e.thepaperlink_apikey || e.GUEST_APIKEY);
     localStorage.setItem('thePaperLink_pubget_js_base', js_base);
-    // will be removed by /js?
+    // removed 2020-6-28 v2.9.31
     if (!document.getElementById('__tr_display')) {
         var jsClient = document.createElement('script');
         jsClient.setAttribute('type', 'text/javascript');

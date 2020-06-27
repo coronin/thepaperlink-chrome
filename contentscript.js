@@ -1498,7 +1498,7 @@ if (!noRun) {
     if (e.rev_proxy && e.rev_proxy === 'yes') {
       jss_base = 'https://www.thepaperlink.cn/';
     }
-    if (!byID('paperlink2_display')) {  //@@@@ 32stop.png
+    if (!byID('paperlink2_display')) {
       var extension_la = document.createElement('script');
       extension_la.setAttribute('type', 'text/javascript');
       extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
