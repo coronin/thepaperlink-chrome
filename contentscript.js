@@ -421,15 +421,15 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
     } else {
       break;  //@@@@
     }
-    t_title = trim( id_obj.getElementsByClassName('labs-docsum-title')[i].textContent );
+    t_title = trim( id_obj.getElementsByClassName('docsum-title')[i].textContent );
     if (t_title[t_title.length-1] !== '.') {
       t_title += '.';
     }
     a_proxy({a_pmid: ID, a_title: t_title}); // queue_scholar_title
 
-    var author_obj = id_obj.getElementsByClassName('labs-docsum-authors full-authors')[i],
+    var author_obj = id_obj.getElementsByClassName('docsum-authors full-authors')[i],
         authors_str = trim( author_obj.textContent ),
-        cit_obj = id_obj.getElementsByClassName('labs-docsum-journal-citation full-journal-citation')[i],
+        cit_obj = id_obj.getElementsByClassName('docsum-journal-citation full-journal-citation')[i],
         cit_str = trim( cit_obj.textContent ).replace( /\s\s+/g, ' ' ), t_cont;
 
     var peakss, found_click = '<span class="paperlink2_found">', peaksss;
@@ -488,7 +488,7 @@ function new_pubmed_single_More(init_pmid, id_obj, ajax) {  // div.id: similar, 
     if (cit_str.indexOf('Online ahead of print.') > 0) {
       t_cont = t_cont.replace(/ Online ahead of print\./, '');
     }
-    insert_clippy(ID, t_cont, id_obj.getElementsByClassName('labs-docsum-authors full-authors')[i]);
+    insert_clippy(ID, t_cont, id_obj.getElementsByClassName('docsum-authors full-authors')[i]);
   }
 
   if (ajax) {
@@ -790,7 +790,7 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
-  not_insert || byTag(zone)[num].parentNode.getElementsByClassName('labs-docsum-snippet')[0].appendChild(c);
+  not_insert || byTag(zone)[num].parentNode.getElementsByClassName('docsum-snippet')[0].appendChild(c);
 }
 
 function prep_call(pmids) {
