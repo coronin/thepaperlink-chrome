@@ -1216,7 +1216,7 @@ chrome.runtime.onMessageExternal.addListener(
   }
 );
 
-console.time("Call theServer to validate connection");
+console.time("Validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
 }
@@ -1225,16 +1225,16 @@ $.ajax({
   dataType: 'text',
   timeout: 4000
 }).done(function() {
-  DEBUG && console.log('>> access theServer via secure https');
+  console.log('done >> direct access Google cloud');
 }).fail(function() {
   base = 'https://www.thepaperlink.cn';
-  console.log('ajax humans fail: access theServer via Asia');
+  console.log('fail >> switch to theServer in Asia');
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
     localStorage.setItem('contextMenu_on', 'yes');
     menu_generator();
   }
-  console.timeEnd("Call theServer to validate connection");
+  console.timeEnd("Validate connection");
 });
 
 function newdayRoutine() {
