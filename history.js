@@ -45,7 +45,8 @@ function do_syncValues_post() {
 // 2015-12-9, 2018-10-1
 function load_ALL_localStorage() {
   var i, len, aKey, aVal, a_key_split, a_url, dictKey,
-      syncValues = {}, regAddr = /^1[A-Z]/;
+      syncValues = {}, regAddr = /^1[A-Z]/,
+      syncValues_scholar = {};  // only sync recent 25
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
@@ -99,10 +100,13 @@ function load_ALL_localStorage() {
         syncValues[dictKey]['shark'] = aVal;
         format_a_li('shark', a_key_split[1], a_url);
       } else if (aKey.indexOf('scholar_') === 0) {
-        if (!syncValues[dictKey]) {
-          syncValues[dictKey] = {};
-        } // 2018-9-27
-        syncValues[dictKey]['scholar'] = aVal;
+        if (!syncValues_scholar[dictKey]) {
+          syncValues_scholar[dictKey] = {};
+        }
+        syncValues_scholar[dictKey]['scholar'] = aVal;
+        while (Object.keys(syncValues_scholar).length >= 25) {  // 2020-8-5
+          delete syncValues_scholar[ Object.keys(syncValues_scholar)[0] ];
+        }
         a_url = 'https://scholar.google.com' + aVal.split(',')[2];
         format_a_li('scholar', a_key_split[1], a_url, aVal.split(',')[1]);
       } else if (aKey.indexOf('abs_') === 0) {
@@ -122,9 +126,11 @@ function load_ALL_localStorage() {
       syncValues[aKey] = '' + aVal;
     }
   }
+  syncValues += syncValues_scholar;
   _bkg.console.time('Add to storage.sync');
   $('#undefined_clean').append('<li>Add to storage.sync '+Object.keys(syncValues).length+' items</li>');
   chrome.storage.sync.set(syncValues, function () {
+    // unpack extension, TypeError: No matching signature
     _bkg.console.timeEnd('Add to storage.sync');
   });
   if ($('#email_').text() === '') {
@@ -136,5 +142,5 @@ function load_ALL_localStorage() {
 }
 
 $(document).ready(function () {
-  $('#load_ALL').on('click', load_ALL_localStorage).text('load and sync all local records');
+  $('#load_ALL').on('click', load_ALL_localStorage).text('load all local records and sync');
 });
