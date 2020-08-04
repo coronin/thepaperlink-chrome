@@ -1,6 +1,6 @@
 {
   "name": "the paper link 3",
-  "version": "2.9.32",
+  "version": "2.9.33",
   "minimum_chrome_version": "39",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
@@ -14,10 +14,6 @@
     "tabs",
     "clipboardWrite",
     "downloads",
-    "https://www.thepaperlink.com/static/humans.txt*",
-    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/*",
-    "*://scholar.google.com/scholar*",
-    "*://pubmed.cn/*",
     "declarativeContent",
     "activeTab",
     "storage",
@@ -49,6 +45,8 @@
   "options_page": "options.html",
   "content_scripts": [ {
     "matches": [
+      "http://scholar.google.com/scholar*",
+      "https://scholar.google.com/scholar*",
       "http://www.thepaperlink.com/*",
       "https://www.thepaperlink.com/*",
       "http://www.thepaperlink.cn/*",
@@ -61,9 +59,6 @@
       "https://f1000.com/prime/*",
       "http://facultyopinions.com/prime/*",
       "https://facultyopinions.com/prime/*",
-      "https://www.storkapp.me/paper/*",
-      "http://scholar.google.com/scholar*",
-      "https://scholar.google.com/scholar*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
       "https://pmlegacy.ncbi.nlm.nih.gov/*",
