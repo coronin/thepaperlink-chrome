@@ -555,8 +555,7 @@ function prepare_download_shark(tabId, pmid, args) {
 
 function parse_shark(pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  return false;
-  // @@@@ No 'Access-Control-Allow-Origin' header
+  // @@@@ blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   var in_mem = localStorage.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -592,8 +591,7 @@ function parse_shark(pmid, url, tabId) {
 
 function parse_pii(pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  return false;
-  // @@@@ No 'Access-Control-Allow-Origin' header
+  return false;  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -1093,9 +1091,9 @@ function get_request(msg, _port) {
     load_broadcast();
 
   } else if (msg.pii_link && msg.pii && msg.pmid) {
-    if (localStorage.getItem('ajax_pii_link') !== 'no') {
-      parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
-    }
+    //if (localStorage.getItem('ajax_pii_link') !== 'no') {
+    //  parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
+    //}
     if (localStorage.getItem('shark_link') !== 'no') {
       parse_shark(msg.pmid, 'https://'+local_mirror+'/retrieve/pii/'+msg.pii, sender_tab_id);
     }
@@ -1216,19 +1214,19 @@ chrome.runtime.onMessageExternal.addListener(
   }
 );
 
-console.time("Validate connection");
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
 }
+console.time("Validate connection");
 $.ajax({
-  url: 'https://www.thepaperlink.com/static/humans.txt?force_reload=' + Math.random(),
+  url: 'https://pubget-hrd.appspot.com/generate_200',
   dataType: 'text',
   timeout: 4000
 }).done(function() {
-  console.log('done >> direct access Google cloud');
+  console.log('>> direct access Google cloud');
 }).fail(function() {
   base = 'https://www.thepaperlink.cn';
-  console.log('fail >> switch to theServer in Asia');
+  console.log('>> failed, switch to theServer in Asia');
 }).always(function (){
   if (localStorage.getItem('contextMenu_shown') !== 'no') {
     localStorage.setItem('contextMenu_on', 'yes');
