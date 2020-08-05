@@ -260,15 +260,17 @@ function b_proxy(tab_id, _data) { // process ws action
 
 function menu_generator() {
   chrome.contextMenus.removeAll();
-  chrome.contextMenus.create({'title': 'search the paper link for \'%s\'',
+  chrome.contextMenus.create({'title': 'Search the paper link for \'%s\'',
     'contexts':['selection'], 'onclick': select_on_click});
-  chrome.contextMenus.create({'title': 'Visit our website',
-    'contexts':['page'], 'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
-  chrome.contextMenus.create({'title': 'Bookmark search',
+  chrome.contextMenus.create({'title': 'Bookmark tool',
     'contexts':['page'], 'onclick': js_on_click});
   chrome.contextMenus.create({'type': 'separator',
-    'contexts':['page']});
-  chrome.contextMenus.create({'title': 'extension Options', 'contexts':['page'],
+    'contexts':['page', 'selection']});
+  chrome.contextMenus.create({'title': 'Visit our website',
+    'contexts':['page', 'selection'],
+    'onclick': generic_on_click}); // , 'link', 'editable', 'image', 'video', 'audio'
+  chrome.contextMenus.create({'title': 'extension Options',
+    'contexts':['page', 'selection'],
     'onclick': function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.create({
@@ -278,7 +280,8 @@ function menu_generator() {
         });
       });
     } });
-  chrome.contextMenus.create({'title': 'Stored search', 'contexts':['page'],
+  chrome.contextMenus.create({'title': 'Stored search',
+    'contexts':['page', 'selection'],
     'onclick': function () {
       chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.create({
