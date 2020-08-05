@@ -145,16 +145,17 @@
   <p><input class="settings" type="checkbox" id="contextMenu_shown" title="contextMenu_shown" />
     You could check here to <strong>disable</strong> the context menu triggered by right mouse click.
     </p>
-  <p><input class="settings" type="checkbox" id="co_pubmed" title="co_pubmed" />
+  <p><span class="ui-icon ui-icon-flag" style="float:left;margin-right:3px;margin-left:3px"></span>
+  <!-- input class="settings" type="checkbox" id="co_pubmed" title="co_pubmed" />
     Check to <strong>disable</strong> the function overlap with
-    <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a>
+    <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a -->
     <span id="pubmeder_span"></span>.
     </p>
-  <div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
+  <!-- div class="ui-widget Off" id="pubmeder_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       <a rel="external" href="https://chrome.google.com/webstore/detail/dijkmjebgnlpkfnmbkllaggphmnplnoj">the PubMed-er Chrome extension</a> has been deprecated
       </p>
-  </div></div>
+  </div></div -->
   <!-- p><input class="settings" type="checkbox" id="ajax_pii_link" title="ajax_pii_link" />
     Check to <strong>solve</strong> missing PDF links locally.
     </p>
@@ -194,10 +195,9 @@
   <p id="rev_proxy_content">
     </p>
 
-  <div class="ui-state-focus ui-corner-all padding_sides"><p>
-    <span class="ui-icon ui-icon-flag" style="float:left;margin-right:0.3em"></span>
-    New PubMed: pause <input class="settings" type="text" size="2" id="arbitrary_sec" /> sec before loading <em style="color:blue">show more</em> data. (Unless you are on the NIH campus, &gt;3 sec is suggested.)
-    </p></div>
+  <p><span class="ui-icon ui-icon-flag" style="float:left;margin-right:3px;margin-left:3px"></span>
+    After click the buttons, <strong>pause</strong> <input class="settings" type="text" size="2" id="arbitrary_sec" /> sec before loading <em style="color:blue">show more</em> data (&lt;2 sec maybe bad).
+    </p>
 
   <!--hr/ -->
   <p><input class="settings" type="text" value="{prefix}" size="32" id="ezproxy_input" title="ezproxy_input" />
