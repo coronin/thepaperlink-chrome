@@ -1219,24 +1219,29 @@ chrome.runtime.onMessageExternal.addListener(
 
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
-}
-console.time("Validate connection");
-$.ajax({
-  url: 'https://pubget-hrd.appspot.com/generate_200',
-  dataType: 'text',
-  timeout: 4000
-}).done(function() {
-  console.log('>> direct access Google cloud');
-}).fail(function() {
-  base = 'https://www.thepaperlink.cn';
-  console.log('>> failed, switch to theServer in Asia');
-}).always(function (){
-  if (localStorage.getItem('contextMenu_shown') !== 'no') {
-    localStorage.setItem('contextMenu_on', 'yes');
-    menu_generator();
+  if (arbitrary_sec < 5) {
+    arbitrary_sec = 5;  // 2020-8-5
   }
-  console.timeEnd("Validate connection");
-});
+} else {
+  console.time("check google connection");
+  $.ajax({
+    url: 'https://pubget-hrd.appspot.com/generate_200',
+    dataType: 'text',
+    timeout: 4000
+  }).done(function() {
+    console.log('>> direct access Google cloud');
+  }).fail(function() {
+    base = 'https://www.thepaperlink.cn';
+    console.log('>> failed, switch to theServer in Asia');
+  }).always(function (){
+    console.timeEnd("check google connection");
+  });
+}
+
+if (localStorage.getItem('contextMenu_shown') !== 'no') {
+  localStorage.setItem('contextMenu_on', 'yes');
+  menu_generator();
+}
 
 function newdayRoutine() {
   console.log('>> a new day! housekeeping first');
