@@ -797,7 +797,7 @@ function prep_call(pmids) {
   var need_insert = 1,
       url = '/api?flash=yes&a=chrome1&pmid=' + pmids,
       loading_span = '<span style="font-weight:normal;font-style:italic"> loading from "the paper link"</span>' +
-                     ' (fast Internet may needed to reduce stalling)' +
+                     ' (fast Internet connection may reduce stalling)' +
                      '&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
