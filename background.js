@@ -1225,7 +1225,7 @@ if (localStorage.getItem('rev_proxy') === 'yes') {
 } else {
   console.time("check google connection");
   $.ajax({
-    url: 'https://pubget-hrd.appspot.com/generate_200',
+    url: 'https://www.thepaperlink.com/generate_200',
     dataType: 'text',
     timeout: 4000
   }).done(function() {
