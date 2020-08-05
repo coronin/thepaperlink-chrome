@@ -898,7 +898,7 @@ function get_request(msg, _port) {
     reLoad_options();
 
   } else if (msg.sendID) {
-    if (localStorage.getItem('co_pubmed') !== 'no') {
+    //if (localStorage.getItem('co_pubmed') !== 'no') {
       // chrome.pageAction.show(sender_tab_id);
       if (Array.isArray(msg.sendID)) {
         if (sender_tab_id) {
@@ -917,9 +917,9 @@ function get_request(msg, _port) {
       } else if (sender_tab_id) {
         eSearch(msg.sendID, sender_tab_id);
       }
-    } else {
-      DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
-    }
+    //} else {
+    //  DEBUG && console.log('>> do nothing to sendID #' + msg.sendID);
+    //}
 
   } else if (msg.prjID && msg.doi) {
     $.getJSON(base + '/api',

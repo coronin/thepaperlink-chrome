@@ -93,7 +93,6 @@ function valid_pubmeder(e,ak) {
 
 function saveOptions() {
   var rev_proxy = $('#rev_proxy').prop('checked'),
-      co_pubmed = $('#co_pubmed').prop('checked'),
       new_tab = $('#new_tab').prop('checked'),
       contextMenu_shown = $('#contextMenu_shown').prop('checked'),
       ws_items = $('#ws_items').prop('checked'),
@@ -109,12 +108,13 @@ function saveOptions() {
       local_mirror = $('#local_mirror').val(),
       req_a = null,
       req_b = null,
-      a;  //ajax_pii_link = $('#ajax_pii_link').prop('checked'),
-  if (co_pubmed) {
-    localStorage.setItem('co_pubmed', 'no');
-  } else {
-    localStorage.setItem('co_pubmed', 'yes');
-  }
+      a;  // ajax_pii_link = $('#ajax_pii_link').prop('checked'), co_pubmed = $('#co_pubmed').prop('checked'),
+  //if (co_pubmed) {
+  //  localStorage.setItem('co_pubmed', 'no');
+  //} else {
+  //  localStorage.setItem('co_pubmed', 'yes');
+  //}
+  localStorage.removeItem('co_pubmed');  // 2020-8-5
   if (new_tab) {
     localStorage.setItem('new_tab', 'yes');
   } else {
@@ -155,7 +155,7 @@ function saveOptions() {
   //if (ajax_pii_link) {
   //  localStorage.setItem('ajax_pii_link', 'yes');
   //} else {
-  localStorage.setItem('ajax_pii_link', 'no');
+  localStorage.setItem('ajax_pii_link', 'no');  // 2020-8-5
   //}
   if (shark_link) {
     localStorage.setItem('shark_link', 'yes');
@@ -459,18 +459,18 @@ $(document).ready(function () {
   $('#rev_proxy').on('change', function () {
     $('#save_widget').removeClass('Off');
   });
-  if (localStorage.getItem('co_pubmed') === 'no') {
-    $('#co_pubmed').prop('checked', true);
-    $('#pubmeder_info').removeClass('Off');
-  } else {
-    $('#pubmeder_span').html(' (search in popup widget has a limit of <input class="settings" type="text" value="5" size="2" id="pubmed_limit" />)');
+  //if (localStorage.getItem('co_pubmed') === 'no') {
+  //  $('#co_pubmed').prop('checked', true);
+  //  $('#pubmeder_info').removeClass('Off');
+  //} else {
+    $('#pubmeder_span').html('In the popup widget will <strong>only show</strong> <input class="settings" type="text" value="5" size="2" id="pubmed_limit" /> items, even if there is more');
     if (localStorage.getItem('pubmed_limit')) {
       $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
     }
     $('#pubmed_limit').on('change', function () {
       $('#save_widget').removeClass('Off');
     });
-  }
+  //}
   if (localStorage.getItem('arbitrary_sec')) {
     $('#arbitrary_sec').val( localStorage.getItem('arbitrary_sec') );
   } else {
