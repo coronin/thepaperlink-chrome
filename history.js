@@ -127,11 +127,11 @@ function load_ALL_localStorage() {
     }
   }
   syncValues += syncValues_scholar;
-  _bkg.console.time('Add to storage.sync');
+  _bkg.console.time('>> add to storage.sync');
   $('#undefined_clean').append('<li>Add to storage.sync '+Object.keys(syncValues).length+' items</li>');
   chrome.storage.sync.set(syncValues, function () {
     // unpack extension, TypeError: No matching signature
-    _bkg.console.timeEnd('Add to storage.sync');
+    _bkg.console.timeEnd('>> add to storage.sync');
   });
   if ($('#email_').text() === '') {
     $('#email_').addClass('Off');
