@@ -13,7 +13,7 @@
     h3 {color:#9f0000}
     p {line-height:1.5em}
     li {padding:0.33em}
-    input.settings {position:relative}
+    input.settings {position:relative;border-width:thin}
     input.keywords {vertical-align:middle}
     .Off {display:none !important}
     .keys {font-family:'Courier New',Courier,monospace;background:#f0f0f0}
@@ -91,17 +91,17 @@
       after enable any of the following, "<strong class="bg_grey">save</strong>" will be available
       </p>
   </div></div>
-  <p>Articles are saved to <strong>PubMed-er</strong>
+  <p>Articles are saved to <em style="color:blue">PubMed-er</em>
     &rarr; <span id="pubmeder_a">connect now by visiting <a class="reg_pubmeder" href="https://pubmeder-hrd.appspot.com/registration" rel="external">the registration page</a></span>
     </p>
   <p style="padding-left:2.5em">
-    <a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> user name : <span id="pubmeder_email"></span>
-    <br/><a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> apikey : <span id="pubmeder_apikey"></span>
+    <a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> user: <span id="pubmeder_email"></span>
+    <br/><a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> apikey: <span id="pubmeder_apikey"></span>
     </p>
   <hr/>
-  <p>Articles will also be saved to other cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a">activate "the paper link", and</span> have existing accounts for those cloud services.
-    <br/><span style="color:#ccc">To disable the connection, remove "the paper link" app from related service's settings page.</span></p>
+  <p>Articles will also be saved to cloud services, if enabled.
+    <br/>You have to <span class="thepaperlink_a">activate "the paper link", and</span> have existing accounts with those cloud services.
+    <br/><span style="color:#ccc">To disable the connection, remove "the paper link" app from those services (account permissions, 3rd party).</span></p>
   <div class="ui-widget" id="cloud_op_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       "the paper link" API is required for the follow section ; please activate it in the API tab</p>
@@ -205,8 +205,8 @@
     </p>
 
   <!--hr/ -->
-  <p><input class="settings" type="text" value="{prefix}" size="32" id="ezproxy_input" title="ezproxy_input" />
-    <span id="ezproxy_enabled">If your institute uses <a href="https://en.wikipedia.org/wiki/EZproxy" rel="external">EZproxy</a>, fill in the {prefix} please.</span>
+  <p><input class="settings" type="text" value="{prefix}" size="24" id="ezproxy_input" title="ezproxy_input" />
+    <span id="ezproxy_enabled">&nbsp; If your institute uses <a href="https://en.wikipedia.org/wiki/EZproxy" rel="external">EZproxy</a>, fill in the {prefix} please.</span>
     </p>
   <div class="ui-widget Off" id="ez_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
@@ -219,11 +219,11 @@
       </span>
       </p>
   </div></div>
-  <p><input class="settings" type="text" value="{cc address}" size="32" id="cc_address" title="cc_address" />
-    <span id="cc_enabled">If you want to send to other people via <em>email</em>, please fill in the {cc address}.</span>
+  <p><input class="settings" type="text" value="{cc address}" size="24" id="cc_address" title="cc_address" />
+    <span id="cc_enabled">&nbsp; If you want to send to other people via <em>email</em>, please fill in the {cc address}.</span>
   </p>
-  <p><input class="settings" type="text" value="{local.mirror}" size="32" id="local_mirror" title="local_mirror" />
-    <span id="local_enabled">To access your <a href="https://support.clarivate.com/Endnote/" rel="external">&#8623;</a> link, please input the domain name.</span>
+  <p><input class="settings" type="text" value="{local.mirror}" size="24" id="local_mirror" title="local_mirror" />
+    <span id="local_enabled">&nbsp; To access your <a href="https://support.clarivate.com/Endnote/" rel="external">&#8623;</a> link, please input the domain name.</span>
   </p>
   <div class="ui-widget Off" id="local_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
