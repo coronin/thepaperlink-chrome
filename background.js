@@ -204,15 +204,15 @@ function load_common_values(newday) {
       syncValues[aKey] = '' + aVal;
     }
     localStorage.setItem('justDid_load_common_values', 'now');
-    console.time('Save common values to storage.sync');
+    console.time('>> save common values to storage.sync');
     chrome.storage.sync.set(syncValues, function () {
-      console.timeEnd('Save common values to storage.sync');
+      console.timeEnd('>> save common values to storage.sync');
     });
   }
 }
-console.time("Load common values");
+console.time(">> load common values");
 load_common_values(1);
-console.timeEnd("Load common values");
+console.timeEnd(">> load common values");
 
 function open_new_tab(url, winId, idx) {
   var tab_obj = {url: url, active: true};
@@ -837,7 +837,7 @@ function get_request(msg, _port) {
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
-    DEBUG && console.time("call theServer api for json");
+    DEBUG && console.time("Call theServer api for json");
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
         _port.postMessage(
@@ -873,7 +873,7 @@ function get_request(msg, _port) {
         console.log('getJSON fail: access theServer in Asia');
       }
     }).always(function () {
-      DEBUG && console.timeEnd("call theServer api for json");
+      DEBUG && console.timeEnd("Call theServer api for json");
     });
 
   } else if (msg.save_apikey) {
@@ -1223,7 +1223,7 @@ if (localStorage.getItem('rev_proxy') === 'yes') {
     arbitrary_sec = 5;  // 2020-8-5
   }
 } else {
-  console.time("check google connection");
+  console.time(">> check google connection");
   $.ajax({
     url: 'https://www.thepaperlink.com/generate_200',
     dataType: 'text',
@@ -1234,7 +1234,7 @@ if (localStorage.getItem('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
     console.log('>> failed, switch to theServer in Asia');
   }).always(function (){
-    console.timeEnd("check google connection");
+    console.timeEnd(">> check google connection");
   });
 }
 
@@ -1244,7 +1244,7 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
 }
 
 function newdayRoutine() {
-  console.log('>> a new day! housekeeping first');
+  console.log('>> a new day! housekeeping first '+extension_load_date.getTime() );
   var old_id = '',
       init_found = localStorage.getItem('id_found') || '';
   for (i = 0, len = localStorage.length; i < len; i += 1) {
@@ -1313,9 +1313,9 @@ function adjustStorage(rst, newOnly) {
 }
 
 function do_syncValues() {
-  console.time('Get entire storage.sync');
+  console.time('>> get entire storage.sync');
   chrome.storage.sync.get(null, function (rslt) { // the entire
-    console.timeEnd('Get entire storage.sync');
+    console.timeEnd('>> get entire storage.sync');
     if (!rslt) {
       console.log('Empty: syncValues stopped');
       return;
