@@ -338,8 +338,9 @@ function legacy_pubmed(zone, num) {
         insert_clippy(ID, t_cont, byTag(zone)[num + 3], true);
         try {
           byID('tpl'+ID[1] ).getElementsByClassName('jrnl')[0].id = 'thepaperlink_if' + ID[1]; // p.details span.jrnl
-        } catch {
+        } catch (e) {
           console.log('Not a journal article', ID[1]);
+          DEBUG && console.log(e);
         }
       } else { // abstract page
         insert_clippy(ID, t_cont, byTag(zone)[num + 1]);
@@ -349,8 +350,9 @@ function legacy_pubmed(zone, num) {
         }
         try {
           byClassOne('cit').getElementsByTagName('span')[0].id = 'thepaperlink_if' + ID[1]; // div.cit span
-        } catch {
+        } catch (e) {
           console.log('Not a journal article', ID[1]);
+          DEBUG && console.log(e);
         }
       }
       pmidString += ',' + ID[1];
@@ -695,7 +697,8 @@ function new_pubmed_multi1(zone, num, ajax=false) {
   var ID, b, c, t_cont, t_title, t_strings, not_insert = false;
   try {
     ID = byTag(zone)[num].getElementsByClassName('docsum-pmid')[0].textContent;
-  } catch {
+  } catch (e) {
+    DEBUG && console.log(e);
     return;
   }
   //if ( byID('clippy' + ID) ) {
@@ -706,8 +709,9 @@ function new_pubmed_multi1(zone, num, ajax=false) {
     pmidString += ',' + ID;
     try {
       byTag(zone)[num].parentNode.nextElementSibling.id = 'tpl'+ID;
-    } catch {
+    } catch (e) {
       console.log('New PubMed, not a journal article', ID);
+      DEBUG && console.log(e);
       byTag(zone)[num].id = 'tpl'+ID;
       not_insert = true;
     }
@@ -1004,14 +1008,16 @@ function get_request(msg) {
     byID('pl4_title').innerHTML = old_title +
         ' <span style="font-size:12px;font-weight:normal;color:red;background-color:yellow;cursor:pointer" id="thepaperlink_alert">' +
         'Error!&nbsp;&nbsp;' + msg.except +
-        '&nbsp;<a href="https://www.thepaperlink.com/?q=' + search_term +
-        '" target="_blank">[?]</a></span>';
-    byID('thepaperlink_alert').onclick = function () {
-      var answer = confirm('\n do you want to alert the developer about this error?\n');
-      if (answer) {
-        alert_dev(msg.tpl);
-      }
-    };
+        '</span>&nbsp;<a href="https://www.thepaperlink.com/?q=' + search_term +
+        '" target="_blank">[?]</a>';
+    if (msg.except.indexOf('Guest usage limited') < 0) {
+      byID('thepaperlink_alert').onclick = function () {
+        var answer = confirm('\n do you want to alert the developer about this error?\n');
+        if (answer) {
+          alert_dev(msg.tpl);
+        }
+      };
+    }
     //sendResponse({});
     return;
 
