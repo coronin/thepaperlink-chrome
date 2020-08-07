@@ -866,7 +866,7 @@ function get_request(msg, _port) {
       if (apikey) {
         _port.postMessage({except:'Data fetch error.', tpl:apikey});
       } else {
-        _port.postMessage({except:'Guest usage limited.', tpl:''});
+        _port.postMessage({except:'Guest usage limited. Fix by visit '+base+'/reg', tpl:''});
       }
       if (base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
