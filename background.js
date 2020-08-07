@@ -1244,7 +1244,7 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
 }
 
 function newdayRoutine() {
-  console.log('>> a new day! housekeeping first '+extension_load_date.getTime() );
+  console.log('>> a new day! housekeeping first '+Math.random() );
   var old_id = '',
       init_found = localStorage.getItem('id_found') || '';
   for (i = 0, len = localStorage.length; i < len; i += 1) {
@@ -1364,6 +1364,8 @@ chrome.runtime.onInstalled.addListener(function () {
                 pageUrl: { urlContains: '//facultyopinions.com/prime/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
+            new chrome.declarativeContent.PageStateMatcher({
+                pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
             new chrome.declarativeContent.PageStateMatcher({
                 pageUrl: { urlContains: '.nature.com/' } }),
             new chrome.declarativeContent.PageStateMatcher({

@@ -92,15 +92,27 @@ function process_storkapp() { // 2018 Dec
       a_proxy({from_nonF1000: pmid});
       ele.id = 'thepaperlink_bar';
       ele.innerHTML = ' the paper link';
-      ele.href = 'https://www.thepaperlink.com/:' + pmid;
+      ele.href = 'https://www.thepaperlink.com/:'+pmid;
       ele.onclick = null;
       break;
     }
   }
-  if (byID('abstractHolder') !== null) {  // 2020-1-10
-    a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
-             pmid: pmid});
-  } else { console.log('process_storkapp: #abstractHolder N/A'); }
+  if (pmid !== '') {
+    for (i = 0, len = byTag('a').length; i < len; i += 1) {  // 2020-8-6
+      ele = byTag('a')[i];
+      if (ele.href.indexOf('facebook.com') > 0) {
+        ele.href = 'https://www.facebook.com/sharer/sharer.php?u=https://www.thepaperlink.com/:'+pmid;
+      } else if (ele.href.indexOf('twitter.com') > 0) {
+        var stork_href = ele.href.split('www.storkapp.me');
+        ele.href = stork_href[0].replace('status=','text=') +
+                   'www.thepaperlink.com%2F'+pmid+'via=%40the_paper_link&hashtags=tpl';
+      }
+    }
+    if (byID('abstractHolder') !== null) {  // 2020-1-10
+      a_proxy({pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
+               pmid: pmid});
+    } else { console.log('process_storkapp: #abstractHolder N/A'); }
+  }
 }
 
 function process_f1000() { // 2018 Sep
@@ -1463,7 +1475,8 @@ if (page_url === 'https://www.thepaperlink.com/reg'
 } else if (page_url.indexOf('://facultyopinions.com/prime/') > 0) {
   process_f1000();
   noRun = 31;
-} else if (page_url.indexOf('://www.storkapp.me/paper/') > 0) {
+} else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||
+           page_url.indexOf('://www.storkapp.me/pubpaper/') > 0 ) {
   process_storkapp();
   noRun = 20;
 } else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
