@@ -167,7 +167,7 @@ function load_common_values(newday) {
     localStorage.removeItem('dropbox_status');
     localStorage.removeItem('douban_status');
     localStorage.removeItem('googledrive_status');
-    localStorage.removeItem('skydrive_status');
+    localStorage.removeItem('onedrive_status');
     localStorage.removeItem('baiduyun_status');
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
@@ -811,7 +811,7 @@ function get_request(msg, _port) {
         d_status = localStorage.getItem('dropbox_status'),
         b_status = localStorage.getItem('douban_status'),
         g_status = localStorage.getItem('googledrive_status'),
-        s_status = localStorage.getItem('skydrive_status'),
+        o_status = localStorage.getItem('onedrive_status'),
         y_status = localStorage.getItem('baiduyun_status');
     if (m_status && m_status === 'success') {
       cloud_op += 'm';
@@ -828,8 +828,8 @@ function get_request(msg, _port) {
     if (g_status && g_status === 'success') {
       cloud_op += 'g';
     }
-    if (s_status && s_status === 'success') {
-      cloud_op += 's';
+    if (o_status && o_status === 'success') {
+      cloud_op += 'o';
     }
     if (y_status && y_status === 'success') {
       cloud_op += 'y';
@@ -1047,8 +1047,8 @@ function get_request(msg, _port) {
     if (msg.save_cloud_op.indexOf('googledrive') > -1) {
       localStorage.setItem('googledrive_status', 'success');
     }
-    if (msg.save_cloud_op.indexOf('skydrive') > -1) {
-      localStorage.setItem('skydrive_status', 'success');
+    if (msg.save_cloud_op.indexOf('onedrive') > -1) {
+      localStorage.setItem('onedrive_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('baiduyun') > -1) {
       localStorage.setItem('baiduyun_status', 'success');

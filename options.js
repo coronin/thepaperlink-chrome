@@ -347,7 +347,7 @@ $(document).ready(function () {
       d_status = localStorage.getItem('dropbox_status'),
       b_status = localStorage.getItem('douban_status'),
       g_status = localStorage.getItem('googledrive_status'),
-      s_status = localStorage.getItem('skydrive_status'),
+      o_status = localStorage.getItem('onedrive_status'),
       y_status = localStorage.getItem('baiduyun_status'),
       ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
       cc_address = localStorage.getItem('cc_address'),
@@ -408,10 +408,10 @@ $(document).ready(function () {
     $('#googledrive_status').text('status: ' + g_status);
     $('#googledrive_a').text('check connection');
   }
-  if (s_status) {
-    $('#skydrive_status').removeClass('Off');
-    $('#skydrive_status').text('status: ' + s_status);
-    $('#skydrive_a').text('check connection');
+  if (o_status) {
+    $('#onedrive_status').removeClass('Off');
+    $('#onedrive_status').text('status: ' + o_status);
+    $('#onedrive_a').text('check connection');
   }
   if (y_status) {
     $('#baiduyun_status').removeClass('Off');
