@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "the paper link 3",
-  "version": "2.9.34",
+  "version": "2.9.35",
   "minimum_chrome_version": "39",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
