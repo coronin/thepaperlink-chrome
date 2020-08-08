@@ -1,8 +1,8 @@
 the paper link 3
---------
-version 2.9.23: now support the new PubMed web interface.
+----
+version v2.9.23: support the new PubMed web interface
 
-THIS CHROME EXTENSION USES DATA PROVIDED BY www.thepaperlink.com, FOR FAIR USE ONLY.
+THIS EXTENSION USES DATA PROVIDED BY www.thepaperlink.com, FOR FAIR USE ONLY.
 
 In addition to PubMed search results, this extension will show links to PDF; display Faculty Opinions, etc.
 Detailed enhancement includes:
@@ -15,4 +15,22 @@ Detailed enhancement includes:
  * If available, Faculty 1000 star counts and links to related comment pages
  * "Peaks" authors, for more details please visit https://2.thepaperlink.com/
 
-Sources of this extension and previous versions are available at https://github.com/coronin/thepaperlink-chrome as different branches.
+Sources of this extension are available at https://github.com/coronin/thepaperlink-chrome as different branches.
+
+Term of Terms of Use and Privacy Policy at https://www.thepaperlink.com/privacy
+
+----
+Whisper from the Developer:
+ * single purpose: To display journal article related information not available at original PubMed
+ * an old video demonstrating how to use https://youtu.be/kYWwsXxSHQs
+ * in the browser address bar, type and search with keywords
+ * background justification: after extract PMID from webpages, other params must tweak before making URL call. I process this on the background page using _port to communicate between content.js and background.js
+ * contextMenus justification: I want the user to be able to do a PubMed search on any page with highlighted text
+ * tabs justification: open related webpages, and update options after visiting /settings
+ * activeTab justification: to extract PMID from a PubMed archived journal article, and provide a focused popup window using page_action
+ * clipboardWrite justification: I add a clipboard icon on webpages allowing the user to click and storage formated references. I format the copied text based the PMID exacted from the webpage and using information available at PubMed
+ * declarativeContent justification: to update contextMenus based on the webpage URL and text
+ * storage justification: I give options to the user on how the exact information should be displayed and I archive the papers the user read for later, both need a storage permission
+ * unlimitedStorage justification: to save those abstract text of read PubMed articles, I need a big storage. These items store locally, and will not be sync-ed
+ * downloads and remote code at /jss
+
