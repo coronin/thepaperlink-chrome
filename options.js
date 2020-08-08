@@ -496,7 +496,7 @@ $(document).ready(function () {
   //  $('#ajax_pii_link').prop('checked', true);
   //  $('#ajax_info').removeClass('Off');
   //}
-  if (localStorage.getItem('shark_link') !== 'no') {
+  if (localStorage.getItem('shark_link') === 'yes') {
     $('#shark_span').html(' Fetch limit to <input class="settings" type="text" value="3" size="1" id="shark_limit" /> files per page.');
     if (localStorage.getItem('shark_limit')) {
       $('#shark_limit').val( localStorage.getItem('shark_limit') );

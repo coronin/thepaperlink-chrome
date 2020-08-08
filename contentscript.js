@@ -988,7 +988,7 @@ function get_request(msg) {
   if (byID('tpl_manual_references_all') !== null) {  // 2020-2-4
     byID('tpl_manual_references_all').setAttribute('class', 'thepaperlink_Off');
   }
-  if (msg.local_mirror) {
+  if (msg.local_mirror && msg.local_mirror !== '127.0.0.1') {
     local_mirror = msg.local_mirror;
     if (msg.arbitrary_pause) {
       arbitrary_pause = msg.arbitrary_pause;
@@ -1513,9 +1513,9 @@ if (byID('_thepaperlink_client_modify_it') !== null) { // noRun = 2
 }
 if (!noRun) {
   chrome.storage.sync.get(['rev_proxy'], function (e) {
-    var jss_base = 'https://www.thepaperlink.com/';
+    var jss_base = 'https://www.thepaperlink.com';
     if (e.rev_proxy && e.rev_proxy === 'yes') {
-      jss_base = 'https://www.thepaperlink.cn/';
+      jss_base = 'https://www.thepaperlink.cn';
     }
     if (!byID('paperlink2_display')) {
       var extension_la = document.createElement('script');
