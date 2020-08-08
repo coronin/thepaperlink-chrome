@@ -16,9 +16,7 @@
     "clipboardWrite",
     "declarativeContent",
     "activeTab",
-    "storage",
-    "downloads",
-    "unlimitedStorage"
+    "storage"
   ],
   "background": {
     "page": "background.html",

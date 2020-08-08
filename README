@@ -31,6 +31,5 @@ Whisper from the Developer:
  * clipboardWrite justification: I add a clipboard icon on webpages allowing the user to click and storage formated references. I format the copied text based the PMID exacted from the webpage and using information available at PubMed
  * declarativeContent justification: to update contextMenus based on the webpage URL and text
  * storage justification: I give options to the user on how the exact information should be displayed and I archive the papers the user read for later, both need a storage permission
- * unlimitedStorage justification: to save those abstract text of read PubMed articles, I need a big storage. These items store locally, and will not be sync-ed
  * downloads and remote code at /jss
 
