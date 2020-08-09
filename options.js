@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-var _port = chrome.runtime.connect({name: 'background_port'}),
-    _bkg = chrome.extension.getBackgroundPage(),
-    email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+var _port = chrome.runtime.connect({ name: 'background_port' });
+var _bkg = chrome.extension.getBackgroundPage();
+var email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 
-function adjust_keywords() {
+function adjust_keywords () {
   var keyword_selected = '';
   $('input.keywords:checked').each(function () {
     keyword_selected += this.id.replace(/,,/g, '"');
@@ -21,7 +21,7 @@ function adjust_keywords() {
   }
 }
 
-function toggle_checked(obj,q) {
+function toggle_checked (obj, q) {
   if (obj.prop('checked')) {
     obj.prop('checked', false);
   } else {
@@ -32,7 +32,7 @@ function toggle_checked(obj,q) {
   }
 }
 
-function get_end_num(str) {
+function get_end_num (str) {
   var suffix = ',';
   if (!str) { return 0; }
   try {
@@ -42,7 +42,7 @@ function get_end_num(str) {
   }
 }
 
-function reset_key(v) {
+function reset_key (v) {
   var answer = window.confirm('\n do you really want to rest the key?\n');
   if (answer) {
     if (v === 1) {
@@ -54,67 +54,69 @@ function reset_key(v) {
       localStorage.removeItem('b_apikey_gold');
     }
     location.reload();
-    //chrome.extension.sendRequest({load_common_values: 1});
-    _port.postMessage({load_common_values: 1});
+    // chrome.extension.sendRequest({load_common_values: 1});
+    _port.postMessage({ load_common_values: 1 });
   }
 }
 
-function valid_thepaperlink(ak) {
-  _bkg.console.time("Call theServer to validate apikey");
+function valid_thepaperlink (ak) {
+  _bkg.console.time('Call theServer to validate apikey');
   return $.get('https://www.thepaperlink.com/api',
-      { validate: ak,
-         runtime: '' + chrome.runtime.id },
-      function (txt) {
-        if (txt === 'valid') {
-          _port.postMessage({save_apikey: ak, save_email: null});
-        } else {
-          $.cookie('alert_v1', 'oops', {expires: 3});
-        }
-      }, 'json'
-  ).always(function() {
-    _bkg.console.timeEnd("Call theServer to validate apikey");
+    {
+      validate: ak,
+      runtime: '' + chrome.runtime.id
+    },
+    function (txt) {
+      if (txt === 'valid') {
+        _port.postMessage({ save_apikey: ak, save_email: null });
+      } else {
+        $.cookie('alert_v1', 'oops', { expires: 3 });
+      }
+    }, 'json'
+  ).always(function () {
+    _bkg.console.timeEnd('Call theServer to validate apikey');
   });
 }
 
-function valid_pubmeder(e,ak) {
-  _bkg.console.time("Call theServer to validate pubmeder");
+function valid_pubmeder (e, ak) {
+  _bkg.console.time('Call theServer to validate pubmeder');
   return $.get('https://pubmeder-hrd.appspot.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
-      function (txt) {
-        if (txt === 'correct') {
-          _port.postMessage({save_apikey: ak, save_email: e});
-        } else {
-          $.cookie('alert_v2', 'oops', {expires: 3});
-        }
-      }, 'text'
-  ).always(function() {
-    _bkg.console.timeEnd("Call theServer to validate pubmeder");
+    function (txt) {
+      if (txt === 'correct') {
+        _port.postMessage({ save_apikey: ak, save_email: e });
+      } else {
+        $.cookie('alert_v2', 'oops', { expires: 3 });
+      }
+    }, 'text'
+  ).always(function () {
+    _bkg.console.timeEnd('Call theServer to validate pubmeder');
   });
 }
 
-function saveOptions() {
-  var rev_proxy = $('#rev_proxy').prop('checked'),
-      new_tab = $('#new_tab').prop('checked'),
-      contextMenu_shown = $('#contextMenu_shown').prop('checked'),
-      ws_items = $('#ws_items').prop('checked'),
-      scholar_once = $('#scholar_once').prop('checked'),
-      shark_link = $('#shark_link').prop('checked'),
-      shark_download = $('#shark_download').prop('checked'),
-      shark_open_files = $('#shark_open_files').prop('checked'),
-      shark_limit = $('#shark_limit').val(),
-      pubmed_limit = $('#pubmed_limit').val(),
-      arbitrary_sec = $('#arbitrary_sec').val(),
-      ezproxy_prefix = $('#ezproxy_input').val(),
-      cc_address = $('#cc_address').val(),
-      local_mirror = $('#local_mirror').val(),
-      req_a = null,
-      req_b = null,
-      a;  // ajax_pii_link = $('#ajax_pii_link').prop('checked'), co_pubmed = $('#co_pubmed').prop('checked'),
-  //if (co_pubmed) {
+function saveOptions () {
+  var rev_proxy = $('#rev_proxy').prop('checked');
+  var new_tab = $('#new_tab').prop('checked');
+  var contextMenu_shown = $('#contextMenu_shown').prop('checked');
+  var ws_items = $('#ws_items').prop('checked');
+  var scholar_once = $('#scholar_once').prop('checked');
+  var shark_link = $('#shark_link').prop('checked');
+  var shark_download = $('#shark_download').prop('checked');
+  var shark_open_files = $('#shark_open_files').prop('checked');
+  var shark_limit = $('#shark_limit').val();
+  var pubmed_limit = $('#pubmed_limit').val();
+  var arbitrary_sec = $('#arbitrary_sec').val();
+  var ezproxy_prefix = $('#ezproxy_input').val();
+  var cc_address = $('#cc_address').val();
+  var local_mirror = $('#local_mirror').val();
+  var req_a = null;
+  var req_b = null;
+  var a; // ajax_pii_link = $('#ajax_pii_link').prop('checked'), co_pubmed = $('#co_pubmed').prop('checked'),
+  // if (co_pubmed) {
   //  localStorage.setItem('co_pubmed', 'no');
-  //} else {
+  // } else {
   //  localStorage.setItem('co_pubmed', 'yes');
-  //}
-  localStorage.removeItem('co_pubmed');  // 2020-8-5
+  // }
+  localStorage.removeItem('co_pubmed'); // 2020-8-5
   if (new_tab) {
     localStorage.setItem('new_tab', 'yes');
   } else {
@@ -128,18 +130,18 @@ function saveOptions() {
     localStorage.setItem('contextMenu_shown', 'yes');
     if (!localStorage.getItem('contextMenu_on')) {
       localStorage.setItem('contextMenu_on', 1);
-      //chrome.extension.sendRequest({menu_display: 1});
-      _port.postMessage({menu_display: 1});
+      // chrome.extension.sendRequest({menu_display: 1});
+      _port.postMessage({ menu_display: 1 });
     }
   }
   if (ws_items) {
     localStorage.setItem('ws_items', 'yes');
-    //chrome.extension.sendRequest({load_broadcast: 1});
-    _port.postMessage({load_broadcast: 1});
+    // chrome.extension.sendRequest({load_broadcast: 1});
+    _port.postMessage({ load_broadcast: 1 });
   } else {
     localStorage.setItem('ws_items', 'no');
   }
-  if (scholar_once) {  // && ws_items
+  if (scholar_once) { // && ws_items
     localStorage.setItem('scholar_once', 'yes');
   } else {
     localStorage.setItem('scholar_once', 'no');
@@ -152,11 +154,11 @@ function saveOptions() {
     localStorage.setItem('rev_proxy', 'no');
     localStorage.removeItem('websocket_server');
   }
-  //if (ajax_pii_link) {
+  // if (ajax_pii_link) {
   //  localStorage.setItem('ajax_pii_link', 'yes');
-  //} else {
-  localStorage.setItem('ajax_pii_link', 'no');  // 2020-8-5
-  //}
+  // } else {
+  localStorage.setItem('ajax_pii_link', 'no'); // 2020-8-5
+  // }
   if (shark_link) {
     localStorage.setItem('shark_link', 'yes');
     localStorage.setItem('shark_open_files', 'no');
@@ -189,7 +191,7 @@ function saveOptions() {
       if (a && a <= 25) {
         localStorage.setItem('pubmed_limit', a);
       } else {
-        localStorage.setItem('pubmed_limit', 10);  // 2020-4-2
+        localStorage.setItem('pubmed_limit', 10); // 2020-4-2
       }
     } catch (err) {
       _bkg.console.log(err);
@@ -201,16 +203,16 @@ function saveOptions() {
       if (a && a <= 10) {
         localStorage.setItem('arbitrary_sec', a);
       } else {
-        localStorage.setItem('arbitrary_sec', 5);  // 2020-4-23
+        localStorage.setItem('arbitrary_sec', 5); // 2020-4-23
       }
     } catch (err) {
       _bkg.console.log(err);
     }
   }
-  if (ezproxy_prefix && (ezproxy_prefix.substr(0,7) === 'http://' || ezproxy_prefix.substr(0,8) === 'https://')) {
+  if (ezproxy_prefix && (ezproxy_prefix.substr(0, 7) === 'http://' || ezproxy_prefix.substr(0, 8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
-  } else if (ezproxy_prefix && ezproxy_prefix.substr(0,1) === '.' && ezproxy_prefix.substr(1,1) !== '.') {
-    var ezproxy_endswith = ezproxy_prefix.substr(-3,3).toLowerCase();
+  } else if (ezproxy_prefix && ezproxy_prefix.substr(0, 1) === '.' && ezproxy_prefix.substr(1, 1) !== '.') {
+    var ezproxy_endswith = ezproxy_prefix.substr(-3, 3).toLowerCase();
     if (ezproxy_endswith === 'edu' || ezproxy_endswith === 'net' || ezproxy_endswith === 'com' || ezproxy_endswith === 'org' || ezproxy_endswith === 'gov') {
       localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
     } else {
@@ -248,8 +250,8 @@ function saveOptions() {
   } else {
     localStorage.removeItem('local_mirror');
   }
-  if ( !localStorage.getItem('a_apikey_gold') ) {
-    var accessApi = $('#thepaperlink_apikey_input').val().replace( /\s+/g, '' );
+  if (!localStorage.getItem('a_apikey_gold')) {
+    var accessApi = $('#thepaperlink_apikey_input').val().replace(/\s+/g, '');
     if (accessApi.length === 32) {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
@@ -258,9 +260,9 @@ function saveOptions() {
       return false;
     }
   }
-  if ( !localStorage.getItem('b_apikey_gold') ) {
-    var userEmail = $('#pubmeder_email_input').val(),
-        userApi = $('#pubmeder_apikey_input').val().replace( /\s+/g, '' );
+  if (!localStorage.getItem('b_apikey_gold')) {
+    var userEmail = $('#pubmeder_email_input').val();
+    var userApi = $('#pubmeder_apikey_input').val().replace(/\s+/g, '');
     if (userEmail && !email_filter.test(userEmail)) {
       window.alert('\n please provide a valid email address\n');
       $('#pubmeder_email_input').focus();
@@ -288,8 +290,8 @@ function saveOptions() {
   } else {
     location.reload();
   }
-  //chrome.extension.sendRequest({load_common_values: 1});
-  _port.postMessage({load_common_values: 1});
+  // chrome.extension.sendRequest({load_common_values: 1});
+  _port.postMessage({ load_common_values: 1 });
 }
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
@@ -302,36 +304,42 @@ $(document).ready(function () {
   $('#history_html').text('logs');
   $('#history_html').attr('href', chrome.extension.getURL('history.html'));
 
-  $('#saveBtn').on('click', function() { saveOptions(); });
-  $('#save_it_tab').on('click', function() { $('#option_tabs').tabs('select', 1); });
-  $('#alert_tab').on('click', function() { $('#option_tabs').tabs('select', 3); });
+  $('#saveBtn').on('click', function () { saveOptions(); });
+  $('#save_it_tab').on('click', function () { $('#option_tabs').tabs('select', 1); });
+  $('#alert_tab').on('click', function () { $('#option_tabs').tabs('select', 3); });
   $('#ezproxy_input').focus(function () {
     if (this.value === this.defaultValue) {
-      this.value = ''; }
+      this.value = '';
+    }
   }).blur(function () {
     if (!this.value.length) {
-      this.value = this.defaultValue; }
+      this.value = this.defaultValue;
+    }
   });
   $('#cc_address').focus(function () {
     if (this.value === this.defaultValue) {
-      this.value = ''; }
+      this.value = '';
+    }
   }).blur(function () {
     if (!this.value.length) {
-      this.value = this.defaultValue; }
+      this.value = this.defaultValue;
+    }
   });
   $('#local_mirror').focus(function () {
     if (this.value === this.defaultValue) {
-      this.value = ''; }
+      this.value = '';
+    }
   }).blur(function () {
     if (!this.value.length) {
-      this.value = this.defaultValue; }
+      this.value = this.defaultValue;
+    }
   });
 
-  if ( $.cookie('alert_v1') ) {
+  if ($.cookie('alert_v1')) {
     $('#alert_v1').removeClass('Off');
     $.cookie('alert_v1', null);
   }
-  if ( $.cookie('alert_v2') ) {
+  if ($.cookie('alert_v2')) {
     $('#alert_v2').removeClass('Off');
     $.cookie('alert_v2', null);
   }
@@ -339,23 +347,23 @@ $(document).ready(function () {
     $('#save_widget').removeClass('Off');
   });
 
-  var a_key = localStorage.getItem('thepaperlink_apikey'),
-      b_key = localStorage.getItem('pubmeder_apikey'),
-      b_email = localStorage.getItem('pubmeder_email'),
-      m_status = localStorage.getItem('mendeley_status'),
-      f_status = localStorage.getItem('facebook_status'),
-      d_status = localStorage.getItem('dropbox_status'),
-      b_status = localStorage.getItem('douban_status'),
-      g_status = localStorage.getItem('googledrive_status'),
-      o_status = localStorage.getItem('onedrive_status'),
-      y_status = localStorage.getItem('baiduyun_status'),
-      ezproxy_prefix = localStorage.getItem('ezproxy_prefix'),
-      cc_address = localStorage.getItem('cc_address'),
-      local_mirror = localStorage.getItem('local_mirror');
+  var a_key = localStorage.getItem('thepaperlink_apikey');
+  var b_key = localStorage.getItem('pubmeder_apikey');
+  var b_email = localStorage.getItem('pubmeder_email');
+  var m_status = localStorage.getItem('mendeley_status');
+  var f_status = localStorage.getItem('facebook_status');
+  var d_status = localStorage.getItem('dropbox_status');
+  var b_status = localStorage.getItem('douban_status');
+  var g_status = localStorage.getItem('googledrive_status');
+  var o_status = localStorage.getItem('onedrive_status');
+  var y_status = localStorage.getItem('baiduyun_status');
+  var ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
+  var cc_address = localStorage.getItem('cc_address');
+  var local_mirror = localStorage.getItem('local_mirror');
 
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
-    $('#reset_key_one').on('click', function() { reset_key(1); });
+    $('#reset_key_one').on('click', function () { reset_key(1); });
     $('.thepaperlink_a').css('display', 'none');
     $('#ws_items_status').text('login');
     $.cookie('alert_v1', null);
@@ -370,7 +378,7 @@ $(document).ready(function () {
   if (b_key) {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');
     $('#pubmeder_apikey').html('<span class="keys">' + b_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_two">[x]</span>');
-    $('#reset_key_two').on('click', function() { reset_key(2); });
+    $('#reset_key_two').on('click', function () { reset_key(2); });
     $('#pubmeder_a').text('OK');
     $.cookie('alert_v2', null);
   } else {
@@ -423,7 +431,7 @@ $(document).ready(function () {
     $('#ezproxy_enabled').text('is your ezproxy prefix.');
     $('#ez_info').removeClass('Off');
     $('.ezproxy_prefix').text(ezproxy_prefix);
-    if (ezproxy_prefix.substr(0,1) === '.') {
+    if (ezproxy_prefix.substr(0, 1) === '.') {
       $('#ezproxy_demo').addClass('Off');
     } else {
       $('#ezproxy_demo_dot').addClass('Off');
@@ -447,8 +455,8 @@ $(document).ready(function () {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our servers in Asia</b> to access "the paper link".');
     $('#api_server').text('https://www.thepaperlink.cn');
     $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
-    //$('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
-    //$('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
+    // $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
+    // $('.reg_pubmeder').attr('href', 'http://pubmeder.cailiang.net/registration');
     $('#scholar_once_info').addClass('Off');
     $('#shark_dropbox').addClass('Off');
   } else {
@@ -459,20 +467,20 @@ $(document).ready(function () {
   $('#rev_proxy').on('change', function () {
     $('#save_widget').removeClass('Off');
   });
-  //if (localStorage.getItem('co_pubmed') === 'no') {
+  // if (localStorage.getItem('co_pubmed') === 'no') {
   //  $('#co_pubmed').prop('checked', true);
   //  $('#pubmeder_info').removeClass('Off');
-  //} else {
-    $('#pubmeder_span').html('In the popup widget will <strong>only show</strong> <input class="settings" type="text" value="5" size="2" id="pubmed_limit" /> items, even if there is more');
-    if (localStorage.getItem('pubmed_limit')) {
-      $('#pubmed_limit').val( localStorage.getItem('pubmed_limit') );
-    }
-    $('#pubmed_limit').on('change', function () {
-      $('#save_widget').removeClass('Off');
-    });
-  //}
+  // } else {
+  $('#pubmeder_span').html('In the popup widget will <strong>only show</strong> <input class="settings" type="text" value="5" size="2" id="pubmed_limit" /> items, even if there is more');
+  if (localStorage.getItem('pubmed_limit')) {
+    $('#pubmed_limit').val(localStorage.getItem('pubmed_limit'));
+  }
+  $('#pubmed_limit').on('change', function () {
+    $('#save_widget').removeClass('Off');
+  });
+  // }
   if (localStorage.getItem('arbitrary_sec')) {
-    $('#arbitrary_sec').val( localStorage.getItem('arbitrary_sec') );
+    $('#arbitrary_sec').val(localStorage.getItem('arbitrary_sec'));
   } else {
     $('#arbitrary_sec').val(5);
   }
@@ -485,21 +493,21 @@ $(document).ready(function () {
   if (localStorage.getItem('ws_items') === 'yes') {
     $('#ws_items').prop('checked', true);
     if (localStorage.getItem('websocket_server')) {
-      $('#websocket_server').text( localStorage.getItem('websocket_server') );
+      $('#websocket_server').text(localStorage.getItem('websocket_server'));
     }
     $('#ws_info').removeClass('Off');
   }
   if (localStorage.getItem('scholar_once') !== 'no') {
     $('#scholar_once').prop('checked', true);
   }
-  //if (localStorage.getItem('ajax_pii_link') !== 'no') {
+  // if (localStorage.getItem('ajax_pii_link') !== 'no') {
   //  $('#ajax_pii_link').prop('checked', true);
   //  $('#ajax_info').removeClass('Off');
-  //}
+  // }
   if (localStorage.getItem('shark_link') === 'yes') {
     $('#shark_span').html(' Fetch limit to <input class="settings" type="text" value="3" size="1" id="shark_limit" /> files per page.');
     if (localStorage.getItem('shark_limit')) {
-      $('#shark_limit').val( localStorage.getItem('shark_limit') );
+      $('#shark_limit').val(localStorage.getItem('shark_limit'));
     }
     $('#shark_limit').on('change', function () {
       $('#save_widget').removeClass('Off');
@@ -518,11 +526,11 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    var terms = localStorage.getItem('past_search_terms').split('||'),
-        tmp = $('#keywords_list'),
-        t = 0, i, a, b, c = [];
+    var terms = localStorage.getItem('past_search_terms').split('||');
+    var tmp = $('#keywords_list');
+    var t = 0; var i; var a; var b; var c = [];
     terms.pop();
-    for (i = terms.length-1; i > -1; i -= 1) { // list most recent on top
+    for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
       if (b) {
         a = terms[i].toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
@@ -535,15 +543,16 @@ $(document).ready(function () {
         } else if (c[a]) { // get_end_num  c[a] < b
           _bkg.console.log('count should only increase "' + a + '"');
         } else {
-          c.push( {key:a, value:b} );
+          c.push({ key: a, value: b });
           tmp.append(
-              '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
+            '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
               a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
               '</span> <a href="#">' + get_end_num(b) + '</a></li>'
           );
           t += 1;
         }
-      } }
+      }
+    }
     if (t > 0) {
       var span_max = 200;
       $('.keywords_li span').each(function () {
@@ -558,18 +567,18 @@ $(document).ready(function () {
         $(this).width(span_max + 40);
       });
       $('#keywords_area').width(span_max + 57);
-      $('#graph_trend').width( $('#keywords_list').width() - span_max - 165 );
-      //$('#graph_trend').height( $('#keywords_list').height() + 25 );
+      $('#graph_trend').width($('#keywords_list').width() - span_max - 165);
+      // $('#graph_trend').height( $('#keywords_list').height() + 25 );
       if (t > 5) {
         tmp.append('<li><span id="select_all_keywords" style="cursor:pointer;color:#ccc">click to select all keywords</span>' +
             '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="toggle_all_keywords" style="cursor:pointer;color:#ccc">click to toggle current selection</span></li>');
-        $('#toggle_all_keywords').on('click', function() {
+        $('#toggle_all_keywords').on('click', function () {
           $('.keywords').each(function () {
-            toggle_checked( $(this), 1 );
+            toggle_checked($(this), 1);
           });
           adjust_keywords();
         });
-        $('#select_all_keywords').on('click', function() {
+        $('#select_all_keywords').on('click', function () {
           $('.keywords').prop('checked', true);
           adjust_keywords();
         });
@@ -577,21 +586,21 @@ $(document).ready(function () {
       $('input.keywords').on('change', function () {
         adjust_keywords();
       });
-      $('.keywords_li span').on('click', function() {
-        toggle_checked( $(this).parent().children('input') );
+      $('.keywords_li span').on('click', function () {
+        toggle_checked($(this).parent().children('input'));
       });
       $('.keywords_li a').addClass('ui-button ui-state-default ui-corner-all');
-      $('.keywords_li a').on('click', function(e) {
+      $('.keywords_li a').on('click', function (e) {
         e.preventDefault();
-        var term = $(this).parent().children('span').text(),
-            hist = localStorage.getItem(term),
-            hist_array = hist.split('||'),
-            tt = $('#graph_trend').offset().top - 25,
-            j = 'search results count: ' + term + '\n----\n', k, l,
-            len = hist_array.length;
+        var term = $(this).parent().children('span').text();
+        var hist = localStorage.getItem(term);
+        var hist_array = hist.split('||');
+        var tt = $('#graph_trend').offset().top - 25;
+        var j = 'search results count: ' + term + '\n----\n'; var k; var l;
+        var len = hist_array.length;
         for (k = 0; k < len; k += 1) {
           l = hist_array[k].lastIndexOf(',');
-          tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l+1) + '\n';
+          tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l + 1) + '\n';
           j += tmp;
         }
         $('#graph_trend').html('<pre style="font-size:12px;margin-left:0.5em;margin-top:0">' + j +
@@ -610,7 +619,7 @@ $(document).ready(function () {
           }
         });
         $('#search_term_again').on('click', function () {
-          chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+          chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             chrome.tabs.create({
               index: tabs[0].index,
               url: 'https://www.ncbi.nlm.nih.gov/pubmed?term=' + term,
@@ -620,17 +629,17 @@ $(document).ready(function () {
         });
         return false;
       });
-      $('#submit_keyword').on('click', function() {
+      $('#submit_keyword').on('click', function () {
         window.alert('Server DOWN.');
         // GET /prospective?' + $('#keywords_area').serialize()
       });
     }
   }
 
-  //google.payments.inapp.getSkuDetails({
+  // google.payments.inapp.getSkuDetails({
   //  parameters: {env: 'prod'},
   //  success: onSkuDetails,
   //  failure: onSkuDetailsFailed
-  //});
-  $('#option_tabs').tabs({cookie: {expires: 9}});
+  // });
+  $('#option_tabs').tabs({ cookie: { expires: 9 } });
 });
