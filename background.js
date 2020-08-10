@@ -568,7 +568,7 @@ function prepare_download_shark (tabId, pmid, args) {
     }, 'json'
   );
   if (localStorage.getItem('shark_download') === 'yes') {
-    do_download_shark(pmid, args.shark_link);
+    do_download_shark(pmid, args.shark_link+'?download=true' );
   }
 }
 

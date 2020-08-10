@@ -82,8 +82,36 @@ function ez_format_link(p, url){
   }
 }
 
+function process_bioRxiv() { // 2020 Aug
+  var i, len, j, elee_name = null;
+  var p2span = '<span onclick="showPeaks(this)" style="background-color:#e0ecf1;">';  // class="paperlink2_found"
+  var ele = byID('page-title').parentNode.getElementsByClassName('highwire-cite-authors')[0];
+  var eles = ele.getElementsByTagName('span');
+  for (i = 2, len = eles.length; i < len; i += 1) {
+    if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i-1]) {
+      j = eles[i-1].textContent;
+      if (j.indexOf(' ') > 0) {
+        j = j.split(' ');
+        elee_name = eles[i].textContent + ' ' + j[0].substr(0,1) + j[1].substr(0,1);
+      } else {
+        elee_name = eles[i].textContent + ' ' + j.substr(0,1);
+      }
+    }
+    if (elee_name && eles[i-2] && eles[i-2].className.indexOf('highwire-citation-author') > -1) {
+      if (eles[i-2].className.indexOf(' first') > 0) {
+        eles[i-2].innerHTML = '*'+p2span + elee_name + '</span>&nbsp;';
+      } else {
+        eles[i-2].innerHTML = '&nbsp;'+p2span + elee_name + '</span>&nbsp;';
+      }
+      elee_name = '';
+    }
+  } // end of for
+}
+
 function process_storkapp() { // 2018 Dec
   var i, len, ele, pmid = '';
+  //ele=byTag('h4')[0];
+  //ele.innerHTML = '<span class="paperlink2_found">Vale RD</span>';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
     ele = byTag('a')[i];
     if (ele.textContent.indexOf('ncbi.nlm.nih.gov/pubmed/') > 0) {
@@ -1448,6 +1476,21 @@ function get_request(msg) {
   //sendResponse({});
 }
 
+function load_jss() {
+  chrome.storage.sync.get(['rev_proxy'], function (e) {
+    var jss_base = 'https://www.thepaperlink.com';
+    if (e.rev_proxy && e.rev_proxy === 'yes') {
+      jss_base = 'https://www.thepaperlink.cn';
+    }
+    if (!byID('paperlink2_display')) {
+      var extension_la = document.createElement('script');
+      extension_la.setAttribute('type', 'text/javascript');
+      extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
+      page_d.body.appendChild(extension_la);
+    }
+  });
+}
+
 
 
 
@@ -1475,6 +1518,10 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   a_proxy({save_apikey: byID('apikey_pubmeder').innerHTML,
            save_email: byID('currentUser').innerHTML});
   noRun = 4;
+} else if (page_url.indexOf('://www.biorxiv.org/content/') > 0) {
+  load_jss();
+  process_bioRxiv();
+  noRun = 40;
 } else if (page_url.indexOf('://f1000.com/prime/') > 0) {
   process_f1000();
   noRun = 30;
@@ -1483,6 +1530,7 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   noRun = 31;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||
            page_url.indexOf('://www.storkapp.me/pubpaper/') > 0 ) {
+  //load_jss();  // 2020-8-11 need full author names
   process_storkapp();
   noRun = 20;
 } else if (page_url.indexOf('://scholar.google.com/scholar?') > 0) {
@@ -1512,18 +1560,7 @@ if (byID('_thepaperlink_client_modify_it') !== null) { // noRun = 2
   byID('_thepaperlink_client_modify_it').innerHTML = 'the browser you are using is good for that';
 }
 if (!noRun) {
-  chrome.storage.sync.get(['rev_proxy'], function (e) {
-    var jss_base = 'https://www.thepaperlink.com';
-    if (e.rev_proxy && e.rev_proxy === 'yes') {
-      jss_base = 'https://www.thepaperlink.cn';
-    }
-    if (!byID('paperlink2_display')) {
-      var extension_la = document.createElement('script');
-      extension_la.setAttribute('type', 'text/javascript');
-      extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
-      page_d.body.appendChild(extension_la);
-    }
-  });
+  load_jss();
   parse_page_div(false); // big boss, onload not ajax
 }
 //chrome.extension.onRequest.addListener(get_request);
