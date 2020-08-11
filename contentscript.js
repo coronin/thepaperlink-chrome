@@ -84,7 +84,7 @@ function ez_format_link(p, url){
 
 function process_bioRxiv() { // 2020 Aug
   var i, len, j, elee_name = null;
-  var p2span = '<span onclick="showPeaks(this)" style="background-color:#e0ecf1;">';  // class="paperlink2_found"
+  var p2span = '<span style="background-color:#e0ecf1;"><span onclick="showPeaks(this)">';  // class="paperlink2_found"
   var ele = byID('page-title').parentNode.getElementsByClassName('highwire-cite-authors')[0];
   var eles = ele.getElementsByTagName('span');
   for (i = 2, len = eles.length; i < len; i += 1) {
@@ -99,13 +99,17 @@ function process_bioRxiv() { // 2020 Aug
     }
     if (elee_name && eles[i-2] && eles[i-2].className.indexOf('highwire-citation-author') > -1) {
       if (eles[i-2].className.indexOf(' first') > 0) {
-        eles[i-2].innerHTML = '*'+p2span + elee_name + '</span>&nbsp;';
+        eles[i-2].innerHTML = '*'+p2span + elee_name + '</span>&#8620;</span>';
       } else {
-        eles[i-2].innerHTML = '&nbsp;'+p2span + elee_name + '</span>&nbsp;';
+        eles[i-2].innerHTML = '&nbsp;'+p2span + elee_name + '</span>&#8620;</span>';
       }
       elee_name = '';
     }
-  } // end of for
+  }
+  var insert_style = page_d.createElement('style');
+  insert_style.type = 'text/css';
+  insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
+  page_d.body.appendChild(insert_style);
 }
 
 function process_storkapp() { // 2018 Dec
