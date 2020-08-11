@@ -187,12 +187,12 @@ function eFetch (pmid) {
   });
 }
 
-function eSummary (term, tabId) {
+function eSummary (term, tabId, no_term_update) {
   var webenvCheck = /[a-zA-Z]/;
   var limit = localStorage.getItem('pubmed_limit') || '5';
   var urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
-  if (('' + term).substr(0, 5) !== 'NCID_' && !(/^[0-9,]+$/.test('' + term))) {
+  if ( !(/^[0-9,]+$/.test('' + term)) && !no_term_update ) {
     $('#ess_input').val(term);
   }
   if (webenvCheck.test(term)) {
@@ -287,7 +287,7 @@ function eSS (search_term, tabId) {
     function (xml) {
       var WebEnv = $(xml).find('WebEnv').text();
       if (WebEnv) {
-        eSummary(WebEnv, tabId);
+        eSummary(WebEnv, tabId, true);
       }
       var a = $(xml).find('TermSet'); var b = 0;
       a.each(function () {
@@ -350,9 +350,24 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     } else {
       eSS(ID.substr(9, ID.indexOf('&') - 9).replace(/\+/g, ' '), tab.id);
     }
+  } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
+  } else if (tab.url.indexOf('//facultyopinions.com/prime/') > 0) {
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) { // @@@@
     $('#found').html('&copy; /showPaper.php?' + tab.url.split('/showPaper.php?')[1]);
     eSummary(tab.title, tab.id);
+  } else if (tab.url.indexOf('.storkapp.me/pubpaper/') > 0) {
+    ID = tab.url.split('/pubpaper/')[1];
+    $('#found').html('&copy; PMID:' + ID);
+    eSummary(ID, tab.id);
+  } else if (tab.url.indexOf('biorxiv.org/content/') > 0) {
+    $('#found').html('&nbsp;');
+    eSS(tab.title.split('| bio')[0], tab.id);
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
@@ -391,24 +406,16 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         }
       }
     });
-  } else if (tab.url.indexOf('//f1000.com/prime/') > 0) {
-    ID = tab.title.split('::')[0];
-    $('#found').html('&copy; ' + tab.title.split('::')[1]);
-    eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('//facultyopinions.com/prime/') > 0) {
-    ID = tab.title.split('::')[0];
-    $('#found').html('&copy; ' + tab.title.split('::')[1]);
-    eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('.nature.com/articles/') > 0) {
-    ID = '10.1038/' + tab.url.split('.nature.com/articles/')[1];
-    $('#found').html('&copy; ' + ID);
-    eSS(ID, tab.id);
   } else if (tab.url.indexOf('//journals.plos.org/') > 0) {
     ID = tab.url.split('/article?id=')[1];
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
   } else if (tab.url.indexOf('//elifesciences.org/') > 0) {
     ID = '10.7554/eLife.' + tab.url.split('/')[4].split('.')[0];
+    $('#found').html('&copy; ' + ID);
+    eSS(ID, tab.id);
+  } else if (tab.url.indexOf('.nature.com/articles/') > 0) {
+    ID = '10.1038/' + tab.url.split('.nature.com/articles/')[1];
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
   } else if (tab.url.indexOf('.cell.com/') > 0) {
@@ -438,6 +445,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       $('#found').html('&nbsp;');
       eSS(tab.title.split(' | ')[0], tab.id);
     }
+  // below, other sites enabled with chrome.declarativeContent.PageStateMatcher
   } else {
     chrome.storage.local.get(['tabId:' + tab.id], function (dd) {
       ID = dd['tabId:' + tab.id];
