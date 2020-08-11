@@ -83,29 +83,38 @@ function ez_format_link(p, url){
 }
 
 function process_bioRxiv() { // 2020 Aug
-  var i, len, j, elee_name = null;
-  var p2span = '<span style="background-color:#e0ecf1;"><span onclick="showPeaks(this)">';  // class="paperlink2_found"
-  var ele = byID('page-title').parentNode.getElementsByClassName('highwire-cite-authors')[0];
-  var eles = ele.getElementsByTagName('span');
-  for (i = 2, len = eles.length; i < len; i += 1) {
-    if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i-1]) {
-      j = eles[i-1].textContent;
-      if (j.indexOf(' ') > 0) {
-        j = j.split(' ');
-        elee_name = eles[i].textContent + ' ' + j[0].substr(0,1) + j[1].substr(0,1);
-      } else {
-        elee_name = eles[i].textContent + ' ' + j.substr(0,1);
+  var i,ii, len,lenn, j, eles, elee_name = null;
+  var p2span = '<span style="background-color:#e0ecf1;cursor:pointer"><span onclick="showPeaks(this)">';  // class="paperlink2_found"
+  var ele = page_d.getElementsByClassName('highwire-cite-authors');
+  for (ii = 0, lenn = ele.length; ii < lenn; ii += 1) {
+    eles = ele[ii].getElementsByTagName('span');
+    for (i = 2, len = eles.length; i < len; i += 1) {
+      if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i-1]) {
+        j = eles[i-1].textContent;
+        if (j.indexOf(' ') > 0) {
+          j = j.split(' ');
+          elee_name = eles[i].textContent + ' ' + j[0].substr(0,1) + j[1].substr(0,1);
+        } else {
+          elee_name = eles[i].textContent + ' ' + j.substr(0,1);
+        }
       }
-    }
-    if (elee_name && eles[i-2] && eles[i-2].className.indexOf('highwire-citation-author') > -1) {
-      if (eles[i-2].className.indexOf(' first') > 0) {
-        eles[i-2].innerHTML = '*'+p2span + elee_name + '</span>&#8620;</span>';
-      } else {
-        eles[i-2].innerHTML = '&nbsp;'+p2span + elee_name + '</span>&#8620;</span>';
+      if (elee_name && eles[i-2] && eles[i-2].className.indexOf('highwire-citation-author') > -1) {
+        if (eles[i-2].className.indexOf(' first') > 0) {
+          eles[i-2].innerHTML = '<sup>#</sup>'+p2span + elee_name + '</span>&#8620;</span>';
+        } else {
+          eles[i-2].innerHTML = '&nbsp;'+p2span + elee_name + '</span>&#8620;</span>';
+        }
+        elee_name = '';
+      } else if (elee_name && eles[i-3] && eles[i-3].className.indexOf('highwire-citation-author') > -1 &&
+                 eles[i-2].className.indexOf('element-invisible') > 0 ) {
+        if (eles[i-3].className.indexOf(' first') > 0) {
+          eles[i-3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>'+p2span + elee_name + '</span>&#8620;</span>';
+        } else {
+          eles[i-3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>'+p2span + elee_name + '</span>&#8620;</span>';
+        }
+        elee_name = '';
       }
-      elee_name = '';
-    }
-  }
+  } }
   var insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
@@ -1522,7 +1531,8 @@ if (page_url === 'https://www.thepaperlink.com/reg'
   a_proxy({save_apikey: byID('apikey_pubmeder').innerHTML,
            save_email: byID('currentUser').innerHTML});
   noRun = 4;
-} else if (page_url.indexOf('://www.biorxiv.org/content/') > 0) {
+} else if (page_url.indexOf('://www.biorxiv.org/content/') > 0
+    || page_url.indexOf('://www.biorxiv.org/collection/') > 0) {
   load_jss();
   process_bioRxiv();
   noRun = 40;
