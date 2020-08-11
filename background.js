@@ -1355,15 +1355,16 @@ chrome.runtime.onInstalled.addListener(function () {
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//facultyopinions.com/prime/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.nature.com/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.sciencemag.org/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.rupress.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: 'biorxiv.org/content/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//journals.plos.org/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//elifesciences.org/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biologists.org/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.embopress.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.nature.com/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.cell.com/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } })
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.sciencemag.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.rupress.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biologists.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.embopress.org/' } })
       ],
       actions: [new chrome.declarativeContent.ShowPageAction()]
     }
