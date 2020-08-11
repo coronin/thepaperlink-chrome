@@ -6,7 +6,7 @@ THIS EXTENSION USES DATA PROVIDED BY www.thepaperlink.com, FOR FAIR USE ONLY.
 
 In addition to PubMed search results, this extension will show links to PDF; display Faculty Opinions, etc.
 Detailed enhancement includes:
- * Display the Impact Factor of the Journal, updated yearly from https://jcr.incites.thomsonreuters.com/
+ * Display the Impact Factor of the Journal, updated yearly from https://jcr.clarivate.com/
  * Direct link to its publisher's web page, based on https://www.doi.org/
  * Highlight articles published in prestigious journals
  * Clickable button to add the RIS format reference to the system clipboard
