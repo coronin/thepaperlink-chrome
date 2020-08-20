@@ -22,6 +22,7 @@ var apikey; var req_key; var pubmeder_apikey; var pubmeder_email;
 var local_mirror; var ezproxy_prefix; var cc_address;
 var arbitrary_sec = 5;
 var pubmeder_ok = false;
+var cloud_op = '';
 var broadcast_loaded = false;
 var extension_load_date = new Date();
 var date_str = 'day_' + extension_load_date.getFullYear() +
@@ -172,6 +173,35 @@ function load_common_values (newday) {
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
+  cloud_op = '';
+  var m_status = localStorage.getItem('mendeley_status');
+  if (m_status && m_status === 'success') {
+    cloud_op += 'm';
+  }
+  var f_status = localStorage.getItem('facebook_status');
+  if (f_status && f_status === 'success') {
+    cloud_op += 'f';
+  }
+  var d_status = localStorage.getItem('dropbox_status');
+  if (d_status && d_status === 'success') {
+    cloud_op += 'd';
+  }
+  var b_status = localStorage.getItem('douban_status');
+  if (b_status && b_status === 'success') {
+    cloud_op += 'b';
+  }
+  var g_status = localStorage.getItem('googledrive_status');
+  if (g_status && g_status === 'success') {
+    cloud_op += 'g';
+  }
+  var o_status = localStorage.getItem('onedrive_status');
+  if (o_status && o_status === 'success') {
+    cloud_op += 'o';
+  }
+  var y_status = localStorage.getItem('baiduyun_status');
+  if (y_status && y_status === 'success') {
+    cloud_op += 'y';
+  }
   // 2015-12-9: !!expr returns a Boolean value (true or false)
   if (localStorage.getItem('scholar_once') !== 'no') {
     scholar_page_open_limits = 1;
@@ -830,35 +860,6 @@ function get_request (msg, _port) {
     });
   } else if (msg.url) {
     var request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id;
-    var cloud_op = '';
-    var m_status = localStorage.getItem('mendeley_status');
-    var f_status = localStorage.getItem('facebook_status');
-    var d_status = localStorage.getItem('dropbox_status');
-    var b_status = localStorage.getItem('douban_status');
-    var g_status = localStorage.getItem('googledrive_status');
-    var o_status = localStorage.getItem('onedrive_status');
-    var y_status = localStorage.getItem('baiduyun_status');
-    if (m_status && m_status === 'success') {
-      cloud_op += 'm';
-    }
-    if (f_status && f_status === 'success') {
-      cloud_op += 'f';
-    }
-    if (d_status && d_status === 'success') {
-      cloud_op += 'd';
-    }
-    if (b_status && b_status === 'success') {
-      cloud_op += 'b';
-    }
-    if (g_status && g_status === 'success') {
-      cloud_op += 'g';
-    }
-    if (o_status && o_status === 'success') {
-      cloud_op += 'o';
-    }
-    if (y_status && y_status === 'success') {
-      cloud_op += 'y';
-    }
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
