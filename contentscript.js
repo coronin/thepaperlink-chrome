@@ -128,11 +128,11 @@ function process_storkapp () { // 2018 Dec
     if (ele.textContent.indexOf('ncbi.nlm.nih.gov/pubmed/') > 0) {
       pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
       page_d.title = pmid; // ess.js
-      a_proxy({ from_nonF1000: pmid });
+      a_proxy({ from_sites_w_pmid: pmid });
       ele.id = 'thepaperlink_bar';
       ele.innerHTML = ' the paper link';
-      ele.href = 'https://www.thepaperlink.com/:' + pmid;
-      ele.onclick = null;
+      ele.href = '#';
+      ele.onclick = function (event) { event.preventDefault(); };
       break;
     }
   }
@@ -1220,6 +1220,13 @@ function get_request (msg) {
       byID(msg.to_other_sites).innerHTML = '';
     }
     byID(msg.to_other_sites).appendChild(div);
+    // 2020-8-21
+    if (byID('thepaperlink_save' + msg.pmid) !== null) {
+      byID('thepaperlink_save' + msg.pmid).onclick = function () {
+        a_proxy({ saveIt: this.id.substr(17) });
+        byID(this.id).setAttribute('class', 'thepaperlink_Off');
+      };
+    }
     // sendResponse({});
     return;
   } else if (r && r.error) {
@@ -1365,7 +1372,7 @@ function get_request (msg) {
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
-    if (msg.pubmeder || msg.cloud_op) { // @@@@
+    if (msg.pubmeder || msg.cloud_op) { // _other_sites uses msg.extra
       tmp = '<span id="thepaperlink_save' + pmid +
           '" class="thepaperlink-home">save</span>';
       div_html += tmp;
