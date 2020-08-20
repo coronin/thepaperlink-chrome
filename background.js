@@ -762,6 +762,10 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
       aVal = common_dThree(dd, 0);
       if (aVal) {
         aVal = ': ' + aVal;
+        if (pubmeder_ok || cloud_op) { // 2020-8-21
+          aVal += '<span id="thepaperlink_save' + pmid +
+                  '" class="thepaperlink-home">save</span>';
+        }
       }
       chrome.tabs.sendMessage(tabId,
         { to_other_sites: 'thepaperlink_bar', uri: base, pmid: pmid, extra: aVal });
@@ -773,6 +777,10 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
             aVal = common_dThree(d.item[0], 0);
             if (aVal) {
               aVal = ': ' + aVal;
+              if (pubmeder_ok || cloud_op) { // 2020-8-21
+                aVal += '<span id="thepaperlink_save' + pmid +
+                        '" class="thepaperlink-home">save</span>';
+              }
             }
             chrome.tabs.sendMessage(tabId,
               { to_other_sites: 'thepaperlink_bar', uri: base, pmid: pmid, extra: aVal });
@@ -1144,8 +1152,8 @@ function get_request (msg, _port) {
   } else if (msg.from_f1000) {
     tmp = msg.from_f1000.split(',');
     call_from_other_sites(tmp[0], sender_tab_id, tmp[1], tmp[2]);
-  } else if (msg.from_nonF1000) {
-    call_from_other_sites(msg.from_nonF1000, sender_tab_id);
+  } else if (msg.from_sites_w_pmid) {
+    call_from_other_sites(msg.from_sites_w_pmid, sender_tab_id);
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14
