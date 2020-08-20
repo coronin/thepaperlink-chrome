@@ -120,8 +120,7 @@ function process_bioRxiv () { // 2020 Aug
 }
 
 function process_storkapp () { // 2018 Dec
-  var i; var len; var ele; var pmid = '';
-  // ele=byTag('h4')[0];
+  var i; var len; var ele; var pmid = ''; var elee;
   // ele.innerHTML = '<span class="paperlink2_found">Vale RD</span>';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
     ele = byTag('a')[i];
@@ -129,10 +128,13 @@ function process_storkapp () { // 2018 Dec
       pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
       page_d.title = pmid; // ess.js
       a_proxy({ from_sites_w_pmid: pmid });
-      ele.id = 'thepaperlink_bar';
-      ele.innerHTML = ' the paper link';
-      ele.href = '#';
-      ele.onclick = function (event) { event.preventDefault(); };
+      ele.href = 'https://pubmed.ncbi.nlm.nih.gov/'+pmid+'/';
+      elee = page_d.createElement('span');
+      elee.id = 'thepaperlink_bar';
+      elee.style.fontSize = '13px';
+      elee.style.fontWeight = 'normal';
+      elee.style.marginLeft = '2em';
+      byTag('h4')[1].appendChild(elee);
       break;
     }
   }
@@ -154,6 +156,15 @@ function process_storkapp () { // 2018 Dec
       });
     } else { console.log('process_storkapp: #abstractHolder N/A'); }
   }
+  setTimeout(function () {
+    var a; var b; var i; var l;
+    for (i = 0, l = byTag('a').length; i < l; i += 1) {
+      a = byID('relateddiv').getElementsByTagName('a')[i];
+      if (a.href.indexOf('/pubpaper/') > 0) {
+        b = a.href.split('/pubpaper/');
+        a.href = 'https://pubmed.ncbi.nlm.nih.gov/'+b[1]+'/';
+    } }
+  }, 10 * 1000); // 10-sec timeout
 }
 
 function process_f1000 () { // 2018 Sep
