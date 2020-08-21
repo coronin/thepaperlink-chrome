@@ -744,6 +744,7 @@ function load_broadcast () {
           dropbox_it(d.pmid, d.pdf, d.apikey);
         }
       }
+      if (d.apikey8011) { console.log('@@@@ ws.onmessage ' + d.apikey8011); }
     } catch (err) {
       DEBUG && console.log('>> json parse error: ' + message.data);
     }
@@ -777,7 +778,7 @@ function common_dThree (itemZero, withRed) {
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
     extra += tmp;
   }
-  if (itemZero.doi && local_mirror) {
+  if (itemZero.doi && local_mirror && local_mirror !== '127.0.0.1') {
     tmp = '<a href="https://' + local_mirror + '/' + itemZero.doi + '#" target="_blank">&#8623;</a>';
     extra += tmp;
   }
@@ -965,7 +966,7 @@ function get_request (msg, _port) {
     } else {
       DEBUG && console.log('>> no need to update context menu');
     }
-  } else if (msg.saveIt && (apikey || pubmeder_ok)) {
+  } else if (msg.saveIt && (pubmeder_ok || cloud_op)) {
     if (pubmeder_ok) {
       saveIt_pubmeder(msg.saveIt);
     }
@@ -1195,7 +1196,7 @@ function get_request (msg, _port) {
     } else {
       localStorage.setItem('failed_terms', '"' + msg.failed_term + '"');
     }
-  } else if (msg.open_options) {
+  } else if (msg.open_options || (msg.saveIt && !pubmeder_ok && !cloud_op) ) {
     chrome.tabs.create({
       url: chrome.extension.getURL('options.html'),
       active: true
@@ -1367,6 +1368,7 @@ chrome.runtime.onInstalled.addListener(function () {
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: 'biorxiv.org/content/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//journals.plos.org/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.sciencedirect.com/science/article/pii/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//elifesciences.org/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.nature.com/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.cell.com/' } }),

@@ -160,7 +160,7 @@ function process_storkapp () { // 2018 Dec
     var a; var b; var i; var l;
     for (i = 0, l = byTag('a').length; i < l; i += 1) {
       a = byID('relateddiv').getElementsByTagName('a')[i];
-      if (a.href.indexOf('/pubpaper/') > 0) {
+      if (a && a.href.indexOf('/pubpaper/') > 0) {
         b = a.href.split('/pubpaper/');
         a.href = 'https://pubmed.ncbi.nlm.nih.gov/'+b[1]+'/';
     } }
