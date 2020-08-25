@@ -27,9 +27,9 @@ Whisper from the Developer:
  * background justification: after extract PMID from webpages, other params must tweak before making URL call. I process this on the background page using _port to communicate between content.js and background.js
  * contextMenus justification: I want the user to be able to do a PubMed search on any page with highlighted text
  * tabs justification: open related webpages, and update options after visiting /settings
- * activeTab justification: to extract PMID from a PubMed archived journal article, and provide a focused popup window using page_action
  * clipboardWrite justification: I add a clipboard icon on webpages allowing the user to click and storage formated references. I format the copied text based the PMID exacted from the webpage and using information available at PubMed
- * declarativeContent justification: to update contextMenus based on the webpage URL and text
+ * declarativeContent justification: to update contextMenus based on the webpage URL and text, to facilitate getting PubMed related data
  * storage justification: I give options to the user on how the exact information should be displayed and I archive the papers the user read for later, both need a storage permission
+ * host permission: for downloading remote files within specific domains, such as json data
  * downloads and remote code at /jss
-
+ * 2020-8-25 removed: activeTab https://developer.chrome.com/extensions/activeTab
