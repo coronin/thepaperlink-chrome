@@ -4,7 +4,7 @@
   "version": "2.9.37",
   "minimum_chrome_version": "39",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
-  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
+  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://www.thepaperlink.net https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png"
@@ -48,9 +48,11 @@
       "https://scholar.google.com/scholar*",
       "https://www.thepaperlink.com/oauth*",
       "*://www.thepaperlink.com/reg",
-      "*://www.thepaperlink.cn/reg",
       "*://www.thepaperlink.com/settings",
+      "*://www.thepaperlink.cn/reg",
       "*://www.thepaperlink.cn/settings",
+      "*://www.thepaperlink.net/reg",
+      "*://www.thepaperlink.net/settings",
       "http://pubmeder.cailiang.net/registration",
       "*://pubmeder-hrd.appspot.com/registration",
       "http://f1000.com/prime/*",
