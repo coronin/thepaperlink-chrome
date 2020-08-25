@@ -359,9 +359,9 @@ function saveIt_pubmeder (pmid) {
     email: pubmeder_email,
     pmid: pmid
   };
-  var saveurl = 'https://1.thepaperlink.com/input'; // 2020-1-12
+  var saveurl = 'https://0.thepaperlink.com/input'; // 2020-8-23
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    saveurl = 'https://1.thepaperlink.cn/input'; // 2020-1-12
+    saveurl = 'https://0.thepaperlink.cn/input'; // 2020-8-23
   }
   $.getJSON(saveurl, args, function (d) {
     if (d.respond > 1) {

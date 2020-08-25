@@ -1140,14 +1140,14 @@ function get_request (msg) {
     if (byID('myncbiusername') !== null) {
       var hook = byID('myncbiusername').textContent;
       byID('myncbiusername').innerHTML = '<a rel="external" href="' +
-          'https://tpl.ltd/' + search_term +
-          '" style="color:yellow" target="_blank">&nbsp;' +
+          'https://www.thepaperlink.com/' + search_term +
+          '" style="background-color:yellow" target="_blank">&nbsp;' +
           msg.search_trend + '&nbsp;</a> ' + hook;
       byID('myncbiusername').style.display = 'inline';
     } else if (byID('search-create-rss') !== null) {
       var z = page_d.createElement('span');
-      z.innerHTML = '<a rel="external" href="' + 'https://tpl.ltd/' +
-          search_term + '" target="_blank">&nbsp;' +
+      z.innerHTML = '<a rel="external" href="' + 'https://www.thepaperlink.com/' +
+          search_term + '" style="background-color:yellow" target="_blank">&nbsp;' +
           msg.search_trend + '&nbsp;</a>';
       // z.style.color = '#0071bc';
       z.id = 'thepaperlink_hook';
@@ -1259,13 +1259,13 @@ function get_request (msg) {
     page_d.body.appendChild(insert_style);
     // GM_addStyle(styles);
   }
-  if (msg.pubmeder && !byID('thepaperlink_saveAll')) {
-    bookmark_div += '<span id="thepaperlink_saveAll" class="' + pmidString + '">save&nbsp;page</span></div>';
-  } else if (msg.pubmeder && byID('thepaperlink_saveAll') !== null) {
+  if (msg.pubmeder && !byID('thepaperlink_pubmederAll')) {
+    bookmark_div += '<span id="thepaperlink_pubmederAll" class="' + pmidString + '">save&nbsp;page</span></div>';
+  } else if (msg.pubmeder && byID('thepaperlink_pubmederAll') !== null) {
     DEBUG && console.log(pmidString);
-    DEBUG && console.log(byID('thepaperlink_saveAll').className + pmidString);
-    bookmark_div += '<span id="thepaperlink_saveAll" class="' +
-                    byID('thepaperlink_saveAll').className + pmidString +
+    DEBUG && console.log(byID('thepaperlink_pubmederAll').className + pmidString);
+    bookmark_div += '<span id="thepaperlink_pubmederAll" class="' +
+                    byID('thepaperlink_pubmederAll').className + pmidString +
                     '">save&nbsp;whole&nbsp;page</span></div>';
   } else {
     bookmark_div += 'save what you are reading? try <a href="https://pubmeder-hrd.appspot.com/registration" target="_blank">PubMed-er</a></div>';
@@ -1458,8 +1458,8 @@ function get_request (msg) {
         byID(this.id).setAttribute('class', 'thepaperlink_Off');
       };
     }
-    if (byID('thepaperlink_saveAll') !== null) { // @@@@ new interface
-      byID('thepaperlink_saveAll').onclick = function () {
+    if (byID('thepaperlink_pubmederAll') !== null) { // @@@@ new interface
+      byID('thepaperlink_pubmederAll').onclick = function () {
         a_proxy({ saveIt: this.className });
         byID(this.id).parentNode.setAttribute('class', 'thepaperlink_Off');
       };
@@ -1526,7 +1526,11 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     page_url === 'https://www.thepaperlink.cn/settings' ||
     page_url === 'https://www.thepaperlink.cn/reg' ||
     page_url === 'http://www.thepaperlink.cn/settings' ||
-    page_url === 'http://www.thepaperlink.cn/reg') { // storage data for access the api server
+    page_url === 'http://www.thepaperlink.cn/reg' ||
+    page_url === 'https://www.thepaperlink.net/settings' ||
+    page_url === 'https://www.thepaperlink.net/reg' ||
+    page_url === 'http://www.thepaperlink.net/settings' ||
+    page_url === 'http://www.thepaperlink.net/reg' ) { // storage data for access the api server
   a_proxy({ save_apikey: byID('apikey').innerHTML, save_email: null });
   a_proxy({ save_cloud_op: byID('cloud_op').innerHTML });
   noRun = 2;
