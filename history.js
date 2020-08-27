@@ -39,7 +39,7 @@ function format_a_li (category, pmid, url, num) {
 
 function do_syncValues_post () {
   $('#undefined_clean').append('<li>Will get the entire storage.sync</li>');
-  _port.postMessage({ do_syncValues: 1 });
+  _port && _port.postMessage({ do_syncValues: 1 });
 }
 
 // 2015-12-9, 2018-10-1

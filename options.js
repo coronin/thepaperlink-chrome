@@ -55,7 +55,7 @@ function reset_key (v) {
     }
     location.reload();
     // chrome.extension.sendRequest({load_common_values: 1});
-    _port.postMessage({ load_common_values: 1 });
+    _port && _port.postMessage({ load_common_values: 1 });
   }
 }
 
@@ -68,7 +68,7 @@ function valid_thepaperlink (ak) {
     },
     function (txt) {
       if (txt === 'valid') {
-        _port.postMessage({ save_apikey: ak, save_email: null });
+        _port && _port.postMessage({ save_apikey: ak, save_email: null });
       } else {
         $.cookie('alert_v1', 'oops', { expires: 3 });
       }
@@ -83,7 +83,7 @@ function valid_pubmeder (e, ak) {
   return $.get('https://pubmeder-hrd.appspot.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
     function (txt) {
       if (txt === 'correct') {
-        _port.postMessage({ save_apikey: ak, save_email: e });
+        _port && _port.postMessage({ save_apikey: ak, save_email: e });
       } else {
         $.cookie('alert_v2', 'oops', { expires: 3 });
       }
@@ -131,13 +131,13 @@ function saveOptions () {
     if (!localStorage.getItem('contextMenu_on')) {
       localStorage.setItem('contextMenu_on', 1);
       // chrome.extension.sendRequest({menu_display: 1});
-      _port.postMessage({ menu_display: 1 });
+      _port && _port.postMessage({ menu_display: 1 });
     }
   }
   if (ws_items) {
     localStorage.setItem('ws_items', 'yes');
     // chrome.extension.sendRequest({load_broadcast: 1});
-    _port.postMessage({ load_broadcast: 1 });
+    _port && _port.postMessage({ load_broadcast: 1 });
   } else {
     localStorage.setItem('ws_items', 'no');
   }
@@ -291,7 +291,7 @@ function saveOptions () {
     location.reload();
   }
   // chrome.extension.sendRequest({load_common_values: 1});
-  _port.postMessage({ load_common_values: 1 });
+  _port && _port.postMessage({ load_common_values: 1 });
 }
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js

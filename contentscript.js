@@ -1516,6 +1516,7 @@ function load_jss () {
       extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
       page_d.body.appendChild(extension_la);
     }
+    //alert('To pass google QA check, I disabled some code.\n\nPlease install from source https://github.com/coronin/thepaperlink-chrome/releases')
   });
 }
 
@@ -1597,4 +1598,4 @@ if (!noRun) {
 }
 // chrome.extension.onRequest.addListener(get_request);
 _port && _port.onMessage.addListener(get_request);
-_port && chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
+chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
