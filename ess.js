@@ -12,7 +12,7 @@ function hideMore () {
 
 function t_cont (copyId) {
   var cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
-  _port.postMessage({ t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:\/-]/g, '').replace(/^\s+|\s+$/g, '') });
+  _port && _port.postMessage({ t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:\/-]/g, '').replace(/^\s+|\s+$/g, '') });
   $('#' + copyId).delay(200).fadeOut(500);
 }
 
@@ -82,7 +82,7 @@ function eFetch (pmid) {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
   }
   $.getJSON(url, args, function (d) {
-    _port.postMessage({ sendID: pmid });
+    _port && _port.postMessage({ sendID: pmid });
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
@@ -299,7 +299,7 @@ function eSS (search_term, tabId) {
         b += parseInt($(this).find('Count').text(), 10);
       });
       if (b > 0) {
-        _port.postMessage({
+        _port && _port.postMessage({
           search_term: search_term,
           search_result_count: b,
           tabId: tabId
@@ -395,7 +395,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
           $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
           ) + ' ' + (resData.data[0].fundProject || ''
           ) + ' ' + (resData.data[0].fieldCode || ''));
-          _port.postMessage({
+          _port && _port.postMessage({
             doi: resData.data[0].doi,
             prjID: resData.data[0].fundProjectNo
           });

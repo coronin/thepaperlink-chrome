@@ -855,7 +855,7 @@ function get_request (msg, _port) {
   }
   // respond to msg
   if (msg.load_local_mirror) {
-    _port.postMessage({
+    _port && _port.postMessage({
       local_mirror: local_mirror,
       arbitrary_pause: arbitrary_sec * 1000
     });
@@ -867,7 +867,7 @@ function get_request (msg, _port) {
     DEBUG && console.time('Call theServer api for json');
     $.getJSON(request_url, function (d) {
       if (d && (d.count || d.error)) { // good or bad, both got json return
-        _port.postMessage(
+        _port && _port.postMessage(
           {
             r: d,
             tpl: apikey,
@@ -890,16 +890,16 @@ function get_request (msg, _port) {
         }
       } else {
         if (apikey) {
-          _port.postMessage({ except: 'JSON parse error.', tpl: apikey });
+          _port && _port.postMessage({ except: 'JSON parse error.', tpl: apikey });
         } else {
-          _port.postMessage({ except: 'Usage limits exceeded.', tpl: '' });
+          _port && _port.postMessage({ except: 'Usage limits exceeded.', tpl: '' });
         }
       }
     }).fail(function () {
       if (apikey) {
-        _port.postMessage({ except: 'Data fetch error.', tpl: apikey });
+        _port && _port.postMessage({ except: 'Data fetch error.', tpl: apikey });
       } else {
-        _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
+        _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
       }
       if (base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
@@ -987,7 +987,7 @@ function get_request (msg, _port) {
     var action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
     if (msg.money_emailIt) {
       post_action = 'email';
-      _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
+      _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
       if (msg.pdf) {
         console.log('@@@@ ' + msg.pdf);
       }
@@ -1029,10 +1029,10 @@ function get_request (msg, _port) {
 } */
     } else if (msg.money_reportWrongLink) {
       post_action = 'wrong_link';
-      _port.postMessage({ Off_id: 'thepaperlink_B' + action_pmid });
+      _port && _port.postMessage({ Off_id: 'thepaperlink_B' + action_pmid });
     } else if (msg.money_needInfo) {
       post_action = 'more_info';
-      _port.postMessage({ Off_id: 'thepaperlink_C' + action_pmid });
+      _port && _port.postMessage({ Off_id: 'thepaperlink_C' + action_pmid });
     }
     if (apikey && post_action !== '') {
       var args = { pmid: action_pmid, apikey: apikey, action: post_action };
@@ -1089,7 +1089,7 @@ function get_request (msg, _port) {
     var in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 3);
-      _port.postMessage({
+      _port && _port.postMessage({
         g_scholar: 1, pmid: in_mem[0], g_num: in_mem[1], g_link: in_mem[2]
       });
     } else if (!scholar_no_more) {
@@ -1140,12 +1140,12 @@ function get_request (msg, _port) {
           localStorage.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
-            _port.postMessage({ search_trend: end_num + '&darr;' });
+            _port && _port.postMessage({ search_trend: end_num + '&darr;' });
           } else {
-            _port.postMessage({ search_trend: end_num + '&uarr;' });
+            _port && _port.postMessage({ search_trend: end_num + '&uarr;' });
           }
         } else if (end_num) {
-          _port.postMessage({ search_trend: '&equiv;' });
+          _port && _port.postMessage({ search_trend: '&equiv;' });
         }
       } else {
         localStorage.setItem(term_lower, digitals.join(','));
@@ -1161,7 +1161,7 @@ function get_request (msg, _port) {
   } else if (msg.ajaxAbs) { // 2018-9-14
     var pmid = msg.ajaxAbs;
     if (localStorage.getItem('abs_' + pmid)) {
-      _port.postMessage({ returnAbs: localStorage.getItem('abs_' + pmid), pmid: pmid });
+      _port && _port.postMessage({ returnAbs: localStorage.getItem('abs_' + pmid), pmid: pmid });
     } else {
       var args = { apikey: req_key, db: 'pubmed', id: pmid };
       DEBUG && console.log('>> will entrezajax abstract for PMID:' + pmid);
@@ -1169,7 +1169,7 @@ function get_request (msg, _port) {
         var l = d.result.PubmedArticle[0];
         if (l.MedlineCitation.Article.Abstract) {
           localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
-          _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
+          _port && _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
         }
       }).fail(function () {
         DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
