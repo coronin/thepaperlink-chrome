@@ -19,4 +19,5 @@ extension
 * options, keywords, log, search
 
 
-
+Verify JS:
+semistandard *.js | sed "s/ Identifier '[0-9a-zA-Z_]*' is not in camel case.//"

@@ -515,12 +515,12 @@ function scholar_title (pmid, t, tabId) {
   });
   $.get(url,
     function (r) {
-      var reg = /<a[^<]+>Cited\ by\ \d+<\/a>/;
+      var reg = /<a[^<]+>Cited by \d+<\/a>/;
       var h = reg.exec(r);
       var g_num = []; var g_link = [];
       if (h && h.length) {
         // console.log(h);
-        g_num = />Cited\ by\ (\d+)</.exec(h[0]);
+        g_num = />Cited by (\d+)</.exec(h[0]);
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
           localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
@@ -598,7 +598,7 @@ function prepare_download_shark (tabId, pmid, args) {
     }, 'json'
   );
   if (localStorage.getItem('shark_download') === 'yes') {
-    do_download_shark(pmid, args.shark_link+'?download=true' );
+    do_download_shark(pmid, args.shark_link + '?download=true');
   }
 }
 
@@ -656,7 +656,7 @@ function parse_pii (pmid, url, tabId) {
   $.get(url,
     function (r) {
       var reg = /href="([^"]+)" target="newPdfWin"/;
-      var reg2 = /Cited\ by\ in\ Scopus\ \((\d+)\)/i;
+      var reg2 = /Cited by in Scopus \((\d+)\)/i;
       var h = reg.exec(r);
       var h2 = reg2.exec(r);
       var args;
@@ -844,7 +844,7 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
 function get_request (msg, _port) {
   // console.log(msg);
   var sender_tab_id = null;
-  var pmid; var extra; var tmp;
+  var pmid; var extra; var tmp; var args;
   if (_port && _port.sender && _port.sender.tab) {
     sender_tab_id = _port.sender.tab.id;
   } else if (_port && _port.sender && msg.tabId) {
@@ -1035,7 +1035,7 @@ function get_request (msg, _port) {
       _port && _port.postMessage({ Off_id: 'thepaperlink_C' + action_pmid });
     }
     if (apikey && post_action !== '') {
-      var args = { pmid: action_pmid, apikey: apikey, action: post_action };
+      args = { pmid: action_pmid, apikey: apikey, action: post_action };
       if (post_action === 'email' && cc_address) {
         args.cc = cc_address;
       }
@@ -1159,11 +1159,11 @@ function get_request (msg, _port) {
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14
-    var pmid = msg.ajaxAbs;
+    pmid = msg.ajaxAbs;
     if (localStorage.getItem('abs_' + pmid)) {
       _port && _port.postMessage({ returnAbs: localStorage.getItem('abs_' + pmid), pmid: pmid });
     } else {
-      var args = { apikey: req_key, db: 'pubmed', id: pmid };
+      args = { apikey: req_key, db: 'pubmed', id: pmid };
       DEBUG && console.log('>> will entrezajax abstract for PMID:' + pmid);
       $.getJSON(base + '/entrezajax/efetch', args, function (d) {
         var l = d.result.PubmedArticle[0];
@@ -1196,7 +1196,7 @@ function get_request (msg, _port) {
     } else {
       localStorage.setItem('failed_terms', '"' + msg.failed_term + '"');
     }
-  } else if (msg.open_options || (msg.saveIt && !pubmeder_ok && !cloud_op) ) {
+  } else if (msg.open_options || (msg.saveIt && !pubmeder_ok && !cloud_op)) {
     chrome.tabs.create({
       url: chrome.extension.getURL('options.html'),
       active: true
@@ -1401,7 +1401,7 @@ chrome.storage.onChanged.addListener(function (rst, areaName) {
         a.date_str = undefined;
         b.date_str = undefined;
       }
-      if (a && JSON.stringify(a) !== JSON.stringify(a)) {
+      if (a && JSON.stringify(a) ) {
         localStorage.setItem('diff_' + aKey, date_str);
       }
     }

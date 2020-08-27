@@ -29,7 +29,7 @@ var onePage_calls = 0;
 var absNeeded = 0;
 var local_mirror = '';
 var arbitrary_pause = 5000; // 5s
-var thePaperLink_chrome_limited = true;
+// var thePaperLink_chrome_limited = true;
 var limited = page_d.createElement('div');
 limited.id = 'thePaperLink_chrome_limited';
 page_d.body.appendChild(limited); // do not email_pdf
@@ -128,7 +128,7 @@ function process_storkapp () { // 2018 Dec
       pmid += parseInt(ele.textContent.split('ncbi.nlm.nih.gov/pubmed/')[1], 10);
       page_d.title = pmid; // ess.js
       a_proxy({ from_sites_w_pmid: pmid });
-      ele.href = 'https://pubmed.ncbi.nlm.nih.gov/'+pmid+'/';
+      ele.href = 'https://pubmed.ncbi.nlm.nih.gov/' + pmid + '/';
       elee = page_d.createElement('span');
       elee.id = 'thepaperlink_bar';
       elee.style.fontSize = '13px';
@@ -162,8 +162,9 @@ function process_storkapp () { // 2018 Dec
       a = byID('relateddiv').getElementsByTagName('a')[i];
       if (a && a.href.indexOf('/pubpaper/') > 0) {
         b = a.href.split('/pubpaper/');
-        a.href = 'https://pubmed.ncbi.nlm.nih.gov/'+b[1]+'/';
-    } }
+        a.href = 'https://pubmed.ncbi.nlm.nih.gov/' + b[1] + '/';
+      }
+    }
   }, 10 * 1000); // 10-sec timeout
 }
 
@@ -247,7 +248,7 @@ function process_googlescholar () { // 2018 Oct
     } else {
       b = a.split(' Cited by ')[1];
       if (b.indexOf('Related article') < 0) {
-        if (/\d{1,5}\s+All\ \d/.test(b)) {
+        if (/\d{1,5}\s+All \d/.test(b)) {
           c = parseInt(b.split(' ')[0], 10);
         } else {
           DEBUG && console.log('process_googlescholar', a);
@@ -313,7 +314,7 @@ function parse_id (a) {
   var regpmid = /pmid\s*:?\s*(\d+)\s*/i;
   var regdoi = /doi\s*:?\s*\d{2}\.\d{4,5}\//i;
   var regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i;
-  var doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9.\/)(\-]+\w)\s*\W?/;
+  var doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9./)(-]+\w)\s*\W?/;
   var ID = null;
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -751,7 +752,7 @@ function id_journal (s, pmid) {
 }
 
 function new_pubmed_multi1 (zone, num, ajax = false) {
-  var ID; var b; var c; var t_cont; var t_title; var t_strings; var not_insert = false;
+  var ID; var c; var t_cont; var t_title; var t_strings; var not_insert = false;
   try {
     ID = byTag(zone)[num].getElementsByClassName('docsum-pmid')[0].textContent;
   } catch (e) {
@@ -777,7 +778,8 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   if (t_title[t_title.length - 1] !== '.') {
     t_title += '.';
   }
-  var authors_str = trim(byTag(zone)[num].getElementsByClassName('full-authors')[0].textContent); var authors_list;
+  var authors_str = trim(byTag(zone)[num].getElementsByClassName('full-authors')[0].textContent);
+  var authors_list;
   byTag(zone)[num].removeChild(
     byTag(zone)[num].getElementsByClassName('full-authors')[0]);
   byTag(zone)[num].removeChild(
@@ -820,7 +822,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   } else {
     if (t_strings.indexOf(', et al.') > 0) { // @@@@
       peakss = t_strings.split(', et al.');
-      var authors_list = authors_str.substr(0, authors_str.length - 1).split(', ');
+      authors_list = authors_str.substr(0, authors_str.length - 1).split(', ');
       if (peakss[0].length < 25) {
         peaksss = found_click + peakss[0] + '</span>, ';
       } else {
@@ -1516,7 +1518,7 @@ function load_jss () {
       extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
       page_d.body.appendChild(extension_la);
     }
-    //alert('To pass google QA check, I disabled some code.\n\nPlease install from source https://github.com/coronin/thepaperlink-chrome/releases')
+    // alert('To pass google QA check, I disabled some code.\n\nPlease install from source https://github.com/coronin/thepaperlink-chrome/releases')
   });
 }
 
@@ -1531,7 +1533,7 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     page_url === 'https://www.thepaperlink.net/settings' ||
     page_url === 'https://www.thepaperlink.net/reg' ||
     page_url === 'http://www.thepaperlink.net/settings' ||
-    page_url === 'http://www.thepaperlink.net/reg' ) { // storage data for access the api server
+    page_url === 'http://www.thepaperlink.net/reg') { // storage data for access the api server
   a_proxy({ save_apikey: byID('apikey').innerHTML, save_email: null });
   a_proxy({ save_cloud_op: byID('cloud_op').innerHTML });
   noRun = 2;

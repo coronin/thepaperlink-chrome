@@ -1,7 +1,7 @@
 'use strict';
 
 var _port = chrome.runtime.connect({ name: 'background_port' });
-var foundOrig = undefined;
+var foundOrig;
 
 function hideMore () {
   $('.moreAbout').addClass('Off');
@@ -12,7 +12,7 @@ function hideMore () {
 
 function t_cont (copyId) {
   var cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
-  _port && _port.postMessage({ t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:\/-]/g, '').replace(/^\s+|\s+$/g, '') });
+  _port && _port.postMessage({ t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:/-]/g, '').replace(/^\s+|\s+$/g, '') });
   $('#' + copyId).delay(200).fadeOut(500);
 }
 
@@ -192,7 +192,7 @@ function eSummary (term, tabId, no_term_update) {
   var limit = localStorage.getItem('pubmed_limit') || '5';
   var urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
-  if ( !(/^[0-9,]+$/.test('' + term)) && !no_term_update ) {
+  if (!(/^[0-9,]+$/.test('' + term)) && !no_term_update) {
     $('#ess_input').val(term);
   }
   if (webenvCheck.test(term)) {
@@ -266,7 +266,8 @@ function eSummary (term, tabId, no_term_update) {
       $('span.pmid').on('click', function () { titleLink(this.id); });
       $('img.pl4_clippy').on('click', function () { t_cont(this.id); });
       $('.AbsButton').on('click', function () { eFetch(this.id); });
-      $('.saveButton').on('click', function () { alert(this.id.substr(17));
+      $('.saveButton').on('click', function () {
+        alert(this.id.substr(17));
         _port && _port.postMessage({ saveIt: this.id.substr(17) });
         document.getElementById(this.id).setAttribute('style', 'display:none');
       });
