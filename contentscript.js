@@ -420,7 +420,7 @@ function legacy_pubmed (zone, num) {
 }
 
 function LastFirst (s) {
-  var ss = s.split(' ');
+  var ss = trim( s.replace('#', '') ).split(' ');
   var st = ss[ss.length - 1] + ' ';
   var si = 0;
   for (si; si < ss.length - 1; si += 1) {
@@ -558,7 +558,7 @@ function new_pubmed_single_More (init_pmid, id_obj, ajax) { // div.id: similar, 
       t_cont = trim(t_cont.split('Review.')[0]);
     }
     if (cit_str.indexOf('Online ahead of print.') > 0) {
-      t_cont = t_cont.replace(/ Online ahead of print\./, '');
+      t_cont = t_cont.replace(' Online ahead of print.', '');
     }
     insert_clippy(ID, t_cont, id_obj.getElementsByClassName('docsum-authors full-authors')[i]);
   }
@@ -587,7 +587,8 @@ function new_pubmed_single_More_citedby () {
 
 function new_pubmed_single () {
   var ID, c, z, t_cont, t_title, author_multi;
-  ID = byTag('strong')[0].textContent;
+  // ID = byTag('strong')[0].textContent;  // 2020-9-16 bug in 32512579
+  ID = byClassOne('current-id').textContent;
   byID('full-view-journal-trigger').parentNode.id = 'thepaperlink_if' + ID;
   pmidString = ',' + ID; // parse_div will remove the first ch
   byID('full-view-identifiers').getElementsByClassName('identifier pubmed')[0].id = 'tpl' + ID;
@@ -803,7 +804,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
     t_cont = trim(t_cont.split('Review.')[0]);
   }
   if (t_strings.indexOf('Online ahead of print.') > 0) {
-    t_cont = t_cont.replace(/ Online ahead of print\./, '');
+    t_cont = t_cont.replace(' Online ahead of print.', '');
   }
   DEBUG && console.log('t_cont', t_cont);
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title

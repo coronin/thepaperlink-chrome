@@ -1,6 +1,7 @@
 {
   "manifest_version": 2,
   "name": "the paper link 3",
+  "short_name": "tpl 3",
   "version": "2.9.38",
   "minimum_chrome_version": "39",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
