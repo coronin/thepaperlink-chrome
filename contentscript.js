@@ -430,6 +430,10 @@ function LastFirst (s) {
 }
 
 function insert_clippy (ID, t_cont, _obj, multi_left = false) {
+  if (!_obj) {
+    a_proxy({ t_cont: t_cont });  // 2020-9-22
+    return;
+  }
   var b = page_d.createElement('div');
   if (multi_left === 2) {
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1rem;margin-top:0.67rem');
@@ -453,16 +457,18 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
 
 function grp_author_name (ts) {
   var tsLower = ts.toLowerCase();
-  if (tsLower.indexOf('working group') > -1 ||
+  if (ts.indexOf('. Electronic address:') > -1) {  // 32413319
+    return ts.split('. Electronic address:')[1];
+  } else if (tsLower.indexOf('working group') > -1 ||
       tsLower.indexOf('network ') > -1 ||
-      tsLower.indexOf('network@') > -1 ||
       tsLower.indexOf(' committee') > 0 ||
       tsLower.indexOf(' association') > 0 ||
       tsLower.indexOf(' team') > 0 ||
       tsLower.indexOf(' office') > 0 ||
+      tsLower.indexOf(' network') > 0 ||
       tsLower.indexOf('society of ') > -1 ||
       tsLower.indexOf('group of ') > -1) {
-    return true;
+    return ts;
   } else {
     return false;
   }
@@ -511,7 +517,7 @@ function new_pubmed_single_More (init_pmid, id_obj, ajax) { // div.id: similar, 
 
     if (authors_str.indexOf('No authors listed') > -1 || authors_str === '') {
       author_obj.textContent = '[No authors listed]';
-    } else if (!grp_author_name(authors_str)) {
+    } else if (!grp_author_name(authors_str)) { // @@@@
       if (authors_str.indexOf(', ') > 0) {
         peakss = authors_str.split(', ');
         if (peakss[0].length < 25) {
@@ -610,7 +616,8 @@ function new_pubmed_single () {
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
     peakss = trim(peaks[peaki].textContent.replace(/\s*\d\s*/g, '')); // @@@@ Affiliations
     if (grp_author_name(peakss)) {
-      author_multi += peaks[peaki].textContent;
+      peaks[peaki].textContent = grp_author_name(peakss) + ' ';
+      author_multi += grp_author_name(peakss) + ' ';
     } else if (peakss.indexOf(',') > 0) {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>, ';
       author_multi += peaks[peaki].textContent;
@@ -653,6 +660,9 @@ function new_pubmed_single () {
 
   if (byID('linked-commentary') !== null) {
     new_pubmed_single_More(ID, byID('linked-commentary'), false);
+  }
+  if (byID('linked-commentary-article') !== null) {
+    new_pubmed_single_More(ID, byID('linked-commentary-article'), false);
   }
   if (byID('similar') !== null) {
     new_pubmed_single_More(ID, byID('similar'), false);
@@ -710,7 +720,7 @@ function new_pubmed_references_More (ajax = true) {
       continue;
     }
     if (byID('tpl' + ID) !== null || byID('thepaperlink_if' + ID) !== null) {
-      // obj.css.opacity = 0.2;  //@@@@
+      // obj.css.opacity = 0.2; //@@@@
       continue;
     } else if (pmidString.indexOf(ID) < 0) {
       pmidString += ',' + ID;
@@ -817,7 +827,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   if (t_strings.indexOf('No authors listed') > -1 ||
       byTag(zone)[num].getElementsByClassName('short-authors')[0].textContent === '') {
     byTag(zone)[num].innerHTML = '[No authors listed] ' + id_journal(t_strings.substr(20), ID);
-  } else if (grp_author_name(t_strings)) {
+  } else if (grp_author_name(t_strings)) { // useless unless the first author is a group
     byTag(zone)[num].innerHTML = trim(t_strings.substr(0, t_strings.indexOf('. '))) +
                                    '. ' + id_journal(t_strings.substr(t_strings.indexOf('. ') + 2), ID);
   } else {
@@ -836,7 +846,10 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
       } else if (authors_list.length === 3 && authors_list[1].length > 24) {
         peaksss += authors_list[1] + ', ';
       }
-      if (authors_list[authors_list.length - 1].length < 25) {
+      if (grp_author_name(authors_list[authors_list.length - 1])) {
+        byTag(zone)[num].innerHTML = peaksss + grp_author_name(authors_list[authors_list.length - 1]) + '. ' +
+                                     id_journal(peakss[1], ID);
+      } else if (authors_list[authors_list.length - 1].length < 25) {
         byTag(zone)[num].innerHTML = peaksss + found_click +
                                      authors_list[authors_list.length - 1] + '</span>. ' +
                                      id_journal(peakss[1], ID);
