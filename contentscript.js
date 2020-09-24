@@ -436,7 +436,7 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
   }
   var b = page_d.createElement('div');
   if (multi_left === 2) {  // new multi1
-    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin: 0.8rem 1.2rem 0 0');
+    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin:0.9rem 1.1rem 0 0');
   } else if (multi_left === 3) {  // new single
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin:1.6rem 1.6rem 0 0');
   } else if (multi_left) {
@@ -448,11 +448,7 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
       '" alt="copy" width="14" height="14" />';
   b.id = 'clippy' + ID;
   b.onclick = function () { a_proxy({ t_cont: t_cont }); };
-  if (multi_left === 2) {
-    _obj.appendChild(b);
-  } else {
-    _obj.appendChild(b);
-  }
+  _obj.appendChild(b);
 }
 
 function grp_author_name (ts) {
@@ -882,7 +878,11 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
   c.innerHTML = '<span id="citedBy' + ID + '">...</span>';
-  not_insert || byTag(zone)[num].parentNode.getElementsByClassName('docsum-snippet')[0].appendChild(c);
+  try {
+    not_insert || byTag(zone)[num].parentNode.getElementsByClassName('docsum-snippet')[0].appendChild(c);
+  } catch {  // no snippets
+    not_insert || byTag(zone)[num - 1].parentNode.appendChild(c);
+  }
 }
 
 function prep_call (pmids) {
