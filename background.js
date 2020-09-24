@@ -1140,10 +1140,8 @@ function get_request (msg, _port) {
           localStorage.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
-            _port && _port.postMessage({ search_trend: end_num + '&darr;' });
-          } else {
-            _port && _port.postMessage({ search_trend: end_num + '&uarr;' });
           }
+          _port && _port.postMessage({ search_trend: end_num + '&rarr;' + msg.search_result_count });
         } else if (end_num) {
           _port && _port.postMessage({ search_trend: '&equiv;' });
         }
@@ -1401,7 +1399,7 @@ chrome.storage.onChanged.addListener(function (rst, areaName) {
         a.date_str = undefined;
         b.date_str = undefined;
       }
-      if (a && JSON.stringify(a) ) {
+      if (a && JSON.stringify(a)) {
         localStorage.setItem('diff_' + aKey, date_str);
       }
     }
