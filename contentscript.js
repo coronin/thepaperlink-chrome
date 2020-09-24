@@ -435,9 +435,9 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
     return;
   }
   var b = page_d.createElement('div');
-  if (multi_left === 2) {
-    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1rem;margin-top:0.67rem');
-  } else if (multi_left === 3) {
+  if (multi_left === 2) {  // new multi1
+    b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin: 0.8rem 1.2rem 0 0');
+  } else if (multi_left === 3) {  // new single
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin:1.6rem 1.6rem 0 0');
   } else if (multi_left) {
     b.setAttribute('style', 'float:left;z-index:1;cursor:pointer;margin-right:1em');
@@ -449,7 +449,7 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
   b.id = 'clippy' + ID;
   b.onclick = function () { a_proxy({ t_cont: t_cont }); };
   if (multi_left === 2) {
-    _obj.parentNode.getElementsByClassName('cite dropdown-block')[0].prepend(b);
+    _obj.appendChild(b);
   } else {
     _obj.appendChild(b);
   }
@@ -816,9 +816,12 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   if (t_strings.indexOf('Online ahead of print.') > 0) {
     t_cont = t_cont.replace(' Online ahead of print.', '');
   }
-  DEBUG && console.log('t_cont', t_cont);
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
+  not_insert || console.log('t_cont', t_cont);
   not_insert || insert_clippy(ID, t_cont, byTag(zone)[num - 1], 2);
+
+  //@@@@ not show snippets, abstract
+  //@@@@ not show snippets, abstract
 
   var peakss; var found_click = '<span class="paperlink2_found">'; var peaksss; // @@@@ <b> authors or journal
   if (ajax) {
