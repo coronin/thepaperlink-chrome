@@ -462,6 +462,7 @@ function grp_author_name (ts) {
       tsLower.indexOf(' team') > 0 ||
       tsLower.indexOf(' office') > 0 ||
       tsLower.indexOf(' network') > 0 ||
+      tsLower.indexOf(' collaborative') > 0 ||
       tsLower.indexOf('society of ') > -1 ||
       tsLower.indexOf('group of ') > -1) {
     return ts;
@@ -939,15 +940,22 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
       } else if (authors_list.length === 3 && authors_list[1].length > 24) {
         peaksss += authors_list[1] + ', ';
       }
-      if (grp_author_name(authors_list[authors_list.length - 1])) {
-        byTag(zone)[num].innerHTML = peaksss + grp_author_name(authors_list[authors_list.length - 1]) + '. ' +
-                                     id_journal(peakss[1], ID);
-      } else if (authors_list[authors_list.length - 1].length < 25) {
-        byTag(zone)[num].innerHTML = peaksss + found_click +
-                                     authors_list[authors_list.length - 1] + '</span>. ' +
+      var last_author_name = authors_list[authors_list.length - 1];
+      if (grp_author_name(last_author_name)) {
+        last_author_name = grp_author_name(last_author_name);
+        if (last_author_name.indexOf('; ') > 0) {
+          byTag(zone)[num].innerHTML = peaksss + found_click + last_author_name.split('; ')[0] + '</span>; ' +
+                                       last_author_name.split('; ')[1] + '. ' +
+                                       id_journal(peakss[1], ID);
+        } else {
+          byTag(zone)[num].innerHTML = peaksss + last_author_name + '. ' +
+                                       id_journal(peakss[1], ID);
+        }
+      } else if (last_author_name.length < 25) {
+        byTag(zone)[num].innerHTML = peaksss + found_click + last_author_name + '</span>. ' +
                                      id_journal(peakss[1], ID);
       } else {
-        byTag(zone)[num].innerHTML = peaksss + authors_list[authors_list.length - 1] + '. ' +
+        byTag(zone)[num].innerHTML = peaksss + last_author_name + '. ' +
                                      id_journal(peakss[1], ID);
       }
     } else if (t_strings.indexOf(' and ') > 0) { // @@@@
