@@ -676,7 +676,7 @@ function new_pubmed_single1 (not_first) {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
     } else if (peakss.indexOf(',') > 0) {
-      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>, ';
+      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp;';
       author_multi += peaks[peaki].textContent;
     } else {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss) + '</span>';
@@ -750,7 +750,7 @@ function new_pubmed_single () {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
     } else if (peakss.indexOf(',') > 0) {
-      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>, ';
+      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp;';
       author_multi += peaks[peaki].textContent;
     } else {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss) + '</span>';
