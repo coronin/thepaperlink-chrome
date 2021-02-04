@@ -518,16 +518,16 @@ function new_pubmed_single_More (init_pmid, id_obj, ajax) { // div.id: similar, 
       if (authors_str.indexOf(', ') > 0) {
         peakss = authors_str.split(', ');
         if (peakss[0].length < 25) {
-          peaksss = found_click + peakss[0] + '</span>, ';
+          peaksss = found_click + peakss[0] + '</span>,&nbsp; ';
         } else {
-          peaksss = peakss[0] + ', ';
+          peaksss = peakss[0] + ',&nbsp; ';
         }
         if (peakss.length > 3) {
-          peaksss += '&hellip;, ';
+          peaksss += '&hellip;,&nbsp; ';
         } else if (peakss.length === 3 && peakss[1].length < 25) {
-          peaksss += found_click + peakss[1] + '</span>, ';
+          peaksss += found_click + peakss[1] + '</span>,&nbsp; ';
         } else if (peakss.length === 3 && peakss[1].length > 24) {
-          peaksss += peakss[1] + ', ';
+          peaksss += peakss[1] + ',&nbsp; ';
         }
         if (peakss[peakss.length - 1].length < 25) {
           peaksss += found_click +
@@ -676,7 +676,7 @@ function new_pubmed_single1 (not_first) {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
     } else if (peakss.indexOf(',') > 0) {
-      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp;';
+      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp; ';
       author_multi += peaks[peaki].textContent;
     } else {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss) + '</span>';
@@ -750,7 +750,7 @@ function new_pubmed_single () {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
     } else if (peakss.indexOf(',') > 0) {
-      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp;';
+      peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss.substr(0, peakss.length - 1)) + '</span>,&nbsp; ';
       author_multi += peaks[peaki].textContent;
     } else {
       peaks[peaki].innerHTML = '<span class="paperlink2_found">' + LastFirst(peakss) + '</span>';
