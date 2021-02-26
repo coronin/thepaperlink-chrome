@@ -113,6 +113,8 @@ function process_bioRxiv () { // 2020 Aug
       }
     }
   }
+  // && pub_jnl.textContent.indexOf(' published in ') > 0
+  //@@@@
   var insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
@@ -1678,7 +1680,11 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   });
   noRun = 4;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
-    page_url.indexOf('://www.biorxiv.org/collection/') > 0) {
+    page_url.indexOf('://www.biorxiv.org/collection/') > 0 ||
+    page_url.indexOf('://www.biorxiv.org/search/') > 0 ||
+    page_url.indexOf('://www.medrxiv.org/content/') > 0 ||
+    page_url.indexOf('://www.medrxiv.org/collection/') > 0 ||
+    page_url.indexOf('://www.medrxiv.org/search/') > 0) {
   load_jss();
   process_bioRxiv();
   noRun = 40;
