@@ -12,7 +12,9 @@ function hideMore () {
 
 function t_cont (copyId) {
   var cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
-  _port && _port.postMessage({ t_cont: cont.replace('Check abstract', '').replace('.PMID:', '.  PMID:').replace(/[^A-Za-z0-9 (),.:/-]/g, '').replace(/^\s+|\s+$/g, '') });
+  _port && _port.postMessage({ t_cont: cont.replace('check abstract', ''
+                      ).replace('save', '').replace('.PMID:', '.  PMID:'
+                      ).replace(/[^A-Za-z0-9 (),.:/-]/g, '').replace(/^\s+|\s+$/g, '') });
   $('#' + copyId).delay(200).fadeOut(500);
 }
 
@@ -371,8 +373,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.url.split('/pubpaper/')[1];
     $('#found').html('&copy; PMID:' + ID);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('biorxiv.org/content/') > 0 ||
-             tab.url.indexOf('medrxiv.org/content/') > 0) {
+  } else if (tab.url.indexOf('.biorxiv.org/content/') > 0 ||
+             tab.url.indexOf('.medrxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| bio')[0], tab.id);
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {

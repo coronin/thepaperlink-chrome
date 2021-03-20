@@ -79,37 +79,62 @@ function ez_format_link (p, url) {
   }
 }
 
-function process_bioRxiv () { // 2020 Aug
+function process_bioRxiv () { // 2020 Aug, 2021 Mar
   var i; var ii; var len; var lenn; var j; var eles; var elee_name = null;
   var p2span = '<span style="background-color:#e0ecf1;cursor:pointer"><span onclick="showPeaks(this)">'; // class="paperlink2_found"
   var ele = page_d.getElementsByClassName('highwire-cite-authors');
   for (ii = 0, lenn = ele.length; ii < lenn; ii += 1) {
     eles = ele[ii].getElementsByTagName('span');
-    for (i = 2, len = eles.length; i < len; i += 1) {
-      if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i - 1]) {
-        j = eles[i - 1].textContent;
+    if (!eles || eles.length <=2) {  // 2020-3-20
+      console.log(len, eles[0].textContent);
+      var connect_names = eles[0].textContent.split(', ');
+      var connect_span = '';
+      for (i = 0, len = connect_names.length; i < len; i += 1) {
+        j = connect_names[i];
         if (j.indexOf(' ') > 0) {
           j = j.split(' ');
-          elee_name = eles[i].textContent + ' ' + j[0].substr(0, 1) + j[1].substr(0, 1);
+          if (j.length === 3) {
+            elee_name = j[2] + ' ' + j[0].substr(0, 1) + j[1].substr(0, 1);
+          } else {
+            elee_name = j[j.length - 1] + ' ' + j[0].substr(0, 1);
+          }
         } else {
-          elee_name = eles[i].textContent + ' ' + j.substr(0, 1);
+          i += 1;
+          elee_name = j + ' ' + connect_names[i].replaceAll('.', '').replace(' ', '');
         }
+        connect_span += ', ' + p2span + elee_name + '</span></span>';
       }
-      if (elee_name && eles[i - 2] && eles[i - 2].className.indexOf('highwire-citation-author') > -1) {
-        if (eles[i - 2].className.indexOf(' first') > 0) {
-          eles[i - 2].innerHTML = '<sup>#</sup>' + p2span + elee_name + '</span>&#8620;</span>';
-        } else {
-          eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span>&#8620;</span>';
+      eles[0].innerHTML = connect_span.substr(2);
+
+    } else {
+      len = eles.length;
+      DEBUG && console.log('process_bioRxiv: found multiple authors', len);
+      for (i = 2; i < len; i += 1) {
+        if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i - 1]) {
+          j = eles[i - 1].textContent;
+          if (j.indexOf(' ') > 0) {
+            j = j.split(' ');
+            elee_name = eles[i].textContent + ' ' + j[0].substr(0, 1) + j[1].substr(0, 1);
+          } else {
+            elee_name = eles[i].textContent + ' ' + j.substr(0, 1);
+          }
         }
-        elee_name = '';
-      } else if (elee_name && eles[i - 3] && eles[i - 3].className.indexOf('highwire-citation-author') > -1 &&
-                 eles[i - 2].className.indexOf('element-invisible') > 0) {
-        if (eles[i - 3].className.indexOf(' first') > 0) {
-          eles[i - 3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
-        } else {
-          eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
+        if (elee_name && eles[i - 2] && eles[i - 2].className.indexOf('highwire-citation-author') > -1) {
+          if (eles[i - 2].className.indexOf(' first') > 0) {
+            eles[i - 2].innerHTML = '<sup>#</sup>' + p2span + elee_name + '</span>&#8620;</span>';
+          } else {
+            eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span>&#8620;</span>';
+          }
+          elee_name = '';
+        } else if (elee_name && eles[i - 3] && eles[i - 3].className.indexOf('highwire-citation-author') > -1 &&
+                   eles[i - 2].className.indexOf('element-invisible') > 0) {
+          if (eles[i - 3].className.indexOf(' first') > 0) {
+            eles[i - 3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
+          } else {
+            eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
+          }
+          elee_name = '';
         }
-        elee_name = '';
       }
     }
   }
@@ -1680,9 +1705,11 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   });
   noRun = 4;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
+    page_url.indexOf('.biorxiv.org/relate/content/') > 0 ||
     page_url.indexOf('://www.biorxiv.org/collection/') > 0 ||
     page_url.indexOf('://www.biorxiv.org/search/') > 0 ||
     page_url.indexOf('://www.medrxiv.org/content/') > 0 ||
+    page_url.indexOf('.medrxiv.org/relate/content/') > 0 ||
     page_url.indexOf('://www.medrxiv.org/collection/') > 0 ||
     page_url.indexOf('://www.medrxiv.org/search/') > 0) {
   load_jss();

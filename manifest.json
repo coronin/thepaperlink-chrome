@@ -67,6 +67,8 @@
       "https://www.medrxiv.org/content/*",
       "https://www.medrxiv.org/collection/*",
       "https://www.medrxiv.org/search/*",
+      "https://connect.biorxiv.org/relate/content/*",
+      "https://connect.medrxiv.org/relate/content/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
       "https://pmlegacy.ncbi.nlm.nih.gov/*",
