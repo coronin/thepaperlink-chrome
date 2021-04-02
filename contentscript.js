@@ -1027,7 +1027,7 @@ function prep_call (pmids) {
   }
   onePage_calls += 1;
   a_proxy({ url: url }); // call theServer api
-  if (byID('search-results') !== null) {
+  if (byID('search-results') !== null && byClassOne('filter-titles').textContent === '') {
     try {
       search_result_count = parseInt(byClassOne('results-amount').getElementsByClassName(
         'value')[0].textContent.split(',').join(''), 10);
