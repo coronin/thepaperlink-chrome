@@ -822,7 +822,8 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
               aKey['tpl' + pmid].abstract = localStorage.getItem('abs_' + pmid);
             }
             chrome.storage.local.set(aKey);
-            if (fid && (!d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v))) {
+            if (fid && f_v && (
+                !d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v) )) {
               $.post(base + '/',
                 { apikey: req_key, pmid: pmid, fid: fid, f_v: f_v },
                 function (d) {

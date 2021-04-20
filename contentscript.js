@@ -197,30 +197,44 @@ function process_storkapp () { // 2018 Dec
 
 function process_f1000 () { // 2018 Sep
   var i; var len; var pmid = ''; var doi = '';
-  var f_v = 0;
   var fid = parseInt(page_url.split('.com/prime/')[1], 10);
   for (i = 0; i < byTag('meta').length; i += 1) {
     if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
-      pmid += byTag('meta')[i].getAttribute('content');
+      pmid = byTag('meta')[i].getAttribute('content');
     } else if (byTag('meta')[i].getAttribute('name') === 'citation_doi') {
-      doi += byTag('meta')[i].getAttribute('content');
+      doi = byTag('meta')[i].getAttribute('content');
     }
   }
-  for (i = 0, len = byTag('span').length; i < len; i += 1) {
-    if (byTag('span')[i].className === 'recommendations-summary-count') {
-      f_v = parseInt(byTag('span')[i].textContent, 10);
-    } else if (byTag('span')[i].className === 'journalname') {
+  for (i = 0, len = byTag('span').length; i < len; i += 1) {  // 2021-4-20
+    //if (byTag('span')[i].className === 'recommendations-summary-count') {
+    //  var f_v = parseInt(byTag('span')[i].textContent, 10);
+    //}
+    // div.data-pmid
+    // span.data-testid = badge-score-id
+    if (byTag('span')[i].className === 'journalname') {
       byTag('span')[i].parentNode.id = 'thepaperlink_bar';
       if (byID('article-doi') !== null) {
         byID('article-doi').style.display = 'none';
       }
     }
   }
-  if (pmid && f_v && fid) {
+  if (pmid && fid) {  // f_v && 2021-4-20
+    console.log( byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0] );
+    setTimeout(function () {
+      var badge_score_id = byClassOne('__faculty-opinions-badge__'
+                ).getElementsByTagName('div')[0
+                ].getElementsByTagName('div')[0
+                ].getElementsByTagName('span')[0];
+      var f_v = '';
+      if (badge_score_id) {
+        f_v = badge_score_id.textContent;
+      }
+      console.log(arbitrary_pause, pmid, fid, f_v);
+      a_proxy({ from_f1000: pmid + ',' + fid + ',' + f_v });
+    }, arbitrary_pause);
     page_d.title = pmid + '::' + doi; // ess.js
-    a_proxy({ from_f1000: pmid + ',' + fid + ',' + f_v });
   } else {
-    DEBUG && console.log('process_f1000: ' + pmid + ',' + fid + ',' + f_v);
+    DEBUG && console.log('process_f1000: ' + pmid + ',' + fid + ',');
   }
   if (byID('abstract-tab-content') !== null) { // handle login page
     a_proxy({
