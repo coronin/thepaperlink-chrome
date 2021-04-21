@@ -373,10 +373,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.url.split('/pubpaper/')[1];
     $('#found').html('&copy; PMID:' + ID);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('.biorxiv.org/content/') > 0 ||
-             tab.url.indexOf('.medrxiv.org/content/') > 0) {
+  } else if (tab.url.indexOf('.biorxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| bio')[0], tab.id);
+  } else if (tab.url.indexOf('.medrxiv.org/content/') > 0) {
+    $('#found').html('&nbsp;');
+    eSS(tab.title.split('| med')[0], tab.id);
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);

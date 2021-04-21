@@ -138,8 +138,15 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
       }
     }
   }
-  // && pub_jnl.textContent.indexOf(' published in ') > 0
-  //@@@@
+  setTimeout(function () {
+    var pub_jnl = byClassOne('highwire-cite-metadata').getElementsByClassName(
+                  'pub_jnl')[0];
+    if (pub_jnl && pub_jnl.textContent.indexOf(' published in ') > 0) {
+      page_d.title = pub_jnl.getElementsByTagName('a')[0].textContent;
+    } else if (pub_jnl) {
+      DEBUG && alert(pub_jnl.textContent);
+    }
+  }, arbitrary_pause);  // 2021-4-22
   var insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
@@ -192,7 +199,7 @@ function process_storkapp () { // 2018 Dec
         a.href = 'https://pubmed.ncbi.nlm.nih.gov/' + b[1] + '/';
       }
     }
-  }, 10 * 1000); // 10-sec timeout
+  }, arbitrary_pause);
 }
 
 function process_f1000 () { // 2018 Sep
