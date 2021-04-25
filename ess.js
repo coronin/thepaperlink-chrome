@@ -422,7 +422,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
   } else if (tab.url.indexOf('.sciencedirect.com/science/article/pii/') > 0) {
-    ID = tab.url.split('/article/pii/')[1];
+    ID = tab.url.split('/article/pii/')[1].split('?via')[0];
     $('#found').html('&copy; pii:' + ID);
     eSS(tab.title.split('- ScienceDirect')[0], tab.id);
   } else if (tab.url.indexOf('//elifesciences.org/') > 0) {
