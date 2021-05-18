@@ -678,7 +678,7 @@ function new_pubmed_references_More (ajax = true) {
 }
 
 function new_pubmed_single1 (not_first) {
-  var ID, c, t_cont, t_title, trigger_obj, tpl_obj, section_obj;
+  var ID, c, y, t_cont, t_title, trigger_obj, tpl_obj, section_obj;
   if (!not_first) {
     pmidString = '';
     var multi_abs_count = page_d.getElementsByClassName('results-article').length;
@@ -758,9 +758,14 @@ function new_pubmed_single1 (not_first) {
   DEBUG && console.log('t_cont', t_cont);
 
   // #full-view-identifiers
-  // .actions-buttons inline NOT ALL
   // .article-citation
   insert_clippy(ID, t_cont, section_obj.getElementsByClassName('short-article-details')[0], 3);
+
+  y = page_d.createElement('button');
+  y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  y.innerHTML = '<span class="button-label">Copy</span>';
+  y.setAttribute('style', 'float:left;border:1px solid #aeb0b5;line-height:1.7rem;font-size:1.6rem;margin:0.5rem 1rem 0 1rem');
+  section_obj.getElementsByClassName('result-actions-bar')[0].appendChild(y);
 
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
@@ -836,9 +841,9 @@ function new_pubmed_single () {
   insert_clippy(ID, t_cont, byClassOne('short-article-details'), 3);
 
   y = page_d.createElement('button');
-  y.setAttribute('style', 'float:left;margin:0 1.5rem 0 0');
   y.onclick = function () { a_proxy({ t_cont: t_cont }); };
   y.innerHTML = '<span class="button-label">Copy</span>';
+  y.setAttribute('style', 'float:left;margin:0 1.5rem 0 0');
   byClassOne('actions-buttons inline').prepend(y);
   yy = page_d.createElement('div');
   yy.className = 'inner-wrap';
