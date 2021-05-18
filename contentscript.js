@@ -85,7 +85,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
   var ele = page_d.getElementsByClassName('highwire-cite-authors');
   for (ii = 0, lenn = ele.length; ii < lenn; ii += 1) {
     eles = ele[ii].getElementsByTagName('span');
-    if (!eles || eles.length <=2) {  // 2020-3-20
+    if (!eles || eles.length <= 2) {
       console.log(len, eles[0].textContent);
       var connect_names = eles[0].textContent.split(', ');
       var connect_span = '';
@@ -105,7 +105,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
         connect_span += ', ' + p2span + elee_name + '</span></span>';
       }
       eles[0].innerHTML = connect_span.substr(2);
-
+    // 2020-3-20
     } else {
       len = eles.length;
       DEBUG && console.log('process_bioRxiv: found multiple authors', len);
@@ -146,7 +146,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
     } else if (pub_jnl) {
       DEBUG && alert(pub_jnl.textContent);
     }
-  }, arbitrary_pause);  // 2021-4-22
+  }, arbitrary_pause); // 2021-4-22
   var insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
@@ -212,10 +212,10 @@ function process_f1000 () { // 2018 Sep
       doi = byTag('meta')[i].getAttribute('content');
     }
   }
-  for (i = 0, len = byTag('span').length; i < len; i += 1) {  // 2021-4-20
-    //if (byTag('span')[i].className === 'recommendations-summary-count') {
-    //  var f_v = parseInt(byTag('span')[i].textContent, 10);
-    //}
+  for (i = 0, len = byTag('span').length; i < len; i += 1) { // 2021-4-20
+    // if (byTag('span')[i].className === 'recommendations-summary-count') {
+    //   var f_v = parseInt(byTag('span')[i].textContent, 10);
+    // }
     // div.data-pmid
     // span.data-testid = badge-score-id
     if (byTag('span')[i].className === 'journalname') {
@@ -225,8 +225,8 @@ function process_f1000 () { // 2018 Sep
       }
     }
   }
-  if (pmid && fid) {  // f_v && 2021-4-20
-    console.log( byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0] );
+  if (pmid && fid) { // f_v && 2021-4-20
+    console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
     setTimeout(function () {
       var badge_score_id = byClassOne('__faculty-opinions-badge__'
                 ).getElementsByTagName('div')[0
@@ -769,7 +769,7 @@ function new_pubmed_single1 (not_first) {
 }
 
 function new_pubmed_single () {
-  var ID, c, z, t_cont, t_title, trigger_obj, tpl_obj;
+  var ID, c, y, yy, z, t_cont, t_title, trigger_obj, tpl_obj;
   // ID = byTag('strong')[0].textContent;  // 2020-9-16 bug in 32512579
   ID = byClassOne('current-id').textContent;
   trigger_obj = byID('full-view-journal-trigger');
@@ -832,9 +832,19 @@ function new_pubmed_single () {
   DEBUG && console.log('t_cont', t_cont);
 
   // #full-view-identifiers
-  // .actions-buttons inline NOT ALL
   // .article-citation
   insert_clippy(ID, t_cont, byClassOne('short-article-details'), 3);
+
+  y = page_d.createElement('button');
+  y.setAttribute('style', 'float:left;margin:0 1.5rem 0 0');
+  y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  y.innerHTML = '<span class="button-label">Copy</span>';
+  byClassOne('actions-buttons inline').prepend(y);
+  yy = page_d.createElement('div');
+  yy.className = 'inner-wrap';
+  yy.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  yy.innerHTML = '<button style="border-radius:3px;width:141px"><span class="button-label">Copy</span></button>';
+  byClassOne('actions-buttons sidebar').appendChild(yy);
 
   c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
