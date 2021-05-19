@@ -210,12 +210,13 @@ function eSummary (term, tabId, no_term_update) {
   $.get(urll,
     function (xml) {
       $('#result').html(''); // turn off loading
+      var pmid;
       $(xml).find('DocSum').each(function () {
         var a = $(this).find('Item[Name="Author"]');
         var author_list;
         var pmc = $(this).find('Item[Name="pmc"]').text();
         var doi = $(this).find('Item[Name="doi"]').text();
-        var pmid = $(this).find('Id').text();
+        pmid = $(this).find('Id').text();
         var Title = $(this).find('Item[Name="Title"]').text();
         var titleLin;
         var PubDate = $(this).find('Item[Name="PubDate"]').text();
@@ -258,6 +259,13 @@ function eSummary (term, tabId, no_term_update) {
         esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
         $('<div/>').html(esum_text).appendTo('#result');
       });
+      if ($('#found').text() === 'Found 1.') {
+        $('#found').html('&copy; ' + pmid);
+        _port && _port.postMessage({
+          from_popup_w_pmid: pmid,
+          popup_tabid: tabId
+        });
+      }
       if ($('#result').text() === '') {
         $('#result').text('There was a glitch. Please try another search term.');
         $('#ess_input').val('');
@@ -385,11 +393,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   } else if (tab.url.indexOf('.biorxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| bio')[0], tab.id);
-    // thepaperlink_doiReal
   } else if (tab.url.indexOf('.medrxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| med')[0], tab.id);
-    // thepaperlink_doiReal
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);

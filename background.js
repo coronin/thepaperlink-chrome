@@ -1157,6 +1157,8 @@ function get_request (msg, _port) {
     call_from_other_sites(tmp[0], sender_tab_id, tmp[1], tmp[2]);
   } else if (msg.from_sites_w_pmid) {
     call_from_other_sites(msg.from_sites_w_pmid, sender_tab_id);
+  } else if (msg.from_popup_w_pmid) {
+    call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14

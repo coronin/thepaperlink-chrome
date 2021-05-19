@@ -145,7 +145,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
                   'pub_jnl')[0];
     if (pub_jnl && pub_jnl.textContent.indexOf(' published in ') > 0) {
       page_d.title = pub_jnl.getElementsByTagName('a')[0].textContent;
-      pub_jnl.id = 'thepaperlink_doiReal'; // 2021-5-20
+      pub_jnl.id = 'thepaperlink_bar'; // 2021-5-20
     } else if (pub_jnl) {
       DEBUG && alert(pub_jnl.textContent);
     }
