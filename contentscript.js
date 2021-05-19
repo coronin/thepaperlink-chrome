@@ -79,9 +79,11 @@ function ez_format_link (p, url) {
   }
 }
 
-function process_bioRxiv () { // 2020 Aug, 2021 Mar
+function process_bioRxiv () { // 2020 Aug, 2021 Mar May
   var i; var ii; var len; var lenn; var j; var eles; var elee_name = null;
-  var p2span = '<span style="background-color:#e0ecf1;cursor:pointer"><span onclick="showPeaks(this)">'; // class="paperlink2_found"
+  // class="paperlink2_found"
+  var p2span = '<span style="background-color:#e0ecf1;cursor:pointer;padding-left:.2rem;padding-right:.2rem"><span onclick="showPeaks(this)">';
+  var p2span0 = '<span style="background-color:#e0ecf1;cursor:pointer;padding-right:.2rem"><span onclick="showPeaks(this)">';
   var ele = page_d.getElementsByClassName('highwire-cite-authors');
   for (ii = 0, lenn = ele.length; ii < lenn; ii += 1) {
     eles = ele[ii].getElementsByTagName('span');
@@ -121,17 +123,17 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
         }
         if (elee_name && eles[i - 2] && eles[i - 2].className.indexOf('highwire-citation-author') > -1) {
           if (eles[i - 2].className.indexOf(' first') > 0) {
-            eles[i - 2].innerHTML = '<sup>#</sup>' + p2span + elee_name + '</span>&#8620;</span>';
+            eles[i - 2].innerHTML = '<sup>#</sup>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           } else {
-            eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span>&#8620;</span>';
+            eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           }
           elee_name = '';
         } else if (elee_name && eles[i - 3] && eles[i - 3].className.indexOf('highwire-citation-author') > -1 &&
                    eles[i - 2].className.indexOf('element-invisible') > 0) {
           if (eles[i - 3].className.indexOf(' first') > 0) {
-            eles[i - 3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
+            eles[i - 3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           } else {
-            eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span + elee_name + '</span>&#8620;</span>';
+            eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           }
           elee_name = '';
         }
@@ -143,6 +145,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
                   'pub_jnl')[0];
     if (pub_jnl && pub_jnl.textContent.indexOf(' published in ') > 0) {
       page_d.title = pub_jnl.getElementsByTagName('a')[0].textContent;
+      pub_jnl.id = 'thepaperlink_doiReal'; // 2021-5-20
     } else if (pub_jnl) {
       DEBUG && alert(pub_jnl.textContent);
     }
@@ -151,6 +154,15 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
   page_d.body.appendChild(insert_style);
+  var insert_tip;
+  ele = byTag('li');
+  for (ii = 0, lenn = ele.length; ii < lenn; ii += 1) {
+    if (ele[ii].className === 'author-tooltip-pubmed-link') {
+      insert_tip = page_d.createElement('span');
+      insert_tip.innerHTML = '<br/>or, click the name highlighted in blue';
+      ele[ii].appendChild(insert_tip);
+    }
+  }
 }
 
 function process_storkapp () { // 2018 Dec

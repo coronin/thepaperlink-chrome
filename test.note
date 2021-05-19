@@ -1,10 +1,11 @@
-Test sites:
+#### Test sites
 
 https://pubmed.ncbi.nlm.nih.gov/?term=cofilin&sort=date
-* paging, peaks, abstract, email/save, trend, clipboard, expand, tab
+* paging, peaks, abstract, email/save, trend, clipboard, popup, display Abstract
+* click one paper then next/previous
 
 https://pubmed.ncbi.nlm.nih.gov/32598099/
-* expand, clipboard, peaks, show more, tab, next/previous
+* expand Affiliations, clipboard/copy, peaks, show more, popup
 
 https://www.storkapp.me/paper/showPaper.php?id=574319220&displayKey=vqgitQFHwA
 * bar, link
@@ -13,12 +14,20 @@ https://facultyopinions.com/prime/726265568
 * bar, link
 
 https://www.biorxiv.org/collection/cell-biology
-https://connect.biorxiv.org/relate/content/129  @@@@
+https://connect.biorxiv.org/relate/content/129
 * peaks
+
+https://www.biorxiv.org/content/10.1101/100651v1
+* peaks with tip, popup
 
 extension
 * options, keywords, log, search
 
 
-Verify JS:
-semistandard *.js | sed "s/ Identifier '[0-9a-zA-Z_]*' is not in camel case.//"
+#### Verify JS
+semistandard *.js | sed "s/ Identifier '[0-9a-zA-Z_]*' is not in camel case.//" | sed "s/'jQuery' is not defined.//" | sed "s/'$' is not defined.//" | sed "s/'localStorage' is not defined.//" | sed "s/'chrome' is not defined.//"
+
+
+#### Submit to
+https://microsoftedge.microsoft.com/addons/Microsoft-Edge-Extensions-Home
+https://chrome.google.com/webstore/devconsole/

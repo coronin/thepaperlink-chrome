@@ -257,10 +257,10 @@ function open_new_tab (url, winId, idx) {
   });
 }
 
-function generic_on_click (info, tab) {
+function oauth_on_click (info, tab) {
   DEBUG && console.log('info', JSON.stringify(info));
   DEBUG && console.log('tab', JSON.stringify(tab));
-  open_new_tab(base, tab.windowId, tab.index);
+  open_new_tab(base + '/oauth', tab.windowId, tab.index);
 }
 
 function js_on_click (info, tab) {
@@ -304,10 +304,18 @@ function menu_generator () {
     contexts: ['page', 'selection']
   });
   chrome.contextMenus.create({
-    title: 'Visit our website',
+    title: 'Stored search',
     contexts: ['page', 'selection'],
-    onclick: generic_on_click
-  }); // , 'link', 'editable', 'image', 'video', 'audio'
+    onclick: function () {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.create({
+          index: tabs[0].index,
+          url: chrome.extension.getURL('history.html'),
+          active: true
+        });
+      });
+    }
+  });
   chrome.contextMenus.create({
     title: 'extension Options',
     contexts: ['page', 'selection'],
@@ -322,18 +330,10 @@ function menu_generator () {
     }
   });
   chrome.contextMenus.create({
-    title: 'Stored search',
+    title: 'Authorize connections',
     contexts: ['page', 'selection'],
-    onclick: function () {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.create({
-          index: tabs[0].index,
-          url: chrome.extension.getURL('history.html'),
-          active: true
-        });
-      });
-    }
-  });
+    onclick: oauth_on_click
+  }); // , 'link', 'editable', 'image', 'video', 'audio'
 }
 
 function save_visited_ID (new_id) {
@@ -619,7 +619,7 @@ function parse_shark (pmid, url, tabId) {
   }
   shark_limits -= 1;
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: 1 });
-  var reg = /iframe\ src\s*=\s*"(\S+)"/i; var h;
+  var reg = /iframe src\s*=\s*"(\S+)"/i; var h;
   var args = { apikey: req_key, pmid: pmid, shark_link: '' };
   $.get(url,
     function (r) {
@@ -641,6 +641,7 @@ function parse_shark (pmid, url, tabId) {
 function parse_pii (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
   return false; // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
+
   var in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -823,7 +824,8 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
             }
             chrome.storage.local.set(aKey);
             if (fid && f_v && (
-                !d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v) )) {
+                !d.item[0].fid || (d.item[0].fid === fid && d.item[0].f_v !== f_v)
+              )) {
               $.post(base + '/',
                 { apikey: req_key, pmid: pmid, fid: fid, f_v: f_v },
                 function (d) {
@@ -845,7 +847,7 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
 function get_request (msg, _port) {
   // console.log(msg);
   var sender_tab_id = null;
-  var pmid; var extra; var tmp; var args;
+  var pmid; var tmp; var args;
   if (_port && _port.sender && _port.sender.tab) {
     sender_tab_id = _port.sender.tab.id;
   } else if (_port && _port.sender && msg.tabId) {
@@ -1016,7 +1018,7 @@ function get_request (msg, _port) {
             var dom = document.getElementById('thepaperlink_hidden' + pmid),
               customEvent = document.createEvent('Event');
             customEvent.initEvent('email_pdf', true, true);
-            dom.innerText = upload_url;
+            dom.textContent = upload_url;
             if (!no_email) {
               jq183Tpl('#thepaperlink_D' + pmid).fadeOut('fast');
             } else {
