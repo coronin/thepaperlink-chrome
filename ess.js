@@ -274,7 +274,7 @@ function eSummary (term, tabId, no_term_update) {
         // alert(this.id.substr(17));
         if (document.getElementById(this.id).textContent === 'save') {
           _port && _port.postMessage({ saveIt: this.id.substr(17) });
-          document.getElementById(this.id).textContent = 'done!';
+          document.getElementById(this.id).textContent = 'done!'; // cannot .text()
         } else {
           document.getElementById(this.id).setAttribute('style', 'display:none');
         }
@@ -307,7 +307,10 @@ function eSS (search_term, tabId) {
       a.each(function () {
         b += parseInt($(this).find('Count').text(), 10);
       });
-      if (b > 0) {
+      if ($('#found').html() === '&nbsp;') {
+        $('#found').text('Found ' + b + '.');
+      }
+      if (b > 1) {
         _port && _port.postMessage({
           search_term: search_term,
           search_result_count: b,
@@ -382,11 +385,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   } else if (tab.url.indexOf('.biorxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| bio')[0], tab.id);
-    // @@@@ thepaperlink_doiReal
+    // thepaperlink_doiReal
   } else if (tab.url.indexOf('.medrxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| med')[0], tab.id);
-    // @@@@ thepaperlink_doiReal
+    // thepaperlink_doiReal
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
