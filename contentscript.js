@@ -1432,7 +1432,9 @@ function get_request (msg) {
     if (byID(msg.to_other_sites).textContent === ' the paper link') {
       byID(msg.to_other_sites).innerHTML = '';
     }
-    byID(msg.to_other_sites).appendChild(div);
+    if (byID(msg.to_other_sites).getElementsByClassName('thepaperlink-home').length === 0) { // 2021-5-20
+      byID(msg.to_other_sites).appendChild(div);
+    }
     // 2020-8-21
     if (byID('thepaperlink_save' + msg.pmid) !== null) {
       byID('thepaperlink_save' + msg.pmid).onclick = function () {
