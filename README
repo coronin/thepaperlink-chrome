@@ -22,7 +22,6 @@ Term of Terms of Use and Privacy Policy at https://www.thepaperlink.com/privacy
 ----
 Whisper from the Developer:
  * single purpose: To display journal article related information not available at original PubMed
- * an old video demonstrating how to use https://youtu.be/kYWwsXxSHQs
  * in the browser address bar, type and search with keywords
  * background justification: after extract PMID from webpages, other params must tweak before making URL call. I process this on the background page using _port to communicate between content.js and background.js
  * contextMenus justification: I want the user to be able to do a PubMed search on any page with highlighted text
@@ -32,4 +31,6 @@ Whisper from the Developer:
  * storage justification: I give options to the user on how the exact information should be displayed and I archive the papers the user read for later, both need a storage permission
  * host permission: for downloading remote files within specific domains, such as json data
  * downloads and remote code at /jss
+ * remote code justification: code from https://www.thepaperlink.com/jss to add clickable action to author names when search results were displayed on https://pubmed.ncbi.nlm.nih.gov/ (the /jss code was a product of #io2011 appengine contest, No. 6653800)
  * 2020-8-25 removed: activeTab https://developer.chrome.com/extensions/activeTab
+ * 2021-5-20 removed: an old video demonstrating how to use https://youtu.be/kYWwsXxSHQs

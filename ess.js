@@ -12,9 +12,11 @@ function hideMore () {
 
 function t_cont (copyId) {
   var cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
-  _port && _port.postMessage({ t_cont: cont.replace('check abstract', ''
-                      ).replace('save', '').replace('.PMID:', '.  PMID:'
-                      ).replace(/[^A-Za-z0-9 (),.:/-]/g, '').replace(/^\s+|\s+$/g, '') });
+  _port && _port.postMessage({
+    t_cont: cont.replace('check abstract', ''
+                ).replace('save', '').replace('.PMID:', '.  PMID:'
+                ).replace(/[^A-Za-z0-9 (),.:/-]/g, '').replace(/^\s+|\s+$/g, '')
+  });
   $('#' + copyId).delay(200).fadeOut(500);
 }
 
@@ -269,9 +271,13 @@ function eSummary (term, tabId, no_term_update) {
       $('img.pl4_clippy').on('click', function () { t_cont(this.id); });
       $('.AbsButton').on('click', function () { eFetch(this.id); });
       $('.saveButton').on('click', function () {
-        alert(this.id.substr(17));
-        _port && _port.postMessage({ saveIt: this.id.substr(17) });
-        document.getElementById(this.id).setAttribute('style', 'display:none');
+        // alert(this.id.substr(17));
+        if (document.getElementById(this.id).textContent === 'save') {
+          _port && _port.postMessage({ saveIt: this.id.substr(17) });
+          document.getElementById(this.id).textContent = 'done!';
+        } else {
+          document.getElementById(this.id).setAttribute('style', 'display:none');
+        }
       });
     },
     'xml'
@@ -376,9 +382,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   } else if (tab.url.indexOf('.biorxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| bio')[0], tab.id);
+    // @@@@ thepaperlink_doiReal
   } else if (tab.url.indexOf('.medrxiv.org/content/') > 0) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split('| med')[0], tab.id);
+    // @@@@ thepaperlink_doiReal
   } else if (tab.url.indexOf('//or.nsfc.gov.cn/handle/') > 0) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
