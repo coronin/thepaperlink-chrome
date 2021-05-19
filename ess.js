@@ -255,11 +255,11 @@ function eSummary (term, tabId, no_term_update) {
         esum_text += '<br/><button class="AbsButton" id="' + pmid + '">check abstract</button> ';
         esum_text += '&nbsp;<button class="saveButton" id="thepaperlink_save' + pmid + '">save</button> ';
         esum_text += '<span style="display:inline-block;float:right;cursor:pointer"><img class="pl4_clippy" title="copy to clipboard" src="' +
-              chrome.extension.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
+                     chrome.extension.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
         esum_text += '<img class="loadIcon Off" src="loadingLine.gif" alt="..."></p>';
         $('<div/>').html(esum_text).appendTo('#result');
       });
-      if ($('#found').text() === 'Found 1.') {
+      if ($('#found').text() === 'Got 1.') {
         $('#found').html('&copy; ' + pmid);
         _port && _port.postMessage({
           from_popup_w_pmid: pmid,
@@ -311,12 +311,13 @@ function eSS (search_term, tabId) {
       if (WebEnv) {
         eSummary(WebEnv, tabId, true);
       }
-      var a = $(xml).find('TermSet'); var b = 0;
+      var a = $(xml).find('IdList'); // cannot use Count
+      var b = 0;
       a.each(function () {
-        b += parseInt($(this).find('Count').text(), 10);
+        b += 1;
       });
       if ($('#found').html() === '&nbsp;') {
-        $('#found').text('Found ' + b + '.');
+        $('#found').text('Got ' + b + '.');
       }
       if (b > 1) {
         _port && _port.postMessage({
