@@ -1,3 +1,7 @@
+#### extension
+options, keywords, log, search
+
+
 #### Test sites
 
 https://pubmed.ncbi.nlm.nih.gov/?term=cofilin&sort=date
@@ -19,9 +23,6 @@ https://connect.biorxiv.org/relate/content/129
 
 https://www.biorxiv.org/content/10.1101/100651v1
 * peaks with tip, popup
-
-extension
-* options, keywords, log, search
 
 
 #### Verify JS

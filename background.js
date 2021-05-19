@@ -1018,7 +1018,7 @@ function get_request (msg, _port) {
             var dom = document.getElementById('thepaperlink_hidden' + pmid),
               customEvent = document.createEvent('Event');
             customEvent.initEvent('email_pdf', true, true);
-            dom.textContent = upload_url;
+            dom.innerText = upload_url;
             if (!no_email) {
               jq183Tpl('#thepaperlink_D' + pmid).fadeOut('fast');
             } else {
