@@ -204,7 +204,7 @@ function load_common_values (newday) {
   }
   // 2015-12-9: !!expr returns a Boolean value (true or false)
   if (localStorage.getItem('scholar_once') !== 'no') {
-    scholar_page_open_limits = 1;
+    scholar_page_open_limits = 0; // 2021-5-20
   } else {
     scholar_no_more = 0;
   }
