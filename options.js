@@ -54,7 +54,6 @@ function reset_key (v) {
       localStorage.removeItem('b_apikey_gold');
     }
     location.reload();
-    // chrome.extension.sendRequest({load_common_values: 1});
     _port && _port.postMessage({ load_common_values: 1 });
   }
 }
@@ -130,13 +129,11 @@ function saveOptions () {
     localStorage.setItem('contextMenu_shown', 'yes');
     if (!localStorage.getItem('contextMenu_on')) {
       localStorage.setItem('contextMenu_on', 1);
-      // chrome.extension.sendRequest({menu_display: 1});
       _port && _port.postMessage({ menu_display: 1 });
     }
   }
   if (ws_items) {
     localStorage.setItem('ws_items', 'yes');
-    // chrome.extension.sendRequest({load_broadcast: 1});
     _port && _port.postMessage({ load_broadcast: 1 });
   } else {
     localStorage.setItem('ws_items', 'no');
@@ -290,7 +287,6 @@ function saveOptions () {
   } else {
     location.reload();
   }
-  // chrome.extension.sendRequest({load_common_values: 1});
   _port && _port.postMessage({ load_common_values: 1 });
 }
 

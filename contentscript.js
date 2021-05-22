@@ -58,7 +58,6 @@ function byClassOne (d) { return page_d.getElementsByClassName(d)[0]; }
 function trim (s) { return (s || '').replace(/^\s+|\s+$/g, ''); }
 
 function a_proxy (d) {
-  // MV3 chrome.extension.sendRequest(d);
   _port && _port.postMessage(d);
   _port || console.log('>> runtime fail to connect background_port');
 }
@@ -1808,6 +1807,5 @@ if (!noRun) {
   load_jss();
   parse_page_div(false); // big boss, onload not ajax
 }
-// chrome.extension.onRequest.addListener(get_request);
 _port && _port.onMessage.addListener(get_request);
 chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy
