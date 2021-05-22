@@ -1212,7 +1212,6 @@ function get_request (msg, _port) {
   }
   // msg processed
 }
-// chrome.extension.onRequest.addListener(get_request);
 chrome.runtime.onConnect.addListener(function (_port) {
   console.assert(_port.name === 'background_port');
   _port.onMessage.addListener(function (msg) {
