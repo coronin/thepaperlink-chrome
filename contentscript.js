@@ -58,7 +58,7 @@ function byClassOne (d) { return page_d.getElementsByClassName(d)[0]; }
 function trim (s) { return (s || '').replace(/^\s+|\s+$/g, ''); }
 
 function a_proxy (d) {
-  // chrome.extension.sendRequest(d);
+  // MV3 chrome.extension.sendRequest(d);
   _port && _port.postMessage(d);
   _port || console.log('>> runtime fail to connect background_port');
 }
@@ -1563,8 +1563,9 @@ function get_request (msg) {
     } else if (r.item[i].pii) {
       tmp = '<a id="thepaperlink_pii' + pmid + '" href="' +
           ez_format_link(p,
-            'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+            'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">publisher</a>';
+          // linkinghub.elsevier.com/retrieve/pii/
       if (local_mirror) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
@@ -1576,8 +1577,9 @@ function get_request (msg) {
       insert_span = page_d.createElement('span');
       insert_span.innerHTML = '; <a href="' +
           ez_format_link(p,
-            'http://linkinghub.elsevier.com/retrieve/pii/' + uneval_trim(r.item[i].pii)
+            'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">Scopus</a> <span id="pl4_scopus' + pmid + '"></span>';
+          // linkinghub.elsevier.com/retrieve/pii/
       byID('citedBy' + pmid).parentNode.appendChild(insert_span);
     }
     if (r.item[i].f_v && r.item[i].fid) {
