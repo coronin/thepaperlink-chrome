@@ -298,7 +298,7 @@ $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');
   $('button').button();
   $('#history_html').text('logs');
-  $('#history_html').attr('href', chrome.extension.getURL('history.html'));
+  $('#history_html').attr('href', chrome.runtime.getURL('history.html'));
 
   $('#saveBtn').on('click', function () { saveOptions(); });
   $('#save_it_tab').on('click', function () { $('#option_tabs').tabs('select', 1); });
