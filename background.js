@@ -310,7 +310,7 @@ function menu_generator () {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.create({
           index: tabs[0].index,
-          url: chrome.extension.getURL('history.html'),
+          url: chrome.runtime.getURL('history.html'),
           active: true
         });
       });
@@ -323,7 +323,7 @@ function menu_generator () {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.create({
           index: tabs[0].index,
-          url: chrome.extension.getURL('options.html'),
+          url: chrome.runtime.getURL('options.html'),
           active: true
         });
       });
@@ -753,7 +753,7 @@ function load_broadcast () {
 }
 
 function reLoad_options () {
-  var urlOp = chrome.extension.getURL('options.html');
+  var urlOp = chrome.runtime.getURL('options.html');
   chrome.tabs.query({ url: urlOp }, function (tabs) {
     for (aKey in tabs) {
       chrome.tabs.update(tabs[aKey].id, { url: urlOp });
@@ -1082,7 +1082,13 @@ function get_request (msg, _port) {
   } else if (msg.t_cont) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
-    holder.value = msg.t_cont; // 2018-9-14 @@@@ so_noDate
+    // 2018-9-14 @@@@ so_noDate
+    if (msg.t_cont.indexOf('Among authors: ') > 0) {
+      var _tt = msg.t_cont.split('Among authors: ');
+      holder.value = _tt[0] + _tt[1].substr(_tt[1].indexOf('.') + 2);
+    } else {
+      holder.value = msg.t_cont;
+    }
     holder.select();
     dd.execCommand('Copy');
     holder.style.display = 'none';
@@ -1201,7 +1207,7 @@ function get_request (msg, _port) {
     }
   } else if (msg.open_options || (msg.saveIt && !pubmeder_ok && !cloud_op)) {
     chrome.tabs.create({
-      url: chrome.extension.getURL('options.html'),
+      url: chrome.runtime.getURL('options.html'),
       active: true
     });
 
