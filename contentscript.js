@@ -111,14 +111,27 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
       len = eles.length;
       DEBUG && console.log('process_bioRxiv: found multiple authors', len);
       for (i = 2; i < len; i += 1) {
-        if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1 && eles[i - 1]) {
-          j = eles[i - 1].textContent;
+        if (eles[i] && eles[i].className.indexOf('nlm-surname') > -1) {
+          if (eles[i - 1].className.indexOf('nlm-given-names') > -1) {
+            j = eles[i - 1].textContent;
+          } else if (eles[i + 1].className.indexOf('nlm-given-names') > -1) {
+            j = eles[i + 1].textContent;
+          } else {
+            continue;
+          }
           if (j.indexOf(' ') > 0) {
             j = j.split(' ');
             elee_name = eles[i].textContent + ' ' + j[0].substr(0, 1) + j[1].substr(0, 1);
+          } else if (j.indexOf('-') > 0) {
+            j = j.split('-');
+            elee_name = eles[i].textContent + ' ' + j[0].substr(0, 1) + j[1].substr(0, 1).toUpperCase();
           } else {
             elee_name = eles[i].textContent + ' ' + j.substr(0, 1);
           }
+          console.log('elee_name', elee_name);
+          console.log('eles[i-1].textContent', eles[i-1].textContent);
+          console.log('eles[i].textContent', eles[i].textContent);
+          console.log('eles[i+1].textContent', eles[i+1].textContent);
         }
         if (elee_name && eles[i - 2] && eles[i - 2].className.indexOf('highwire-citation-author') > -1) {
           if (eles[i - 2].className.indexOf(' first') > 0) {
@@ -126,7 +139,6 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
           } else {
             eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           }
-          elee_name = '';
         } else if (elee_name && eles[i - 3] && eles[i - 3].className.indexOf('highwire-citation-author') > -1 &&
                    eles[i - 2].className.indexOf('element-invisible') > 0) {
           if (eles[i - 3].className.indexOf(' first') > 0) {
@@ -134,8 +146,8 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
           } else {
             eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           }
-          elee_name = '';
         }
+        elee_name = '';
       }
     }
   }
@@ -922,8 +934,9 @@ function id_journal (s, pmid) {
     sb += sa.substr(0, sa.indexOf('. 1')) +
           '</span>' + sa.substr(sa.indexOf('. 1') + 1);
   } else {
+    console.log(s);  // 2021-9-11
     if (s.indexOf(' Books & Documents.') < 0) {
-      window.alert('You may be reading a really old article >> ' + s);
+      window.alert('Article >> ' + s);
     }
     return s;
   }
