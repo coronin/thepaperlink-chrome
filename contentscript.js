@@ -79,7 +79,7 @@ function ez_format_link (p, url) {
 }
 
 function process_bioRxiv () { // 2020 Aug, 2021 Mar May
-  var i; var ii; var len; var lenn; var j; var eles; var elee_name = null;
+  var i; var ii; var len; var lenn; var j; var eles; var elee_name = null; var with_orcid;
   // class="paperlink2_found"
   var p2span = '<span style="background-color:#e0ecf1;cursor:pointer;padding-left:.2rem;padding-right:.2rem"><span onclick="showPeaks(this)">';
   var p2span0 = '<span style="background-color:#e0ecf1;cursor:pointer;padding-right:.2rem"><span onclick="showPeaks(this)">';
@@ -128,23 +128,17 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
           } else {
             elee_name = eles[i].textContent + ' ' + j.substr(0, 1);
           }
-          console.log('elee_name', elee_name);
-          console.log('eles[i-1].textContent', eles[i-1].textContent);
-          console.log('eles[i].textContent', eles[i].textContent);
-          console.log('eles[i+1].textContent', eles[i+1].textContent);
         }
-        if (elee_name && eles[i - 2] && eles[i - 2].className.indexOf('highwire-citation-author') > -1) {
-          if (eles[i - 2].className.indexOf(' first') > 0) {
-            eles[i - 2].innerHTML = '<sup>#</sup>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
+        if (elee_name && eles[i].parentNode.className.indexOf('highwire-citation-author') > -1) {
+          if (eles[i].parentNode.textContent.indexOf('View ORCID Profile') > -1) {
+            with_orcid = '<i class="hw-icon-orcid hw-icon-color-orcid"></i>';
           } else {
-            eles[i - 2].innerHTML = '&nbsp;' + p2span + elee_name + '</span></span>'; // 2021-5-20 &#8620;
+            with_orcid = '';
           }
-        } else if (elee_name && eles[i - 3] && eles[i - 3].className.indexOf('highwire-citation-author') > -1 &&
-                   eles[i - 2].className.indexOf('element-invisible') > 0) {
-          if (eles[i - 3].className.indexOf(' first') > 0) {
-            eles[i - 3].innerHTML = '<sup>#</sup><i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
+          if (eles[i].parentNode.className.indexOf(' first') > 0) {
+            eles[i].parentNode.innerHTML = '<sup>#</sup>' + with_orcid + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           } else {
-            eles[i - 3].innerHTML = '&nbsp;<i class="hw-icon-orcid hw-icon-color-orcid"></i>' + p2span0 + elee_name + '</span></span>'; // 2021-5-20 &#8620;
+            eles[i].parentNode.innerHTML = '&nbsp;' + with_orcid + p2span + elee_name + '</span></span>'; // 2021-5-20 &#8620;
           }
         }
         elee_name = '';
