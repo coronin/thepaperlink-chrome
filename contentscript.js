@@ -521,6 +521,7 @@ function grp_author_name (ts) {
   if (ts.indexOf('. Electronic address:') > -1) { // 32413319
     return ts.split('. Electronic address:')[1];
   } else if (tsLower.indexOf('working group') > -1 ||
+      tsLower.indexOf('study group') > -1 ||
       tsLower.indexOf('network ') > -1 ||
       tsLower.indexOf(' committee') > 0 ||
       tsLower.indexOf(' association') > 0 ||
@@ -528,7 +529,9 @@ function grp_author_name (ts) {
       tsLower.indexOf(' office') > 0 ||
       tsLower.indexOf(' network') > 0 ||
       tsLower.indexOf(' collaborative') > 0 ||
+      tsLower.indexOf(' investigators') > 0 ||
       tsLower.indexOf('society of ') > -1 ||
+      tsLower.indexOf('grou ') > -1 ||
       tsLower.indexOf('group of ') > -1) {
     return ts;
   } else {
@@ -979,18 +982,6 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   } else {
     t_cont = t_title + '\r\n' + t_strings;
   }
-  if (t_strings.indexOf('Free article.') > 0) {
-    t_cont = trim(t_cont.split('Free article.')[0]);
-  }
-  if (t_strings.indexOf('Free PMC article.') > 0) {
-    t_cont = trim(t_cont.split('Free PMC article.')[0]);
-  }
-  if (t_strings.indexOf('Review.') > 0) {
-    t_cont = trim(t_cont.split('Review.')[0]);
-  }
-  if (t_strings.indexOf('Online ahead of print.') > 0) {
-    t_cont = t_cont.replace(' Online ahead of print.', '');
-  }
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
   not_insert || console.log('t_cont', t_cont);
   not_insert || insert_clippy(ID, t_cont, byTag(zone)[num - 1], 2);
@@ -999,6 +990,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   if (ajax) {
     found_click = '<span class="paperlink2_found" onclick="showPeaks(this)">';
   }
+
   if (t_strings.indexOf('No authors listed') > -1 ||
       byTag(zone)[num].getElementsByClassName('short-authors')[0].textContent === '') {
     byTag(zone)[num].innerHTML = '[No authors listed] ' + id_journal(t_strings.substr(20), ID);

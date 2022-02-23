@@ -1083,6 +1083,19 @@ function get_request (msg, _port) {
     var holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
     // 2018-9-14 @@@@ so_noDate
+    // 2022-2-23 move from contentscript.js
+    if (msg.t_cont.indexOf('Free article.') > 0) {
+      msg.t_cont = msg.t_cont.replace(' Free article.', '');
+    }
+    if (msg.t_cont.indexOf('Free PMC article.') > 0) {
+      msg.t_cont = msg.t_cont.replace(' Free PMC article.', '');
+    }
+    if (msg.t_cont.indexOf('Review.') > 0) {
+      msg.t_cont = msg.t_cont.replace(' Review.', '');
+    }
+    if (msg.t_cont.indexOf('Online ahead of print.') > 0) {
+      msg.t_cont = msg.t_cont.replace(' Online ahead of print.', '');
+    }
     if (msg.t_cont.indexOf('Among authors: ') > 0) {
       var _tt = msg.t_cont.split('Among authors: ');
       holder.value = _tt[0] + _tt[1].substr(_tt[1].indexOf('.') + 2);
