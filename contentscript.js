@@ -921,7 +921,7 @@ function id_journal (s, pmid) {
   var sa = trim(s);
   var sb = '<span id="thepaperlink_if' + pmid + '">';
   if (sa.indexOf('Among authors: ') === 0) { // 2020-4-5
-    sb = sa.substr(0, sa.indexOf('. ') + 2) + sb;
+    sb = '<span style="display:none">' + sa.substr(0, sa.indexOf('. ') + 2) + '</span>' + sb;  // 2022-2-23
     sa = sa.substr(sa.indexOf('. ') + 2);
   }
   if (sa.indexOf('. 20') > 0) {
