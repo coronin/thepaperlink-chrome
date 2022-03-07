@@ -1564,13 +1564,18 @@ function get_request (msg) {
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '" target="_blank">publisher</a>';
           // linkinghub.elsevier.com/retrieve/pii/
+      var new_doi;
       if ( page_url.indexOf(pmid) > 0 ) {   // 2022-3-7
-        console.log( i, pmid, byClassOne('id-link').href.substr(16) );
-        a_proxy({ money_emailIt: pmid, doi: byClassOne('id-link').href.substr(16) });
+        new_doi = byClassOne('id-link').href.substr(16);
+        console.log( i, pmid, new_doi );
+        a_proxy({ money_emailIt: pmid, doi: new_doi });
       }
       if (local_mirror) {
-        if ( page_url.indexOf(pmid) > 0 ) {   // 2022-3-7
+        if ( page_url.indexOf(pmid) > 0 && new_doi) {   // 2022-3-7
           window.alert('retrieve ' + r.item[i].pii + ' is not working at ' + local_mirror + '\n\ndoi? ' + r.item[i].doi );
+          tmp += '<a id="thepaperlink_doi' + pmid +
+            '" href="https://' + local_mirror + '/' + new_doi +
+            '#" target="_blank">doi</a>';
         }
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
