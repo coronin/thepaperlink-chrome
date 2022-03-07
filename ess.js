@@ -401,40 +401,40 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('National Natural Science Foundation of China')[1].replace(':', '').replace(/^\s+|\s+$/g, '');
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
     eSS(ID, tab.id);
-  } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
-    var hrefStr = tab.url.split('/');
-    var l = hrefStr.length;
-    var paperId = decodeURI(hrefStr[l - 1]);
-    var queryJson = { achievementID: paperId }; //  javascripts/paperDetail.js
-    $.ajax({
-      type: 'POST',
-      url: 'http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
-      data: JSON.stringify(queryJson),
-      contentType: 'application/json',
-      success: function (resData, textStatus, jqXHR) {
-        console.log(resData);
-        resData = JSON.parse(resData);
-        if (resData.code === '200' && resData.data[0].doi) {
-          ID = resData.data[0].doi;
-          $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
-          ) + ' ' + (resData.data[0].fundProject || ''
-          ) + ' ' + (resData.data[0].fieldCode || ''));
-          _port && _port.postMessage({
-            doi: resData.data[0].doi,
-            prjID: resData.data[0].fundProjectNo
-          });
-          eSS(ID, tab.id);
-        } else if (resData.code === '200') {
-          ID = resData.data[0].englishTitle || resData.data[0].chineseTitle;
-          $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
-          ) + ' ' + (resData.data[0].fundProject || ''
-          ) + ' ' + (resData.data[0].fieldCode || ''));
-          eSS(ID, tab.id);
-        } else {
-          $('#found').html(textStatus);
-        }
-      }
-    });
+  // } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
+  //   var hrefStr = tab.url.split('/');
+  //   var l = hrefStr.length;
+  //   var paperId = decodeURI(hrefStr[l - 1]);
+  //   var queryJson = { achievementID: paperId };  //  javascripts/paperDetail.js
+  //   $.ajax({
+  //     type: 'POST',
+  //     url: 'http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',
+  //     data: JSON.stringify(queryJson),
+  //     contentType: 'application/json',
+  //     success: function (resData, textStatus, jqXHR) {
+  //       console.log(resData);
+  //       resData = JSON.parse(resData);
+  //       if (resData.code === '200' && resData.data[0].doi) {
+  //         ID = resData.data[0].doi;
+  //         $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
+  //         ) + ' ' + (resData.data[0].fundProject || ''
+  //         ) + ' ' + (resData.data[0].fieldCode || ''));
+  //         _port && _port.postMessage({
+  //           doi: resData.data[0].doi,
+  //           prjID: resData.data[0].fundProjectNo
+  //         });
+  //         eSS(ID, tab.id);
+  //       } else if (resData.code === '200') {
+  //         ID = resData.data[0].englishTitle || resData.data[0].chineseTitle;
+  //         $('#found').html('&copy; ' + (resData.data[0].fundProjectNo || ''
+  //         ) + ' ' + (resData.data[0].fundProject || ''
+  //         ) + ' ' + (resData.data[0].fieldCode || ''));
+  //         eSS(ID, tab.id);
+  //       } else {
+  //         $('#found').html(textStatus);
+  //       }
+  //     }
+  //   });
   } else if (tab.url.indexOf('//journals.plos.org/') > 0) {
     ID = tab.url.split('/article?id=')[1];
     $('#found').html('&copy; ' + ID);

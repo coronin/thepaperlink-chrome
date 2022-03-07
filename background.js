@@ -1388,7 +1388,7 @@ chrome.runtime.onInstalled.addListener(function () {
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biorxiv.org/content/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.medrxiv.org/content/' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } }),
+        // new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//ir.nsfc.gov.cn/paperDetail/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//journals.plos.org/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.sciencedirect.com/science/article/pii/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//elifesciences.org/' } }),
