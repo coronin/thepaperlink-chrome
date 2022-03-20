@@ -2,7 +2,7 @@
 
 chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey',
   'rev_proxy'], function (e) {
-  var js_base = 'https://www.thepaperlink.com/';
+  let js_base = 'https://www.thepaperlink.com/';
   if (e.rev_proxy && e.rev_proxy === 'yes') {
     js_base = 'https://www.thepaperlink.cn/';
   }
@@ -10,7 +10,7 @@ chrome.storage.sync.get(['GUEST_APIKEY', 'thepaperlink_apikey',
   localStorage.setItem('thePaperLink_pubget_js_base', js_base);
   // removed 2020-6-28 v2.9.31
   if (!document.getElementById('__tr_display')) {
-    var jsClient = document.createElement('script');
+    const jsClient = document.createElement('script');
     jsClient.setAttribute('type', 'text/javascript');
     jsClient.setAttribute('src', js_base + 'js?y=' + (Math.random()));
     (document.head || document.documentElement).appendChild(jsClient);

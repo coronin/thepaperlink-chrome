@@ -1,13 +1,13 @@
 'use strict';
 
-var _port = chrome.runtime.connect({ name: 'background_port' });
-var _bkg = chrome.extension.getBackgroundPage();
-var alldigi = /^\d+$/;
+const _port = chrome.runtime.connect({ name: 'background_port' });
+const _bkg = chrome.extension.getBackgroundPage();
+const alldigi = /^\d+$/;
 
 function format_a_li (category, pmid, url, num) {
-  var categoryLen = category.length;
+  const categoryLen = category.length;
   if (!url && !num) {
-    var id_abs = pmid.split('====');
+    let id_abs = pmid.split('====');
     if (id_abs[0]) {
       if (id_abs[1].indexOf('    Abstract') > 0) {
         id_abs[1] = id_abs[1].split('    Abstract')[1].replace(/^\s+|\s+$/g, '').replace(/\s\s+/g, ' ');
@@ -44,9 +44,9 @@ function do_syncValues_post () {
 
 // 2015-12-9, 2018-10-1
 function load_ALL_localStorage () {
-  var i; var len; var aKey; var aVal; var a_key_split; var a_url; var dictKey;
-  var syncValues = {}; var regAddr = /^1[A-Z]/;
-  var syncValues_scholar = {}; // only sync recent 25
+  let i; let len; let aKey; let aVal; let a_key_split; let a_url; let dictKey;
+  let syncValues = {}; const regAddr = /^1[A-Z]/;
+  let syncValues_scholar = {}; // only sync recent 25
   $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
   $('#email_').html('');
   $('#shark_').html('');
