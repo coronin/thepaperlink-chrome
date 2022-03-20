@@ -35,7 +35,7 @@ limited.id = 'thePaperLink_chrome_limited';
 page_d.body.appendChild(limited); // do not email_pdf
 
 if (typeof uneval === 'undefined') {
-  const uneval = function (a) {
+  var uneval = function (a) {
     return (JSON.stringify(a)) || '';
   };
 }
