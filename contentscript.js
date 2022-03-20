@@ -900,19 +900,25 @@ function new_pubmed_single () {
     } // link out to see all citedby
   }
   if (byID('references') !== null) {
-    new_pubmed_references_More(false);
-    if (byID('references').getElementsByClassName('show-all')[0] && !byID('references_all')) {
-      byID('references').getElementsByClassName('show-all')[0].id = 'references_all';
-      byID('references_all').onclick = function () {
-        byID('tpl_manual_references_all').removeAttribute('class');
-        setTimeout(new_pubmed_references_More, arbitrary_pause);
-      };
-      const z = page_d.createElement('span');
-      z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
-      z.id = 'tpl_manual_references_all';
-      z.className = 'thepaperlink_Off';
-      byID('references').getElementsByTagName('h3')[0].appendChild(z);
+    if (byID('references').getElementsByClassName('refs-list-title')[0]) {
+      // https://pubmed.ncbi.nlm.nih.gov/32598099/
+      byID('references').getElementsByClassName('refs-list-title')[0].style.display = 'none';
+    } else {
+      if (byID('references').getElementsByClassName('show-all')[0] &&
+          byID('references_all') !== null) {
+        byID('references').getElementsByClassName('show-all')[0].id = 'references_all';
+        byID('references_all').onclick = function () {
+          byID('tpl_manual_references_all').removeAttribute('class');
+          setTimeout(new_pubmed_references_More, arbitrary_pause);
+        };
+        const z = page_d.createElement('span');
+        z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+        z.id = 'tpl_manual_references_all';
+        z.className = 'thepaperlink_Off';
+        byID('references').getElementsByTagName('h3')[0].appendChild(z);
+      }
     }
+    new_pubmed_references_More(false);
   }
 }
 
