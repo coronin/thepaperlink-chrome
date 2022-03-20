@@ -1,11 +1,11 @@
 'use strict';
 
-var _port = chrome.runtime.connect({ name: 'background_port' });
-var _bkg = chrome.extension.getBackgroundPage();
-var email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+const _port = chrome.runtime.connect({ name: 'background_port' });
+const _bkg = chrome.extension.getBackgroundPage();
+const email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 
 function adjust_keywords () {
-  var keyword_selected = '';
+  let keyword_selected = '';
   $('input.keywords:checked').each(function () {
     keyword_selected += this.id.replace(/,,/g, '"');
     keyword_selected += '\n';
@@ -33,17 +33,16 @@ function toggle_checked (obj, q) {
 }
 
 function get_end_num (str) {
-  var suffix = ',';
   if (!str) { return 0; }
   try {
-    return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
+    return parseInt(str.substr(str.lastIndexOf(',') + 1), 10);
   } catch (err) {
     return 0;
   }
 }
 
 function reset_key (v) {
-  var answer = window.confirm('\n do you really want to rest the key?\n');
+  const answer = window.confirm('\n do you really want to rest the key?\n');
   if (answer) {
     if (v === 1) {
       localStorage.removeItem('thepaperlink_apikey');
@@ -93,23 +92,23 @@ function valid_pubmeder (e, ak) {
 }
 
 function saveOptions () {
-  var rev_proxy = $('#rev_proxy').prop('checked');
-  var new_tab = $('#new_tab').prop('checked');
-  var contextMenu_shown = $('#contextMenu_shown').prop('checked');
-  var ws_items = $('#ws_items').prop('checked');
-  var scholar_once = $('#scholar_once').prop('checked');
-  var shark_link = $('#shark_link').prop('checked');
-  var shark_download = $('#shark_download').prop('checked');
-  var shark_open_files = $('#shark_open_files').prop('checked');
-  var shark_limit = $('#shark_limit').val();
-  var pubmed_limit = $('#pubmed_limit').val();
-  var arbitrary_sec = $('#arbitrary_sec').val();
-  var ezproxy_prefix = $('#ezproxy_input').val();
-  var cc_address = $('#cc_address').val();
-  var local_mirror = $('#local_mirror').val();
-  var req_a = null;
-  var req_b = null;
-  var a; // ajax_pii_link = $('#ajax_pii_link').prop('checked'), co_pubmed = $('#co_pubmed').prop('checked'),
+  const rev_proxy = $('#rev_proxy').prop('checked');
+  const new_tab = $('#new_tab').prop('checked');
+  const contextMenu_shown = $('#contextMenu_shown').prop('checked');
+  const ws_items = $('#ws_items').prop('checked');
+  const scholar_once = $('#scholar_once').prop('checked');
+  const shark_link = $('#shark_link').prop('checked');
+  const shark_download = $('#shark_download').prop('checked');
+  const shark_open_files = $('#shark_open_files').prop('checked');
+  const shark_limit = $('#shark_limit').val();
+  const pubmed_limit = $('#pubmed_limit').val();
+  const arbitrary_sec = $('#arbitrary_sec').val();
+  let ezproxy_prefix = $('#ezproxy_input').val();
+  let cc_address = $('#cc_address').val();
+  const local_mirror = $('#local_mirror').val();
+  let req_a = null;
+  let req_b = null;
+  let a; // ajax_pii_link = $('#ajax_pii_link').prop('checked'), co_pubmed = $('#co_pubmed').prop('checked'),
   // if (co_pubmed) {
   //  localStorage.setItem('co_pubmed', 'no');
   // } else {
@@ -209,7 +208,7 @@ function saveOptions () {
   if (ezproxy_prefix && (ezproxy_prefix.substr(0, 7) === 'http://' || ezproxy_prefix.substr(0, 8) === 'https://')) {
     localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
   } else if (ezproxy_prefix && ezproxy_prefix.substr(0, 1) === '.' && ezproxy_prefix.substr(1, 1) !== '.') {
-    var ezproxy_endswith = ezproxy_prefix.substr(-3, 3).toLowerCase();
+    const ezproxy_endswith = ezproxy_prefix.substr(-3, 3).toLowerCase();
     if (ezproxy_endswith === 'edu' || ezproxy_endswith === 'net' || ezproxy_endswith === 'com' || ezproxy_endswith === 'org' || ezproxy_endswith === 'gov') {
       localStorage.setItem('ezproxy_prefix', ezproxy_prefix);
     } else {
@@ -248,7 +247,7 @@ function saveOptions () {
     localStorage.removeItem('local_mirror');
   }
   if (!localStorage.getItem('a_apikey_gold')) {
-    var accessApi = $('#thepaperlink_apikey_input').val().replace(/\s+/g, '');
+    const accessApi = $('#thepaperlink_apikey_input').val().replace(/\s+/g, '');
     if (accessApi.length === 32) {
       req_a = valid_thepaperlink(accessApi);
     } else if (accessApi) {
@@ -258,8 +257,8 @@ function saveOptions () {
     }
   }
   if (!localStorage.getItem('b_apikey_gold')) {
-    var userEmail = $('#pubmeder_email_input').val();
-    var userApi = $('#pubmeder_apikey_input').val().replace(/\s+/g, '');
+    const userEmail = $('#pubmeder_email_input').val();
+    const userApi = $('#pubmeder_apikey_input').val().replace(/\s+/g, '');
     if (userEmail && !email_filter.test(userEmail)) {
       window.alert('\n please provide a valid email address\n');
       $('#pubmeder_email_input').focus();
@@ -343,19 +342,19 @@ $(document).ready(function () {
     $('#save_widget').removeClass('Off');
   });
 
-  var a_key = localStorage.getItem('thepaperlink_apikey');
-  var b_key = localStorage.getItem('pubmeder_apikey');
-  var b_email = localStorage.getItem('pubmeder_email');
-  var m_status = localStorage.getItem('mendeley_status');
-  var f_status = localStorage.getItem('facebook_status');
-  var d_status = localStorage.getItem('dropbox_status');
-  var b_status = localStorage.getItem('douban_status');
-  var g_status = localStorage.getItem('googledrive_status');
-  var o_status = localStorage.getItem('onedrive_status');
-  var y_status = localStorage.getItem('baiduyun_status');
-  var ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
-  var cc_address = localStorage.getItem('cc_address');
-  var local_mirror = localStorage.getItem('local_mirror');
+  const a_key = localStorage.getItem('thepaperlink_apikey');
+  const b_key = localStorage.getItem('pubmeder_apikey');
+  const b_email = localStorage.getItem('pubmeder_email');
+  const m_status = localStorage.getItem('mendeley_status');
+  const f_status = localStorage.getItem('facebook_status');
+  const d_status = localStorage.getItem('dropbox_status');
+  const b_status = localStorage.getItem('douban_status');
+  const g_status = localStorage.getItem('googledrive_status');
+  const o_status = localStorage.getItem('onedrive_status');
+  const y_status = localStorage.getItem('baiduyun_status');
+  const ezproxy_prefix = localStorage.getItem('ezproxy_prefix');
+  const cc_address = localStorage.getItem('cc_address');
+  const local_mirror = localStorage.getItem('local_mirror');
 
   if (a_key) {
     $('#thepaperlink_apikey').html('<span class="keys">' + a_key + '</span> &nbsp;&nbsp;<span style="cursor:pointer;color:#ccc" id="reset_key_one">[x]</span>');
@@ -522,9 +521,9 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    var terms = localStorage.getItem('past_search_terms').split('||');
-    var tmp = $('#keywords_list');
-    var t = 0; var i; var a; var b; var c = [];
+    let terms = localStorage.getItem('past_search_terms').split('||');
+    let tmp = $('#keywords_list');
+    let t = 0; let i; let a; let b; let c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
@@ -550,7 +549,7 @@ $(document).ready(function () {
       }
     }
     if (t > 0) {
-      var span_max = 200;
+      let span_max = 200;
       $('.keywords_li span').each(function () {
         if ($(this).width() > span_max) {
           span_max = $(this).width();
@@ -588,12 +587,12 @@ $(document).ready(function () {
       $('.keywords_li a').addClass('ui-button ui-state-default ui-corner-all');
       $('.keywords_li a').on('click', function (e) {
         e.preventDefault();
-        var term = $(this).parent().children('span').text();
-        var hist = localStorage.getItem(term);
-        var hist_array = hist.split('||');
-        var tt = $('#graph_trend').offset().top - 25;
-        var j = 'search results count: ' + term + '\n----\n'; var k; var l;
-        var len = hist_array.length;
+        const term = $(this).parent().children('span').text();
+        const hist = localStorage.getItem(term);
+        const hist_array = hist.split('||');
+        const tt = $('#graph_trend').offset().top - 25;
+        let j = 'search results count: ' + term + '\n----\n'; let k; let l;
+        const len = hist_array.length;
         for (k = 0; k < len; k += 1) {
           l = hist_array[k].lastIndexOf(',');
           tmp = hist_array[k].substr(0, l).replace(/,/g, '/') + '\t' + hist_array[k].substr(l + 1) + '\n';
@@ -608,7 +607,7 @@ $(document).ready(function () {
           $('#graph_trend').css('padding-top', 0);
         }
         $('#delete_term_log').on('click', function () {
-          var answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
+          const answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
             localStorage.removeItem(term);
             location.reload();
