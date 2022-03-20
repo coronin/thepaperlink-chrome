@@ -219,52 +219,50 @@ function process_storkapp () { // 2018 Dec
   }, arbitrary_pause);
 }
 
-function process_f1000 () { // 2018 Sep
+function process_f1000 () {  // 2022 March
   var i; var len; var pmid = ''; var doi = '';
-  var fid = parseInt(page_url.split('.com/prime/')[1], 10);
-  for (i = 0; i < byTag('meta').length; i += 1) {
-    if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
-      pmid = byTag('meta')[i].getAttribute('content');
-    } else if (byTag('meta')[i].getAttribute('name') === 'citation_doi') {
-      doi = byTag('meta')[i].getAttribute('content');
-    }
-  }
-  for (i = 0, len = byTag('span').length; i < len; i += 1) { // 2021-4-20
-    // if (byTag('span')[i].className === 'recommendations-summary-count') {
-    //   var f_v = parseInt(byTag('span')[i].textContent, 10);
-    // }
-    // div.data-pmid
-    // span.data-testid = badge-score-id
-    if (byTag('span')[i].className === 'journalname') {
-      byTag('span')[i].parentNode.id = 'thepaperlink_bar';
-      if (byID('article-doi') !== null) {
-        byID('article-doi').style.display = 'none';
-      }
-    }
-  }
-  if (pmid && fid) { // f_v && 2021-4-20
-    console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
+  var fid = parseInt(page_url.split('.com/article/')[1], 10);
+  // for (i = 0; i < byTag('meta').length; i += 1) {  // not working 2022-3-20
+  //   if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
+  //     pmid = byTag('meta')[i].getAttribute('content');
+  //   } else if (byTag('meta')[i].getAttribute('name') === 'citation_doi') {
+  //     doi = byTag('meta')[i].getAttribute('content');
+  //   }
+  // }
+  if (fid) {
+    //console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
     setTimeout(function () {
-      var badge_score_id = byClassOne('__faculty-opinions-badge__'
-                ).getElementsByTagName('div')[0
-                ].getElementsByTagName('div')[0
-                ].getElementsByTagName('span')[0];
-      var f_v = '';
-      if (badge_score_id) {
-        f_v = badge_score_id.textContent;
+      byTag('h1')[0].parentNode.getElementsByTagName('p')[0].id = 'thepaperlink_bar';
+      for (i = 0, len = byTag('span').length; i < len; i += 1) {
+        if (trim(byTag('span')[i].textContent).indexOf('PMID:') === 0) {
+          pmid = trim(byTag('span')[i].textContent).substr(6);
+          doi =byTag('span')[i].parentNode.getElementsByTagName('a')[0].textContent.split('doi.org/');
+          if (doi[1]) {
+            doi = doi[1].substr(0, doi[1].length-1);
+            page_d.title = pmid + '::' + doi; // ess.js
+          } else {
+            page_d.title = pmid + '::';
+          }
+        }
       }
-      console.log(arbitrary_pause, pmid, fid, f_v);
-      a_proxy({ from_f1000: pmid + ',' + fid + ',' + f_v });
+      var badge_score_div = byTag('aside')[0
+                ].getElementsByTagName('div')[0
+                ].getElementsByTagName('div')[0];
+      var f_v = '';
+      if (badge_score_div.getElementsByTagName('span')[0].textContent === 'recommended') {
+        f_v = trim(badge_score_div.getElementsByTagName('div')[0].textContent);
+        console.log(arbitrary_pause, pmid, fid, f_v);
+        a_proxy({ from_f1000: pmid + ',' + fid + ',' + f_v });
+      } else {
+        console.log(badge_score_div);
+      }
+      if (pmid && byClassOne('css-acwcvw') !== null) {  // handle abstract 2022-3-20
+        a_proxy({
+          pageAbs: trim(byClassOne('css-acwcvw').textContent.split('Copyright © ')[0]),
+          pmid: pmid
+        });
+      }
     }, arbitrary_pause);
-    page_d.title = pmid + '::' + doi; // ess.js
-  } else {
-    DEBUG && console.log('process_f1000: ' + pmid + ',' + fid + ',');
-  }
-  if (byID('abstract-tab-content') !== null) { // handle login page
-    a_proxy({
-      pageAbs: trim(byID('abstract-tab-content').textContent.split(' PMID: ')[0]),
-      pmid: pmid
-    });
   }
 }
 
@@ -1595,7 +1593,7 @@ function get_request (msg) {
     if (r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-            'https://facultyopinions.com/prime/' + uneval_trim(r.item[i].fid)
+            'https://facultyopinions.com/article/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
@@ -1780,7 +1778,7 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
 } else if (page_url.indexOf('://f1000.com/prime/') > 0) {
   process_f1000();
   noRun = 30;
-} else if (page_url.indexOf('://facultyopinions.com/prime/') > 0) {
+} else if (page_url.indexOf('://facultyopinions.com/article/') > 0) {
   process_f1000();
   noRun = 31;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||

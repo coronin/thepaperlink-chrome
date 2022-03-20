@@ -380,7 +380,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('//facultyopinions.com/prime/') > 0) {
+  } else if (tab.url.indexOf('//facultyopinions.com/article/') > 0) {  // 2022-3-20
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
