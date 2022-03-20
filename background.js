@@ -1,39 +1,39 @@
 'use strict';
 
-var DEBUG = false;
-var i; var len; var aKey; var aVal;
-var ws; var ws_timer;
-var ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081';
-var uid = localStorage.getItem('ip_time_uid') || null;
-var scholar_count = 0;
-var scholar_run = 0;
-var scholar_queue = [];
-var scholar_no_more = 0;
-var scholar_page_open_limits = 3;
-var shark_limits = localStorage.getItem('shark_limit') || 3;
-var loading_theServer = false;
-var load_try = 10;
-var local_ip = '';
-var alldigi = /^\d+$/;
-var dd = document;
-var base = 'https://www.thepaperlink.com';
-var guest_apikey = null;
-var apikey; var req_key; var pubmeder_apikey; var pubmeder_email;
-var local_mirror; var ezproxy_prefix; var cc_address;
-var arbitrary_sec = 5;
-var pubmeder_ok = false;
-var cloud_op = '';
-var broadcast_loaded = false;
-var extension_load_date = new Date();
-var date_str = 'day_' + extension_load_date.getFullYear() +
-        '_' + (extension_load_date.getMonth() + 1) +
-        '_' + extension_load_date.getDate();
+const DEBUG = false;
+let i; let len; let aKey; let aVal;
+let ws; let ws_timer;
+let ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081';
+let uid = localStorage.getItem('ip_time_uid') || null;
+let scholar_count = 0;
+let scholar_run = 0;
+let scholar_queue = [];
+let scholar_no_more = 0;
+let scholar_page_open_limits = 3;
+let shark_limits = localStorage.getItem('shark_limit') || 3;
+let loading_theServer = false;
+let load_try = 10;
+let local_ip = '';
+const alldigi = /^\d+$/;
+const dd = document;
+let base = 'https://www.thepaperlink.com';
+let guest_apikey = null;
+let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
+let local_mirror; let ezproxy_prefix; let cc_address;
+let arbitrary_sec = 5;
+let pubmeder_ok = false;
+let cloud_op = '';
+let broadcast_loaded = false;
+const extension_load_date = new Date();
+const date_str = 'day_' + extension_load_date.getFullYear() +
+                 '_' + (extension_load_date.getMonth() + 1) +
+                 '_' + extension_load_date.getDate();
 
 function ez_format_link (prefix, url) {
   if (!prefix) {
     return url;
   } else if (prefix.substr(0, 1) === '.') {
-    var ss = ''; var s = url.split('/');
+    let ss = ''; const s = url.split('/');
     for (i = 0; i < s.length; i += 1) {
       ss += s[i];
       if (i === 2) {
@@ -48,15 +48,14 @@ function ez_format_link (prefix, url) {
 }
 
 function get_ymd () {
-  var d = new Date();
+  const d = new Date();
   return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
 }
 
 function get_end_num (str) {
-  var suffix = ',';
   if (!str) { return 0; }
   try {
-    return parseInt(str.substr(str.lastIndexOf(suffix) + 1), 10);
+    return parseInt(str.substr(str.lastIndexOf(',') + 1), 10);
   } catch (err) {
     DEBUG && console.log('>> get_end_num: ' + err);
     return 0;
@@ -65,9 +64,8 @@ function get_end_num (str) {
 
 function post_theServer (v) {
   console.time('Call theServer for values');
-  var a = []; var version = 'Chrome_v2.9';
-  a[0] = 'WEBSOCKET_SERVER';
-  a[1] = 'GUEST_APIKEY';
+  const a = ['WEBSOCKET_SERVER', 'GUEST_APIKEY'];
+  const version = 'Chrome_v2.9';
   if (!local_ip) {
     return;
   }
@@ -138,7 +136,7 @@ function get_server_data (v) {
   } else {
     return;
   }
-  var req;
+  let req;
   if (!local_ip) {
     req = get_local_ip();
   }
@@ -174,31 +172,31 @@ function load_common_values (newday) {
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
   pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
   cloud_op = '';
-  var m_status = localStorage.getItem('mendeley_status');
+  const m_status = localStorage.getItem('mendeley_status');
   if (m_status && m_status === 'success') {
     cloud_op += 'm';
   }
-  var f_status = localStorage.getItem('facebook_status');
+  const f_status = localStorage.getItem('facebook_status');
   if (f_status && f_status === 'success') {
     cloud_op += 'f';
   }
-  var d_status = localStorage.getItem('dropbox_status');
+  const d_status = localStorage.getItem('dropbox_status');
   if (d_status && d_status === 'success') {
     cloud_op += 'd';
   }
-  var b_status = localStorage.getItem('douban_status');
+  const b_status = localStorage.getItem('douban_status');
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
   }
-  var g_status = localStorage.getItem('googledrive_status');
+  const g_status = localStorage.getItem('googledrive_status');
   if (g_status && g_status === 'success') {
     cloud_op += 'g';
   }
-  var o_status = localStorage.getItem('onedrive_status');
+  const o_status = localStorage.getItem('onedrive_status');
   if (o_status && o_status === 'success') {
     cloud_op += 'o';
   }
-  var y_status = localStorage.getItem('baiduyun_status');
+  const y_status = localStorage.getItem('baiduyun_status');
   if (y_status && y_status === 'success') {
     cloud_op += 'y';
   }
@@ -213,7 +211,7 @@ function load_common_values (newday) {
   cc_address = localStorage.getItem('cc_address') || '';
   arbitrary_sec = localStorage.getItem('arbitrary_sec') || 5;
   if (newday === undefined) {
-    var syncValues = {};
+    let syncValues = {};
     for (i = 0, len = localStorage.length; i < len; i += 1) {
       aKey = localStorage.key(i);
       aVal = localStorage.getItem(aKey);
@@ -244,7 +242,7 @@ load_common_values(1);
 console.timeEnd('>> load common values');
 
 function open_new_tab (url, winId, idx) {
-  var tab_obj = { url: url, active: true };
+  let tab_obj = { url: url, active: true };
   if (winId) {
     tab_obj.windowId = winId;
   }
@@ -270,7 +268,7 @@ function js_on_click (info, tab) {
 }
 
 function select_on_click (info, tab) {
-  var url = base;
+  let url = base;
   if (alldigi.test(info.selectionText)) {
     url += '/:' + info.selectionText;
   } else {
@@ -340,7 +338,7 @@ function save_visited_ID (new_id) {
   if (!new_id || new_id === '999999999') {
     return;
   }
-  var id_found = localStorage.getItem('id_found') || '';
+  const id_found = localStorage.getItem('id_found') || '';
   if (id_found.indexOf(new_id) === -1) {
     localStorage.setItem('id_found', id_found + ' ' + new_id);
   }
@@ -354,35 +352,35 @@ function saveIt_pubmeder (pmid) {
     DEBUG && console.log('>> no valid pubmeder credit');
     return;
   }
-  var args = {
+  const args = {
     apikey: pubmeder_apikey,
     email: pubmeder_email,
     pmid: pmid
   };
-  var saveurl = 'https://0.thepaperlink.com/input'; // 2020-8-23
+  let saveurl = 'https://0.thepaperlink.com/input'; // 2020-8-23
   if (localStorage.getItem('rev_proxy') === 'yes') {
     saveurl = 'https://0.thepaperlink.cn/input'; // 2020-8-23
   }
   $.getJSON(saveurl, args, function (d) {
     if (d.respond > 1) {
-      var pre_history = localStorage.getItem('id_history') || '';
+      let pre_history = localStorage.getItem('id_history') || '';
       pre_history.replace(/^,+|,+$/g, '');
       pre_history += ',' + pmid;
       localStorage.setItem('id_history', pre_history);
       localStorage.setItem('id_found', '');
     }
   }).fail(function () {
-    var date = new Date();
+    const date = new Date();
     localStorage.setItem('pubmed_' + pmid, date.getTime());
   });
 }
 
 function eSearch (search_term, tabId) {
-  var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  const url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
   console.time('data directly from eUtils');
   $.get(url,
     function (xml) {
-      var pmid = $(xml).find('Id');
+      const pmid = $(xml).find('Id');
       if (pmid.length === 1) {
         aVal = '' + pmid.text();
         save_visited_ID(aVal);
@@ -400,15 +398,15 @@ function eSearch (search_term, tabId) {
 
 function send_binary (aB, pmid, upload, no_email) {
   try {
-    var xhr = new XMLHttpRequest();
-    var boundary = 'AJAX------------------------AJAX';
-    var contentType = 'multipart/form-data; boundary=' + boundary;
-    var postHead = '--' + boundary + '\r\n' +
+    const xhr = new XMLHttpRequest();
+    const boundary = 'AJAX------------------------AJAX';
+    const contentType = 'multipart/form-data; boundary=' + boundary;
+    const postHead = '--' + boundary + '\r\n' +
             'Content-Disposition: form-data; name="file"; filename="pmid_' + pmid + '.pdf"\r\n' +
             'Content-Type: application/octet-stream\r\n\r\n';
-    var postTail = '\r\n--' + boundary + '--';
-    var abView = new Uint8Array(aB);
-    var post_data = postHead;
+    const postTail = '\r\n--' + boundary + '--';
+    const abView = new Uint8Array(aB);
+    let post_data = postHead;
     console.log('__ download the file size ' + abView.length + ', prepare uploading');
     if (abView.length < 1000) {
       return;
@@ -425,8 +423,8 @@ function send_binary (aB, pmid, upload, no_email) {
         function byteValue (x) {
           return x.charCodeAt(0) & 0xff;
         }
-        var ords = Array.prototype.map.call(datastr, byteValue);
-        var ui8a = new Uint8Array(ords);
+        const ords = Array.prototype.map.call(datastr, byteValue);
+        const ui8a = new Uint8Array(ords);
         // this.send(ui8a.buffer); // Chrome 22, support ArrayBufferViews
         this.send(ui8a);
       };
@@ -438,7 +436,7 @@ function send_binary (aB, pmid, upload, no_email) {
         DEBUG && console.log('>> email_pdf failed');
         if (!no_email && apikey) {
           // email_abstract, 2018-9-14
-          var date = new Date();
+          const date = new Date();
           localStorage.setItem('email_' + apikey + '_' + pmid, date.getTime());
         }
       }
@@ -451,12 +449,12 @@ function send_binary (aB, pmid, upload, no_email) {
 }
 
 function get_binary (file, pmid, upload, no_email) {
-  var xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.open('GET', file, true);
   xhr.responseType = 'arraybuffer'; // Synchronous requests cannot have XMLHttpRequest.responseType set
   // 2013-2-13 'ArrayBufferViews' still error
   xhr.onload = function () {
-    var aB = xhr.response; // not xhr.responseText
+    const aB = xhr.response; // not xhr.responseText
     if (aB) {
       send_binary(aB, pmid, upload, no_email);
     }
@@ -485,9 +483,9 @@ function queue_scholar_title () {
 }
 
 function do_scholar_title () {
-  var pmid = scholar_queue[3 * scholar_run];
-  var t = scholar_queue[3 * scholar_run + 1];
-  var tabId = scholar_queue[3 * scholar_run + 2];
+  const pmid = scholar_queue[3 * scholar_run];
+  const t = scholar_queue[3 * scholar_run + 1];
+  const tabId = scholar_queue[3 * scholar_run + 2];
   scholar_run += 1;
   if (scholar_run === scholar_count) {
     DEBUG && console.log('>> self-reset scholar_count _run _queue');
@@ -508,16 +506,16 @@ function scholar_title (pmid, t, tabId) {
     });
     return;
   }
-  var url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
+  const url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
       encodeURIComponent('"' + t + '"');
   b_proxy(tabId, {
     g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
   });
   $.get(url,
     function (r) {
-      var reg = /<a[^<]+>Cited by \d+<\/a>/;
-      var h = reg.exec(r);
-      var g_num = []; var g_link = [];
+      const reg = /<a[^<]+>Cited by \d+<\/a>/;
+      const h = reg.exec(r);
+      let g_num = []; let g_link = [];
       if (h && h.length) {
         // console.log(h);
         g_num = />Cited by (\d+)</.exec(h[0]);
@@ -561,7 +559,7 @@ function scholar_title (pmid, t, tabId) {
 }
 
 function do_download_shark (pmid, url) {
-  var id = localStorage.getItem('downloadId_' + pmid);
+  const id = localStorage.getItem('downloadId_' + pmid);
   if (id) {
     chrome.downloads.search({ url: url },
       function (item) {
@@ -605,7 +603,7 @@ function prepare_download_shark (tabId, pmid, args) {
 function parse_shark (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
   // @@@@ blocked by CORS policy: No 'Access-Control-Allow-Origin' header
-  var in_mem = localStorage.getItem('shark_' + pmid);
+  let in_mem = localStorage.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, { el_id: '_shark' + pmid, el_data: in_mem[1] });
@@ -619,8 +617,8 @@ function parse_shark (pmid, url, tabId) {
   }
   shark_limits -= 1;
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: 1 });
-  var reg = /iframe src\s*=\s*"(\S+)"/i; var h;
-  var args = { apikey: req_key, pmid: pmid, shark_link: '' };
+  const reg = /iframe src\s*=\s*"(\S+)"/i; let h;
+  let args = { apikey: req_key, pmid: pmid, shark_link: '' };
   $.get(url,
     function (r) {
       h = reg.exec(r);
@@ -642,7 +640,7 @@ function parse_pii (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
   return false; // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
 
-  var in_mem = localStorage.getItem('url_' + pmid);
+  let in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, { el_id: '_pdf' + pmid, el_data: in_mem[1] });
@@ -656,11 +654,11 @@ function parse_pii (pmid, url, tabId) {
   b_proxy(tabId, { el_id: '_pdf' + pmid, el_data: 1 });
   $.get(url,
     function (r) {
-      var reg = /href="([^"]+)" target="newPdfWin"/;
-      var reg2 = /Cited by in Scopus \((\d+)\)/i;
-      var h = reg.exec(r);
-      var h2 = reg2.exec(r);
-      var args;
+      const reg = /href="([^"]+)" target="newPdfWin"/;
+      const reg2 = /Cited by in Scopus \((\d+)\)/i;
+      const h = reg.exec(r);
+      const h2 = reg2.exec(r);
+      let args;
       if (h && h.length) {
         DEBUG && console.log(h);
         args = { apikey: req_key, pmid: pmid, pii_link: h[1] };
@@ -728,7 +726,7 @@ function load_broadcast () {
   };
   ws.onmessage = function (message) {
     try {
-      var d = JSON.parse(message.data);
+      const d = JSON.parse(message.data);
       DEBUG && console.log(d);
       if (d.apikey === req_key && d.action) {
         chrome.tabs.query({ active: true, currentWindow: true },
@@ -753,7 +751,7 @@ function load_broadcast () {
 }
 
 function reLoad_options () {
-  var urlOp = chrome.runtime.getURL('options.html');
+  const urlOp = chrome.runtime.getURL('options.html');
   chrome.tabs.query({ url: urlOp }, function (tabs) {
     for (aKey in tabs) {
       chrome.tabs.update(tabs[aKey].id, { url: urlOp });
@@ -762,7 +760,7 @@ function reLoad_options () {
 }
 
 function common_dThree (itemZero, withRed) {
-  var tmp; var extra = '';
+  let tmp; let extra = '';
   if (itemZero.slfo && itemZero.slfo !== '~' && parseFloat(itemZero.slfo) > 0) {
     tmp = '<span>impact<i style="font-size:75%">' + itemZero.slfo + '</i></span>';
     extra += tmp;
@@ -789,7 +787,7 @@ function common_dThree (itemZero, withRed) {
 function call_from_other_sites (pmid, tabId, fid, f_v) {
   if (!pmid) { return; }
   chrome.storage.local.get(['tpl' + pmid], function (ddd) {
-    var dd = ddd['tpl' + pmid];
+    const dd = ddd['tpl' + pmid];
     if (dd && dd.pmid === pmid) {
       aVal = common_dThree(dd, 0);
       if (aVal) {
@@ -846,8 +844,8 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
 
 function get_request (msg, _port) {
   // console.log(msg);
-  var sender_tab_id = null;
-  var pmid; var tmp; var args;
+  let sender_tab_id = null;
+  let pmid; let tmp; let args;
   if (_port && _port.sender && _port.sender.tab) {
     sender_tab_id = _port.sender.tab.id;
   } else if (_port && _port.sender && msg.tabId) {
@@ -863,7 +861,7 @@ function get_request (msg, _port) {
       arbitrary_pause: arbitrary_sec * 1000
     });
   } else if (msg.url) {
-    var request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id;
+    let request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id;
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
     }
@@ -986,8 +984,8 @@ function get_request (msg, _port) {
              msg.money_reportWrongLink ||
              msg.money_needInfo ||
              msg.money_email_pdf) {
-    var post_action = '';
-    var action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
+    let post_action = '';
+    const action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
     if (msg.money_emailIt) {
       post_action = 'email';
       _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
@@ -1054,7 +1052,7 @@ function get_request (msg, _port) {
       get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
     } else if (!msg.no_email) {
       // email_abstract, 2018-9-14
-      var date = new Date();
+      const date = new Date();
       localStorage.setItem('email_' + apikey + '_' + msg.pmid, date.getTime());
     }
   } else if (msg.save_cloud_op) {
@@ -1080,7 +1078,7 @@ function get_request (msg, _port) {
       localStorage.setItem('baiduyun_status', 'success');
     }
   } else if (msg.t_cont) {
-    var holder = dd.getElementById('clippy_t');
+    const holder = dd.getElementById('clippy_t');
     holder.style.display = 'block';
     // 2018-9-14 @@@@ so_noDate
     // 2022-2-23 move from contentscript.js
@@ -1097,7 +1095,7 @@ function get_request (msg, _port) {
       msg.t_cont = msg.t_cont.replace(' Online ahead of print.', '');
     }
     if (msg.t_cont.indexOf('Among authors: ') > 0) {
-      var _tt = msg.t_cont.split('Among authors: ');
+      const _tt = msg.t_cont.split('Among authors: ');
       holder.value = _tt[0] + _tt[1].substr(_tt[1].indexOf('.') + 2);
     } else {
       holder.value = msg.t_cont;
@@ -1108,7 +1106,7 @@ function get_request (msg, _port) {
   } else if (msg.load_common_values) {
     load_common_values();
   } else if (msg.a_pmid && msg.a_title) {
-    var in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
+    let in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 3);
       _port && _port.postMessage({
@@ -1145,12 +1143,12 @@ function get_request (msg, _port) {
     }
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
-      var terms = localStorage.getItem('past_search_terms');
-      var term_lower = msg.search_term.toLowerCase()
-        .replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
-      var one_term_saved = localStorage.getItem(term_lower);
-      var end_num = get_end_num(one_term_saved);
-      var digitals = get_ymd();
+      let terms = localStorage.getItem('past_search_terms');
+      const term_lower = msg.search_term.toLowerCase()
+                         .replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
+      const one_term_saved = localStorage.getItem(term_lower);
+      const end_num = get_end_num(one_term_saved);
+      let digitals = get_ymd();
       digitals.push(msg.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
@@ -1188,7 +1186,7 @@ function get_request (msg, _port) {
       args = { apikey: req_key, db: 'pubmed', id: pmid };
       DEBUG && console.log('>> will entrezajax abstract for PMID:' + pmid);
       $.getJSON(base + '/entrezajax/efetch', args, function (d) {
-        var l = d.result.PubmedArticle[0];
+        const l = d.result.PubmedArticle[0];
         if (l.MedlineCitation.Article.Abstract) {
           localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
           _port && _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
@@ -1200,11 +1198,11 @@ function get_request (msg, _port) {
   } else if (msg.do_syncValues) {
     do_syncValues();
   } else if (msg.failed_term) {
-    var failed_terms = localStorage.getItem('failed_terms') || '';
-    var failed_times = 0;
+    const failed_terms = localStorage.getItem('failed_terms') || '';
+    let failed_times = 0;
     if (failed_terms) {
       console.log(failed_terms); // @@@@
-      var failed_match = failed_terms.match(/","/g);
+      const failed_match = failed_terms.match(/","/g);
       if (failed_match) {
         failed_times = failed_match.length + 1;
       }
@@ -1272,8 +1270,8 @@ if (localStorage.getItem('contextMenu_shown') !== 'no') {
 
 function newdayRoutine () {
   console.log('>> a new day! housekeeping first ' + Math.random());
-  var old_id = '';
-  var init_found = localStorage.getItem('id_found') || '';
+  let old_id = '';
+  const init_found = localStorage.getItem('id_found') || '';
   for (i = 0, len = localStorage.length; i < len; i += 1) {
     aKey = localStorage.key(i);
     if (aKey && aKey.substr(0, 6) === 'tabId:') {
@@ -1313,16 +1311,15 @@ $(document).ready(function () {
 });
 
 function adjustStorage (rst, newOnly) {
-  var toRemove = [];
+  let toRemove = [];
   for (aKey in rst) {
     if (aKey.indexOf('pmid_') === 0) {
-      var a_pmid = aKey.substr(5, aKey.length - 5);
-      var pmidObj = rst[aKey];
-      var a_key;
+      const a_pmid = aKey.substr(5, aKey.length - 5);
+      let pmidObj = rst[aKey];
       if (newOnly) { pmidObj = rst[aKey].newValue; }
-      for (a_key in pmidObj) {
-        DEBUG && console.log(a_key + '_' + a_pmid, '' + pmidObj[a_key]);
-        localStorage.setItem(a_key + '_' + a_pmid, '' + pmidObj[a_key]);
+      for (aVal in pmidObj) {
+        DEBUG && console.log(aVal + '_' + a_pmid, '' + pmidObj[aVal]);
+        localStorage.setItem(aVal + '_' + a_pmid, '' + pmidObj[aVal]);
       }
     } else if (aKey.indexOf('tabId:') === 0 ||
         rst[aKey] === undefined || rst[aKey] === null) {
@@ -1416,9 +1413,10 @@ chrome.storage.onChanged.addListener(function (rst, areaName) {
       adjustStorage(rst, 1);
     }
   } else {
+    let a; let b;
     for (aKey in rst) {
-      var a = rst[aKey].oldValue;
-      var b = rst[aKey].newValue;
+      a = rst[aKey].oldValue;
+      b = rst[aKey].newValue;
       if (a && a.date_str) {
         a.date_str = undefined;
         b.date_str = undefined;
@@ -1440,6 +1438,6 @@ chrome.omnibox.onInputChanged.addListener(
 
 chrome.omnibox.onInputEntered.addListener(
   function (text) {
-    var newURL = base + '?q=' + text;
+    const newURL = base + '?q=' + text;
     chrome.tabs.create({ url: newURL });
   });
