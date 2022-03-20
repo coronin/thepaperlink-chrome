@@ -219,7 +219,7 @@ function process_storkapp () { // 2018 Dec
   }, arbitrary_pause);
 }
 
-function process_f1000 () {  // 2022 March
+function process_f1000 () { // 2022 March
   let i; let len; let pmid = ''; let doi = '';
   const fid = parseInt(page_url.split('.com/article/')[1], 10);
   // for (i = 0; i < byTag('meta').length; i += 1) {  // not working 2022-3-20
@@ -230,7 +230,7 @@ function process_f1000 () {  // 2022 March
   //   }
   // }
   if (fid) {
-    //console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
+    // console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
     setTimeout(function () {
       byTag('h1')[0].parentNode.getElementsByTagName('p')[0].id = 'thepaperlink_bar';
       for (i = 0, len = byTag('span').length; i < len; i += 1) {
@@ -256,7 +256,7 @@ function process_f1000 () {  // 2022 March
       } else {
         console.log(badge_score_div);
       }
-      if (pmid && byClassOne('css-acwcvw') !== null) {  // handle abstract 2022-3-20
+      if (pmid && byClassOne('css-acwcvw')) {  // handle abstract 2022-3-20
         a_proxy({
           pageAbs: trim(byClassOne('css-acwcvw').textContent.split('Copyright © ')[0]),
           pmid: pmid
@@ -673,6 +673,16 @@ function new_pubmed_references_More (ajax = true) {
       }
     } catch (err) {
       DEBUG && console.log('reference-link', err);
+      hrefs = ols[i].textContent.split('.');
+      if (hrefs.length > 2) {
+        obj = page_d.createElement('a');
+        obj.textContent = '[link]';
+        obj.setAttribute('href', 'https://pubmed.ncbi.nlm.nih.gov/?term=' +
+                                 trim(hrefs[1]).replace(/-/g, ' ') + '[Title]');
+        obj.setAttribute('target', '_blank');
+        obj.setAttribute('style', 'float:left;padding-right:1em;font-size:11px');
+        ols[i].prepend(obj);
+      }
       continue;
     }
     if (byID('tpl' + ID) !== null || byID('thepaperlink_if' + ID) !== null) {
@@ -900,25 +910,23 @@ function new_pubmed_single () {
     } // link out to see all citedby
   }
   if (byID('references') !== null) {
-    if (byID('references').getElementsByClassName('refs-list-title')[0]) {
-      // https://pubmed.ncbi.nlm.nih.gov/32598099/
-      byID('references').getElementsByClassName('refs-list-title')[0].style.display = 'none';
-    } else {
-      if (byID('references').getElementsByClassName('show-all')[0] &&
-          byID('references_all') !== null) {
-        byID('references').getElementsByClassName('show-all')[0].id = 'references_all';
-        byID('references_all').onclick = function () {
-          byID('tpl_manual_references_all').removeAttribute('class');
-          setTimeout(new_pubmed_references_More, arbitrary_pause);
-        };
-        const z = page_d.createElement('span');
-        z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
-        z.id = 'tpl_manual_references_all';
-        z.className = 'thepaperlink_Off';
-        byID('references').getElementsByTagName('h3')[0].appendChild(z);
-      }
-    }
     new_pubmed_references_More(false);
+    if (byID('references').getElementsByClassName('show-all')[0] && !byID('references_all')) {
+      byID('references').getElementsByClassName('show-all')[0].id = 'references_all';
+      byID('references_all').onclick = function () {
+        byID('tpl_manual_references_all').removeAttribute('class');
+        setTimeout(new_pubmed_references_More, arbitrary_pause);
+      };
+      const z = page_d.createElement('span');
+      z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
+      z.id = 'tpl_manual_references_all';
+      z.className = 'thepaperlink_Off';
+      byID('references').getElementsByTagName('h3')[0].appendChild(z);
+    }
+    // https://pubmed.ncbi.nlm.nih.gov/32598099/
+    if (byID('references').getElementsByClassName('refs-list-title')[0]) {
+      byID('references').getElementsByClassName('refs-list-title')[0].style.display = 'none';
+    }
   }
 }
 
@@ -926,7 +934,7 @@ function id_journal (s, pmid) {
   let sa = trim(s);
   let sb = '<span id="thepaperlink_if' + pmid + '">';
   if (sa.indexOf('Among authors: ') === 0) { // 2020-4-5
-    sb = '<span style="display:none">' + sa.substr(0, sa.indexOf('. ') + 2) + '</span>' + sb;  // 2022-2-23
+    sb = '<span style="display:none">' + sa.substr(0, sa.indexOf('. ') + 2) + '</span>' + sb; // 2022-2-23
     sa = sa.substr(sa.indexOf('. ') + 2);
   }
   if (sa.indexOf('. 20') > 0) {
@@ -936,7 +944,7 @@ function id_journal (s, pmid) {
     sb += sa.substr(0, sa.indexOf('. 1')) +
           '</span>' + sa.substr(sa.indexOf('. 1') + 1);
   } else {
-    console.log(s);  // 2021-9-11
+    console.log(s); // 2021-9-11
     if (s.indexOf(' Books & Documents.') < 0) {
       window.alert('Article >> ' + s);
     }
@@ -1435,7 +1443,7 @@ function get_request (msg) {
     if (byID(msg.to_other_sites).textContent === ' the paper link') {
       byID(msg.to_other_sites).innerHTML = '';
     }
-    if (byID(msg.to_other_sites).getElementsByClassName('thepaperlink-home').length === 0) { // 2021-5-20
+    if (byID(msg.to_other_sites).getElementsByClassName('thepaperlink-home')[0]) { // 2021-5-20
       byID(msg.to_other_sites).appendChild(div);
     }
     // 2020-8-21
@@ -1571,13 +1579,13 @@ function get_request (msg) {
           ) + '" target="_blank">publisher</a>';
           // linkinghub.elsevier.com/retrieve/pii/
       let new_doi;
-      if (page_url.indexOf(pmid) > 0) {   // 2022-3-7
+      if (page_url.indexOf(pmid) > 0) { // 2022-3-7
         new_doi = byClassOne('id-link').href.substr(16);
         console.log(i, pmid, new_doi);
         a_proxy({ money_emailIt: pmid, doi: new_doi });
       }
       if (local_mirror) {
-        if (page_url.indexOf(pmid) > 0 && new_doi) {   // 2022-3-7
+        if (page_url.indexOf(pmid) > 0 && new_doi) { // 2022-3-7
           window.alert('retrieve ' + r.item[i].pii + ' is not working at ' + local_mirror + '\n\ndoi? ' + r.item[i].doi );
           tmp += '<a id="thepaperlink_doi' + pmid +
             '" href="https://' + local_mirror + '/' + new_doi +
