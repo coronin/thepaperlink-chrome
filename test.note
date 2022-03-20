@@ -27,7 +27,7 @@ https://www.biorxiv.org/content/10.1101/2020.01.21.911859v1
 
 
 #### Verify JS
-semistandard *.js | sed "s/ Identifier '[0-9a-zA-Z_]*' is not in camel case.//" | sed "s/'jQuery' is not defined.//" | sed "s/'$' is not defined.//" | sed "s/'localStorage' is not defined.//" | sed "s/'chrome' is not defined.//"
+semistandard *.js | sed "s/ Identifier '[0-9a-zA-Z_]*' is not in camel case.//" | sed "s/'jQuery' is not defined.//" | sed "s/'$' is not defined.//" | sed "s/'localStorage' is not defined.//" | sed "s/'chrome' is not defined.//" | sed "s/'location' is not defined.//"
 
 
 #### Submit to

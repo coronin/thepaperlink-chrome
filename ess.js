@@ -1,7 +1,7 @@
 'use strict';
 
-var _port = chrome.runtime.connect({ name: 'background_port' });
-var foundOrig;
+const _port = chrome.runtime.connect({ name: 'background_port' });
+let foundOrig;
 
 function hideMore () {
   $('.moreAbout').addClass('Off');
@@ -11,7 +11,7 @@ function hideMore () {
 }
 
 function t_cont (copyId) {
-  var cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
+  const cont = $('p#' + copyId.substr(4, copyId.length - 4)).text();
   _port && _port.postMessage({
     t_cont: cont.replace('check abstract', ''
                 ).replace('save', '').replace('.PMID:', '.  PMID:'
@@ -22,8 +22,8 @@ function t_cont (copyId) {
 
 function peaks (name) {
   if (!name) { return; }
-  var peaksURL = 'https://2.thepaperlink.com/?term=';
-  var tpl = localStorage.getItem('thepaperlink_apikey') || '';
+  let peaksURL = 'https://2.thepaperlink.com/?term=';
+  let tpl = localStorage.getItem('thepaperlink_apikey') || '';
   if (localStorage.getItem('rev_proxy') === 'yes') {
     peaksURL = 'https://2.thepaperlink.cn/?term=';
   }
@@ -32,8 +32,8 @@ function peaks (name) {
 }
 
 function titleLink (ID) {
-  var doiURL = 'https://dx.doi.org';
-  var base = 'https://www.thepaperlink.com';
+  let doiURL = 'https://dx.doi.org';
+  let base = 'https://www.thepaperlink.com';
   if (localStorage.getItem('local_mirror')) {
     doiURL = 'https://' + localStorage.getItem('local_mirror');
   }
@@ -75,7 +75,7 @@ function eFetch (pmid) {
     return;
   }
   $('.loadIcon').removeClass('Off');
-  var url; var args = {
+  let url; const args = {
     apikey: localStorage.getItem('GUEST_APIKEY'),
     db: 'pubmed',
     id: pmid
@@ -90,10 +90,10 @@ function eFetch (pmid) {
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
-    var l = d.result.PubmedArticle[0]; var tmp; var j; var len;
+    const l = d.result.PubmedArticle[0]; let tmp; let j; let len;
 
     if (l.MedlineCitation.Article.Abstract) {
-      var abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
+      const abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
       localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText); // v3
     } else {
@@ -101,7 +101,7 @@ function eFetch (pmid) {
       return;
     }
     if (l.MedlineCitation.CommentsCorrectionsList) {
-      var ref_list = '<p class="moreAbout"><b style="text-decoration:underline">References:</b> ';
+      let ref_list = '<p class="moreAbout"><b style="text-decoration:underline">References:</b> ';
       len = l.MedlineCitation.CommentsCorrectionsList.length;
       for (j = 0; j < len; j += 1) {
         if (j === 0) {
@@ -116,14 +116,14 @@ function eFetch (pmid) {
     }
 
     if (l.MedlineCitation.Article.DataBankList) {
-      var lsc = l.MedlineCitation.Article.DataBankList.length;
-      var ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
+      let lsc = l.MedlineCitation.Article.DataBankList.length;
+      let ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
       while ((!ls || ls.DataBankName !== 'PDB') && lsc > 0) {
         lsc -= 1;
         ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
       }
       if (lsc > 0) {
-        var DataBank_list = '<p class="moreAbout"><b style="text-decoration:underline">PDB Files:</b> ';
+        let DataBank_list = '<p class="moreAbout"><b style="text-decoration:underline">PDB Files:</b> ';
         len = ls.AccessionNumberList.length;
         for (j = 0; j < len; j += 1) {
           if (j === 0) {
@@ -139,7 +139,7 @@ function eFetch (pmid) {
     }
 
     if (l.MedlineCitation.Article.GrantList) {
-      var grant_list = '<p class="moreAbout"><b style="text-decoration:underline">Fund By:</b> ';
+      let grant_list = '<p class="moreAbout"><b style="text-decoration:underline">Fund By:</b> ';
       len = l.MedlineCitation.Article.GrantList.length;
       for (j = 0; j < len; j += 1) {
         if (j === 0) {
@@ -154,7 +154,7 @@ function eFetch (pmid) {
     }
 
     if (l.MedlineCitation.ChemicalList) {
-      var keyChem = '<p class="moreAbout"><b style="text-decoration:underline">Chemical:</b> ';
+      let keyChem = '<p class="moreAbout"><b style="text-decoration:underline">Chemical:</b> ';
       len = l.MedlineCitation.ChemicalList.length;
       for (j = 0; j < len; j += 1) {
         if (j === 0) {
@@ -169,7 +169,7 @@ function eFetch (pmid) {
     }
 
     if (l.MedlineCitation.MeshHeadingList) {
-      var keyHead = '<p class="moreAbout"><b style="text-decoration:underline">Heading:</b> ';
+      let keyHead = '<p class="moreAbout"><b style="text-decoration:underline">Heading:</b> ';
       len = l.MedlineCitation.MeshHeadingList.length;
       for (j = 0; j < len; j += 1) {
         if (j === 0) {
@@ -192,39 +192,38 @@ function eFetch (pmid) {
 }
 
 function eSummary (term, tabId, no_term_update) {
-  var webenvCheck = /[a-zA-Z]/;
-  var limit = localStorage.getItem('pubmed_limit') || '5';
-  var urll = '';
+  const webenvCheck = /[a-zA-Z]/;
+  const limit = localStorage.getItem('pubmed_limit') || '5';
+  let urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
   if (!(/^[0-9,]+$/.test('' + term)) && !no_term_update) {
     $('#ess_input').val(term);
   }
   if (webenvCheck.test(term)) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
-        limit + '&query_key=1&webenv=' + term;
+           limit + '&query_key=1&webenv=' + term;
   } else {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
-        limit + '&id=' + term;
+           limit + '&id=' + term;
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $.get(urll,
     function (xml) {
       $('#result').html(''); // turn off loading
-      var pmid;
+      let pmid;
       $(xml).find('DocSum').each(function () {
-        var a = $(this).find('Item[Name="Author"]');
-        var author_list;
-        var pmc = $(this).find('Item[Name="pmc"]').text();
-        var doi = $(this).find('Item[Name="doi"]').text();
+        const a = $(this).find('Item[Name="Author"]');
+        let author_list;
+        const pmc = $(this).find('Item[Name="pmc"]').text();
+        const doi = $(this).find('Item[Name="doi"]').text();
         pmid = $(this).find('Id').text();
-        var Title = $(this).find('Item[Name="Title"]').text();
-        var titleLin;
-        var PubDate = $(this).find('Item[Name="PubDate"]').text();
-        var Source = $(this).find('Item[Name="Source"]').text();
-        var Volume = $(this).find('Item[Name="Volume"]').text();
-        var Pages = $(this).find('Item[Name="Pages"]').text();
-        var esum_text;
-        var tmp;
+        const Title = $(this).find('Item[Name="Title"]').text();
+        const PubDate = $(this).find('Item[Name="PubDate"]').text();
+        const Source = $(this).find('Item[Name="Source"]').text();
+        const Volume = $(this).find('Item[Name="Volume"]').text();
+        const Pages = $(this).find('Item[Name="Pages"]').text();
+        let esum_text;
+        let tmp;
 
         if (a.length === 0) { return 1; } // 2018-10-4
         a.each(function (j) {
@@ -237,7 +236,7 @@ function eSummary (term, tabId, no_term_update) {
             author_list += ', ' + tmp;
           }
         });
-        titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span> ';
+        const titleLin = '. <span class="title" id="' + pmid + '">' + Title + '</span> ';
         esum_text = '<p class="eSum" id="' + pmid + '">';
         if (doi) {
           esum_text += '<span class="down" id="' + doi + '">&nbsp;&#8623;</span> ';
@@ -300,19 +299,19 @@ function eSS (search_term, tabId) {
     tabId = parseInt(document.title, 10);
   }
   if (foundOrig !== undefined) { $('#found').text(foundOrig); }
-  var url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
+  const url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   if ($('#result').hasClass('Off')) {
     $('#result').removeClass('Off');
   }
   $.get(url,
     function (xml) {
-      var WebEnv = $(xml).find('WebEnv').text();
+      const WebEnv = $(xml).find('WebEnv').text();
       if (WebEnv) {
         eSummary(WebEnv, tabId, true);
       }
-      var a = $(xml).find('IdList'); // cannot use Count
-      var b = 0;
+      const a = $(xml).find('IdList'); // cannot use Count
+      let b = 0;
       a.each(function () {
         b += 1;
       });
@@ -363,7 +362,7 @@ $(document).ready(function () {
 });
 
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  var tab = tabs[0]; var ID;
+  const tab = tabs[0]; let ID;
   document.title = '' + tab.id; // ess.html
   $('#result').removeClass('Off');
   if (tab.url.indexOf('chrome-extension://') === 0) {
@@ -455,7 +454,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&nbsp;');
     eSS(tab.title.split(': ')[0], tab.id);
   } else if (tab.url.indexOf('sciencemag.org/') > 0) {
-    var urlBreaks = tab.url.split('/');
+    const urlBreaks = tab.url.split('/');
     ID = '10.1126/';
     if (urlBreaks[2] === 'immunology.sciencemag.org') {
       ID += 'sciimmunol.' + urlBreaks[6].replace('eaa', 'aa').replace('.full', '');
