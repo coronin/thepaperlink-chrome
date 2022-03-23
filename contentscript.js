@@ -152,12 +152,13 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
       page_d.title = pub_jnl.getElementsByTagName('a')[0].textContent;
       pub_jnl.id = 'thepaperlink_bar'; // 2021-5-20
     } else if (pub_jnl) {
-      DEBUG && alert(pub_jnl.textContent);
+      DEBUG && window.alert(pub_jnl.textContent);
     }
   }, arbitrary_pause); // 2021-4-22
-  const insert_style = page_d.createElement('style');
+  var insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
-  insert_style.appendChild(page_d.createTextNode('div.qtip100rc3-wrapper{min-width:430px!important}'));
+  insert_style.appendChild(page_d.createTextNode(
+    'div.qtip100rc3-wrapper{min-width:430px!important}' ));
   page_d.body.appendChild(insert_style);
   let insert_tip;
   eles = byTag('li');
@@ -171,7 +172,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
 }
 
 function process_storkapp () { // 2018 Dec
-  let i; let len; let ele; let pmid = ''; let elee;
+  let i; let len; let ele; let pmid = ''; let new_href;
   // ele.innerHTML = '<span class="paperlink2_found">Vale RD</span>';
   for (i = 0, len = byTag('a').length; i < len; i += 1) {
     ele = byTag('a')[i];
@@ -180,29 +181,45 @@ function process_storkapp () { // 2018 Dec
       page_d.title = pmid; // ess.js
       a_proxy({ from_sites_w_pmid: pmid });
       ele.href = 'https://pubmed.ncbi.nlm.nih.gov/' + pmid + '/';
-      elee = page_d.createElement('span');
+      const elee = page_d.createElement('span');
       elee.id = 'thepaperlink_bar';
       elee.style.fontSize = '13px';
       elee.style.fontWeight = 'normal';
       elee.style.marginLeft = '2em';
-      byTag('h4')[1].appendChild(elee);
+      byTag('h4')[1].appendChild(elee); // Links
       break;
     }
   }
   if (pmid !== '') {
     for (i = 0, len = byTag('a').length; i < len; i += 1) { // 2020-8-6
       ele = byTag('a')[i];
-      if (ele.href.indexOf('facebook.com') > 0) {
-        ele.href = 'https://www.facebook.com/sharer/sharer.php?u=https://www.thepaperlink.com/:' + pmid;
-      } else if (ele.href.indexOf('twitter.com') > 0) {
-        const stork_href = ele.href.split('www.storkapp.me');
-        ele.href = stork_href[0].replace('status=', 'text=') +
-                   'www.thepaperlink.com%2F' + pmid + 'via=%40the_paper_link&hashtags=tpl';
+      if (ele.href.indexOf('facebook.com/') > 0) {
+        ele.href = 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.thepaperlink.com%2F:' + pmid;
+      } else if (ele.href.indexOf('twitter.com/') > 0) {
+        new_href = ele.href.split('www.storkapp.me');
+        ele.href = new_href[0].replace('status=', 'text=') +
+                   'www.thepaperlink.com%2F:' + pmid + '&hashtags=tpl';
+      } else if (ele.href.indexOf('weibo.com/share') > 0) { // 2022-3-23
+        new_href = ele.href.split('&title=');
+        ele.href = new_href[0].split('?url=')[0] + '?url=' +
+                   'https%3A%2F%2Fwww.thepaperlink.com%2F:' + pmid +
+                   '&title=' + new_href[1];
+      } else if (ele.href.indexOf('connect.qq.com/') > 0) {
+        new_href = ele.href.split('&title=');
+        ele.href = new_href[0].split('?url=')[0] + '?url=' +
+                   'https%3A%2F%2Fwww.thepaperlink.com%2F:' + pmid +
+                   '&title=' + new_href[1];
+      } else if (ele.href.indexOf('qzone.qq.com/') > 0) {
+        new_href = ele.href.split('?url=');
+        ele.href = new_href[0] + '?url=' +
+                   'https%3A%2F%2Fwww.thepaperlink.com%2F:' + pmid;
+      } else if (ele.href.indexOf('&barcode=1') > 0) {
+        ele.style.display = 'none';
       }
     }
     if (byID('abstractHolder') !== null) { // 2020-1-10
       a_proxy({
-        pageAbs: trim(byID('abstractHolder').textContent.split('  Copyright ')[0]),
+        pageAbs: trim(byID('abstractHolder').textContent.split('Copyright ')[0]),
         pmid: pmid
       });
     } else { console.log('process_storkapp: #abstractHolder N/A'); }
@@ -540,7 +557,7 @@ function grp_author_name (ts) {
 function new_pubmed_single_More (init_pmid, id_obj, ajax) { // div.id: similar, citedby
   let ID; let t_title;
   if (pmidString !== '' && pmidString.substr(0, init_pmid.length + 1) !== ',' + init_pmid) {
-    alert(pmidString); // @@@@
+    window.alert(pmidString); // @@@@
   }
   for (let i = 0, len = id_obj.getElementsByClassName('docsum-pmid').length;
     i < len; i += 1) {
@@ -741,7 +758,7 @@ function new_pubmed_single1 (not_first) {
   try {
     a_proxy({ pageAbs: trim(section_obj.getElementsByClassName('abstract-content selected')[0].textContent.replace(/\s\s+/g, ' ')), pmid: ID });
   } catch {
-    alert('no abstract for ' + ID);
+    window.alert('no abstract for ' + ID);
   }
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
 
@@ -996,7 +1013,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
     t_cont = t_title + '\r\n' + t_strings;
   }
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
-  not_insert || console.log('t_cont', t_cont);
+  not_insert || console.log('t_cont\r\n', t_cont);
   not_insert || insert_clippy(ID, t_cont, byTag(zone)[num - 1], 2);
 
   let peakss; let found_click = '<span class="paperlink2_found">'; let peaksss; // @@@@ <b> authors or journal
@@ -1430,7 +1447,7 @@ function get_request (msg) {
           '}';
 
   if (msg.to_other_sites) { // respond to from_xx, style
-    const insert_style = page_d.createElement('style');
+    var insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles)); // WebKit hack
     page_d.body.appendChild(insert_style);
@@ -1469,7 +1486,7 @@ function get_request (msg) {
   const p = uneval_trim(msg.p);
   let slfoV; let impact3; let i3t; let i3s; let insert_span;
   if (!byID('css_loaded')) {
-    const insert_style = page_d.createElement('style');
+    var insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles));
     page_d.body.appendChild(insert_style);
@@ -1586,7 +1603,7 @@ function get_request (msg) {
       }
       if (local_mirror) {
         if (page_url.indexOf(pmid) > 0 && new_doi) { // 2022-3-7
-          window.alert('retrieve ' + r.item[i].pii + ' is not working at ' + local_mirror + '\n\ndoi? ' + r.item[i].doi );
+          DEBUG && window.alert('retrieve ' + r.item[i].pii + ' is not working at ' + local_mirror + '\n\ndoi? ' + r.item[i].doi );
           tmp += '<a id="thepaperlink_doi' + pmid +
             '" href="https://' + local_mirror + '/' + new_doi +
             '#" target="_blank">doi</a>';
