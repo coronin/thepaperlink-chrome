@@ -150,12 +150,12 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
                     'pub_jnl')[0];
     if (pub_jnl && pub_jnl.textContent.indexOf(' published in ') > 0) {
       page_d.title = pub_jnl.getElementsByTagName('a')[0].textContent;
-      pub_jnl.id = 'thepaperlink_bar'; // 2021-5-20
+      pub_jnl.id = 'thepaperlink_bar'; // 2021-5-20, 2022-3-23 shown after popup
     } else if (pub_jnl) {
       DEBUG && window.alert(pub_jnl.textContent);
     }
   }, arbitrary_pause); // 2021-4-22
-  var insert_style = page_d.createElement('style');
+  const insert_style = page_d.createElement('style');
   insert_style.type = 'text/css';
   insert_style.appendChild(page_d.createTextNode(
     'div.qtip100rc3-wrapper{min-width:430px!important}' ));
@@ -249,7 +249,10 @@ function process_f1000 () { // 2022 March
   if (fid) {
     // console.log(byClassOne('__faculty-opinions-badge__').getElementsByTagName('div')[0]);
     setTimeout(function () {
-      byTag('h1')[0].parentNode.getElementsByTagName('p')[0].id = 'thepaperlink_bar';
+      const p_bar = byTag('h1')[0].parentNode.getElementsByTagName('p')[0];
+      p_bar.id = 'thepaperlink_bar';
+      p_bar.innerHTML = p_bar.textContent.replace('et al', '<i>et al</i>') +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;';
       for (i = 0, len = byTag('span').length; i < len; i += 1) {
         if (trim(byTag('span')[i].textContent).indexOf('PMID:') === 0) {
           pmid = trim(byTag('span')[i].textContent).substr(6);
@@ -1447,7 +1450,7 @@ function get_request (msg) {
           '}';
 
   if (msg.to_other_sites) { // respond to from_xx, style
-    var insert_style = page_d.createElement('style');
+    const insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles)); // WebKit hack
     page_d.body.appendChild(insert_style);
@@ -1460,7 +1463,7 @@ function get_request (msg) {
     if (byID(msg.to_other_sites).textContent === ' the paper link') {
       byID(msg.to_other_sites).innerHTML = '';
     }
-    if (byID(msg.to_other_sites).getElementsByClassName('thepaperlink-home')[0]) { // 2021-5-20
+    if (!byID(msg.to_other_sites).getElementsByClassName('thepaperlink-home')[0]) { // 2021-5-20, 2022-3-23
       byID(msg.to_other_sites).appendChild(div);
     }
     // 2020-8-21
@@ -1486,7 +1489,7 @@ function get_request (msg) {
   const p = uneval_trim(msg.p);
   let slfoV; let impact3; let i3t; let i3s; let insert_span;
   if (!byID('css_loaded')) {
-    var insert_style = page_d.createElement('style');
+    const insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
     insert_style.appendChild(page_d.createTextNode(styles));
     page_d.body.appendChild(insert_style);
