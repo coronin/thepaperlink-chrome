@@ -75,7 +75,8 @@ function eFetch (pmid) {
     return;
   }
   $('.loadIcon').removeClass('Off');
-  let url; const args = {
+  let url;
+  let args = {
     apikey: localStorage.getItem('GUEST_APIKEY'),
     db: 'pubmed',
     id: pmid
@@ -84,6 +85,9 @@ function eFetch (pmid) {
     url = 'https://www.thepaperlink.cn/entrezajax/efetch';
   } else {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
+  }
+  if ( localStorage.getItem('ncbi_api') ) {
+    args.ncbi_api = localStorage.getItem('ncbi_api');
   }
   $.getJSON(url, args, function (d) {
     _port && _port.postMessage({ sendID: pmid });
