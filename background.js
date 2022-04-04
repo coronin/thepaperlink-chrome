@@ -1198,6 +1198,9 @@ function get_request (msg, _port) {
       _port && _port.postMessage({ returnAbs: localStorage.getItem('abs_' + pmid), pmid: pmid });
     } else {
       args = { apikey: req_key, db: 'pubmed', id: pmid };
+      if (ncbi_api) {
+        args.ncbi_api = ncbi_api;
+      }
       DEBUG && console.log('>> will entrezajax abstract for PMID:' + pmid);
       $.getJSON(base + '/entrezajax/efetch', args, function (d) {
         const l = d.result.PubmedArticle[0];
