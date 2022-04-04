@@ -19,6 +19,7 @@ const dd = document;
 let base = 'https://www.thepaperlink.com';
 let guest_apikey = null;
 let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
+let ncbi_api;
 let local_mirror; let ezproxy_prefix; let cc_address;
 let arbitrary_sec = 5;
 let pubmeder_ok = false;
@@ -170,6 +171,7 @@ function load_common_values (newday) {
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
+  ncbi_api = localStorage.getItem('ncbi_api') || null;
   pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
   cloud_op = '';
   const m_status = localStorage.getItem('mendeley_status');
@@ -909,6 +911,10 @@ function get_request (msg, _port) {
     }).always(function () {
       DEBUG && console.timeEnd('Call theServer api for json');
     });
+  } else if (msg.ncbi_api) {
+    localStorage.setItem('ncbi_api', msg.ncbi_api);
+    ncbi_api = msg.ncbi_api;
+    reLoad_options();
   } else if (msg.save_apikey) {
     if (msg.save_email) {
       localStorage.setItem('pubmeder_apikey', msg.save_apikey);

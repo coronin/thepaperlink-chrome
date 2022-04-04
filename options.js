@@ -345,6 +345,7 @@ $(document).ready(function () {
   const a_key = localStorage.getItem('thepaperlink_apikey');
   const b_key = localStorage.getItem('pubmeder_apikey');
   const b_email = localStorage.getItem('pubmeder_email');
+  const c_key = localStorage.getItem('ncbi_api');
   const m_status = localStorage.getItem('mendeley_status');
   const f_status = localStorage.getItem('facebook_status');
   const d_status = localStorage.getItem('dropbox_status');
@@ -369,6 +370,14 @@ $(document).ready(function () {
       $('#save_widget').removeClass('Off');
     });
     $('#ws_items_status').text('logout');
+  }
+  if (c_key) {
+    $('#ncbi_api').html('<span class="keys">' + c_key + '</span>');
+    $('#ncbi_link').attr('href', 'https://www.ncbi.nlm.nih.gov/account/');
+    $('#ncbi_link').text('with NCBI is required :');
+  } else {
+    $('#ncbi_api').html('');
+    $('#ncbi_link').attr('href', 'https://www.ncbi.nlm.nih.gov/account/settings/');
   }
   if (b_key) {
     $('#pubmeder_email').html('<span class="keys">' + b_email + '</span>');

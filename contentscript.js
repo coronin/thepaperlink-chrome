@@ -1799,6 +1799,17 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     save_email: byID('currentUser').innerHTML
   });
   noRun = 4;
+} else if (page_url === 'https://www.ncbi.nlm.nih.gov/account/settings/' ||
+    page_url === 'https://www.ncbi.nlm.nih.gov/account/settings/?smsg=create_apikey_success') {
+  setTimeout(function () {
+    if (byID('apiKeyCreateBtn') !== null) {
+      byID('apiKeyCreateBtn').click();
+    } else {
+      const ajax_ncbi_api = byID('apiKeyReplaceBtn').parentNode.previousElementSibling.textContent;
+      a_proxy({ ncbi_api: ajax_ncbi_api });
+    }
+  }, arbitrary_pause); // 2022-4-4
+  noRun = 5;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
     page_url.indexOf('.biorxiv.org/relate/content/') > 0 ||
     page_url.indexOf('://www.biorxiv.org/collection/') > 0 ||
