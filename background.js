@@ -378,7 +378,10 @@ function saveIt_pubmeder (pmid) {
 }
 
 function eSearch (search_term, tabId) {
-  const url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&term=' + search_term;
+  if (ncbi_api) {
+    url += '&api_key=' + ncbi_api;
+  }
   console.time('data directly from eUtils');
   $.get(url,
     function (xml) {
@@ -803,7 +806,9 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
         { to_other_sites: 'thepaperlink_bar', uri: base, pmid: pmid, extra: aVal });
     } else {
       $.getJSON(base + '/api',
-        { a: 'chrome3', pmid: pmid, apikey: req_key, runtime: '' + chrome.runtime.id },
+        { a: 'chrome3', pmid: pmid, apikey: req_key,
+          runtime: '' + chrome.runtime.id,
+          ncbi_api: ncbi_api || '' },
         function (d) {
           if (d && d.count === 1) {
             aVal = common_dThree(d.item[0], 0);
@@ -866,6 +871,9 @@ function get_request (msg, _port) {
     let request_url = base + msg.url + req_key + '&runtime=' + chrome.runtime.id;
     if (uid && uid !== 'unknown') {
       request_url += '&uid=' + uid;
+    }
+    if (ncbi_api) {
+      request_url += '&ncbi_api=' + ncbi_api;
     }
     DEBUG && console.time('Call theServer api for json');
     $.getJSON(request_url, function (d) {
