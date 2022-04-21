@@ -456,7 +456,7 @@ $(document).ready(function () {
     localStorage.removeItem('alert_outdated');
   }
   if (localStorage.getItem('rev_proxy') === 'yes') {
-    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our servers in Asia</b> to access "the paper link".');
+    $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" checked /> You are using <b>our Not-Google servers</b> to access "the paper link".');
     $('#api_server').text('https://www.thepaperlink.cn');
     $('#alerts_thepaperlink').attr('href', 'https://www.thepaperlink.cn/alerts');
     // $('.reg_pubmeder').text('http://pubmeder.cailiang.net/registration');
@@ -465,7 +465,7 @@ $(document).ready(function () {
     $('#shark_dropbox').addClass('Off');
   } else {
     $('#rev_proxy_content').html('<input class="settings" type="checkbox" id="rev_proxy" /> You don\'t need to use this.' +
-        ' If you want to, check to <strong>access</strong> our servers in Asia.');
+        ' If you want to, check to <strong>access</strong> our Not-Google servers.');
     $('#api_server').text('https://www.thepaperlink.com');
   }
   $('#rev_proxy').on('change', function () {

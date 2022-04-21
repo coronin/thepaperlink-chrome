@@ -1596,7 +1596,7 @@ function get_request (msg) {
       tmp = '<a id="thepaperlink_pii' + pmid + '" href="' +
           ez_format_link(p,
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">publisher</a>';
+          ) + '/pdfft?isDTMRedir=true&download=true" target="_blank">publisher</a>';
           // linkinghub.elsevier.com/retrieve/pii/
       let new_doi;
       if (page_url.indexOf(pmid) > 0) { // 2022-3-7
@@ -1622,7 +1622,7 @@ function get_request (msg) {
       insert_span.innerHTML = '; <a href="' +
           ez_format_link(p,
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
-          ) + '" target="_blank">Scopus</a> <span id="pl4_scopus' + pmid + '"></span>';
+          ) + '/pdfft?isDTMRedir=true&download=true" target="_blank">Scopus</a> <span id="pl4_scopus' + pmid + '"></span>';
           // linkinghub.elsevier.com/retrieve/pii/
       byID('citedBy' + pmid).parentNode.appendChild(insert_span);
     }
