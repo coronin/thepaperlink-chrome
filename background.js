@@ -260,7 +260,7 @@ function open_new_tab (url, winId, idx) {
 function oauth_on_click (info, tab) {
   DEBUG && console.log('info', JSON.stringify(info));
   DEBUG && console.log('tab', JSON.stringify(tab));
-  open_new_tab(base + '/oauth', tab.windowId, tab.index);
+  open_new_tab('https://www.thepaperlink.com/oauth', tab.windowId, tab.index);
 }
 
 function js_on_click (info, tab) {
@@ -843,7 +843,7 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
           }
         }).fail(function () {
         base = 'https://www.thepaperlink.cn';
-        console.log('call_from_other_sites fail: access theServer in Asia');
+        console.log('call_from_other_sites fail: access theServer Not-Google');
       });
     } // if chrome.storage.local.get
   });
@@ -914,7 +914,7 @@ function get_request (msg, _port) {
       }
       if (base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
-        console.log('getJSON fail: access theServer in Asia');
+        console.log('getJSON fail: access theServer Not-Google');
       }
     }).always(function () {
       DEBUG && console.timeEnd('Call theServer api for json');
@@ -1274,7 +1274,7 @@ if (localStorage.getItem('rev_proxy') === 'yes') {
     console.log('>> direct access Google cloud');
   }).fail(function () {
     base = 'https://www.thepaperlink.cn';
-    console.log('>> failed, switch to theServer in Asia');
+    console.log('>> failed, switch to theServer Not-Google');
   }).always(function () {
     console.timeEnd('>> check google connection');
   });
