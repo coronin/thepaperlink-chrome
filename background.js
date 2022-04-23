@@ -224,6 +224,8 @@ function load_common_values (newday) {
         localStorage.removeItem(aKey);
         continue;
       } else if (aKey.indexOf('tabId:') === 0 ||
+          aKey.indexOf('diff_') === 0 ||
+          aKey.indexOf('day_') === 0 ||
           aKey.indexOf('email_') === 0 ||
           aKey.indexOf('shark_') === 0 ||
           aKey.indexOf('scholar_') === 0 ||

@@ -47,7 +47,7 @@ function load_ALL_localStorage () {
   let i; let len; let aKey; let aVal; let a_key_split; let a_url; let dictKey;
   let syncValues = {}; const regAddr = /^1[A-Z]/;
   let syncValues_scholar = {}; // only sync recent 25
-  $('#section_start_at').text('From THE TIME WHEN YOU INSTALL the paper link 3');
+  $('#section_start_at').text('Only perform'); // From THE TIME WHEN YOU INSTALL
   $('#email_').html('');
   $('#shark_').html('');
   $('#scholar_').html('');
@@ -61,9 +61,9 @@ function load_ALL_localStorage () {
         aKey.indexOf('https://') > -1) {
       localStorage.removeItem(aKey);
       continue;
-    } else if (aKey.indexOf('tabId:') === 0) {
-      continue;
-    } else if (aKey.indexOf('diff_') === 0) {
+    } else if (aKey.indexOf('tabId:') === 0 ||
+               aKey.indexOf('diff_') === 0 ||
+              aKey.indexOf('day_') === 0) {
       continue;
     }
     if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
@@ -128,7 +128,7 @@ function load_ALL_localStorage () {
       syncValues[aKey] = '' + aVal;
     }
   }
-  syncValues += syncValues_scholar;
+  syncValues = Object.assign({}, syncValues, syncValues_scholar); // 2022-4-24
   _bkg.console.time('>> add to storage.sync');
   $('#undefined_clean').append('<li>Add to storage.sync ' + Object.keys(syncValues).length + ' items</li>');
   chrome.storage.sync.set(syncValues, function () {
@@ -140,7 +140,7 @@ function load_ALL_localStorage () {
     $('#email_h2').addClass('Off');
   }
   $('#load_ALL').off('click');
-  $('#load_ALL').on('click', do_syncValues_post).text('re-sync to local');
+  $('#load_ALL').on('click', do_syncValues_post).text('storage.sync to local');
 }
 
 $(document).ready(function () {
