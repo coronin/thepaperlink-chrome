@@ -1826,7 +1826,7 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     if (e.tpl_ncbi_api) {
       console.log('ncbi_api', e.tpl_ncbi_api);
     } else {
-      window.location.href = 'https://www.ncbi.nlm.nih.gov/account/settings/'; //@@@@
+      window.location.replace('https://www.ncbi.nlm.nih.gov/account/settings/');
     }
   });
   noRun = 6;

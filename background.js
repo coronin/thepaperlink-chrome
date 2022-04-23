@@ -1343,6 +1343,8 @@ function adjustStorage (rst, newOnly) {
     } else if (aKey.indexOf('tabId:') === 0 ||
         rst[aKey] === undefined || rst[aKey] === null) {
       toRemove.push(aKey);
+    } else if (aKey.indexOf('diff_') === 0) { // 2022-4-24
+      toRemove.push(aKey);
     } else if (aKey && newOnly && rst[aKey].newValue) {
       localStorage.setItem(aKey, '' + rst[aKey].newValue);
     } else if (aKey && rst[aKey]) {
@@ -1440,9 +1442,9 @@ chrome.storage.onChanged.addListener(function (rst, areaName) {
         a.date_str = undefined;
         b.date_str = undefined;
       }
-      if (a && JSON.stringify(a)) {
-        localStorage.setItem('diff_' + aKey, date_str);
-      }
+      //if (a && JSON.stringify(a)) {
+      //  localStorage.setItem('diff_' + aKey, date_str);
+      //}
     }
   }
 });

@@ -1,6 +1,8 @@
 'use strict';
 
-const _port = chrome.runtime.connect({ name: 'background_port' });
+if (typeof _port === 'undefined') {
+  const _port = chrome.runtime.connect({ name: 'background_port' });
+}
 let foundOrig;
 
 function hideMore () {
