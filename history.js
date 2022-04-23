@@ -63,6 +63,8 @@ function load_ALL_localStorage () {
       continue;
     } else if (aKey.indexOf('tabId:') === 0) {
       continue;
+    } else if (aKey.indexOf('diff_') === 0) {
+      continue;
     }
     if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
       $('#undefined_clean').append('<li>' + aKey + ' : ' + aVal + ' &rarr; DELETED</li>');
