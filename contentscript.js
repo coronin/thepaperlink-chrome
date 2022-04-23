@@ -1822,14 +1822,13 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   noRun = 5;
 } else if (page_url === 'https://www.ncbi.nlm.nih.gov/account/' ||
     page_url === 'https://www.ncbi.nlm.nih.gov/myncbi/') {
-  chrome.storage.sync.get(['ncbi_api'], function (e) {
-    if (e.ncbi_api) {
-      console.log('ncbi_api', e.ncbi_api);
+  chrome.storage.sync.get(['tpl_ncbi_api'], function (e) {
+    if (e.tpl_ncbi_api) {
+      console.log('ncbi_api', e.tpl_ncbi_api);
     } else {
-      window.location.href = 'https://www.ncbi.nlm.nih.gov/account/settings/'; // 2022-4-24
+      window.location.href = 'https://www.ncbi.nlm.nih.gov/account/settings/'; //@@@@
     }
   });
-
   noRun = 6;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
     page_url.indexOf('.biorxiv.org/relate/content/') > 0 ||

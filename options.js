@@ -345,7 +345,7 @@ $(document).ready(function () {
   const a_key = localStorage.getItem('thepaperlink_apikey');
   const b_key = localStorage.getItem('pubmeder_apikey');
   const b_email = localStorage.getItem('pubmeder_email');
-  const c_key = localStorage.getItem('ncbi_api');
+  const c_key = localStorage.getItem('tpl_ncbi_api');
   const m_status = localStorage.getItem('mendeley_status');
   const f_status = localStorage.getItem('facebook_status');
   const d_status = localStorage.getItem('dropbox_status');
