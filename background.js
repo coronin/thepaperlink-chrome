@@ -874,6 +874,8 @@ function get_request (msg, _port) {
     }
     if (ncbi_api) {
       request_url += '&ncbi_api=' + ncbi_api;
+    } else {
+      _port && _port.postMessage({ except: 'Flash.' });
     }
     DEBUG && console.time('Call theServer api for json');
     $.getJSON(request_url, function (d) {

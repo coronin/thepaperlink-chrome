@@ -1286,6 +1286,16 @@ function get_request (msg) {
     }
     // sendResponse({});
     return;
+  } else if (msg.except && msg.except === 'Flash.') { // 2022-4-24
+    const flash_style = page_d.createElement('style');
+    flash_style.type = 'text/css';
+    flash_style.appendChild(page_d.createTextNode(
+      '.flash{-moz-animation:flash 1s ease-out;-moz-animation-iteration-count:3;-webkit-animation:flash 1s ease-out;-webkit-animation-iteration-count:3;-ms-animation:flash 1s ease-out;-ms-animation-iteration-count:3}@keyframes flash{0%{background-color:transparent}50%{background-color:#fbf8b2}100%{background-color:transparent}}@-webkit-keyframes flash{0%{background-color:transparent}50%{background-color:#fbf8b2}100%{background-color:transparent}}@-moz-keyframes flash{0%{background-color:transparent}50%{background-color:#fbf8b2}100%{background-color:transparent}}@-ms-keyframes flash{0%{background-color:transparent}50%{background-color:#fbf8b2}100%{background-color:transparent}}' ));
+    page_d.body.appendChild(flash_style);
+    byID('account_login').classList.add('flash'); // <a>
+    byID('account_info').classList.add('flash');  // <button>
+    // sendResponse({});
+    return;
   } else if (msg.except) {
     if (!search_term && page_url.indexOf('/pubmed/') > 0) {
       search_term = page_url.split('/pubmed/')[1];
@@ -1810,6 +1820,17 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     }
   }, arbitrary_pause); // 2022-4-4
   noRun = 5;
+} else if (page_url === 'https://www.ncbi.nlm.nih.gov/account/' ||
+    page_url === 'https://www.ncbi.nlm.nih.gov/myncbi/') {
+  chrome.storage.sync.get(['ncbi_api'], function (e) {
+    if (e.ncbi_api) {
+      console.log('ncbi_api', e.ncbi_api);
+    } else {
+      window.location.href = 'https://www.ncbi.nlm.nih.gov/account/settings/'; // 2022-4-24
+    }
+  });
+
+  noRun = 6;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
     page_url.indexOf('.biorxiv.org/relate/content/') > 0 ||
     page_url.indexOf('://www.biorxiv.org/collection/') > 0 ||
