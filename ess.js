@@ -86,8 +86,8 @@ function eFetch (pmid) {
   } else {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
   }
-  if ( localStorage.getItem('ncbi_api') ) {
-    args.ncbi_api = localStorage.getItem('ncbi_api');
+  if ( localStorage.getItem('tpl_ncbi_api') ) {
+    args.ncbi_api = localStorage.getItem('tpl_ncbi_api');
   }
   $.getJSON(url, args, function (d) {
     _port && _port.postMessage({ sendID: pmid });
@@ -210,8 +210,8 @@ function eSummary (term, tabId, no_term_update) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
            limit + '&id=' + term;
   }
-  if ( localStorage.getItem('ncbi_api') ) {
-    urll += '&api_key=' + localStorage.getItem('ncbi_api');
+  if ( localStorage.getItem('tpl_ncbi_api') ) {
+    urll += '&api_key=' + localStorage.getItem('tpl_ncbi_api');
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $.get(urll,
@@ -307,8 +307,8 @@ function eSS (search_term, tabId) {
   }
   if (foundOrig !== undefined) { $('#found').text(foundOrig); }
   let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
-  if ( localStorage.getItem('ncbi_api') ) {
-    url += '&api_key=' + localStorage.getItem('ncbi_api');
+  if ( localStorage.getItem('tpl_ncbi_api') ) {
+    url += '&api_key=' + localStorage.getItem('tpl_ncbi_api');
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   if ($('#result').hasClass('Off')) {

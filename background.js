@@ -171,7 +171,7 @@ function load_common_values (newday) {
   }
   pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
   pubmeder_email = localStorage.getItem('pubmeder_email') || null;
-  ncbi_api = localStorage.getItem('ncbi_api') || null;
+  ncbi_api = localStorage.getItem('tpl_ncbi_api') || null;
   pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
   cloud_op = '';
   const m_status = localStorage.getItem('mendeley_status');
@@ -922,7 +922,7 @@ function get_request (msg, _port) {
       DEBUG && console.timeEnd('Call theServer api for json');
     });
   } else if (msg.ncbi_api) {
-    localStorage.setItem('ncbi_api', msg.ncbi_api);
+    localStorage.setItem('tpl_ncbi_api', msg.ncbi_api);
     ncbi_api = msg.ncbi_api;
     reLoad_options();
   } else if (msg.save_apikey) {
