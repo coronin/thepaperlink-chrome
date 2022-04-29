@@ -56,23 +56,16 @@
 </ul>
 
 <div id="option_tabs-1">
-  <h3>"the paper link" API &mdash; required by the extension</h3>
+  <h3>use API to access remote data</h3>
   <div class="ui-widget"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:2em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      you are accessing our service at <span id="api_server"></span></p>
-    <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      get an idea? find a bug? please <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">let us know</a></p>
+      Due to E-utilities <a href="https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/" rel="external">limit</a>, account <a id="ncbi_link" href="https://www.ncbi.nlm.nih.gov/account/settings/" rel="external">with NCBI is required.</a>
+      <span id="ncbi_api"></span></p>
     <p><span class="ui-icon ui-icon-star" style="float:left;margin-right:0.3em"></span>
       TIP: browser address bar, <em>tpl coronin actin</em>&crarr;</p>
     <p class="thepaperlink_a"><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       visit <a class="reg_thepaperlink" href="https://www.thepaperlink.com/reg" rel="external">https://www.thepaperlink.com/reg</a> to activate your account for the service</p>
-
   </div></div>
-
-  <p>Due to E-utilities usage <a href="https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/" rel="external">requirement</a>, account <a id="ncbi_link" href="https://www.ncbi.nlm.nih.gov/account/settings/" rel="external">with NCBI is required.</a>
-    <span id="ncbi_api"></span>
-    </p>
-  <hr/>
 
   <p>"the paper link" apikey : <span id="thepaperlink_apikey"></span>
     </p>
@@ -81,7 +74,7 @@
       expandable icon "<strong class="bg_grey">&hellip;</strong>" will show, click to access additional functions
       </li>
     <li><em style="color:#ccc" class="thepaperlink_a">once enabled -</em>
-      you are getting full access to our service, no limits
+      you are getting full access, no limits
       </li>
     <li><em style="color:#ccc" class="thepaperlink_a">once enabled -</em>
       you will be able to save the articles you read to multiple services, via "<strong style="cursor:pointer" class="bg_grey" id="save_it_tab">save</strong>"
@@ -90,6 +83,14 @@
       you could <strong style="cursor:pointer" id="alert_tab">alert yourself</strong> when articles <em style="color:blue">in the trend</em> match your interests
       </li>
   </ul>
+
+  <hr/>
+
+  <p>You are fetching data from <span id="api_server"></span>.
+    </p>
+  <p>Get an idea? Find a bug? Please
+    <a href="mailto:admin@pubget-hrd.appspotmail.com?subject=get_in_touch" rel="external">contact me</a>.
+    </p>
 </div>
 
 <div id="option_tabs-2">
@@ -108,7 +109,7 @@
     </p>
   <hr/>
   <p>Articles will also be saved to cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a">activate "the paper link", and</span> have existing accounts with those cloud services.
+    <br/>You have to <span class="thepaperlink_a">activate "the paper link", and</span> register accounts with those cloud services separately.
     <br/><span style="color:#ccc">To disable the connection, remove "the paper link" app from those services (account permissions, 3rd party).</span></p>
   <div class="ui-widget" id="cloud_op_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
