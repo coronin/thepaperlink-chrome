@@ -1011,13 +1011,17 @@ function get_request (msg, _port) {
     let post_action = '';
     const action_pmid = msg.money_emailIt || msg.money_reportWrongLink || msg.money_needInfo;
     if (msg.money_emailIt) {
-      post_action = 'email';
-      _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
       if (msg.pdf) {
         console.log('@@@@ ' + msg.pdf);
       }
-      if (apikey && ws && msg.doi) {
-        ws.send('{"apikey":"' + apikey + '","doi":"' + msg.doi + '"}');
+      if (msg.new_doi) {
+        post_action = 'new_doi';
+      } else {
+        if (apikey && ws && msg.doi) {
+          ws.send('{"apikey":"' + apikey + '","doi":"' + msg.doi + '"}');
+        }
+        post_action = 'email';
+        _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
       }
 
       /* if (typeof window.email_pdf === 'undefined') {
@@ -1063,6 +1067,9 @@ function get_request (msg, _port) {
       args = { pmid: action_pmid, apikey: apikey, action: post_action };
       if (post_action === 'email' && cc_address) {
         args.cc = cc_address;
+      }
+      if (post_action === 'new_doi' && msg.doi) {
+        args.new_doi = msg.doi;
       }
       $.post(base, args,
         function () {
