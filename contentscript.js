@@ -1018,6 +1018,20 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
   not_insert || console.log('t_cont\r\n', t_cont);
   not_insert || insert_clippy(ID, t_cont, byTag(zone)[num - 1], 2);
+  // const yy = page_d.getElementsByClassName('result-actions-bar side-bar');
+  // let yyi;
+  // for (yyi = 0; yyi < yy.length; yyi += 1) {
+  //   if (yy[yyi].getElementsByTagName('button')[0
+  //             ].getAttribute('data-all-citations-url').indexOf(ID) === 1) {
+  //     const y = page_d.createElement('div');
+  //     y.className = 'cite dropdown-block';
+  //     y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  //     y.innerHTML = '<button class="cite-search-result"> Copy </button>';
+  //     yy[yyi].appendChild(y);
+  //     //y.setAttribute('style', '');
+  //     break;
+  //   }
+  // } // @@@@
 
   let peakss; let found_click = '<span class="paperlink2_found">'; let peaksss; // @@@@ <b> authors or journal
   if (ajax) {
@@ -1598,7 +1612,7 @@ function get_request (msg) {
       new_doi_ = byID('tpl' + pmid).parentNode.parentNode.textContent.split('doi: ')[1];
       if (new_doi_ && new_doi_.length > 8) {
         new_doi = new_doi_.split(' ')[0].slice(0, -1);
-        a_proxy({ money_emailIt: pmid, doi: new_doi });
+        a_proxy({ money_emailIt: pmid, doi: new_doi, new_doi:1 });
       } else {
         new_doi = '';
       }
