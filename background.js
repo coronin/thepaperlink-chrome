@@ -53,6 +53,11 @@ function get_ymd () {
   return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
 }
 
+function get_yearStr () {
+  const d = new Date();
+  return '' + d.getFullYear();
+}
+
 function get_end_num (str) {
   if (!str) { return 0; }
   try {
@@ -889,7 +894,8 @@ function get_request (msg, _port) {
             pubmeder: pubmeder_ok,
             cloud_op: cloud_op,
             uri: base,
-            p: ezproxy_prefix
+            p: ezproxy_prefix,
+            year: get_yearStr()
           }
         );
         if (d && d.count) {
@@ -912,7 +918,7 @@ function get_request (msg, _port) {
       }
     }).fail(function () {
       if (apikey) {
-        _port && _port.postMessage({ except: 'Data fetch error.', tpl: apikey });
+        _port && _port.postMessage({ except: 'No additional info.', tpl: apikey });
       } else {
         _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
       }
