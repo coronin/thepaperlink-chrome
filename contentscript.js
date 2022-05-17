@@ -33,6 +33,10 @@ let arbitrary_pause = 5000; // 5s
 const limited = page_d.createElement('div');
 limited.id = 'thePaperLink_chrome_limited';
 page_d.body.appendChild(limited); // do not email_pdf
+const _doi_on_page = Object.create(null);
+const regdoi = /doi\s*:?\s*\d{2}\.\d{4,5}\//i;
+const doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9./)(-]+\w)\s*\W?/;
+
 
 if (typeof uneval === 'undefined') {
   var uneval = function (a) {
@@ -395,9 +399,7 @@ function process_pubmedTrending () {
 
 function parse_id (a) {
   const regpmid = /pmid\s*:?\s*(\d+)\s*/i;
-  const regdoi = /doi\s*:?\s*\d{2}\.\d{4,5}\//i;
   const regpmc = /pmcid\s*:?\s*(PMC\d+)\s*/i;
-  const doipattern = /(\d{2}\.\d{4,5}\/[a-zA-Z0-9./)(-]+\w)\s*\W?/;
   let ID = null;
   if (regpmid.test(a)) {
     ID = regpmid.exec(a);
@@ -1016,7 +1018,10 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
     t_cont = t_title + '\r\n' + t_strings;
   }
   a_proxy({ a_pmid: ID, a_title: t_title }); // queue_scholar_title
-  not_insert || console.log('t_cont\r\n', t_cont);
+  not_insert || console.log(t_cont);
+  if (regdoi.test(t_cont) || doipattern.test(t_cont)) {
+    _doi_on_page[ID] = doipattern.exec(t_cont)[1];
+  }
   not_insert || insert_clippy(ID, t_cont, byTag(zone)[num - 1], 2);
   // const yy = page_d.getElementsByClassName('result-actions-bar side-bar');
   // let yyi;
@@ -1512,7 +1517,6 @@ function get_request (msg) {
 
   const p = uneval_trim(msg.p);
   let slfoV; let impact3; let i3t; let i3s; let insert_span;
-  let new_doi; let new_doi_;
   if (!byID('css_loaded')) {
     const insert_style = page_d.createElement('style');
     insert_style.type = 'text/css';
@@ -1605,17 +1609,8 @@ function get_request (msg) {
           uneval_trim(r.item[i].pmcid) + '/?tool=thepaperlink_chrome" target="_blank">pmc</a>';
       div_html += tmp;
     }
-    if (page_url.indexOf(pmid) > 0) { // 2022-3-7
-      new_doi = byClassOne('id-link').href.substr(16);
-      a_proxy({ money_emailIt: pmid, doi: new_doi });
-    } else {
-      new_doi_ = byID('tpl' + pmid).parentNode.parentNode.textContent.split('doi: ')[1];
-      if (new_doi_ && new_doi_.length > 8) {
-        new_doi = new_doi_.split(' ')[0].slice(0, -1);
-        a_proxy({ money_emailIt: pmid, doi: new_doi, new_doi:1 });
-      } else {
-        new_doi = '';
-      }
+    if (page_url.indexOf(pmid) > 0 && byClassOne('id-link') ) { // 2022-3-7
+      _doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
     }
     if (r.item[i].doi) {
       a_proxy({ pmid: pmid, doi: r.item[i].doi, doi_link: 1 });
@@ -1623,7 +1618,8 @@ function get_request (msg) {
           ez_format_link(p,
             'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a>';
-      if (local_mirror && r.item[i].pubdate.indexOf(msg.year) !== 0) {
+      if (local_mirror && (
+          !r.item[i].pubdate || r.item[i].pubdate.indexOf(msg.year) !== 0 )) {
         tmp += '<a id="thepaperlink_shark' + pmid +
           '" href="https://' + local_mirror + '/' + uneval_trim(r.item[i].doi) +
           '#" target="_blank">&#8623;</a>';
@@ -1636,16 +1632,19 @@ function get_request (msg) {
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '/pdfft?isDTMRedir=true&download=true" target="_blank">publisher</a>';
         // linkinghub.elsevier.com/retrieve/pii/
-      }
-      if (new_doi) { // 2022-3-7 2022-5-7
-        tmp += '<a id="thepaperlink_doi' + pmid +
-            '" href="https://' + local_mirror + '/' + new_doi +
-            '#" target="_blank">doi</a>';
-        if (local_mirror && r.item[i].pubdate.indexOf(msg.year) !== 0) {
+      } else { tmp = ''; }
+      if (_doi_on_page[pmid]) { // 2022-3-7 2022-5-7 2022-5-18
+        tmp += '<a id="thepaperlink_doi' + pmid + '" href="' +
+            ez_format_link(p,
+              'http://dx.doi.org/' + _doi_on_page[pmid]
+            ) + '" target="_blank">publisher</a>';
+        if (local_mirror && (
+            !r.item[i].pubdate || r.item[i].pubdate.indexOf(msg.year) !== 0 )) {
           tmp += '<a id="thepaperlink_shark' + pmid +
-            '" href="https://' + local_mirror + '/retrieve/pii/' + uneval_trim(r.item[i].pii) +
-            '" target="_blank">&#8623;</a>';
+            '" href="https://' + local_mirror + '/' + _doi_on_page[pmid] +
+            '#" target="_blank">&#8623;</a>';
         }
+        a_proxy({ money_emailIt: pmid, doi: _doi_on_page[pmid], new_doi: 1 });
       }
       div_html += tmp;
     }
