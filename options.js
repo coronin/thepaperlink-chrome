@@ -199,7 +199,7 @@ function saveOptions () {
       if (a && a <= 10) {
         localStorage.setItem('arbitrary_sec', a);
       } else {
-        localStorage.setItem('arbitrary_sec', 5); // 2020-4-23
+        localStorage.setItem('arbitrary_sec', 3); // 2022-5-19
       }
     } catch (err) {
       _bkg.console.log(err);
@@ -486,7 +486,7 @@ $(document).ready(function () {
   if (localStorage.getItem('arbitrary_sec')) {
     $('#arbitrary_sec').val(localStorage.getItem('arbitrary_sec'));
   } else {
-    $('#arbitrary_sec').val(5);
+    $('#arbitrary_sec').val(3);
   }
   if (localStorage.getItem('new_tab') !== 'no') {
     $('#new_tab').prop('checked', true);
