@@ -21,7 +21,7 @@ let guest_apikey = null;
 let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
 let ncbi_api;
 let local_mirror; let ezproxy_prefix; let cc_address;
-let arbitrary_sec = 5;
+let arbitrary_sec = 3;
 let pubmeder_ok = false;
 let cloud_op = '';
 let broadcast_loaded = false;
@@ -216,7 +216,7 @@ function load_common_values (newday) {
   local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
   ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
   cc_address = localStorage.getItem('cc_address') || '';
-  arbitrary_sec = localStorage.getItem('arbitrary_sec') || 5;
+  arbitrary_sec = localStorage.getItem('arbitrary_sec') || 3;
   if (newday === undefined) {
     let syncValues = {};
     for (i = 0, len = localStorage.length; i < len; i += 1) {
@@ -1278,8 +1278,8 @@ chrome.runtime.onMessageExternal.addListener(
 
 if (localStorage.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
-  if (arbitrary_sec < 5) {
-    arbitrary_sec = 5; // 2020-8-5
+  if (arbitrary_sec < 3) {
+    arbitrary_sec = 3;
   }
 } else {
   console.time('>> check google connection');
