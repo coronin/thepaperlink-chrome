@@ -618,6 +618,7 @@ $(document).ready(function () {
         $('#delete_term_log').on('click', function () {
           const answer = window.confirm('\n do you really want to delete this keyword?\n ' + term + '\n');
           if (answer) {
+            chrome.storage.sync.remove([ term ]); // 2022-5-19
             localStorage.removeItem(term);
             location.reload();
           }
