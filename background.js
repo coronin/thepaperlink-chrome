@@ -1,4 +1,26 @@
 'use strict';
+//// jquery-1.8.3.min.js
+
+// https://developer.chrome.com/docs/extensions/mv3/migrating_to_service_workers/
+
+// chrome.storage.local.get(["badgeText"], ({ badgeText }) => {
+//   chrome.action.setBadgeText({ text: badgeText });
+// });
+// chrome.action.onClicked.addListener(handleActionClick);
+
+// chrome.runtime.onMessage.addListener(({ type, name }) => {
+//   if (type === "set-name") {
+//     chrome.storage.local.set({ name });
+//   }
+// });
+
+// chrome.alarms.create({ delayInMinutes: 3 });
+// chrome.alarms.onAlarm.addListener(() => {
+//   chrome.action.setIcon({
+//     path: getRandomIconPath(),
+//   });
+// });
+
 
 const DEBUG = false;
 let i; let len; let aKey; let aVal;
@@ -956,8 +978,6 @@ function get_request (msg, _port) {
     }
     reLoad_options();
   } else if (msg.sendID) {
-    // if (localStorage.getItem('co_pubmed') !== 'no') {
-    // chrome.pageAction.show(sender_tab_id);
     if (Array.isArray(msg.sendID)) {
       if (sender_tab_id) {
         aKey = {};

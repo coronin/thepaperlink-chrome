@@ -1,15 +1,17 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "the paper link 3",
   "short_name": "tpl 3",
   "version": "2.9.46",
-  "minimum_chrome_version": "39",
-  "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
-  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://www.thepaperlink.net https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
-  "web_accessible_resources": [
-    "loadingLine.gif",
-    "clippyIt.png"
-  ],
+  "minimum_chrome_version": "88",
+  "description": "Direct PDF links; display F1000; author Peaks; etc. (c) 2010 by Liang Cai",
+  "content_security_policy": {
+    "extension_pages": "worker-src 'self'; script-src 'self'; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'"
+  },
+  //"web_accessible_resources": [{
+  //  "resources": ["loadingLine.gif", "clippyIt.png"],
+  //  "use_dynamic_url": false
+  //}],
   "permissions": [
     "background",
     "contextMenus",
@@ -18,9 +20,11 @@
     "declarativeContent",
     "storage"
   ],
+  "host_permissions": [
+    "*://*/*"
+  ],
   "background": {
-    "page": "background.html",
-    "persistent": true
+    "service_worker": "background.js"
   },
   "omnibox": { "keyword": "tpl" },
   "icons": {
@@ -30,7 +34,7 @@
     "19": "19.png",
     "16": "16.png"
   },
-  "page_action": {
+  "action": {
     "default_popup": "ess.html",
     "default_icon": {
       "128": "128.png",
