@@ -1529,7 +1529,7 @@ function get_request (msg) {
     return;
   } else if (r && r.error) {
     byID('pl4_title').innerHTML = old_title +
-        ' <span style="font-size:14px;font-weight:normal;color:red">"the paper link" response ' +
+        ' <span style="font-size:14px;font-weight:normal;color:red">the paper link : ' +
         uneval(r.error) + '</span>';
     // sendResponse({});
     return;
