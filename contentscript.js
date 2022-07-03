@@ -273,9 +273,7 @@ function process_f1000 () { // 2022 March
           }
         }
       }
-      const badge_score_div = byTag('aside')[0
-               ].getElementsByTagName('div')[0
-               ].getElementsByTagName('div')[0];
+      const badge_score_div = byTag('aside')[0].getElementsByTagName('h2')[0]; // 2022-5-29
       let f_v = '';
       if (badge_score_div.getElementsByTagName('span')[0].textContent === 'recommended') {
         f_v = trim(badge_score_div.getElementsByTagName('div')[0].textContent);
@@ -963,6 +961,14 @@ function new_pubmed_single () {
       byID('references').getElementsByClassName('refs-list-title')[0].style.display = 'none';
     }
   }
+  Array.from(byTag('a')).forEach((item) => {
+    if (item.href.indexOf('linkinghub.elsevier.com/retrieve/pii/') > 0) {
+      console.log(item.href); //@@@@
+      item.href = 'https://www.sciencedirect.com/science/article/pii/' +
+                  item.href.split('linkinghub.elsevier.com/retrieve/pii/')[1] +
+                  '/pdfft?isDTMRedir=true&download=true';
+    }
+  });
 }
 
 function id_journal (s, pmid) {
@@ -1631,7 +1637,7 @@ function get_request (msg) {
             ez_format_link(p, uneval_trim(r.item[i].pdf)) + '" target="_blank">pdf</a>';
         div_html += tmp;
       } else if (r.item[i].pii) {
-        a_proxy({ pmid: pmid, pii: r.item[i].pii, pii_link: 1 });
+        a_proxy({ pmid: pmid, pii: r.item[i].pii, pii_link: 1 }); //@@@@
         tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank" class="thepaperlink_Off">pdf</a>';
         div_html += tmp;
       }
