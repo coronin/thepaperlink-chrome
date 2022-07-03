@@ -21,7 +21,6 @@
 //   });
 // });
 
-
 const DEBUG = false;
 let i; let len; let aKey; let aVal;
 let ws; let ws_timer;
@@ -240,7 +239,7 @@ function load_common_values (newday) {
   cc_address = localStorage.getItem('cc_address') || '';
   arbitrary_sec = localStorage.getItem('arbitrary_sec') || 3;
   if (newday === undefined) {
-    let syncValues = {};
+    const syncValues = {};
     for (i = 0, len = localStorage.length; i < len; i += 1) {
       aKey = localStorage.key(i);
       aVal = localStorage.getItem(aKey);
@@ -273,7 +272,7 @@ load_common_values(1);
 console.timeEnd('>> load common values');
 
 function open_new_tab (url, winId, idx) {
-  let tab_obj = { url: url, active: true };
+  const tab_obj = { url: url, active: true };
   if (winId) {
     tab_obj.windowId = winId;
   }
@@ -652,7 +651,7 @@ function parse_shark (pmid, url, tabId) {
   shark_limits -= 1;
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: 1 });
   const reg = /iframe src\s*=\s*"(\S+)"/i; let h;
-  let args = { apikey: req_key, pmid: pmid, shark_link: '' };
+  const args = { apikey: req_key, pmid: pmid, shark_link: '' };
   $.get(url,
     function (r) {
       h = reg.exec(r);
@@ -837,8 +836,8 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
       $.getJSON(base + '/api',
         { a: 'chrome3', pmid: pmid, apikey: req_key,
           runtime: '' + chrome.runtime.id,
-          ncbi_api: ncbi_api || '' },
-        function (d) {
+          ncbi_api: ncbi_api || ''
+        }, function (d) {
           if (d && d.count === 1) {
             aVal = common_dThree(d.item[0], 0);
             if (aVal) {
@@ -870,9 +869,13 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
           } else if (!d.error) {
             DEBUG && console.log(d);
           }
-        }).fail(function () {
-        base = 'https://www.thepaperlink.cn';
-        console.log('call_from_other_sites fail: access theServer Not-Google');
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+          if (textStatus !== '503') {
+            base = 'https://www.thepaperlink.cn';
+            console.log('call_from_other_sites fail: access theServer Not-Google');
+          } else {
+            console.log('call_from_other_sites fail', textStatus, errorThrown);
+          }
       });
     } // if chrome.storage.local.get
   });
@@ -938,13 +941,16 @@ function get_request (msg, _port) {
           _port && _port.postMessage({ except: 'Usage limits exceeded.', tpl: '' });
         }
       }
-    }).fail(function () {
-      if (apikey) {
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      if (textStatus === '503') {
+        _port && _port.postMessage({ except: 'The server is overloaded.', tpl: apikey });
+        console.log(textStatus, errorThrown, request_url);
+      } else if (apikey) {
         _port && _port.postMessage({ except: 'No additional info.', tpl: apikey });
       } else {
         _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
       }
-      if (base === 'https://www.thepaperlink.com') {
+      if (textStatus !== '503' && base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
         console.log('getJSON fail: access theServer Not-Google');
       }
@@ -1200,7 +1206,7 @@ function get_request (msg, _port) {
                          .replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
       const one_term_saved = localStorage.getItem(term_lower);
       const end_num = get_end_num(one_term_saved);
-      let digitals = get_ymd();
+      const digitals = get_ymd();
       digitals.push(msg.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
@@ -1246,8 +1252,10 @@ function get_request (msg, _port) {
           localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
           _port && _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
         }
-      }).fail(function () {
-        DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (textStatus !== '503') {
+          DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
+        }
       });
     }
   } else if (msg.do_syncValues) {
@@ -1366,7 +1374,7 @@ $(document).ready(function () {
 });
 
 function adjustStorage (rst, newOnly) {
-  let toRemove = [];
+  const toRemove = [];
   for (aKey in rst) {
     if (aKey.indexOf('pmid_') === 0) {
       const a_pmid = aKey.substr(5, aKey.length - 5);

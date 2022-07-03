@@ -530,9 +530,10 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    let terms = localStorage.getItem('past_search_terms').split('||');
+    const terms = localStorage.getItem('past_search_terms').split('||');
     let tmp = $('#keywords_list');
-    let t = 0; let i; let a; let b; let c = [];
+    let t = 0; let i; let a; let b;
+    const c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);
