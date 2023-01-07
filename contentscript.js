@@ -961,14 +961,6 @@ function new_pubmed_single () {
       byID('references').getElementsByClassName('refs-list-title')[0].style.display = 'none';
     }
   }
-  Array.from(byTag('a')).forEach((item) => {
-    if (item.href.indexOf('linkinghub.elsevier.com/retrieve/pii/') > 0) {
-      console.log(item.href); //@@@@
-      item.href = 'https://www.sciencedirect.com/science/article/pii/' +
-                  item.href.split('linkinghub.elsevier.com/retrieve/pii/')[1] +
-                  '/pdfft?isDTMRedir=true&download=true';
-    }
-  });
 }
 
 function id_journal (s, pmid) {
@@ -1670,7 +1662,18 @@ function get_request (msg) {
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '/pdfft?isDTMRedir=true&download=true" target="_blank">publisher</a>';
         //           linkinghub.elsevier.com/retrieve/pii/
-      } else { tmp = ''; }
+      } else {
+        tmp = '';
+        if (!r.item[i].pii) { // 2023-1-8
+          Array.from(byTag('a')).forEach((piiItem) => {
+            if (piiItem.href.indexOf('linkinghub.elsevier.com/retrieve/pii/') > 0) {
+              piiItem.href = 'https://www.sciencedirect.com/science/article/pii/' +
+                          piiItem.href.split('linkinghub.elsevier.com/retrieve/pii/')[1] +
+                          '/pdfft?isDTMRedir=true&download=true';
+            }
+          });
+        }
+      }
       if (_doi_on_page[pmid]) { // 2022-3-7 2022-5-7 2022-5-18
         tmp += '<a id="thepaperlink_doi' + pmid + '" href="' +
             ez_format_link(p,

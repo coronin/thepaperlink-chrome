@@ -21,22 +21,31 @@
 //   });
 // });
 
+// https://stackoverflow.com/questions/70704283/how-to-use-localstorage-or-an-alternative-in-manifest-v3
+const LS = {
+  getAllItems: () => chrome.storage.local.get(),
+  getItem: key => chrome.storage.local.get(key)[key],
+  setItem: (key, val) => chrome.storage.local.set({[key]: val}),
+  removeItems: keys => chrome.storage.local.remove(keys),
+};
+
+// @@@@   document.   window.   $.
+
 const DEBUG = false;
 let i; let len; let aKey; let aVal;
 let ws; let ws_timer;
-let ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081';
-let uid = localStorage.getItem('ip_time_uid') || null;
+let ws_addr = LS.getItem('websocket_server') || 'node.thepaperlink.com:8081';
+let uid = LS.getItem('ip_time_uid') || null;
 let scholar_count = 0;
 let scholar_run = 0;
 let scholar_queue = [];
 let scholar_no_more = 0;
 let scholar_page_open_limits = 3;
-let shark_limits = localStorage.getItem('shark_limit') || 3;
+let shark_limits = LS.getItem('shark_limit') || 3;
 let loading_theServer = false;
 let load_try = 10;
 let local_ip = '';
 const alldigi = /^\d+$/;
-const dd = document;
 let base = 'https://www.thepaperlink.com';
 let guest_apikey = null;
 let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
@@ -89,7 +98,7 @@ function get_end_num (str) {
   }
 }
 
-function post_theServer (v) {
+async function post_theServer (v) {
   console.time('Call theServer for values');
   const a = ['WEBSOCKET_SERVER', 'GUEST_APIKEY'];
   const version = 'Chrome_v2.9';
@@ -103,7 +112,7 @@ function post_theServer (v) {
       DEBUG && console.log(d);
       if (d) {
         if (d.websocket_server) {
-          localStorage.setItem('websocket_server', d.websocket_server);
+          LS.setItem('websocket_server', d.websocket_server);
           if (v === 0 && d.websocket_server !== ws_addr) {
             ws_addr = d.websocket_server;
             if (ws) {
@@ -116,14 +125,14 @@ function post_theServer (v) {
         }
         if (d.guest_apikey) {
           guest_apikey = d.guest_apikey;
-          localStorage.setItem('GUEST_APIKEY', guest_apikey);
+          LS.setItem('GUEST_APIKEY', guest_apikey);
         } else if (v !== 1 && apikey === null) {
           post_theServer(1);
         }
         if (d.chrome && d.chrome !== version) {
-          localStorage.setItem('alert_outdated', 'yes');
+          LS.setItem('alert_outdated', 'yes');
         } else if (version === d.chrome) {
-          localStorage.removeItem('alert_outdated');
+          LS.removeItem('alert_outdated');
         }
       } else {
         console.log('__ empty from theServer');
@@ -137,7 +146,7 @@ function post_theServer (v) {
   });
 }
 
-function get_local_ip () {
+async function get_local_ip () {
   console.time('Call theServer for local IP');
   return $.get('https://node.thepaperlink.com:8081', function (d) {
     local_ip = d.split(' | ')[3];
@@ -147,7 +156,7 @@ function get_local_ip () {
     if (local_ip && !uid) {
       uid = local_ip + ':';
       uid += extension_load_date.getTime();
-      localStorage.setItem('ip_time_uid', uid);
+      LS.setItem('ip_time_uid', uid);
     }
     console.log('>> get_local_ip: ' + local_ip);
   }).fail(function () {
@@ -176,8 +185,8 @@ function get_server_data (v) {
   }
 }
 
-function load_common_values (newday) {
-  apikey = localStorage.getItem('thepaperlink_apikey') || null;
+async function load_common_values (newday) {
+  apikey = await LS.getItem('thepaperlink_apikey') || null;
   req_key = apikey;
   if (req_key === null) {
     req_key = guest_apikey;
@@ -187,67 +196,67 @@ function load_common_values (newday) {
       setTimeout(load_common_values, arbitrary_sec * 1000);
       return;
     }
-    localStorage.removeItem('mendeley_status');
-    localStorage.removeItem('facebook_status');
-    localStorage.removeItem('dropbox_status');
-    localStorage.removeItem('douban_status');
-    localStorage.removeItem('googledrive_status');
-    localStorage.removeItem('onedrive_status');
-    localStorage.removeItem('baiduyun_status');
+    await LS.removeItem('mendeley_status');
+    await LS.removeItem('facebook_status');
+    await LS.removeItem('dropbox_status');
+    await LS.removeItem('douban_status');
+    await LS.removeItem('googledrive_status');
+    await LS.removeItem('onedrive_status');
+    await LS.removeItem('baiduyun_status');
   }
-  pubmeder_apikey = localStorage.getItem('pubmeder_apikey') || null;
-  pubmeder_email = localStorage.getItem('pubmeder_email') || null;
-  ncbi_api = localStorage.getItem('tpl_ncbi_api') || null;
+  pubmeder_apikey = await LS.getItem('pubmeder_apikey') || null;
+  pubmeder_email = await LS.getItem('pubmeder_email') || null;
+  ncbi_api = await LS.getItem('tpl_ncbi_api') || null;
   pubmeder_ok = !!(pubmeder_apikey !== null && pubmeder_email !== null);
   cloud_op = '';
-  const m_status = localStorage.getItem('mendeley_status');
+  const m_status = await LS.getItem('mendeley_status');
   if (m_status && m_status === 'success') {
     cloud_op += 'm';
   }
-  const f_status = localStorage.getItem('facebook_status');
+  const f_status = await LS.getItem('facebook_status');
   if (f_status && f_status === 'success') {
     cloud_op += 'f';
   }
-  const d_status = localStorage.getItem('dropbox_status');
+  const d_status = await LS.getItem('dropbox_status');
   if (d_status && d_status === 'success') {
     cloud_op += 'd';
   }
-  const b_status = localStorage.getItem('douban_status');
+  const b_status = await LS.getItem('douban_status');
   if (b_status && b_status === 'success') {
     cloud_op += 'b';
   }
-  const g_status = localStorage.getItem('googledrive_status');
+  const g_status = await LS.getItem('googledrive_status');
   if (g_status && g_status === 'success') {
     cloud_op += 'g';
   }
-  const o_status = localStorage.getItem('onedrive_status');
+  const o_status = await LS.getItem('onedrive_status');
   if (o_status && o_status === 'success') {
     cloud_op += 'o';
   }
-  const y_status = localStorage.getItem('baiduyun_status');
+  const y_status = await LS.getItem('baiduyun_status');
   if (y_status && y_status === 'success') {
     cloud_op += 'y';
   }
   // 2015-12-9: !!expr returns a Boolean value (true or false)
-  if (localStorage.getItem('scholar_once') !== 'no') {
+  if (await LS.getItem('scholar_once') !== 'no') {
     scholar_page_open_limits = 0; // 2021-5-20
   } else {
     scholar_no_more = 0;
   }
-  local_mirror = localStorage.getItem('local_mirror') || '127.0.0.1';
-  ezproxy_prefix = localStorage.getItem('ezproxy_prefix') || '';
-  cc_address = localStorage.getItem('cc_address') || '';
-  arbitrary_sec = localStorage.getItem('arbitrary_sec') || 3;
+  local_mirror = await LS.getItem('local_mirror') || '127.0.0.1';
+  ezproxy_prefix = await LS.getItem('ezproxy_prefix') || '';
+  cc_address = await LS.getItem('cc_address') || '';
+  arbitrary_sec = await LS.getItem('arbitrary_sec') || 3;
   if (newday === undefined) {
     const syncValues = {};
-    for (i = 0, len = localStorage.length; i < len; i += 1) {
-      aKey = localStorage.key(i);
-      aVal = localStorage.getItem(aKey);
+    for (i = 0, len = await LS.length; i < len; i += 1) {
+      aKey = await LS.key(i);
+      aVal = await LS.getItem(aKey);
       if (!aKey || aVal === null) {
-        localStorage.removeItem(aKey);
+        await LS.removeItem(aKey);
         continue;
       } else if (aVal.indexOf('undefined') > -1 || aVal === '[object Object]' || aKey.indexOf('pmid_') === 0) {
-        localStorage.removeItem(aKey);
+        await LS.removeItem(aKey);
         continue;
       } else if (aKey.indexOf('tabId:') === 0 ||
           aKey.indexOf('diff_') === 0 ||
@@ -260,7 +269,7 @@ function load_common_values (newday) {
       }
       syncValues[aKey] = '' + aVal;
     }
-    localStorage.setItem('justDid_load_common_values', 'now');
+    await LS.setItem('justDid_load_common_values', 'now');
     console.time('>> save common values to storage.sync');
     chrome.storage.sync.set(syncValues, function () {
       console.timeEnd('>> save common values to storage.sync');
@@ -297,14 +306,14 @@ function js_on_click (info, tab) {
   open_new_tab(base + '/js/', tab.windowId, tab.index);
 }
 
-function select_on_click (info, tab) {
+async function select_on_click (info, tab) {
   let url = base;
   if (alldigi.test(info.selectionText)) {
     url += '/:' + info.selectionText;
   } else {
     url += '/?q=' + info.selectionText;
   }
-  if (localStorage.getItem('new_tab') === 'no') {
+  if (await LS.getItem('new_tab') === 'no') {
     chrome.tabs.update({ url: url, active: true });
   } else {
     open_new_tab(url, tab.windowId, tab.index);
@@ -364,20 +373,20 @@ function menu_generator () {
   }); // , 'link', 'editable', 'image', 'video', 'audio'
 }
 
-function save_visited_ID (new_id) {
+async function save_visited_ID (new_id) {
   if (!new_id || new_id === '999999999') {
     return;
   }
-  const id_found = localStorage.getItem('id_found') || '';
+  const id_found = await LS.getItem('id_found') || '';
   if (id_found.indexOf(new_id) === -1) {
-    localStorage.setItem('id_found', id_found + ' ' + new_id);
+    await LS.setItem('id_found', id_found + ' ' + new_id);
   }
   if (id_found && id_found.split(' ').length > 11) {
-    saveIt_pubmeder(localStorage.getItem('id_found').replace(/\s+/g, ','));
+    saveIt_pubmeder(await LS.getItem('id_found').replace(/\s+/g, ','));
   }
 }
 
-function saveIt_pubmeder (pmid) {
+async function saveIt_pubmeder (pmid) {
   if (!pubmeder_ok) {
     DEBUG && console.log('>> no valid pubmeder credit');
     return;
@@ -388,20 +397,20 @@ function saveIt_pubmeder (pmid) {
     pmid: pmid
   };
   let saveurl = 'https://0.thepaperlink.com/input'; // 2020-8-23
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (await LS.getItem('rev_proxy') === 'yes') {
     saveurl = 'https://0.thepaperlink.cn/input'; // 2020-8-23
   }
   $.getJSON(saveurl, args, function (d) {
     if (d.respond > 1) {
-      let pre_history = localStorage.getItem('id_history') || '';
+      let pre_history = LS.getItem('id_history') || '';
       pre_history.replace(/^,+|,+$/g, '');
       pre_history += ',' + pmid;
-      localStorage.setItem('id_history', pre_history);
-      localStorage.setItem('id_found', '');
+      LS.setItem('id_history', pre_history);
+      LS.setItem('id_found', '');
     }
   }).fail(function () {
     const date = new Date();
-    localStorage.setItem('pubmed_' + pmid, date.getTime());
+    LS.setItem('pubmed_' + pmid, date.getTime());
   });
 }
 
@@ -429,7 +438,7 @@ function eSearch (search_term, tabId) {
   });
 }
 
-function send_binary (aB, pmid, upload, no_email) {
+async function send_binary (aB, pmid, upload, no_email) {
   try {
     const xhr = new XMLHttpRequest();
     const boundary = 'AJAX------------------------AJAX';
@@ -470,7 +479,7 @@ function send_binary (aB, pmid, upload, no_email) {
         if (!no_email && apikey) {
           // email_abstract, 2018-9-14
           const date = new Date();
-          localStorage.setItem('email_' + apikey + '_' + pmid, date.getTime());
+          LS.setItem('email_' + apikey + '_' + pmid, date.getTime());
         }
       }
     };
@@ -530,7 +539,7 @@ function do_scholar_title () {
   scholar_title(pmid, t, tabId);
 }
 
-function scholar_title (pmid, t, tabId) {
+async function scholar_title (pmid, t, tabId) {
   DEBUG && console.log('pmid', pmid);
   DEBUG && console.log('title', t);
   if (scholar_no_more) {
@@ -554,7 +563,7 @@ function scholar_title (pmid, t, tabId) {
         g_num = />Cited by (\d+)</.exec(h[0]);
         g_link = /href="([^"]+)"/.exec(h[0]);
         if (g_num.length === 2 && g_link.length === 2) {
-          localStorage.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
+          LS.setItem('scholar_' + pmid, pmid + ',' + g_num[1] + ',' + g_link[1]);
           b_proxy(tabId, {
             g_scholar: 1, pmid: pmid, g_num: g_num[1], g_link: g_link[1]
           });
@@ -577,27 +586,27 @@ function scholar_title (pmid, t, tabId) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
-    if (parseInt(localStorage.getItem(date_str), 10) < 1) {
+    if (parseInt(LS.getItem(date_str), 10) < 1) {
       scholar_page_open_limits = 0;
     }
     if (scholar_page_open_limits > 0) {
       scholar_page_open_limits -= 1;
-      localStorage.setItem(date_str, scholar_page_open_limits);
+      LS.setItem(date_str, scholar_page_open_limits);
       open_new_tab('https://scholar.google.com/');
     }
-    if (localStorage.getItem('scholar_once') !== 'no' || scholar_page_open_limits === 0) {
+    if (LS.getItem('scholar_once') !== 'no' || scholar_page_open_limits === 0) {
       scholar_no_more = 1;
     }
   });
 }
 
-function do_download_shark (pmid, url) {
-  const id = localStorage.getItem('downloadId_' + pmid);
+async function do_download_shark (pmid, url) {
+  const id = await LS.getItem('downloadId_' + pmid);
   if (id) {
     chrome.downloads.search({ url: url },
       function (item) {
         DEBUG && console.log('filename', item[0].filename);
-        if (localStorage.getItem('shark_open_files') === 'yes') {
+        if (LS.getItem('shark_open_files') === 'yes') {
           chrome.tabs.create({
             url: 'file://' + item[0].filename,
             active: false
@@ -608,39 +617,39 @@ function do_download_shark (pmid, url) {
     chrome.downloads.download(
       { url: url, filename: 'pmid_' + pmid + '.pdf', method: 'GET' },
       function (id) {
-        localStorage.setItem('downloadId_' + pmid, id);
+        LS.setItem('downloadId_' + pmid, id);
         DEBUG && console.log('downloadId', id);
-        if (localStorage.getItem('shark_open_files') === 'yes') {
+        if (LS.getItem('shark_open_files') === 'yes') {
           chrome.downloads.open(id);
         }
       });
-    if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
+    if (apikey && LS.getItem('rev_proxy') !== 'yes' && LS.getItem('dropbox_status') === 'success') {
       dropbox_it(pmid, url, apikey);
     }
   }
 }
 
-function prepare_download_shark (tabId, pmid, args) {
-  localStorage.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
+async function prepare_download_shark (tabId, pmid, args) {
+  await LS.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: args.shark_link });
   $.post(base + '/', args,
     function (d) {
       DEBUG && console.log('>> post shark_link (empty is a success): ' + d);
     }, 'json'
   );
-  if (localStorage.getItem('shark_download') === 'yes') {
+  if (await LS.getItem('shark_download') === 'yes') {
     do_download_shark(pmid, args.shark_link + '?download=true');
   }
 }
 
-function parse_shark (pmid, url, tabId) {
+async function parse_shark (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
   // @@@@ blocked by CORS policy: No 'Access-Control-Allow-Origin' header
-  let in_mem = localStorage.getItem('shark_' + pmid);
+  let in_mem = await LS.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, { el_id: '_shark' + pmid, el_data: in_mem[1] });
-    if (localStorage.getItem('shark_download') === 'yes') {
+    if (await LS.getItem('shark_download') === 'yes') {
       do_download_shark(pmid, in_mem[1]);
     }
     return;
@@ -669,15 +678,15 @@ function parse_shark (pmid, url, tabId) {
   });
 }
 
-function parse_pii (pmid, url, tabId) {
+async function parse_pii (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
   return false; // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
 
-  let in_mem = localStorage.getItem('url_' + pmid);
+  let in_mem = await LS.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, { el_id: '_pdf' + pmid, el_data: in_mem[1] });
-    in_mem = localStorage.getItem('scopus_' + pmid);
+    in_mem = await LS.getItem('scopus_' + pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 2);
       b_proxy(tabId, { el_id: 'pl4_scopus' + pmid, el_data: in_mem[1] });
@@ -698,10 +707,10 @@ function parse_pii (pmid, url, tabId) {
         if (h2 && h2.length) {
           DEBUG && console.log(h2);
           args.scopus_n = h2[1];
-          localStorage.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
+          LS.setItem('scopus_' + pmid, pmid + ',' + h2[1]);
           b_proxy(tabId, { el_id: 'pl4_scopus' + pmid, el_data: h2[1] });
         }
-        localStorage.setItem('url_' + pmid, pmid + ',' + h[1]);
+        LS.setItem('url_' + pmid, pmid + ',' + h[1]);
         b_proxy(tabId, { el_id: '_pdf' + pmid, el_data: h[1] });
         $.post(base + '/', args,
           function (d) {
@@ -817,7 +826,7 @@ function common_dThree (itemZero, withRed) {
   return extra;
 }
 
-function call_from_other_sites (pmid, tabId, fid, f_v) {
+async function call_from_other_sites (pmid, tabId, fid, f_v) {
   if (!pmid) { return; }
   chrome.storage.local.get(['tpl' + pmid], function (ddd) {
     const dd = ddd['tpl' + pmid];
@@ -852,8 +861,8 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
             aKey = {};
             aKey['tpl' + pmid] = d.item[0];
             aKey['tpl' + pmid].date_str = date_str;
-            if (localStorage.getItem('abs_' + pmid) && !d.item[0].abstract) {
-              aKey['tpl' + pmid].abstract = localStorage.getItem('abs_' + pmid);
+            if (LS.getItem('abs_' + pmid) && !d.item[0].abstract) {
+              aKey['tpl' + pmid].abstract = LS.getItem('abs_' + pmid);
             }
             chrome.storage.local.set(aKey);
             if (fid && f_v && (
@@ -881,7 +890,7 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
   });
 }
 
-function get_request (msg, _port) {
+async function get_request (msg, _port) {
   // console.log(msg);
   let sender_tab_id = null;
   let pmid; let tmp; let args;
@@ -890,7 +899,7 @@ function get_request (msg, _port) {
   } else if (_port && _port.sender && msg.tabId) {
     sender_tab_id = msg.tabId; // ess.js
   }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (await LS.getItem('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
   }
   // respond to msg
@@ -928,8 +937,8 @@ function get_request (msg, _port) {
           for (i = 0; i < d.count; i += 1) {
             tmp['tpl' + d.item[i].pmid] = d.item[i];
             tmp['tpl' + d.item[i].pmid].date_str = date_str;
-            if (localStorage.getItem('abs_' + d.item[i].pmid) && !d.item[i].abstract) {
-              tmp['tpl' + d.item[i].pmid].abstract = localStorage.getItem('abs_' + d.item[i].pmid);
+            if (LS.getItem('abs_' + d.item[i].pmid) && !d.item[i].abstract) {
+              tmp['tpl' + d.item[i].pmid].abstract = LS.getItem('abs_' + d.item[i].pmid);
             }
           }
           chrome.storage.local.set(tmp);
@@ -958,29 +967,29 @@ function get_request (msg, _port) {
       DEBUG && console.timeEnd('Call theServer api for json');
     });
   } else if (msg.ncbi_api) {
-    localStorage.setItem('tpl_ncbi_api', msg.ncbi_api);
+    await LS.setItem('tpl_ncbi_api', msg.ncbi_api);
     ncbi_api = msg.ncbi_api;
     reLoad_options();
   } else if (msg.save_apikey) {
     if (msg.save_email) {
-      localStorage.setItem('pubmeder_apikey', msg.save_apikey);
-      localStorage.setItem('pubmeder_email', msg.save_email);
-      localStorage.setItem('b_apikey_gold', 'yes');
+      await LS.setItem('pubmeder_apikey', msg.save_apikey);
+      await LS.setItem('pubmeder_email', msg.save_email);
+      await LS.setItem('b_apikey_gold', 'yes');
       pubmeder_apikey = msg.save_apikey;
       pubmeder_email = msg.save_email;
       pubmeder_ok = true;
     } else {
-      localStorage.setItem('thepaperlink_apikey', msg.save_apikey);
-      localStorage.setItem('a_apikey_gold', 'yes');
+      await LS.setItem('thepaperlink_apikey', msg.save_apikey);
+      await LS.setItem('a_apikey_gold', 'yes');
       apikey = msg.save_apikey;
       req_key = apikey;
     }
     reLoad_options();
   } else if (msg.service && msg.content) {
     if (msg.content.indexOf('error') < 0) {
-      localStorage.setItem(msg.service + '_status', 'success');
+      await LS.setItem(msg.service + '_status', 'success');
     } else {
-      localStorage.setItem(msg.service + '_status', 'error? try again please');
+      await LS.setItem(msg.service + '_status', 'error? try again please');
     }
     reLoad_options();
   } else if (msg.sendID) {
@@ -1011,7 +1020,7 @@ function get_request (msg, _port) {
         console.log(msg.prjID, msg.doi, d);
       });
   } else if (msg.menu_display) {
-    if (localStorage.getItem('contextMenu_shown') !== 'no') {
+    if (await LS.getItem('contextMenu_shown') !== 'no') {
       menu_generator();
       // just generated context menu
     } else {
@@ -1110,32 +1119,32 @@ function get_request (msg, _port) {
     } else if (!msg.no_email) {
       // email_abstract, 2018-9-14
       const date = new Date();
-      localStorage.setItem('email_' + apikey + '_' + msg.pmid, date.getTime());
+      await LS.setItem('email_' + apikey + '_' + msg.pmid, date.getTime());
     }
   } else if (msg.save_cloud_op) {
     if (msg.save_cloud_op.indexOf('mendeley') > -1) {
-      localStorage.setItem('mendeley_status', 'success');
+      await LS.setItem('mendeley_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('facebook') > -1) {
-      localStorage.setItem('facebook_status', 'success');
+      await LS.setItem('facebook_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('dropbox') > -1) {
-      localStorage.setItem('dropbox_status', 'success');
+      await LS.setItem('dropbox_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('douban') > -1) {
-      localStorage.setItem('douban_status', 'success');
+      await LS.setItem('douban_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('googledrive') > -1) {
-      localStorage.setItem('googledrive_status', 'success');
+      await LS.setItem('googledrive_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('onedrive') > -1) {
-      localStorage.setItem('onedrive_status', 'success');
+      await LS.setItem('onedrive_status', 'success');
     }
     if (msg.save_cloud_op.indexOf('baiduyun') > -1) {
-      localStorage.setItem('baiduyun_status', 'success');
+      await LS.setItem('baiduyun_status', 'success');
     }
   } else if (msg.t_cont) {
-    const holder = dd.getElementById('clippy_t');
+    const holder = document.getElementById('clippy_t');
     holder.style.display = 'block';
     // 2018-9-14 @@@@ so_noDate
     // 2022-2-23 move from contentscript.js
@@ -1163,7 +1172,7 @@ function get_request (msg, _port) {
   } else if (msg.load_common_values) {
     load_common_values();
   } else if (msg.a_pmid && msg.a_title) {
-    let in_mem = localStorage.getItem('scholar_' + msg.a_pmid);
+    let in_mem = await LS.getItem('scholar_' + msg.a_pmid);
     if (in_mem) {
       in_mem = in_mem.split(',', 3);
       _port && _port.postMessage({
@@ -1180,7 +1189,7 @@ function get_request (msg, _port) {
     scholar_count = 0;
     scholar_run = 0;
     scholar_queue = [];
-    shark_limits = localStorage.getItem('shark_limit') || 3;
+    shark_limits = await LS.getItem('shark_limit') || 3;
   } else if (msg.load_broadcast) {
     broadcast_loaded = false;
     if (ws) {
@@ -1196,26 +1205,26 @@ function get_request (msg, _port) {
     // parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
     //}
   } else if (msg.doi_link && msg.doi && msg.pmid) {
-    if (localStorage.getItem('shark_link') !== 'no') {
+    if (await LS.getItem('shark_link') !== 'no') {
       parse_shark(msg.pmid, 'https://' + local_mirror + '/' + msg.doi, sender_tab_id);
     }
   } else if (msg.search_term) {
     if (msg.search_result_count && msg.search_result_count > 1) {
-      let terms = localStorage.getItem('past_search_terms');
+      let terms = await LS.getItem('past_search_terms');
       const term_lower = msg.search_term.toLowerCase()
                          .replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
-      const one_term_saved = localStorage.getItem(term_lower);
+      const one_term_saved = await LS.getItem(term_lower);
       const end_num = get_end_num(one_term_saved);
       const digitals = get_ymd();
       digitals.push(msg.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
         terms += term_lower + '||';
-        localStorage.setItem('past_search_terms', terms);
+        await LS.setItem('past_search_terms', terms);
       }
       if (one_term_saved) {
         if (end_num && end_num !== msg.search_result_count) {
-          localStorage.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
+          await LS.setItem(term_lower, one_term_saved + '||' + digitals.join(','));
           if (end_num > msg.search_result_count) {
             console.log('__ the search result count goes down: ' + msg.search_term);
           }
@@ -1224,7 +1233,7 @@ function get_request (msg, _port) {
           _port && _port.postMessage({ search_trend: '&equiv;' });
         }
       } else {
-        localStorage.setItem(term_lower, digitals.join(','));
+        await LS.setItem(term_lower, digitals.join(','));
       }
     }
   } else if (msg.from_f1000) {
@@ -1235,11 +1244,11 @@ function get_request (msg, _port) {
   } else if (msg.from_popup_w_pmid) {
     call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
   } else if (msg.pageAbs) { // 2018-10-1
-    localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
+    await LS.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14
     pmid = msg.ajaxAbs;
-    if (localStorage.getItem('abs_' + pmid)) {
-      _port && _port.postMessage({ returnAbs: localStorage.getItem('abs_' + pmid), pmid: pmid });
+    if (await LS.getItem('abs_' + pmid)) {
+      _port && _port.postMessage({ returnAbs: await LS.getItem('abs_' + pmid), pmid: pmid });
     } else {
       args = { apikey: req_key, db: 'pubmed', id: pmid };
       if (ncbi_api) {
@@ -1249,7 +1258,7 @@ function get_request (msg, _port) {
       $.getJSON(base + '/entrezajax/efetch', args, function (d) {
         const l = d.result.PubmedArticle[0];
         if (l.MedlineCitation.Article.Abstract) {
-          localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
+          LS.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
           _port && _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
         }
       }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -1261,7 +1270,7 @@ function get_request (msg, _port) {
   } else if (msg.do_syncValues) {
     do_syncValues();
   } else if (msg.failed_term) {
-    const failed_terms = localStorage.getItem('failed_terms') || '';
+    const failed_terms = await LS.getItem('failed_terms') || '';
     let failed_times = 0;
     if (failed_terms) {
       console.log(failed_terms); // @@@@
@@ -1269,15 +1278,15 @@ function get_request (msg, _port) {
       if (failed_match) {
         failed_times = failed_match.length + 1;
       }
-      if (failed_times % 5 === 3 && localStorage.getItem('rev_proxy') !== 'yes') {
-        localStorage.setItem('rev_proxy', 'yes');
-        localStorage.setItem('websocket_server', 'node.thepaperlink.cn:8081');
+      if (failed_times % 5 === 3 && await LS.getItem('rev_proxy') !== 'yes') {
+        await LS.setItem('rev_proxy', 'yes');
+        await LS.setItem('websocket_server', 'node.thepaperlink.cn:8081');
         base = 'https://www.thepaperlink.cn';
-        localStorage.removeItem('https_failed'); // 2020-2-3
+        await LS.removeItem('https_failed'); // 2020-2-3
       }
-      localStorage.setItem('failed_terms', failed_terms + ',"' + msg.failed_term + '"');
+      await LS.setItem('failed_terms', failed_terms + ',"' + msg.failed_term + '"');
     } else {
-      localStorage.setItem('failed_terms', '"' + msg.failed_term + '"');
+      await LS.setItem('failed_terms', '"' + msg.failed_term + '"');
     }
   } else if (msg.open_options || (msg.saveIt && !pubmeder_ok && !cloud_op)) {
     chrome.tabs.create({
@@ -1300,12 +1309,11 @@ chrome.runtime.onConnect.addListener(function (_port) {
 });
 chrome.runtime.onMessageExternal.addListener(
   function (req, sender, sendResponse) {
-    get_request(req, null);
-    sendResponse({});
+    get_request(req, null).then(sendResponse);
   }
 );
 
-if (localStorage.getItem('rev_proxy') === 'yes') {
+if (LS.getItem('rev_proxy') === 'yes') {
   base = 'https://www.thepaperlink.cn';
   if (arbitrary_sec < 3) {
     arbitrary_sec = 3;
@@ -1326,54 +1334,54 @@ if (localStorage.getItem('rev_proxy') === 'yes') {
   });
 }
 
-if (localStorage.getItem('contextMenu_shown') !== 'no') {
-  localStorage.setItem('contextMenu_on', 'yes');
+if (LS.getItem('contextMenu_shown') !== 'no') {
+  LS.setItem('contextMenu_on', 'yes');
   menu_generator();
 }
 
-function newdayRoutine () {
+async function newdayRoutine () {
   console.log('>> a new day! housekeeping first ' + Math.random());
   let old_id = '';
-  const init_found = localStorage.getItem('id_found') || '';
-  for (i = 0, len = localStorage.length; i < len; i += 1) {
-    aKey = localStorage.key(i);
+  const init_found = await LS.getItem('id_found') || '';
+  for (i = 0, len = await LS.length; i < len; i += 1) {
+    aKey = await LS.key(i);
     if (aKey && aKey.substr(0, 6) === 'tabId:') {
-      aVal = localStorage.getItem(aKey);
+      aVal = await LS.getItem(aKey);
       if (alldigi.test(aVal)) {
         if (aVal !== '999999999' && init_found.indexOf(aVal) === -1) {
           old_id += ' ' + aVal;
         }
-        localStorage.removeItem(aKey);
+        await LS.removeItem(aKey);
       }
     } else if (aKey && aKey.substr(0, 6) === 'email_') {
       aVal = aKey.split('_');
       // @@@@
     } else if (aKey && aKey.substr(0, 7) === 'pubmed_') {
       aVal = aKey.split('_');
-      localStorage.removeItem(aKey);
+      await LS.removeItem(aKey);
       saveIt_pubmeder(aVal[1]);
     }// else if (aKey && (aKey.substr(0,8) === 'scholar_' || aKey.substr(0,7) === 'scopus_')) {
     //  localStorage.removeItem(aKey);
     // }
   }
   if (old_id) {
-    localStorage.setItem('id_found', init_found + ' ' + old_id);
+    await LS.setItem('id_found', init_found + ' ' + old_id);
   }
 }
-if (localStorage.getItem('last_chrome_open_str') !== date_str) {
-  localStorage.setItem('last_chrome_open_str', date_str);
+if (LS.getItem('last_chrome_open_str') !== date_str) {
+  LS.setItem('last_chrome_open_str', date_str);
   newdayRoutine();
 }
 setInterval(newdayRoutine, 24 * 60 * 60 * 60);
 
 $(document).ready(function () {
-  if (!broadcast_loaded && localStorage.getItem('ws_items') === 'yes') {
+  if (!broadcast_loaded && LS.getItem('ws_items') === 'yes') {
     load_broadcast();
     get_server_data(0);
   }
 });
 
-function adjustStorage (rst, newOnly) {
+async function adjustStorage (rst, newOnly) {
   const toRemove = [];
   for (aKey in rst) {
     if (aKey.indexOf('pmid_') === 0) {
@@ -1382,7 +1390,7 @@ function adjustStorage (rst, newOnly) {
       if (newOnly) { pmidObj = rst[aKey].newValue; }
       for (aVal in pmidObj) {
         DEBUG && console.log(aVal + '_' + a_pmid, '' + pmidObj[aVal]);
-        localStorage.setItem(aVal + '_' + a_pmid, '' + pmidObj[aVal]);
+        await LS.setItem(aVal + '_' + a_pmid, '' + pmidObj[aVal]);
       }
     } else if (aKey.indexOf('tabId:') === 0 ||
         rst[aKey] === undefined || rst[aKey] === null) {
@@ -1390,9 +1398,9 @@ function adjustStorage (rst, newOnly) {
     } else if (aKey.indexOf('diff_') === 0) { // 2022-4-24
       toRemove.push(aKey);
     } else if (aKey && newOnly && rst[aKey].newValue) {
-      localStorage.setItem(aKey, '' + rst[aKey].newValue);
+      await LS.setItem(aKey, '' + rst[aKey].newValue);
     } else if (aKey && rst[aKey]) {
-      localStorage.setItem(aKey, '' + rst[aKey]);
+      await LS.setItem(aKey, '' + rst[aKey]);
     }
   }
   if (toRemove.length) {
@@ -1472,8 +1480,8 @@ chrome.runtime.onInstalled.addListener(function () {
 
 chrome.storage.onChanged.addListener(function (rst, areaName) {
   if (areaName === 'sync') {
-    if (localStorage.getItem('justDid_load_common_values')) {
-      localStorage.removeItem('justDid_load_common_values');
+    if (LS.getItem('justDid_load_common_values')) {
+      LS.removeItem('justDid_load_common_values');
     } else {
       adjustStorage(rst, 1);
     }
