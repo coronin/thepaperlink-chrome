@@ -1533,7 +1533,7 @@ function get_request (msg) {
     return;
   } else if (!r || !r.count) {
     if (k) { r.count = k; } else {
-      sendResponse({});
+      // sendResponse({});
       return;
     }
   }
@@ -1640,7 +1640,11 @@ function get_request (msg) {
       }
     }
     if (page_url.indexOf(pmid) > 0 && byClassOne('id-link') ) { // 2022-3-7
-      _doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
+      if (byClassOne('id-link').href.indexOf('/pmc') > 0) { // 2023-2-20
+        _doi_on_page[pmid] = page_d.getElementsByClassName('id-link')[1].href.substr(16);
+      } else {
+        _doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
+      }
     }
     if (!msg.except && r.item[i].doi) {
       a_proxy({ pmid: pmid, doi: r.item[i].doi, doi_link: 1 });

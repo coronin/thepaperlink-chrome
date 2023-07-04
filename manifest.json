@@ -1,38 +1,10 @@
 {
   "manifest_version": 3,
   "name": "the paper link 3",
-  "short_name": "tpl 3",
   "version": "2.9.50",
-  "minimum_chrome_version": "88",
   "description": "Direct PDF links; display F1000; author Peaks; etc. (c) 2010 by Liang Cai",
-  "content_security_policy": {
-    "extension_pages": "worker-src 'self'; script-src 'self'; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'"
-  },
-  //"web_accessible_resources": [{
-  //  "resources": ["loadingLine.gif", "clippyIt.png"],
-  //  "use_dynamic_url": false
-  //}],
-  "permissions": [
-    "background",
-    "contextMenus",
-    "tabs",
-    "clipboardWrite",
-    "declarativeContent",
-    "storage"
-  ],
-  "host_permissions": [
-    "*://*/*"
-  ],
   "background": {
     "service_worker": "background.js"
-  },
-  "omnibox": { "keyword": "tpl" },
-  "icons": {
-    "128": "128.png",
-    "48": "48.png",
-    "32": "32.png",
-    "19": "19.png",
-    "16": "16.png"
   },
   "action": {
     "default_popup": "ess.html",
@@ -44,6 +16,35 @@
       "16": "16.png"
     },
     "default_title": "paper link 3, brought to you by Liang Cai"
+  },
+  "permissions": [
+    "background",
+    "contextMenus",
+    "tabs",
+    "clipboardWrite",
+    "declarativeContent",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages.extension_pages": "worker-src 'self'; script-src 'self'; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'"
+    //, "content_security_policy.sandbox": ""
+  },
+  //"web_accessible_resources": [{
+  //  "resources": ["loadingLine.gif", "clippyIt.png"],
+  //  "use_dynamic_url": false
+  //}],
+  "short_name": "tpl 3",
+  "minimum_chrome_version": "88",
+  "omnibox": { "keyword": "tpl" },
+  "icons": {
+    "128": "128.png",
+    "48": "48.png",
+    "32": "32.png",
+    "19": "19.png",
+    "16": "16.png"
   },
   "options_page": "options.html",
   "content_scripts": [ {
