@@ -815,7 +815,7 @@ function common_dThree (itemZero, withRed) {
   }
   if (withRed && itemZero.f_v && itemZero.fid) {
     tmp = '<a class="thepaperlink-red" href="' +
-          ez_format_link(ezproxy_prefix, 'https://facultyopinions.com/article/' + itemZero.fid) +
+          ez_format_link(ezproxy_prefix, 'https://connect.h1.co/article/' + itemZero.fid) +
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
     extra += tmp;
   }
@@ -1454,6 +1454,7 @@ chrome.runtime.onInstalled.addListener(function () {
         }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//f1000.com/prime/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//facultyopinions.com/article/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//connect.h1.co/article/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biorxiv.org/content/' } }),

@@ -1707,7 +1707,7 @@ function get_request (msg) {
     if (!msg.except && r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-            'https://facultyopinions.com/article/' + uneval_trim(r.item[i].fid)
+            'https://connect.h1.co/article/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
@@ -1916,6 +1916,9 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
 } else if (page_url.indexOf('://facultyopinions.com/article/') > 0) {
   process_f1000();
   noRun = 31;
+} else if (page_url.indexOf('://connect.h1.co/article/') > 0) {
+  process_f1000();
+  noRun = 32;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||
            page_url.indexOf('://www.storkapp.me/pubpaper/') > 0) {
   // load_jss();  // 2020-8-11 need full author names

@@ -399,6 +399,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
+  } else if (tab.url.indexOf('//connect.h1.co/article/') > 0) { // 2023-8-18
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) { // @@@@
     $('#found').html('&copy; /showPaper.php?' + tab.url.split('/showPaper.php?')[1]);
     eSummary(tab.title, tab.id);
