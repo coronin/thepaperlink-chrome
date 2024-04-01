@@ -463,7 +463,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&copy; pii:' + ID);
     eSS(tab.title.split('- ScienceDirect')[0], tab.id);
   } else if (tab.url.indexOf('//elifesciences.org/') > 0) {
-    ID = '10.7554/eLife.' + tab.url.split('/')[4].split('.')[0];
+    ID = '10.7554/eLife.' + tab.url.split('/', 5)[4].split('.')[0];
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
   } else if (tab.url.indexOf('.nature.com/articles/') > 0) {

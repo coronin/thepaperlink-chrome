@@ -575,8 +575,8 @@ function do_download_shark (pmid, url) {
   if (id) {
     chrome.downloads.search({ url: url },
       function (item) {
-        DEBUG && console.log('filename', item[0].filename);
-        if (localStorage.getItem('shark_open_files') === 'yes') {
+        DEBUG && console.log('filename', item);
+        if (item && localStorage.getItem('shark_open_files') === 'yes') {
           chrome.tabs.create({
             url: 'file://' + item[0].filename,
             active: false
@@ -590,7 +590,7 @@ function do_download_shark (pmid, url) {
         localStorage.setItem('downloadId_' + pmid, id);
         DEBUG && console.log('downloadId', id);
         if (localStorage.getItem('shark_open_files') === 'yes') {
-          chrome.downloads.open(id);
+          chrome.downloads.open(id); //@@@@ user gesture
         }
       });
     if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
@@ -614,7 +614,7 @@ function prepare_download_shark (tabId, pmid, args) {
 
 function parse_shark (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  // @@@@ blocked by CORS policy: No 'Access-Control-Allow-Origin' header
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   let in_mem = localStorage.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -629,14 +629,14 @@ function parse_shark (pmid, url, tabId) {
   }
   shark_limits -= 1;
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: 1 });
-  const reg = /iframe src\s*=\s*"(\S+)"/i; let h;
+  const reg = /embed type="application\/pdf" src\s*=\s*"(\S+)"/i; let h;
   let args = { apikey: req_key, pmid: pmid, shark_link: '' };
   $.get(url,
     function (r) {
       h = reg.exec(r);
       if (h && h.length) {
         DEBUG && console.log(h);
-        args.shark_link = h[1].split('#')[0];
+        args.shark_link = 'https://' + h[1].split('//')[1].split('?')[0];
         prepare_download_shark(tabId, pmid, args);
       } else {
         console.log(r);
@@ -1087,7 +1087,7 @@ function get_request (msg, _port) {
     }
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {
     if (msg.pdf.substr(0, 7).toLowerCase() === 'http://') {
-      get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
+      console.log(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);  //@@@@ get_binary
     } else if (!msg.no_email) {
       // email_abstract, 2018-9-14
       const date = new Date();
@@ -1215,8 +1215,16 @@ function get_request (msg, _port) {
     call_from_other_sites(msg.from_sites_w_pmid, sender_tab_id);
   } else if (msg.from_popup_w_pmid) {
     call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
-  } else if (msg.from_sites_w_doi) {
-    doi_scihub(msg.from_sites_w_doi[0], msg.from_sites_w_doi[1], sender_tab_id);
+  } else if (msg.from_sites_w_doi && localStorage.getItem('shark_download') === 'yes') {
+    chrome.downloads.download({
+      url: 'https://' + msg.from_sites_w_doi[1],
+      filename: msg.from_sites_w_doi[0].replace(/\/+/g, '@') + '.pdf'
+    }, function (id) {
+      console.log(id, msg.from_sites_w_doi[0], msg.from_sites_w_doi[1]);
+      if (localStorage.getItem('shark_open_files') === 'yes') {
+        chrome.downloads.open(id); //@@@@ user gesture
+      }
+    });
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14

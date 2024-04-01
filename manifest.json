@@ -16,7 +16,8 @@
     "tabs",
     "clipboardWrite",
     "declarativeContent",
-    "storage"
+    "storage",
+    "downloads"
   ],
   "background": {
     "page": "background.html",
@@ -55,6 +56,7 @@
       "*://pubmeder-hrd.appspot.com/registration",
       "https://sci-hub.ru/*",
       "https://sci-hub.se/*",
+      "https://sci-hub.st/*",
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
       "http://f1000.com/prime/*",

@@ -90,7 +90,7 @@ function process_scihub () { // 2024 Apr
     if (ele.getAttribute('onclick') && ele.getAttribute('onclick').indexOf('location.href=') > -1) {
       a_proxy({ from_sites_w_doi: [
         trim( byID('doi').textContent ),
-        ele.getAttribute('onclick').substr(14).split('?')[0]
+        ele.getAttribute('onclick').split('//')[1].split('?')[0]
       ] });
       break;
     }
@@ -997,7 +997,7 @@ function id_journal (s, pmid) {
   } else {
     console.log(s); // 2021-9-11
     if (s.indexOf(' Books & Documents.') === -1) {
-      window.alert('Article >> ' + s);
+      window.alert('Book >> ' + s);
     }
     return s;
   }
@@ -1647,7 +1647,9 @@ function get_request (msg) {
             ez_format_link(p, uneval_trim(r.item[i].pdf)) + '" target="_blank">pdf</a>';
         div_html += tmp;
       } else if (r.item[i].pii) {
-        a_proxy({ pmid: pmid, pii: r.item[i].pii, pii_link: 1 });
+        if (page_url.indexOf(pmid) > -1) {
+          a_proxy({ pmid: pmid, pii: r.item[i].pii, pii_link: 1 });
+        }
         tmp = '<a id="thepaperlink_pdf' + pmid + '" href="#" target="_blank" class="thepaperlink_Off">pdf</a>';
         div_html += tmp;
       }
@@ -1666,7 +1668,9 @@ function get_request (msg) {
       }
     }
     if (!msg.except && r.item[i].doi) {
-      a_proxy({ pmid: pmid, doi: r.item[i].doi, doi_link: 1 });
+      if (page_url.indexOf(pmid) > -1) {
+        a_proxy({ pmid: pmid, doi: r.item[i].doi, doi_link: 1 });
+      }
       tmp = '<a id="thepaperlink_doi' + pmid + '" href="' +
           ez_format_link(p,
             'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
@@ -1921,7 +1925,8 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   });
   noRun = 6;
 } else if (page_url.indexOf('://sci-hub.ru/') > 0 ||
-    page_url.indexOf('://sci-hub.se/') > 0) {
+    page_url.indexOf('://sci-hub.se/') > 0 ||
+    page_url.indexOf('://sci-hub.st/') > 0) {
   process_scihub();
   noRun = 50;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
