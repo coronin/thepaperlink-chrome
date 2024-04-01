@@ -785,7 +785,7 @@ function common_dThree (itemZero, withRed) {
   }
   if (withRed && itemZero.f_v && itemZero.fid) {
     tmp = '<a class="thepaperlink-red" href="' +
-          ez_format_link(ezproxy_prefix, 'https://facultyopinions.com/article/' + itemZero.fid) +
+          ez_format_link(ezproxy_prefix, 'https://connect.h1.co/article/' + itemZero.fid) +
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
     extra += tmp;
   }
@@ -848,9 +848,13 @@ function call_from_other_sites (pmid, tabId, fid, f_v) {
           } else if (!d.error) {
             DEBUG && console.log(d);
           }
-        }).fail(function () {
-        base = 'https://www.thepaperlink.cn';
-        console.log('call_from_other_sites fail: access theServer Not-Google');
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+          if (textStatus !== '503') {
+            base = 'https://www.thepaperlink.cn';
+            console.log('call_from_other_sites fail: access theServer Not-Google');
+          } else {
+            console.log('call_from_other_sites fail', textStatus, errorThrown);
+          }
       });
     } // if chrome.storage.local.get
   });
@@ -916,13 +920,16 @@ function get_request (msg, _port) {
           _port && _port.postMessage({ except: 'Usage limits exceeded.', tpl: '' });
         }
       }
-    }).fail(function () {
-      if (apikey) {
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      if (textStatus === '503') {
+        _port && _port.postMessage({ except: 'The server is overloaded.', tpl: apikey });
+        console.log(textStatus, errorThrown, request_url);
+      } else if (apikey) {
         _port && _port.postMessage({ except: 'No additional info.', tpl: apikey });
       } else {
         _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
       }
-      if (base === 'https://www.thepaperlink.com') {
+      if (textStatus !== '503' && base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
         console.log('getJSON fail: access theServer Not-Google');
       }
@@ -1165,9 +1172,10 @@ function get_request (msg, _port) {
     // if (localStorage.getItem('ajax_pii_link') !== 'no') {
     //  parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     // }
-    if (localStorage.getItem('shark_link') !== 'no') {
-      parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
-    }
+    console.log('pii', msg.pii, msg.pii_link, msg.pmid); //@@@@ S1534580722001666
+    //if (localStorage.getItem('shark_link') !== 'no') {
+    //  parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
+    //}
   } else if (msg.doi_link && msg.doi && msg.pmid) {
     if (localStorage.getItem('shark_link') !== 'no') {
       parse_shark(msg.pmid, 'https://' + local_mirror + '/' + msg.doi, sender_tab_id);
@@ -1207,6 +1215,8 @@ function get_request (msg, _port) {
     call_from_other_sites(msg.from_sites_w_pmid, sender_tab_id);
   } else if (msg.from_popup_w_pmid) {
     call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
+  } else if (msg.from_sites_w_doi) {
+    doi_scihub(msg.from_sites_w_doi[0], msg.from_sites_w_doi[1], sender_tab_id);
   } else if (msg.pageAbs) { // 2018-10-1
     localStorage.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14
@@ -1225,8 +1235,10 @@ function get_request (msg, _port) {
           localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText);
           _port && _port.postMessage({ returnAbs: l.MedlineCitation.Article.Abstract.AbstractText, pmid: pmid });
         }
-      }).fail(function () {
-        DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (textStatus !== '503') {
+          DEBUG && console.log('>> entrezajax abstract failed PMID:' + pmid);
+        }
       });
     }
   } else if (msg.do_syncValues) {
@@ -1417,6 +1429,7 @@ chrome.runtime.onInstalled.addListener(function () {
         }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//f1000.com/prime/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//facultyopinions.com/article/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//connect.h1.co/article/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biorxiv.org/content/' } }),

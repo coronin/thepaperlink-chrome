@@ -9,7 +9,7 @@
  *
  * this started as a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  *
- * the paper link 3 (for chrome and edge)
+ * the paper link 2.9 (for chrome and edge)
  *   https://github.com/coronin/thepaperlink-chrome/releases
  */
 
@@ -80,6 +80,20 @@ function ez_format_link (p, url) {
     return ss;
   } else {
     return (p + url);
+  }
+}
+
+function process_scihub () { // 2024 Apr
+  let i; let len; let ele; let pmid = '';
+  for (i = 0, len = byTag('button').length; i < len; i += 1) {
+    ele = byTag('button')[i];
+    if (ele.getAttribute('onclick') && ele.getAttribute('onclick').indexOf('location.href=') > -1) {
+      a_proxy({ from_sites_w_doi: [
+        trim( byID('doi').textContent ),
+        ele.getAttribute('onclick').substr(14).split('?')[0]
+      ] });
+      break;
+    }
   }
 }
 
@@ -273,9 +287,7 @@ function process_f1000 () { // 2022 March
           }
         }
       }
-      const badge_score_div = byTag('aside')[0
-               ].getElementsByTagName('div')[0
-               ].getElementsByTagName('div')[0];
+      const badge_score_div = byTag('aside')[0].getElementsByTagName('h2')[0]; // 2022-5-29
       let f_v = '';
       if (badge_score_div.getElementsByTagName('span')[0].textContent === 'recommended') {
         f_v = trim(badge_score_div.getElementsByTagName('div')[0].textContent);
@@ -956,7 +968,11 @@ function new_pubmed_single () {
       z.innerHTML = '&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
       z.id = 'tpl_manual_references_all';
       z.className = 'thepaperlink_Off';
-      byID('references').getElementsByTagName('h3')[0].appendChild(z);
+      try {
+        byID('references').getElementsByTagName('h3')[0].appendChild(z);
+      } catch {
+        byID('references').getElementsByTagName('h2')[0].appendChild(z); // 2023-5-28
+      }
     }
     // https://pubmed.ncbi.nlm.nih.gov/32598099/
     if (byID('references').getElementsByClassName('refs-list-title')[0]) {
@@ -1642,7 +1658,12 @@ function get_request (msg) {
       }
     }
     if (page_url.indexOf(pmid) > 0 && byClassOne('id-link') ) { // 2022-3-7
-      _doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
+      //_doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
+      if (byClassOne('id-link').href.indexOf('/pmc') > 0) { // 2023-2-20
+        _doi_on_page[pmid] = page_d.getElementsByClassName('id-link')[1].href.substr(16);
+      } else {
+        _doi_on_page[pmid] = byClassOne('id-link').href.substr(16);
+      }
     }
     if (!msg.except && r.item[i].doi) {
       a_proxy({ pmid: pmid, doi: r.item[i].doi, doi_link: 1 });
@@ -1664,12 +1685,25 @@ function get_request (msg) {
             'https://www.sciencedirect.com/science/article/pii/' + uneval_trim(r.item[i].pii)
           ) + '/pdfft?isDTMRedir=true&download=true" target="_blank">publisher</a>';
         //           linkinghub.elsevier.com/retrieve/pii/
-      } else { tmp = ''; }
+      } else {
+        tmp = '';
+        if (!r.item[i].pii) { // 2023-1-8
+          Array.from(byTag('a')).forEach((piiItem) => {
+            if (piiItem.href.indexOf('linkinghub.elsevier.com/retrieve/pii/') > 0) {
+              piiItem.href = 'https://www.sciencedirect.com/science/article/pii/' +
+                   piiItem.href.split('linkinghub.elsevier.com/retrieve/pii/')[1] +
+                   '/pdfft?isDTMRedir=true&download=true';
+            }
+          });
+        }
+      }
       if (_doi_on_page[pmid]) { // 2022-3-7 2022-5-7 2022-5-18
-        tmp += '<a id="thepaperlink_doi' + pmid + '" href="' +
-            ez_format_link(p,
-              'http://dx.doi.org/' + _doi_on_page[pmid]
-            ) + '" target="_blank">publisher</a>';
+        if (!r.item[i].pii) {
+          tmp += '<a id="thepaperlink_doi' + pmid + '" href="' +
+              ez_format_link(p,
+                'http://dx.doi.org/' + _doi_on_page[pmid]
+              ) + '" target="_blank">publisher</a>';
+        }
         if (local_mirror && (msg.except || !r.item[i].pubdate ||
                              r.item[i].pubdate.indexOf(msg.year) !== 0 )) {
           tmp += '<a id="thepaperlink_shark' + pmid +
@@ -1694,7 +1728,7 @@ function get_request (msg) {
     if (!msg.except && r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-            'https://facultyopinions.com/article/' + uneval_trim(r.item[i].fid)
+            'https://connect.h1.co/article/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
@@ -1886,6 +1920,10 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     }
   });
   noRun = 6;
+} else if (page_url.indexOf('://sci-hub.ru/') > 0 ||
+    page_url.indexOf('://sci-hub.se/') > 0) {
+  process_scihub();
+  noRun = 50;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||
     page_url.indexOf('.biorxiv.org/relate/content/') > 0 ||
     page_url.indexOf('://www.biorxiv.org/collection/') > 0 ||
@@ -1903,6 +1941,9 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
 } else if (page_url.indexOf('://facultyopinions.com/article/') > 0) {
   process_f1000();
   noRun = 31;
+} else if (page_url.indexOf('://connect.h1.co/article/') > 0) {
+  process_f1000();
+  noRun = 32;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||
            page_url.indexOf('://www.storkapp.me/pubpaper/') > 0) {
   // load_jss();  // 2020-8-11 need full author names

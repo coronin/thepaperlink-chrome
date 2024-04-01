@@ -191,9 +191,13 @@ function eFetch (pmid) {
 
     $('.moreAbout').on('click', function () { hideMore(); });
     $('.moreAbout').css('cursor', 'pointer');
-  }).fail(function () {
+  }).fail(function (jqXHR, textStatus, errorThrown) {
     $('.loadIcon').addClass('Off');
-    $('<div/>').html('<p>I am sorry. Nothing I can do with PMID:' + pmid + '</p>').appendTo('#result');
+    if (textStatus !== '503') {
+      $('<div/>').html('<p>I am sorry. Nothing I can do with PMID:' + pmid + '</p>').appendTo('#result');
+    } else {
+      $('<div/>').html('<p>The server is overloaded. Try tomorrow!').appendTo('#result');
+    }
   });
 }
 
@@ -392,6 +396,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
   } else if (tab.url.indexOf('//facultyopinions.com/article/') > 0) {  // 2022-3-20
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
+  } else if (tab.url.indexOf('//connect.h1.co/article/') > 0) {  // 2023-8-18
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);

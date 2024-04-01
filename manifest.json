@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "the paper link 3",
-  "short_name": "tpl 3",
-  "version": "2.9.46",
+  "name": "the paper link 2.9",
+  "short_name": "tpl 2.9",
+  "version": "2.9.46.3",
   "minimum_chrome_version": "39",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
   "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://www.thepaperlink.net https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
@@ -39,13 +39,11 @@
       "19": "19.png",
       "16": "16.png"
     },
-    "default_title": "paper link 3, brought to you by Liang Cai"
+    "default_title": "the paper link 2.9, brought to you by Liang Cai"
   },
   "options_page": "options.html",
   "content_scripts": [ {
     "matches": [
-      "http://scholar.google.com/scholar*",
-      "https://scholar.google.com/scholar*",
       "https://www.thepaperlink.com/oauth*",
       "*://www.thepaperlink.com/reg",
       "*://www.thepaperlink.com/settings",
@@ -55,10 +53,16 @@
       "*://www.thepaperlink.net/settings",
       "http://pubmeder.cailiang.net/registration",
       "*://pubmeder-hrd.appspot.com/registration",
+      "https://sci-hub.ru/*",
+      "https://sci-hub.se/*",
+      "http://scholar.google.com/scholar*",
+      "https://scholar.google.com/scholar*",
       "http://f1000.com/prime/*",
       "https://f1000.com/prime/*",
       "http://facultyopinions.com/article/*",
       "https://facultyopinions.com/article/*",
+      "http://connect.h1.co/article/*",
+      "https://connect.h1.co/article/*",
       "https://www.storkapp.me/paper/*",
       "https://www.storkapp.me/pubpaper/*",
       "https://www.biorxiv.org/content/*",
