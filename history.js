@@ -23,7 +23,7 @@ function format_a_li (category, pmid, url, num) {
     }
   } else {
     $('#' + category + '_').append('<li><button id="' + category + pmid + '">' + pmid + '</button> &nbsp; ' +
-        '<a target="_blank" href="' + url + '">/' + url.split('/', 4)[3] + '</a></li>');
+        '<a target="_blank" href="' + url + '">/' + url.split('/').slice(3).join('/') + '</a></li>');
     $('#' + category + pmid).on('click', function () {
       // function in ess.js
       eSummary(this.id.substr(categoryLen, this.id.length - categoryLen), null);

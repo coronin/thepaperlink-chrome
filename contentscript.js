@@ -84,13 +84,19 @@ function ez_format_link (p, url) {
 }
 
 function process_scihub () { // 2024 Apr
-  let i; let len; let ele; let pmid = '';
+  let i; let len; let ele; let pmid = ''; let scihub_href;
   for (i = 0, len = byTag('button').length; i < len; i += 1) {
     ele = byTag('button')[i];
     if (ele.getAttribute('onclick') && ele.getAttribute('onclick').indexOf('location.href=') > -1) {
+      scihub_href = ele.getAttribute('onclick').split('location.href=')[1].substr(1);
+      if (scihub_href.indexOf('sci-hub.') > 0) {
+        scihub_href = 'https://' + scihub_href.split('//')[1].split('?')[0];
+      } else {
+        scihub_href = 'https://' + page_url.split('/', 3)[2] + scihub_href.split('?')[0];
+      }
       a_proxy({ from_sites_w_doi: [
         trim( byID('doi').textContent ),
-        ele.getAttribute('onclick').split('//')[1].split('?')[0]
+        scihub_href
       ] });
       break;
     }

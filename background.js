@@ -576,11 +576,13 @@ function do_download_shark (pmid, url) {
     chrome.downloads.search({ url: url },
       function (item) {
         DEBUG && console.log('filename', item);
-        if (item && localStorage.getItem('shark_open_files') === 'yes') {
+        if (item.length && localStorage.getItem('shark_open_files') === 'yes') {
           chrome.tabs.create({
             url: 'file://' + item[0].filename,
             active: false
           });
+        } else if (!item.length) {
+          localStorage.removeItem('downloadId_' + pmid);
         }
       });
   } else {
@@ -591,15 +593,21 @@ function do_download_shark (pmid, url) {
         DEBUG && console.log('downloadId', id);
         if (localStorage.getItem('shark_open_files') === 'yes') {
           chrome.downloads.open(id); //@@@@ user gesture
+        } else {
+          console.log(id, pmid, url);
         }
       });
-    if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
-      dropbox_it(pmid, url, apikey);
-    }
+    //if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
+    //  dropbox_it(pmid, url, apikey);
+    //} //@@@@
   }
 }
 
 function prepare_download_shark (tabId, pmid, args) {
+  if (args.shark_link && args.shark_link.indexOf(' ') > 0) {
+    console.log('>> shark_link with space', args);
+    return;
+  }
   localStorage.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: args.shark_link });
   $.post(base + '/', args,
@@ -636,7 +644,11 @@ function parse_shark (pmid, url, tabId) {
       h = reg.exec(r);
       if (h && h.length) {
         DEBUG && console.log(h);
-        args.shark_link = 'https://' + h[1].split('//')[1].split('?')[0];
+        if (h[1].indexOf('sci-hub.') > 0) {
+          args.shark_link = 'https://' + h[1].split('//')[1].split('#')[0];
+        } else {
+          args.shark_link = 'https://' + local_mirror + h[1].split('#')[0];
+        }
         prepare_download_shark(tabId, pmid, args);
       } else {
         console.log(r);
@@ -1217,12 +1229,13 @@ function get_request (msg, _port) {
     call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
   } else if (msg.from_sites_w_doi && localStorage.getItem('shark_download') === 'yes') {
     chrome.downloads.download({
-      url: 'https://' + msg.from_sites_w_doi[1],
+      url: msg.from_sites_w_doi[1],
       filename: msg.from_sites_w_doi[0].replace(/\/+/g, '@') + '.pdf'
     }, function (id) {
-      console.log(id, msg.from_sites_w_doi[0], msg.from_sites_w_doi[1]);
       if (localStorage.getItem('shark_open_files') === 'yes') {
         chrome.downloads.open(id); //@@@@ user gesture
+      } else {
+        console.log(id, msg.from_sites_w_doi[0], msg.from_sites_w_doi[1]);
       }
     });
   } else if (msg.pageAbs) { // 2018-10-1
