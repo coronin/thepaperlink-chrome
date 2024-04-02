@@ -1159,7 +1159,6 @@ function prep_call (pmids) {
   let need_insert = 1;
   let url = '/api?flash=yes&a=chrome1&pmid=' + pmids;
   const loading_span = '<span style="font-weight:normal;font-style:italic"> loading from "the paper link"</span>' +
-                       ' (fast Internet connection may reduce stalling)' +
                        '&nbsp;&nbsp;<img src="' + loading_gif + '" width="16" height="11" alt="loading" />';
   if (search_term) {
     url += '&w=' + search_term + '&apikey=';
@@ -1484,6 +1483,13 @@ function get_request (msg) {
     localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
     // sendResponse({});
     return;
+  } else if (msg.class_JCR) { // 2024-4-2
+    const ele = page_d.getElementsByClassName('tpl ' + msg.class_JCR[0]);
+    for (let i = 0, len = ele.length; i < len; i += 1) {
+      ele[i].textContent = msg.class_JCR[1];
+    }
+    // sendResponse({});
+    return;
   }
 
   let pmid; let div; let div_html; let tmp; let i; let j;
@@ -1615,33 +1621,39 @@ function get_request (msg) {
                (msg.uri || jss_base) + '/:' + pmid + '" target="_blank">the paper link</a>: ';
     impact3 = byID('thepaperlink_if' + pmid);
     if (impact3 !== null) {
+      i3t = impact3.textContent;
+      if (i3t.indexOf(' Actions') > 0) { // new abstract page, 2020-2-23
+        i3t = i3t.replace(/^\s+/, '').split(' Actions')[0];
+        impact3.textContent = i3t;
+        if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
+          byClassOne('period').textContent = ' '; // 2020-4-24
+        } else {
+          byClassOne('period').innerHTML = '<br/>'; // 2020-4-23
+        }
+      } else if (i3t.indexOf('.') > 0) { // legacy abstract page
+        i3t = i3t.replace(/\.$/, '');
+        impact3.textContent = i3t;
+      }
       if (msg.except) {
-        console.log( impact3.textContent.toLowerCase() );
-        //@@@@
-      } else {
+        a_proxy({ fetch_JCR: i3t.toLowerCase() });
+      } else if (r.item[i].slfo && r.item[i].slfo !== '~') {
         slfoV = parseFloat(r.item[i].slfo);
       }
-      if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
-        i3t = impact3.textContent;
-        i3s = page_d.createElement('span');
+      i3s = page_d.createElement('span');
+      if (r.item[i].slfo && r.item[i].slfo !== '~') {
         i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
-        impact3.style.border = '1px #e0ecf1 solid';
-        impact3.style.lineHeight = '1';
-        if (i3t.indexOf(' Actions') > 0) { // new abstract page, 2020-2-23
-          impact3.textContent = i3t.replace(/^\s+/, '').split(' Actions')[0];
-          if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
-            byClassOne('period').textContent = ' '; // 2020-4-24
-          } else {
-            byClassOne('period').innerHTML = '<br/>'; // 2020-4-23
-          }
-        } else if (i3t.indexOf('.') > 0) { // legacy abstract page
-          impact3.textContent = i3t.replace(/\.$/, '');
-        }
-        if (impact3.className === 'jrnl') { // legacy multi
-          impact3.parentNode.prepend(i3s);
-        } else {
-          impact3.appendChild(i3s);
-        }
+      } else if (i3t.indexOf(' [Preprint]') > 0) {
+        impact3.textContent = i3t.split(' [Preprint]')[0];
+        i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">&nbsp;preprint</span>';
+      } else {
+        i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px" class="tpl ' + i3t.toLowerCase() + '"></span>';
+      }
+      impact3.style.border = '1px #e0ecf1 solid';
+      impact3.style.lineHeight = '1';
+      if (impact3.className === 'jrnl') { // legacy multi
+        impact3.parentNode.prepend(i3s);
+      } else {
+        impact3.appendChild(i3s);
       }
       // } else if (impact3 !== null && impact3.className !== 'jrnl') {
       //   i3t = impact3.textContent;

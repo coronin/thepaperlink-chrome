@@ -36,7 +36,7 @@ function load_JCR () {
   xhr.open('GET', chrome.runtime.getURL('jcr.csv.json'), true);
   xhr.onreadystatechange = function () {
     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-      jcr_obj = JSON.parse(xhr.responseText);
+      jcr_obj = JSON.parse(xhr.responseText)['above5'];
       DEBUG && console.log(jcr_obj);
       console.timeEnd('>> load common values');
     }
@@ -1308,9 +1308,14 @@ function get_request (msg, _port) {
       url: chrome.runtime.getURL('options.html'),
       active: true
     });
-
-    // } else if (msg.pmid && msg.shark) {
-    //  do_download_shark(msg.pmid, msg.shark);
+  // } else if (msg.pmid && msg.shark) {
+  //  do_download_shark(msg.pmid, msg.shark);
+  } else if (msg.fetch_JCR) { // 2024-4-2
+    if (msg.fetch_JCR && jcr_obj[ msg.fetch_JCR ]) {
+      _port && _port.postMessage({ class_JCR:
+        [msg.fetch_JCR, jcr_obj[ msg.fetch_JCR ] ]
+      });
+    }
   } else {
     console.log(msg);
   }
