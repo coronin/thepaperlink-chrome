@@ -193,7 +193,7 @@ function process_bioRxiv () { // 2020 Aug, 2021 Mar May
   for (ii = 0, lenn = eles.length; ii < lenn; ii += 1) {
     if (eles[ii].className === 'author-tooltip-pubmed-link') {
       insert_tip = page_d.createElement('span');
-      insert_tip.innerHTML = '<br/>or, click the name highlighted in blue';
+      insert_tip.innerHTML = '<br>or, click the name highlighted in blue';
       eles[ii].appendChild(insert_tip);
     }
   }
@@ -858,7 +858,7 @@ function new_pubmed_single1 (not_first) {
 
   const c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
-  c.innerHTML = '<br/><span id="citedBy' + ID + '">...</span>';
+  c.innerHTML = '<br><span id="citedBy' + ID + '">...</span>';
   tpl_obj.appendChild(c);
 }
 
@@ -943,7 +943,7 @@ function new_pubmed_single () {
 
   const c = page_d.createElement('span');
   c.setAttribute('style', 'font-size:11px');
-  c.innerHTML = '<br/><span id="citedBy' + ID + '">...</span>';
+  c.innerHTML = '<br><span id="citedBy' + ID + '">...</span>';
   tpl_obj.appendChild(c);
 
   if (byID('linked-commentary') !== null) {
@@ -1628,7 +1628,13 @@ function get_request (msg) {
         if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
           byClassOne('period').textContent = ' '; // 2020-4-24
         } else {
-          byClassOne('period').innerHTML = '<br/>'; // 2020-4-23
+          byClassOne('period').innerHTML = '<br>'; // 2020-4-23
+          try { // 2024-4-2
+            byClassOne('period').parentNode.parentNode.getElementsByClassName(
+                                'citation-doi')[0].style.display = 'none';
+          } catch (e) {
+            DEBUG && console.log(e);
+          }
         }
       } else if (i3t.indexOf('.') > 0) { // legacy abstract page
         i3t = i3t.replace(/\.$/, '');
@@ -1786,7 +1792,7 @@ function get_request (msg) {
 
     if (msg.tpl && byID('thepaperlink_rpt' + pmid) !== null) {
       byID('thepaperlink_rpt' + pmid).onclick = function () {
-        byID(this.id).innerHTML = '&nbsp;<br/>&nbsp;&nbsp;';
+        byID(this.id).innerHTML = '&nbsp;<br>&nbsp;&nbsp;';
         const moneyEmail = page_d.createElement('span');
         moneyEmail.textContent = 'email';
         moneyEmail.id = 'thepaperlink_A' + pmid;
@@ -1888,13 +1894,14 @@ function get_request (msg) {
 
 function load_jss () {
   chrome.storage.sync.get(['rev_proxy'], function (e) {
-    if (e.rev_proxy && e.rev_proxy === 'yes') {
-      jss_base = 'https://www.thepaperlink.cn';
-    }
+    // if (e.rev_proxy && e.rev_proxy === 'yes') {
+    //   jss_base = 'https://www.thepaperlink.cn';
+    // }
     if (!byID('paperlink2_display')) {
       const extension_la = document.createElement('script');
       extension_la.setAttribute('type', 'text/javascript');
-      extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
+      // extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
+      extension_la.src = chrome.runtime.getURL('ext20210522.js');
       page_d.body.appendChild(extension_la);
     }
   });

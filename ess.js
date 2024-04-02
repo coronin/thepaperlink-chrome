@@ -257,14 +257,14 @@ function eSummary (term, tabId, no_term_update) {
         esum_text += author_list + titleLin + '<i>' + Source + '</i>, ' + PubDate;
         if (Volume) { esum_text += ', ' + Volume; }
         if (Pages) { esum_text += ': ' + Pages; }
-        esum_text += '.<br/><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
+        esum_text += '.<br><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
         if (pmc) {
           esum_text += '&nbsp;<span class="pmid" id="' + pmc + '">' + pmc + '</span> ';
         }
         if (doi) {
           esum_text += '&nbsp;<span class="pmid" id="' + doi + '">DOI:' + doi + '</span> ';
         }
-        esum_text += '<br/><button class="AbsButton" id="' + pmid + '">check abstract</button> ';
+        esum_text += '<br><button class="AbsButton" id="' + pmid + '">check abstract</button> ';
         esum_text += '&nbsp;<button class="saveButton" id="thepaperlink_save' + pmid + '">save</button> ';
         esum_text += '<span style="display:inline-block;float:right;cursor:pointer"><img class="pl4_clippy" title="copy to clipboard" src="' +
                      chrome.runtime.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';

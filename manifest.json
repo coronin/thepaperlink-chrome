@@ -9,7 +9,8 @@
   "web_accessible_resources": [
     "loadingLine.gif",
     "clippyIt.png",
-    "jcr.csv.json"
+    "jcr.csv.json",
+    "ext20210522.js"
   ],
   "permissions": [
     "background",
