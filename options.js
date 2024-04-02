@@ -290,8 +290,7 @@ function saveOptions () {
 }
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
-// 2018-9-27 @@@@
-// IAP end
+// 2018-9-27 IAP end
 
 $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');

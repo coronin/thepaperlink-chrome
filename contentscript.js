@@ -241,7 +241,9 @@ function process_storkapp () { // 2018 Dec
         new_href = ele.href.split('?url=');
         ele.href = new_href[0] + '?url=' +
                    'https%3A%2F%2Fwww.thepaperlink.com%2F:' + pmid;
-      } else if (ele.href.indexOf('&barcode=1') > 0) {
+      } else if (ele.href.indexOf('&barcode=1') > 0 ||
+                 ele.href.indexOf('mailto:') === 0 ||
+                 ele.href.indexOf('mp.weixin.qq.com') > 0) {
         ele.style.display = 'none';
       }
     }
@@ -495,7 +497,7 @@ function legacy_pubmed (zone, num) {
       DEBUG && console.log('t_cont', t_cont);
       const c = page_d.createElement('span');
       c.setAttribute('style', 'font-size:11px'); // border-left:4px #fccccc solid;padding-left:4px;margin-left:4px;
-      c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // @@@@ 'Access-Control-Allow-Origin' header is present on the requested resource.
+      c.innerHTML = '<span id="citedBy' + ID[1] + '">...</span>'; // Access-Control-Allow-Origin
       if (byTag(zone)[num].className === 'rprt') {
         if (a.indexOf('- in process') === -1) {
           byTag(zone)[num + 4].appendChild(c);
@@ -598,7 +600,8 @@ function new_pubmed_single_More (init_pmid, id_obj, ajax) { // div.id: similar, 
       return;
     }
     if (byID('tpl' + ID) !== null || byID('thepaperlink_if' + ID) !== null) {
-      // id_obj.getElementsByClassName('docsum-content')[i].css.opacity = 0.2; //@@@@
+      window.alert('603 opacity 0.2 ' + ID); // @@@@
+      // id_obj.getElementsByClassName('docsum-content')[i].css.opacity = 0.2;
       continue;
     } else if (pmidString.indexOf(ID) === -1) {
       pmidString += ',' + ID;
@@ -739,7 +742,8 @@ function new_pubmed_references_More (ajax = true) {
       continue;
     }
     if (byID('tpl' + ID) !== null || byID('thepaperlink_if' + ID) !== null) {
-      // obj.css.opacity = 0.2; //@@@@
+      window.alert('745 opacity 0.2 ' + ID); // @@@@
+      // obj.css.opacity = 0.2;
       continue;
     } else if (pmidString.indexOf(ID) === -1) {
       pmidString += ',' + ID;
@@ -801,7 +805,7 @@ function new_pubmed_single1 (not_first) {
   const peaks = section_obj.getElementsByClassName('authors-list')[0].getElementsByClassName('authors-list-item');
   let peaki; let peakss; let author_multi = '';
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
-    peakss = trim(peaks[peaki].textContent.replace(/\s*\d\s*/g, '')); // @@@@ Affiliations
+    peakss = trim(peaks[peaki].textContent.replace(/\s*\d\s*/g, '')); // affiliations num, removed
     if (grp_author_name(peakss)) {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
@@ -813,6 +817,7 @@ function new_pubmed_single1 (not_first) {
       author_multi += peaks[peaki].textContent + '.';
     }
   }
+  author_multi = author_multi.replace(/[^\x00-\x7F]/g, ''); // 2024-4-2
 
   const ea_obj = section_obj.getElementsByClassName('empty-authors')[0];
   const cit_obj = section_obj.getElementsByClassName('cit')[0];
@@ -880,7 +885,7 @@ function new_pubmed_single () {
   const peaks = byClassOne('authors-list').getElementsByClassName('authors-list-item');
   let peaki; let peakss; let author_multi = '';
   for (peaki = 0; peaki < peaks.length; peaki += 1) {
-    peakss = trim(peaks[peaki].textContent.replace(/\s*\d\s*/g, '')); // @@@@ Affiliations
+    peakss = trim(peaks[peaki].textContent.replace(/\s*\d\s*/g, '')); // affiliations num, removed
     if (grp_author_name(peakss)) {
       peaks[peaki].textContent = grp_author_name(peakss) + ' ';
       author_multi += grp_author_name(peakss) + ' ';
@@ -892,6 +897,7 @@ function new_pubmed_single () {
       author_multi += peaks[peaki].textContent + '.';
     }
   }
+  author_multi = author_multi.replace(/[^\x00-\x7F]/g, ''); // 2024-4-2
 
   const ea_obj = byClassOne('empty-authors');
   const cit_obj = byClassOne('cit');

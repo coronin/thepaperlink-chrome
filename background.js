@@ -474,7 +474,7 @@ function get_binary (file, pmid, upload, no_email) {
   xhr.send(null);
 }
 
-function dropbox_it (pmid, pdf, k) {
+function dropbox_it (pmid, pdf, k) { // dropbox, mendeley, googledrive, onedrive, baiduyun
   $.get(
     base + '/file/new',
     { apikey: k, no_email: 1 },
@@ -597,9 +597,9 @@ function do_download_shark (pmid, url) {
           console.log(id, pmid, url);
         }
       });
-    //if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
-    //  dropbox_it(pmid, url, apikey);
-    //} //@@@@
+    if (apikey && localStorage.getItem('rev_proxy') !== 'yes' && localStorage.getItem('dropbox_status') === 'success') {
+      dropbox_it(pmid, url, apikey);
+    }
   }
 }
 
@@ -650,6 +650,8 @@ function parse_shark (pmid, url, tabId) {
           args.shark_link = 'https://' + local_mirror + h[1].split('#')[0];
         }
         prepare_download_shark(tabId, pmid, args);
+      } else if (r.indexOf('smile">:(') > 0) {
+        console.log('>> not in', url, pmid);
       } else {
         console.log(r);
       }
@@ -1099,7 +1101,7 @@ function get_request (msg, _port) {
     }
   } else if (msg.upload_url && msg.pdf && msg.pmid && apikey) {
     if (msg.pdf.substr(0, 7).toLowerCase() === 'http://') {
-      console.log(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);  //@@@@ get_binary
+      get_binary(msg.pdf, msg.pmid, msg.upload_url, msg.no_email);
     } else if (!msg.no_email) {
       // email_abstract, 2018-9-14
       const date = new Date();
@@ -1184,7 +1186,7 @@ function get_request (msg, _port) {
     // if (localStorage.getItem('ajax_pii_link') !== 'no') {
     //  parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     // }
-    console.log('pii', msg.pii, msg.pii_link, msg.pmid); //@@@@ S1534580722001666
+    console.log('pii', msg.pii, msg.pii_link, msg.pmid); // @@@@ S1534580722001666 S0092867408009392
     //if (localStorage.getItem('shark_link') !== 'no') {
     //  parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
     //}
@@ -1267,8 +1269,8 @@ function get_request (msg, _port) {
   } else if (msg.failed_term) {
     const failed_terms = localStorage.getItem('failed_terms') || '';
     let failed_times = 0;
-    if (failed_terms) {
-      console.log(failed_terms); // @@@@
+    if (failed_terms) { // @@@@
+      console.log(failed_terms);
       const failed_match = failed_terms.match(/","/g);
       if (failed_match) {
         failed_times = failed_match.length + 1;
