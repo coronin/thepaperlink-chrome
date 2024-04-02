@@ -84,7 +84,7 @@ function ez_format_link (p, url) {
 }
 
 function process_scihub () { // 2024 Apr
-  let i; let len; let ele; let pmid = ''; let scihub_href;
+  let i; let len; let ele; let scihub_href;
   for (i = 0, len = byTag('button').length; i < len; i += 1) {
     ele = byTag('button')[i];
     if (ele.getAttribute('onclick') && ele.getAttribute('onclick').indexOf('location.href=') > -1) {
@@ -245,6 +245,8 @@ function process_storkapp () { // 2018 Dec
                  ele.href.indexOf('mailto:') === 0 ||
                  ele.href.indexOf('mp.weixin.qq.com') > 0) {
         ele.style.display = 'none';
+      } else if (ele.href.indexOf('translate.php') > 0) {
+        ele.parentNode.style.display = 'none';
       }
     }
     if (byID('abstractHolder') !== null) { // 2020-1-10
@@ -1611,43 +1613,47 @@ function get_request (msg) {
     div.className = 'thepaperlink';
     div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid + '" href="' +
                (msg.uri || jss_base) + '/:' + pmid + '" target="_blank">the paper link</a>: ';
-    if (!msg.except) {
-      slfoV = parseFloat(r.item[i].slfo);
-      impact3 = byID('thepaperlink_if' + pmid);
+    impact3 = byID('thepaperlink_if' + pmid);
+    if (impact3 !== null) {
+      if (msg.except) {
+        console.log( impact3.textContent.toLowerCase() );
+        //@@@@
+      } else {
+        slfoV = parseFloat(r.item[i].slfo);
+      }
       if (r.item[i].slfo && r.item[i].slfo !== '~' && slfoV > 0) {
-        if (impact3 !== null) {
-          i3t = impact3.textContent;
-          i3s = page_d.createElement('span');
-          i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
-          impact3.style.border = '1px #e0ecf1 solid';
-          impact3.style.lineHeight = '1';
-          if (i3t.indexOf(' Actions') > 0) { // new abstract page, 2020-2-23
-            impact3.textContent = i3t.replace(/^\s+/, '').split(' Actions')[0];
-            if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
-              byClassOne('period').textContent = ' '; // 2020-4-24
-            } else {
-              byClassOne('period').innerHTML = '<br/>'; // 2020-4-23
-            }
-          } else if (i3t.indexOf('.') > 0) { // legacy abstract page
-            impact3.textContent = i3t.replace(/\.$/, '');
-          }
-          if (impact3.className === 'jrnl') { // legacy multi
-            impact3.parentNode.prepend(i3s);
-          } else {
-            impact3.appendChild(i3s);
-          }
-        } else {
-          tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
-          div_html += tmp;
-        }
-      } else if (impact3 !== null && impact3.className !== 'jrnl') {
         i3t = impact3.textContent;
-        if (i3t.indexOf(' Actions') > 0) {
-          impact3.textContent = trim(i3t.split(' Actions')[0]);
+        i3s = page_d.createElement('span');
+        i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">' + r.item[i].slfo + '</span>';
+        impact3.style.border = '1px #e0ecf1 solid';
+        impact3.style.lineHeight = '1';
+        if (i3t.indexOf(' Actions') > 0) { // new abstract page, 2020-2-23
+          impact3.textContent = i3t.replace(/^\s+/, '').split(' Actions')[0];
+          if (impact3.parentNode.previousElementSibling && impact3.parentNode.previousElementSibling.className === 'publication-type') {
+            byClassOne('period').textContent = ' '; // 2020-4-24
+          } else {
+            byClassOne('period').innerHTML = '<br/>'; // 2020-4-23
+          }
+        } else if (i3t.indexOf('.') > 0) { // legacy abstract page
+          impact3.textContent = i3t.replace(/\.$/, '');
+        }
+        if (impact3.className === 'jrnl') { // legacy multi
+          impact3.parentNode.prepend(i3s);
         } else {
-          impact3.textContent = i3t + '.';
+          impact3.appendChild(i3s);
         }
       }
+      // } else if (impact3 !== null && impact3.className !== 'jrnl') {
+      //   i3t = impact3.textContent;
+      //   if (i3t.indexOf(' Actions') > 0) {
+      //     impact3.textContent = trim(i3t.split(' Actions')[0]);
+      //   } else {
+      //     impact3.textContent = i3t + '.';
+      //   }
+      // }
+    } else if (r.item[i].slfo && r.item[i].slfo !== '~') { // && impact3 === null
+      tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
+      div_html += tmp;
     }
     if (absNeeded) { // @@@@ 2018 Sep
       tmp = '<span class="thepaperlink-abs" id="thepaperlink_abs' + pmid + '">abstract</span>';

@@ -29,6 +29,20 @@ const extension_load_date = new Date();
 const date_str = 'day_' + extension_load_date.getFullYear() +
                  '_' + (extension_load_date.getMonth() + 1) +
                  '_' + extension_load_date.getDate();
+let jcr_obj = {};
+
+function load_JCR () {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', chrome.runtime.getURL('jcr.csv.json'), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      jcr_obj = JSON.parse(xhr.responseText);
+      DEBUG && console.log(jcr_obj);
+      console.timeEnd('>> load common values');
+    }
+  };
+  xhr.send(null);
+}
 
 function ez_format_link (prefix, url) {
   if (!prefix) {
@@ -245,10 +259,14 @@ function load_common_values (newday) {
       console.timeEnd('>> save common values to storage.sync');
     });
   }
+  if (!jcr_obj.length) {
+    load_JCR(); // timeEnd
+  } else {
+    console.timeEnd('>> load common values');
+  }
 }
 console.time('>> load common values');
 load_common_values(1);
-console.timeEnd('>> load common values');
 
 function open_new_tab (url, winId, idx) {
   let tab_obj = { url: url, active: true };
@@ -664,8 +682,8 @@ function parse_shark (pmid, url, tabId) {
 
 function parse_pii (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  return false; // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
-
+  return false;
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   let in_mem = localStorage.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -1186,7 +1204,7 @@ function get_request (msg, _port) {
     // if (localStorage.getItem('ajax_pii_link') !== 'no') {
     //  parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     // }
-    console.log('pii', msg.pii, msg.pii_link, msg.pmid); // @@@@ S1534580722001666 S0092867408009392
+    console.log('pii', msg.pii, msg.pmid); // msg.pii_link, @@@@ S1534580722001666 S0092867408009392
     //if (localStorage.getItem('shark_link') !== 'no') {
     //  parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
     //}

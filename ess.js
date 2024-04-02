@@ -291,7 +291,7 @@ function eSummary (term, tabId, no_term_update) {
       $('img.pl4_clippy').on('click', function () { t_cont(this.id); });
       $('.AbsButton').on('click', function () { eFetch(this.id); });
       $('.saveButton').on('click', function () {
-        // alert(this.id.substr(17));
+        // window.alert(this.id.substr(17));
         if (document.getElementById(this.id).textContent === 'save') {
           _port && _port.postMessage({ saveIt: this.id.substr(17) });
           document.getElementById(this.id).textContent = 'done!'; // cannot .text()
@@ -395,11 +395,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('//facultyopinions.com/article/') > 0) {  // 2022-3-20
+  } else if (tab.url.indexOf('//facultyopinions.com/article/') > 0) { // 2022-3-20
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('//connect.h1.co/article/') > 0) {  // 2023-8-18
+  } else if (tab.url.indexOf('//connect.h1.co/article/') > 0) { // 2023-8-18
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
@@ -521,7 +521,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 });
 
 chrome.runtime.onMessage.addListener(function (msg) { // 2020-2-4 ??
-  alert('check runtime msg');
+  window.alert('check runtime msg');
   console.log(msg);
 });
 _port.onMessage.addListener(function (msg) {
