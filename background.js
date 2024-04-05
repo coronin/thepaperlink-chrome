@@ -956,10 +956,14 @@ function get_request (msg, _port) {
       if (textStatus === '503') {
         _port && _port.postMessage({ except: 'The server is overloaded.', tpl: apikey });
         console.log(textStatus, errorThrown, request_url);
-      } else if (apikey) {
+      } else if (errorThrown && apikey) {
+        console.log('>> get_request fail: ' + errorThrown);
         _port && _port.postMessage({ except: 'No additional info.', tpl: apikey });
-      } else {
+      } else if (errorThrown) {
+        console.log('>> get_request fail: ' + errorThrown);
         _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
+      } else {
+        _port && _port.postMessage({ except: 'Offline.' });
       }
       if (textStatus !== '503' && base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
@@ -1062,8 +1066,8 @@ function get_request (msg, _port) {
         post_action = 'email';
         _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
       }
-
-      /* if (typeof window.email_pdf === 'undefined') {
+      /*
+if (typeof window.email_pdf === 'undefined') {
   window.email_pdf = function (pmid, apikey, no_email) {
       var bv = jq183Tpl('#thepaperlink_A' + pmid).html(),
         args = {'apikey': apikey},
@@ -1094,7 +1098,7 @@ function get_request (msg, _port) {
         });
       }
     };
-} */
+  } */
     } else if (msg.money_reportWrongLink) {
       post_action = 'wrong_link';
       _port && _port.postMessage({ Off_id: 'thepaperlink_B' + action_pmid });
@@ -1284,11 +1288,11 @@ function get_request (msg, _port) {
     }
   } else if (msg.do_syncValues) {
     do_syncValues();
-  } else if (msg.failed_term) {
+  } else if (msg.failed_term) { // @@@@
     const failed_terms = localStorage.getItem('failed_terms') || '';
     let failed_times = 0;
-    if (failed_terms) { // @@@@
-      console.log(failed_terms);
+    if (failed_terms) {
+      console.log(msg.failed_term, failed_terms);
       const failed_match = failed_terms.match(/","/g);
       if (failed_match) {
         failed_times = failed_match.length + 1;
