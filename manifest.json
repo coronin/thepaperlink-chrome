@@ -79,13 +79,11 @@
       "https://connect.medrxiv.org/relate/content/*",
       "http://www.ncbi.nlm.nih.gov/*",
       "https://www.ncbi.nlm.nih.gov/*",
-      "https://pmlegacy.ncbi.nlm.nih.gov/*",
       "https://pubmed.ncbi.nlm.nih.gov/*"
     ],
     "exclude_globs": [
       "*://www.ncbi.nlm.nih.gov/sites/entrez/",
       "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed",
-      "https://pmlegacy.ncbi.nlm.nih.gov/advanced/",
       "https://pubmed.ncbi.nlm.nih.gov/advanced/"
     ],
     "js": [ "contentscript.js" ],
