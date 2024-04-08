@@ -224,6 +224,7 @@ function load_common_values (newday) {
   // 2015-12-9: !!expr returns a Boolean value (true or false)
   if (localStorage.getItem('scholar_once') !== 'no') {
     scholar_page_open_limits = 0; // 2021-5-20
+    scholar_no_more = 1;
   } else {
     scholar_no_more = 0;
   }
@@ -524,23 +525,25 @@ function do_scholar_title () {
     scholar_queue = [];
   }
   DEBUG && console.log('call scholar_title() at', new Date());
-  scholar_title(pmid, t, tabId);
+  if (pmid && t) {
+    scholar_title(pmid, t, tabId);
+  }
 }
 
 function scholar_title (pmid, t, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('title', t);
+  DEBUG && console.log('pmid =', pmid, ', title = ', t);
   if (scholar_no_more) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
     return;
   }
-  const url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
-      encodeURIComponent('"' + t + '"');
   b_proxy(tabId, {
     g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
   });
+  const url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
+      encodeURIComponent('"' + t + '"');
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   $.get(url,
     function (r) {
       const reg = /<a[^<]+>Cited by \d+<\/a>/;

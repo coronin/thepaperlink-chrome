@@ -54,7 +54,7 @@
       "*://www.thepaperlink.cn/settings",
       "*://www.thepaperlink.net/reg",
       "*://www.thepaperlink.net/settings",
-      "http://pubmeder.cailiang.net/registration",
+      "*://pubmeder.cailiang.net/registration",
       "*://pubmeder-hrd.appspot.com/registration",
       "https://sci-hub.ru/*",
       "https://sci-hub.se/*",

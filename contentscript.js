@@ -654,6 +654,7 @@ function new_pubmed_references_More (ajax = true) {
     return;
   }
   f3 && clearInterval(f3);
+  const alldigi = /^\d+$/;
   const ols = byID('references').getElementsByClassName('references-and-notes-list');
   let links; let obj; let hrefs; let ID;
   if (ajax) {
@@ -662,12 +663,21 @@ function new_pubmed_references_More (ajax = true) {
   for (let i = 0, len = ols.length; i < len; i += 1) {
     try {
       links = ols[i].getElementsByClassName('reference-link');
-      obj = links[links.length - 1];
+      for (let ii = 0, lenn = links.length; ii < lenn; ii += 1) { // 2024-4-9
+        obj = links[ii];
+        if (obj.href.indexOf('pubmed.') > 0) {
+          break;
+        }
+      }
       hrefs = obj.href.split('/');
       if (hrefs[hrefs.length - 1] === '') {
         ID = hrefs[hrefs.length - 2];
       } else {
         ID = hrefs[hrefs.length - 1];
+      }
+      if (!alldigi.test(ID)) {
+        DEBUG && console.log('Reference, cannot find PMID', ID);
+        continue;
       }
     } catch (err) {
       DEBUG && console.log('reference-link', err);
@@ -1621,7 +1631,7 @@ function get_request (msg) {
       }
       tmp = '<a id="thepaperlink_doi' + pmid + '" href="' +
           ez_format_link(p,
-            'http://dx.doi.org/' + uneval_trim(r.item[i].doi)
+            'https://dx.doi.org/' + uneval_trim(r.item[i].doi)
           ) + '" target="_blank">publisher</a>';
       if (local_mirror && (
           !r.item[i].pubdate || r.item[i].pubdate.indexOf(msg.year) !== 0 )) {
@@ -1653,7 +1663,7 @@ function get_request (msg) {
         if (!msg.except && !r.item[i].pii) {
           tmp += '<a id="thepaperlink_doi' + pmid + '" href="' +
               ez_format_link(p,
-                'http://dx.doi.org/' + _doi_on_page[pmid]
+                'https://dx.doi.org/' + _doi_on_page[pmid]
               ) + '" target="_blank">publisher</a>';
         }
         if (local_mirror && (msg.except || !r.item[i].pubdate ||
@@ -1842,6 +1852,7 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   }
   noRun = 3;
 } else if (page_url === 'http://pubmeder.cailiang.net/registration' ||
+    page_url === 'https://pubmeder.cailiang.net/registration' ||
     page_url === 'http://pubmeder-hrd.appspot.com/registration' ||
     page_url === 'https://pubmeder-hrd.appspot.com/registration') { // storage data for access the bookmark server
   a_proxy({
