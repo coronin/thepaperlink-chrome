@@ -290,8 +290,7 @@ function saveOptions () {
 }
 
 // https://github.com/petele/IAPDemo/blob/master/scripts/app.js
-// 2018-9-27 @@@@
-// IAP end
+// 2018-9-27 IAP end
 
 $(document).ready(function () {
   $('a[rel="external"]').attr('target', '_blank');
@@ -530,10 +529,9 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    const terms = localStorage.getItem('past_search_terms').split('||');
+    let terms = localStorage.getItem('past_search_terms').split('||');
     let tmp = $('#keywords_list');
-    let t = 0; let i; let a; let b;
-    const c = [];
+    let t = 0; let i; let a; let b; let c = [];
     terms.pop();
     for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
       b = localStorage.getItem(terms[i]);

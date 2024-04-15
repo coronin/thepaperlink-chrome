@@ -78,7 +78,7 @@ function eFetch (pmid) {
   }
   $('.loadIcon').removeClass('Off');
   let url;
-  const args = {
+  let args = {
     apikey: localStorage.getItem('GUEST_APIKEY'),
     db: 'pubmed',
     id: pmid
@@ -257,14 +257,14 @@ function eSummary (term, tabId, no_term_update) {
         esum_text += author_list + titleLin + '<i>' + Source + '</i>, ' + PubDate;
         if (Volume) { esum_text += ', ' + Volume; }
         if (Pages) { esum_text += ': ' + Pages; }
-        esum_text += '.<br/><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
+        esum_text += '.<br><span class="pmid" id="' + pmid + '">PMID:' + pmid + '</span> ';
         if (pmc) {
           esum_text += '&nbsp;<span class="pmid" id="' + pmc + '">' + pmc + '</span> ';
         }
         if (doi) {
           esum_text += '&nbsp;<span class="pmid" id="' + doi + '">DOI:' + doi + '</span> ';
         }
-        esum_text += '<br/><button class="AbsButton" id="' + pmid + '">check abstract</button> ';
+        esum_text += '<br><button class="AbsButton" id="' + pmid + '">check abstract</button> ';
         esum_text += '&nbsp;<button class="saveButton" id="thepaperlink_save' + pmid + '">save</button> ';
         esum_text += '<span style="display:inline-block;float:right;cursor:pointer"><img class="pl4_clippy" title="copy to clipboard" src="' +
                      chrome.runtime.getURL('clippyIt.png') + '" alt="copy" width="14" height="14" id="copy' + pmid + '" />&nbsp;</span>';
@@ -291,7 +291,7 @@ function eSummary (term, tabId, no_term_update) {
       $('img.pl4_clippy').on('click', function () { t_cont(this.id); });
       $('.AbsButton').on('click', function () { eFetch(this.id); });
       $('.saveButton').on('click', function () {
-        // alert(this.id.substr(17));
+        // window.alert(this.id.substr(17));
         if (document.getElementById(this.id).textContent === 'save') {
           _port && _port.postMessage({ saveIt: this.id.substr(17) });
           document.getElementById(this.id).textContent = 'done!'; // cannot .text()
@@ -403,7 +403,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
-  } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) { // @@@@
+  } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) { // 2024-4-2
     $('#found').html('&copy; /showPaper.php?' + tab.url.split('/showPaper.php?')[1]);
     eSummary(tab.title, tab.id);
   } else if (tab.url.indexOf('.storkapp.me/pubpaper/') > 0) {
@@ -463,7 +463,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&copy; pii:' + ID);
     eSS(tab.title.split('- ScienceDirect')[0], tab.id);
   } else if (tab.url.indexOf('//elifesciences.org/') > 0) {
-    ID = '10.7554/eLife.' + tab.url.split('/')[4].split('.')[0];
+    ID = '10.7554/eLife.' + tab.url.split('/', 5)[4].split('.')[0];
     $('#found').html('&copy; ' + ID);
     eSS(ID, tab.id);
   } else if (tab.url.indexOf('.nature.com/articles/') > 0) {
@@ -521,7 +521,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 });
 
 chrome.runtime.onMessage.addListener(function (msg) { // 2020-2-4 ??
-  alert('check runtime msg');
+  window.alert('check runtime msg');
   console.log(msg);
 });
 _port.onMessage.addListener(function (msg) {

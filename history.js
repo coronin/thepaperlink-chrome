@@ -7,7 +7,7 @@ const alldigi = /^\d+$/;
 function format_a_li (category, pmid, url, num) {
   const categoryLen = category.length;
   if (!url && !num) {
-    const id_abs = pmid.split('====');
+    let id_abs = pmid.split('====');
     if (id_abs[0]) {
       if (id_abs[1].indexOf('    Abstract') > 0) {
         id_abs[1] = id_abs[1].split('    Abstract')[1].replace(/^\s+|\s+$/g, '').replace(/\s\s+/g, ' ');
@@ -23,7 +23,7 @@ function format_a_li (category, pmid, url, num) {
     }
   } else {
     $('#' + category + '_').append('<li><button id="' + category + pmid + '">' + pmid + '</button> &nbsp; ' +
-        '<a target="_blank" href="' + url + '">/' + url.split('/', 4)[3] + '</a></li>');
+        '<a target="_blank" href="' + url + '">/' + url.split('/').slice(3).join('/') + '</a></li>');
     $('#' + category + pmid).on('click', function () {
       // function in ess.js
       eSummary(this.id.substr(categoryLen, this.id.length - categoryLen), null);
@@ -46,7 +46,7 @@ function do_syncValues_post () {
 function load_ALL_localStorage () {
   let i; let len; let aKey; let aVal; let a_key_split; let a_url; let dictKey;
   let syncValues = {}; const regAddr = /^1[A-Z]/;
-  const syncValues_scholar = {}; // only sync recent 25
+  let syncValues_scholar = {}; // only sync recent 25
   $('#section_start_at').text('Only perform'); // From THE TIME WHEN YOU INSTALL
   $('#email_').html('');
   $('#shark_').html('');

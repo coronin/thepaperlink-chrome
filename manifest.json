@@ -1,11 +1,98 @@
 {
   "manifest_version": 3,
   "name": "the paper link 3",
-  "version": "2.9.50",
-  "description": "Direct PDF links; display F1000; author Peaks; etc. (c) 2010 by Liang Cai",
+  "short_name": "tpl 3",
+  "version": "3.0.1",
+  "minimum_chrome_version": "39",
+  "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. (c) 2010 by Liang Cai",
+  "content_security_policy": {
+    "extension_pages": "worker-src 'self'; script-src 'self'; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "loadingLine.gif",
+        "clippyIt.png",
+        "jcr.csv.json",
+        "ext20210522.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "permissions": [
+    "background",
+    "contextMenus",
+    "tabs",
+    "clipboardWrite",
+    "declarativeContent",
+    "storage",
+    "downloads"
+  ],
   "background": {
     "service_worker": "background.js"
   },
+  "omnibox": {
+    "keyword": "tpl"
+  },
+  "icons": {
+    "128": "128.png",
+    "48": "48.png",
+    "32": "32.png",
+    "19": "19.png",
+    "16": "16.png"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.thepaperlink.com/oauth*",
+        "*://www.thepaperlink.com/reg",
+        "*://www.thepaperlink.com/settings",
+        "*://www.thepaperlink.cn/reg",
+        "*://www.thepaperlink.cn/settings",
+        "*://www.thepaperlink.net/reg",
+        "*://www.thepaperlink.net/settings",
+        "*://pubmeder.cailiang.net/registration",
+        "*://pubmeder-hrd.appspot.com/registration",
+        "https://sci-hub.ru/*",
+        "https://sci-hub.se/*",
+        "https://sci-hub.st/*",
+        "http://scholar.google.com/scholar*",
+        "https://scholar.google.com/scholar*",
+        "http://f1000.com/prime/*",
+        "https://f1000.com/prime/*",
+        "http://facultyopinions.com/article/*",
+        "https://facultyopinions.com/article/*",
+        "http://connect.h1.co/article/*",
+        "https://connect.h1.co/article/*",
+        "https://www.storkapp.me/paper/*",
+        "https://www.storkapp.me/pubpaper/*",
+        "https://www.biorxiv.org/content/*",
+        "https://www.biorxiv.org/collection/*",
+        "https://www.biorxiv.org/search/*",
+        "https://www.medrxiv.org/content/*",
+        "https://www.medrxiv.org/collection/*",
+        "https://www.medrxiv.org/search/*",
+        "https://connect.biorxiv.org/relate/content/*",
+        "https://connect.medrxiv.org/relate/content/*",
+        "http://www.ncbi.nlm.nih.gov/*",
+        "https://www.ncbi.nlm.nih.gov/*",
+        "https://pubmed.ncbi.nlm.nih.gov/*"
+      ],
+      "exclude_globs": [
+        "*://www.ncbi.nlm.nih.gov/sites/entrez/",
+        "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed",
+        "https://pubmed.ncbi.nlm.nih.gov/advanced/"
+      ],
+      "js": [
+        "contentscript.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
   "action": {
     "default_popup": "ess.html",
     "default_icon": {
@@ -15,80 +102,6 @@
       "19": "19.png",
       "16": "16.png"
     },
-    "default_title": "paper link 3, brought to you by Liang Cai"
-  },
-  "permissions": [
-    "background",
-    "contextMenus",
-    "tabs",
-    "clipboardWrite",
-    "declarativeContent",
-    "storage"
-  ],
-  "host_permissions": [
-    "*://*/*"
-  ],
-  "content_security_policy": {
-    "extension_pages.extension_pages": "worker-src 'self'; script-src 'self'; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'"
-    //, "content_security_policy.sandbox": ""
-  },
-  //"web_accessible_resources": [{
-  //  "resources": ["loadingLine.gif", "clippyIt.png"],
-  //  "use_dynamic_url": false
-  //}],
-  "short_name": "tpl 3",
-  "minimum_chrome_version": "88",
-  "omnibox": { "keyword": "tpl" },
-  "icons": {
-    "128": "128.png",
-    "48": "48.png",
-    "32": "32.png",
-    "19": "19.png",
-    "16": "16.png"
-  },
-  "options_page": "options.html",
-  "content_scripts": [ {
-    "matches": [
-      "http://scholar.google.com/scholar*",
-      "https://scholar.google.com/scholar*",
-      "https://www.thepaperlink.com/oauth*",
-      "*://www.thepaperlink.com/reg",
-      "*://www.thepaperlink.com/settings",
-      "*://www.thepaperlink.cn/reg",
-      "*://www.thepaperlink.cn/settings",
-      "*://www.thepaperlink.net/reg",
-      "*://www.thepaperlink.net/settings",
-      "http://pubmeder.cailiang.net/registration",
-      "*://pubmeder-hrd.appspot.com/registration",
-      "http://f1000.com/prime/*",
-      "https://f1000.com/prime/*",
-      "http://facultyopinions.com/article/*",
-      "https://facultyopinions.com/article/*",
-      "http://connect.h1.co/article/*",
-      "https://connect.h1.co/article/*",
-      "https://www.storkapp.me/paper/*",
-      "https://www.storkapp.me/pubpaper/*",
-      "https://www.biorxiv.org/content/*",
-      "https://www.biorxiv.org/collection/*",
-      "https://www.biorxiv.org/search/*",
-      "https://www.medrxiv.org/content/*",
-      "https://www.medrxiv.org/collection/*",
-      "https://www.medrxiv.org/search/*",
-      "https://connect.biorxiv.org/relate/content/*",
-      "https://connect.medrxiv.org/relate/content/*",
-      "http://www.ncbi.nlm.nih.gov/*",
-      "https://www.ncbi.nlm.nih.gov/*",
-      "https://pmlegacy.ncbi.nlm.nih.gov/*",
-      "https://pubmed.ncbi.nlm.nih.gov/*"
-    ],
-    "exclude_globs": [
-      "*://www.ncbi.nlm.nih.gov/sites/entrez/",
-      "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed",
-      "https://pmlegacy.ncbi.nlm.nih.gov/advanced/",
-      "https://pubmed.ncbi.nlm.nih.gov/advanced/"
-    ],
-    "js": [ "contentscript.js" ],
-    "run_at" : "document_end",
-    "all_frames" : true
-  } ]
+    "default_title": "the paper link 3, by Liang Cai"
+  }
 }

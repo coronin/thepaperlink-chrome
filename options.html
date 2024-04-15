@@ -33,8 +33,8 @@
 <p>
   <span class="logo_font">search and get pdf link <em>now</em>
     </span>
-  <span style="float:right">v2.9 &copy; since 2010 &middot;
-    product of <a href="http://about.me/cail" rel="external">Liang Cai</a> &middot; California/Shanghai
+  <span style="float:right">v3 &copy; since 2010 &middot;
+    product of <a href="https://about.me/cail" rel="external">Liang Cai</a> &middot; California/Shanghai
     </span>
   </p>
 </header>
@@ -84,7 +84,7 @@
       </li>
   </ul>
 
-  <hr/>
+  <hr>
 
   <p>You are fetching data from <span id="api_server"></span>.
     </p>
@@ -105,12 +105,12 @@
     </p>
   <p style="padding-left:2.5em">
     <a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> user: <span id="pubmeder_email"></span>
-    <br/><a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> apikey: <span id="pubmeder_apikey"></span>
+    <br><a rel="external" href="https://pubmeder-hrd.appspot.com">PubMed-er</a> apikey: <span id="pubmeder_apikey"></span>
     </p>
-  <hr/>
+  <hr>
   <p>Articles will also be saved to cloud services, if enabled.
-    <br/>You have to <span class="thepaperlink_a">activate "the paper link", and</span> register accounts with those cloud services separately.
-    <br/><span style="color:#ccc">To disable the connection, remove "the paper link" app from those services (account permissions, 3rd party).</span></p>
+    <br>You have to <span class="thepaperlink_a">activate "the paper link", and</span> register accounts with those cloud services separately.
+    <br><span style="color:#ccc">To disable the connection, remove "the paper link" app from those services (account permissions, 3rd party).</span></p>
   <div class="ui-widget" id="cloud_op_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
       "the paper link" API is required for the follow section ; please activate it in the API tab</p>
@@ -175,19 +175,18 @@
       </p>
   </div></div -->
   <p><input class="settings" type="checkbox" id="shark_link" title="shark_link" />
-    <span style="text-decoration:line-through">
+    <span>
     Check to <strong>pre-download</strong> PDF files (require fast Internet connection).
     <span id="shark_span"></span></span>
   </p>
   <div class="ui-widget Off" id="shark_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      <span style="color:red;font-weight:bold;background:yellow">blocked by CORS policy</span>
-      <span style="text-decoration:line-through">
+      <span>
       check <input class="settings" type="checkbox" id="shark_download" title="shark_download" />
       to download a local copy <span id="shark_dropbox"></span></span>
     </p>
     <p class="Off" id="shark_download_info"><span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
-      <span style="text-decoration:line-through">
+      <span style="color:red;font-weight:bold;background:yellow">require user gesture</span> <span style="text-decoration:line-through">
       once download, check <input class="settings" type="checkbox" id="shark_open_files" title="shark_open_files" />
       to always open the files</span>
     </p>
@@ -235,7 +234,7 @@
   </p>
   <div class="ui-widget Off" id="local_info"><div class="ui-state-highlight ui-corner-all padding_sides" style="margin-bottom:1.5em;margin-top:-0.75em">
     <p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em"></span>
-      Click <u>&#8623;</u> will visit https://<span style="font-weight:bold" class="local_prefix">local.mirror</span>/x/y/z.pdf
+      Click <u>&#8623;</u> will visit https://<span style="font-weight:bold" class="local_prefix">local.mirror</span>/x/y#
     </p>
   </div></div>
 </div>

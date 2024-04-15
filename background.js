@@ -1,5 +1,4 @@
 'use strict';
-//// jquery-1.8.3.min.js
 
 // https://developer.chrome.com/docs/extensions/mv3/migrating_to_service_workers/
 
@@ -29,7 +28,23 @@ const LS = {
   removeItems: keys => chrome.storage.local.remove(keys),
 };
 
-// @@@@   document.   window.   $.
+// $.ajax $.get https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+// const url = "https://jsonplaceholder.typicode.com/todos";
+// const options = {
+//   method: "POST",
+//   headers: { Accept: "application/json",
+//              "Content-Type": "application/json;charset=UTF-8" },
+//   body: JSON.stringify({
+//     a: 10,
+//     b: 20,
+//   }),
+// };
+// fetch(url, options)
+//   .then((response) => response.json())
+//   .then((data) => {
+//     console.log(data);
+//   });
 
 const DEBUG = false;
 let i; let len; let aKey; let aVal;
@@ -59,6 +74,20 @@ const extension_load_date = new Date();
 const date_str = 'day_' + extension_load_date.getFullYear() +
                  '_' + (extension_load_date.getMonth() + 1) +
                  '_' + extension_load_date.getDate();
+let jcr_obj = {};
+
+function load_JCR () {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', chrome.runtime.getURL('jcr.csv.json'), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      jcr_obj = JSON.parse(xhr.responseText)['above5'];
+      DEBUG && console.log(jcr_obj);
+      console.timeEnd('>> load common values');
+    }
+  };
+  xhr.send(null);
+}
 
 function ez_format_link (prefix, url) {
   if (!prefix) {
@@ -101,10 +130,24 @@ function get_end_num (str) {
 async function post_theServer (v) {
   console.time('Call theServer for values');
   const a = ['WEBSOCKET_SERVER', 'GUEST_APIKEY'];
-  const version = 'Chrome_v2.9';
+  const version = 'Chrome_v3';
   if (!local_ip) {
     return;
   }
+
+// data = Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&')
+// fetch('/api/', {
+//     method: 'post',
+//     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+//     credentials: "include",
+//     body: data
+// }).then(function(response) {
+    //     return response.json(); // .text();
+    // })
+    // .then(function(myJson) {
+    //     console.log(myJson);
+    // });
+
   $.post('https://www.thepaperlink.com/',
     { pmid: '1', title: a[v], ip: local_ip, a: version },
     function (d) {
@@ -190,7 +233,7 @@ async function load_common_values (newday) {
   req_key = apikey;
   if (req_key === null) {
     req_key = guest_apikey;
-    if (req_key === null && load_try > -4 && window.navigator.onLine) {
+    if (req_key === null && load_try > -4 && navigator.onLine) {
       load_try -= 1;
       get_server_data(1);
       setTimeout(load_common_values, arbitrary_sec * 1000);
@@ -238,8 +281,9 @@ async function load_common_values (newday) {
     cloud_op += 'y';
   }
   // 2015-12-9: !!expr returns a Boolean value (true or false)
-  if (await LS.getItem('scholar_once') !== 'no') {
+  if (LS.getItem('scholar_once') !== 'no') {
     scholar_page_open_limits = 0; // 2021-5-20
+    scholar_no_more = 1;
   } else {
     scholar_no_more = 0;
   }
@@ -248,7 +292,7 @@ async function load_common_values (newday) {
   cc_address = await LS.getItem('cc_address') || '';
   arbitrary_sec = await LS.getItem('arbitrary_sec') || 3;
   if (newday === undefined) {
-    const syncValues = {};
+    let syncValues = {};
     for (i = 0, len = await LS.length; i < len; i += 1) {
       aKey = await LS.key(i);
       aVal = await LS.getItem(aKey);
@@ -275,13 +319,17 @@ async function load_common_values (newday) {
       console.timeEnd('>> save common values to storage.sync');
     });
   }
+  if (!jcr_obj.length) {
+    load_JCR(); // timeEnd
+  } else {
+    console.timeEnd('>> load common values');
+  }
 }
 console.time('>> load common values');
 load_common_values(1);
-console.timeEnd('>> load common values');
 
 function open_new_tab (url, winId, idx) {
-  const tab_obj = { url: url, active: true };
+  let tab_obj = { url: url, active: true };
   if (winId) {
     tab_obj.windowId = winId;
   }
@@ -313,7 +361,7 @@ async function select_on_click (info, tab) {
   } else {
     url += '/?q=' + info.selectionText;
   }
-  if (await LS.getItem('new_tab') === 'no') {
+  if (LS.getItem('new_tab') === 'no') {
     chrome.tabs.update({ url: url, active: true });
   } else {
     open_new_tab(url, tab.windowId, tab.index);
@@ -397,7 +445,7 @@ async function saveIt_pubmeder (pmid) {
     pmid: pmid
   };
   let saveurl = 'https://0.thepaperlink.com/input'; // 2020-8-23
-  if (await LS.getItem('rev_proxy') === 'yes') {
+  if (LS.getItem('rev_proxy') === 'yes') {
     saveurl = 'https://0.thepaperlink.cn/input'; // 2020-8-23
   }
   $.getJSON(saveurl, args, function (d) {
@@ -504,7 +552,7 @@ function get_binary (file, pmid, upload, no_email) {
   xhr.send(null);
 }
 
-function dropbox_it (pmid, pdf, k) {
+function dropbox_it (pmid, pdf, k) { // dropbox, mendeley, googledrive, onedrive, baiduyun
   $.get(
     base + '/file/new',
     { apikey: k, no_email: 1 },
@@ -536,23 +584,25 @@ function do_scholar_title () {
     scholar_queue = [];
   }
   DEBUG && console.log('call scholar_title() at', new Date());
-  scholar_title(pmid, t, tabId);
+  if (pmid && t) {
+    scholar_title(pmid, t, tabId);
+  }
 }
 
 async function scholar_title (pmid, t, tabId) {
-  DEBUG && console.log('pmid', pmid);
-  DEBUG && console.log('title', t);
+  DEBUG && console.log('pmid =', pmid, ', title = ', t);
   if (scholar_no_more) {
     b_proxy(tabId, {
       g_scholar: 1, pmid: pmid, g_num: 0, g_link: 0
     });
     return;
   }
-  const url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
-      encodeURIComponent('"' + t + '"');
   b_proxy(tabId, {
     g_scholar: 1, pmid: pmid, g_num: 1, g_link: 1
   });
+  const url = 'https://scholar.google.com/scholar?as_q=&as_occt=title&as_sdt=1.&as_epq=' +
+      encodeURIComponent('"' + t + '"');
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   $.get(url,
     function (r) {
       const reg = /<a[^<]+>Cited by \d+<\/a>/;
@@ -605,12 +655,14 @@ async function do_download_shark (pmid, url) {
   if (id) {
     chrome.downloads.search({ url: url },
       function (item) {
-        DEBUG && console.log('filename', item[0].filename);
-        if (LS.getItem('shark_open_files') === 'yes') {
+        DEBUG && console.log('filename', item);
+        if (item.length && LS.getItem('shark_open_files') === 'yes') {
           chrome.tabs.create({
             url: 'file://' + item[0].filename,
             active: false
           });
+        } else if (!item.length) {
+          LS.removeItem('downloadId_' + pmid);
         }
       });
   } else {
@@ -620,7 +672,9 @@ async function do_download_shark (pmid, url) {
         LS.setItem('downloadId_' + pmid, id);
         DEBUG && console.log('downloadId', id);
         if (LS.getItem('shark_open_files') === 'yes') {
-          chrome.downloads.open(id);
+          chrome.downloads.open(id); //@@@@ user gesture
+        } else {
+          console.log(id, pmid, url);
         }
       });
     if (apikey && LS.getItem('rev_proxy') !== 'yes' && LS.getItem('dropbox_status') === 'success') {
@@ -630,6 +684,10 @@ async function do_download_shark (pmid, url) {
 }
 
 async function prepare_download_shark (tabId, pmid, args) {
+  if (args.shark_link && args.shark_link.indexOf(' ') > 0) {
+    console.log('>> shark_link with space', args);
+    return;
+  }
   await LS.setItem('shark_' + pmid, pmid + ',' + args.shark_link);
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: args.shark_link });
   $.post(base + '/', args,
@@ -637,19 +695,19 @@ async function prepare_download_shark (tabId, pmid, args) {
       DEBUG && console.log('>> post shark_link (empty is a success): ' + d);
     }, 'json'
   );
-  if (await LS.getItem('shark_download') === 'yes') {
+  if (LS.getItem('shark_download') === 'yes') {
     do_download_shark(pmid, args.shark_link + '?download=true');
   }
 }
 
 async function parse_shark (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  // @@@@ blocked by CORS policy: No 'Access-Control-Allow-Origin' header
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   let in_mem = await LS.getItem('shark_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
     b_proxy(tabId, { el_id: '_shark' + pmid, el_data: in_mem[1] });
-    if (await LS.getItem('shark_download') === 'yes') {
+    if (LS.getItem('shark_download') === 'yes') {
       do_download_shark(pmid, in_mem[1]);
     }
     return;
@@ -659,15 +717,21 @@ async function parse_shark (pmid, url, tabId) {
   }
   shark_limits -= 1;
   b_proxy(tabId, { el_id: '_shark' + pmid, el_data: 1 });
-  const reg = /iframe src\s*=\s*"(\S+)"/i; let h;
-  const args = { apikey: req_key, pmid: pmid, shark_link: '' };
+  const reg = /embed type="application\/pdf" src\s*=\s*"(\S+)"/i; let h;
+  let args = { apikey: req_key, pmid: pmid, shark_link: '' };
   $.get(url,
     function (r) {
       h = reg.exec(r);
       if (h && h.length) {
         DEBUG && console.log(h);
-        args.shark_link = h[1].split('#')[0];
+        if (h[1].indexOf('sci-hub.') > 0) {
+          args.shark_link = 'https://' + h[1].split('//')[1].split('#')[0];
+        } else {
+          args.shark_link = 'https://' + local_mirror + h[1].split('#')[0];
+        }
         prepare_download_shark(tabId, pmid, args);
+      } else if (r.indexOf('smile">:(') > 0) {
+        console.log('>> not in', url, pmid);
       } else {
         console.log(r);
       }
@@ -680,8 +744,8 @@ async function parse_shark (pmid, url, tabId) {
 
 async function parse_pii (pmid, url, tabId) {
   DEBUG && console.log(pmid, url, tabId);
-  return false; // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
-
+  return false;
+  // blocked by CORS policy: No 'Access-Control-Allow-Origin' header
   let in_mem = await LS.getItem('url_' + pmid);
   if (in_mem) {
     in_mem = in_mem.split(',', 2);
@@ -728,10 +792,11 @@ async function parse_pii (pmid, url, tabId) {
 }
 
 function load_broadcast () {
-  window.WebSocket = window.WebSocket || window.MozWebSocket;
-  if (!window.WebSocket) {
-    return;
-  } else if (!window.navigator.onLine) {
+  //window.WebSocket = window.WebSocket || window.MozWebSocket;
+  //if (!window.WebSocket) {
+  //  return;
+  //} else
+  if (!navigator.onLine) {
     console.log('__ it is very possible that you are off the Internet...');
     if (!ws_timer) {
       ws_timer = setInterval(load_broadcast, 1800 * 1000);
@@ -755,7 +820,7 @@ function load_broadcast () {
         broadcast_loaded = false;
         return;
       }
-      if (window.navigator.onLine) {
+      if (navigator.onLine) {
         load_try -= 1;
       }
       setTimeout(load_broadcast, 3000);
@@ -845,8 +910,8 @@ async function call_from_other_sites (pmid, tabId, fid, f_v) {
       $.getJSON(base + '/api',
         { a: 'chrome3', pmid: pmid, apikey: req_key,
           runtime: '' + chrome.runtime.id,
-          ncbi_api: ncbi_api || ''
-        }, function (d) {
+          ncbi_api: ncbi_api || '' },
+        function (d) {
           if (d && d.count === 1) {
             aVal = common_dThree(d.item[0], 0);
             if (aVal) {
@@ -899,7 +964,7 @@ async function get_request (msg, _port) {
   } else if (_port && _port.sender && msg.tabId) {
     sender_tab_id = msg.tabId; // ess.js
   }
-  if (await LS.getItem('rev_proxy') === 'yes') {
+  if (LS.getItem('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
   }
   // respond to msg
@@ -954,10 +1019,14 @@ async function get_request (msg, _port) {
       if (textStatus === '503') {
         _port && _port.postMessage({ except: 'The server is overloaded.', tpl: apikey });
         console.log(textStatus, errorThrown, request_url);
-      } else if (apikey) {
+      } else if (errorThrown && apikey) {
+        console.log('>> get_request fail: ' + errorThrown);
         _port && _port.postMessage({ except: 'No additional info.', tpl: apikey });
-      } else {
+      } else if (errorThrown) {
+        console.log('>> get_request fail: ' + errorThrown);
         _port && _port.postMessage({ except: 'Guest usage limited. Fix by visit ' + base + '/reg', tpl: '' });
+      } else {
+        _port && _port.postMessage({ except: 'Offline.' });
       }
       if (textStatus !== '503' && base === 'https://www.thepaperlink.com') {
         base = 'https://www.thepaperlink.cn';
@@ -993,6 +1062,8 @@ async function get_request (msg, _port) {
     }
     reLoad_options();
   } else if (msg.sendID) {
+    // if (localStorage.getItem('co_pubmed') !== 'no') {
+    // chrome.pageAction.show(sender_tab_id);
     if (Array.isArray(msg.sendID)) {
       if (sender_tab_id) {
         aKey = {};
@@ -1020,7 +1091,7 @@ async function get_request (msg, _port) {
         console.log(msg.prjID, msg.doi, d);
       });
   } else if (msg.menu_display) {
-    if (await LS.getItem('contextMenu_shown') !== 'no') {
+    if (LS.getItem('contextMenu_shown') !== 'no') {
       menu_generator();
       // just generated context menu
     } else {
@@ -1058,39 +1129,7 @@ async function get_request (msg, _port) {
         post_action = 'email';
         _port && _port.postMessage({ Off_id: 'thepaperlink_A' + action_pmid });
       }
-
-      /* if (typeof window.email_pdf === 'undefined') {
-  window.email_pdf = function (pmid, apikey, no_email) {
-      var bv = jq183Tpl('#thepaperlink_A' + pmid).html(),
-        args = {'apikey': apikey},
-        answer = null;
-      if (no_email) {
-        args = {'apikey': apikey, 'no_email': 1};
-      } else {
-        answer = confirm('\nEmail the pdf of this paper to you?\n\nCaution: it might fail, then only the abstract will be sent [' + bv + ']\n');
-      }
-      if (answer || no_email) {
-        jq183Tpl.ajax({
-          url: thepaperlink_base + 'file/new',
-          dataType: 'jsonp',
-          data: args,
-          //async: false,
-          success: function (upload_url) {
-            var dom = document.getElementById('thepaperlink_hidden' + pmid),
-              customEvent = document.createEvent('Event');
-            customEvent.initEvent('email_pdf', true, true);
-            dom.innerText = upload_url;
-            if (!no_email) {
-              jq183Tpl('#thepaperlink_D' + pmid).fadeOut('fast');
-            } else {
-              jq183Tpl('#thepaperlink_save' + pmid).addClass('no_email');
-            }
-            dom.dispatchEvent(customEvent);
-          }
-        });
-      }
-    };
-} */
+      /* window.email_pdf */
     } else if (msg.money_reportWrongLink) {
       post_action = 'wrong_link';
       _port && _port.postMessage({ Off_id: 'thepaperlink_B' + action_pmid });
@@ -1143,32 +1182,6 @@ async function get_request (msg, _port) {
     if (msg.save_cloud_op.indexOf('baiduyun') > -1) {
       await LS.setItem('baiduyun_status', 'success');
     }
-  } else if (msg.t_cont) {
-    const holder = document.getElementById('clippy_t');
-    holder.style.display = 'block';
-    // 2018-9-14 @@@@ so_noDate
-    // 2022-2-23 move from contentscript.js
-    if (msg.t_cont.indexOf('Free article.') > 0) {
-      msg.t_cont = msg.t_cont.replace(' Free article.', '');
-    }
-    if (msg.t_cont.indexOf('Free PMC article.') > 0) {
-      msg.t_cont = msg.t_cont.replace(' Free PMC article.', '');
-    }
-    if (msg.t_cont.indexOf('Review.') > 0) {
-      msg.t_cont = msg.t_cont.replace(' Review.', '');
-    }
-    if (msg.t_cont.indexOf('Online ahead of print.') > 0) {
-      msg.t_cont = msg.t_cont.replace(' Online ahead of print.', '');
-    }
-    if (msg.t_cont.indexOf('Among authors: ') > 0) {
-      const _tt = msg.t_cont.split('Among authors: ');
-      holder.value = _tt[0] + _tt[1].substr(_tt[1].indexOf('.') + 2);
-    } else {
-      holder.value = msg.t_cont;
-    }
-    holder.select();
-    dd.execCommand('Copy');
-    holder.style.display = 'none';
   } else if (msg.load_common_values) {
     load_common_values();
   } else if (msg.a_pmid && msg.a_title) {
@@ -1198,14 +1211,14 @@ async function get_request (msg, _port) {
     load_broadcast();
   } else if (msg.pii_link && msg.pii && msg.pmid) {
     // if (localStorage.getItem('ajax_pii_link') !== 'no') {
-    //   parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
+    //  parse_pii(msg.pmid, 'http://linkinghub.elsevier.com/retrieve/pii/' + msg.pii, sender_tab_id);
     // }
-    console.log('pii', msg.pii, msg.pii_link, msg.pmid); //@@@@ S1534580722001666
+    console.log('pii', msg.pii, msg.pmid); // msg.pii_link, @@@@ S1534580722001666 S0092867408009392
     //if (localStorage.getItem('shark_link') !== 'no') {
-    // parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
+    //  parse_shark(msg.pmid, 'https://' + local_mirror + '/retrieve/pii/' + msg.pii, sender_tab_id);
     //}
   } else if (msg.doi_link && msg.doi && msg.pmid) {
-    if (await LS.getItem('shark_link') !== 'no') {
+    if (LS.getItem('shark_link') !== 'no') {
       parse_shark(msg.pmid, 'https://' + local_mirror + '/' + msg.doi, sender_tab_id);
     }
   } else if (msg.search_term) {
@@ -1215,7 +1228,7 @@ async function get_request (msg, _port) {
                          .replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
       const one_term_saved = await LS.getItem(term_lower);
       const end_num = get_end_num(one_term_saved);
-      const digitals = get_ymd();
+      let digitals = get_ymd();
       digitals.push(msg.search_result_count);
       if (!terms || terms.indexOf(term_lower) < 0) {
         if (!terms) { terms = ''; }
@@ -1243,11 +1256,22 @@ async function get_request (msg, _port) {
     call_from_other_sites(msg.from_sites_w_pmid, sender_tab_id);
   } else if (msg.from_popup_w_pmid) {
     call_from_other_sites(msg.from_popup_w_pmid, msg.popup_tabid);
+  } else if (msg.from_sites_w_doi && LS.getItem('shark_download') === 'yes') {
+    chrome.downloads.download({
+      url: msg.from_sites_w_doi[1],
+      filename: msg.from_sites_w_doi[0].replace(/\/+/g, '@') + '.pdf'
+    }, function (id) {
+      if (LS.getItem('shark_open_files') === 'yes') {
+        chrome.downloads.open(id); //@@@@ user gesture
+      } else {
+        console.log(id, msg.from_sites_w_doi[0], msg.from_sites_w_doi[1]);
+      }
+    });
   } else if (msg.pageAbs) { // 2018-10-1
     await LS.setItem('abs_' + msg.pmid, msg.pageAbs);
   } else if (msg.ajaxAbs) { // 2018-9-14
     pmid = msg.ajaxAbs;
-    if (await LS.getItem('abs_' + pmid)) {
+    if (LS.getItem('abs_' + pmid)) {
       _port && _port.postMessage({ returnAbs: await LS.getItem('abs_' + pmid), pmid: pmid });
     } else {
       args = { apikey: req_key, db: 'pubmed', id: pmid };
@@ -1269,16 +1293,16 @@ async function get_request (msg, _port) {
     }
   } else if (msg.do_syncValues) {
     do_syncValues();
-  } else if (msg.failed_term) {
+  } else if (msg.failed_term) { // @@@@
     const failed_terms = await LS.getItem('failed_terms') || '';
     let failed_times = 0;
     if (failed_terms) {
-      console.log(failed_terms); // @@@@
+      console.log(msg.failed_term, failed_terms);
       const failed_match = failed_terms.match(/","/g);
       if (failed_match) {
         failed_times = failed_match.length + 1;
       }
-      if (failed_times % 5 === 3 && await LS.getItem('rev_proxy') !== 'yes') {
+      if (failed_times % 5 === 3 && LS.getItem('rev_proxy') !== 'yes') {
         await LS.setItem('rev_proxy', 'yes');
         await LS.setItem('websocket_server', 'node.thepaperlink.cn:8081');
         base = 'https://www.thepaperlink.cn';
@@ -1293,9 +1317,14 @@ async function get_request (msg, _port) {
       url: chrome.runtime.getURL('options.html'),
       active: true
     });
-
-    // } else if (msg.pmid && msg.shark) {
-    //  do_download_shark(msg.pmid, msg.shark);
+  // } else if (msg.pmid && msg.shark) {
+  //  do_download_shark(msg.pmid, msg.shark);
+  } else if (msg.fetch_JCR) { // 2024-4-2
+    if (msg.fetch_JCR && jcr_obj[ msg.fetch_JCR ]) {
+      _port && _port.postMessage({ class_JCR:
+        [msg.fetch_JCR, jcr_obj[ msg.fetch_JCR ] ]
+      });
+    }
   } else {
     console.log(msg);
   }
@@ -1374,15 +1403,15 @@ if (LS.getItem('last_chrome_open_str') !== date_str) {
 }
 setInterval(newdayRoutine, 24 * 60 * 60 * 60);
 
-$(document).ready(function () {
-  if (!broadcast_loaded && LS.getItem('ws_items') === 'yes') {
-    load_broadcast();
-    get_server_data(0);
-  }
-});
+//$(document).ready(function () {
+if (!broadcast_loaded && LS.getItem('ws_items') === 'yes') {
+  load_broadcast();
+  get_server_data(0);
+}
+//});
 
 async function adjustStorage (rst, newOnly) {
-  const toRemove = [];
+  let toRemove = [];
   for (aKey in rst) {
     if (aKey.indexOf('pmid_') === 0) {
       const a_pmid = aKey.substr(5, aKey.length - 5);
@@ -1425,8 +1454,7 @@ chrome.runtime.onInstalled.addListener(function () {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: [
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed' } }),
-        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//pmlegacy.ncbi.nlm.nih.gov/' } })
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.ncbi.nlm.nih.gov/pubmed' } })
       ],
       actions: [new chrome.declarativeContent.ShowPageAction()]
     }, {
