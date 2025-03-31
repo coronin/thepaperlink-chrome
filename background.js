@@ -1482,6 +1482,7 @@ chrome.runtime.onInstalled.addListener(function () {
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//f1000.com/prime/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//facultyopinions.com/article/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//connect.h1.co/article/' } }),
+        new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//archive.connect.h1.co/article/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/paper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '//www.storkapp.me/pubpaper/' } }),
         new chrome.declarativeContent.PageStateMatcher({ pageUrl: { urlContains: '.biorxiv.org/content/' } }),

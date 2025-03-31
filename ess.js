@@ -403,6 +403,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     ID = tab.title.split('::')[0];
     $('#found').html('&copy; ' + tab.title.split('::')[1]);
     eSummary(ID, tab.id);
+  } else if (tab.url.indexOf('//archive.connect.h1.co/article/') > 0) { // 2024-11-30
+    ID = tab.title.split('::')[0];
+    $('#found').html('&copy; ' + tab.title.split('::')[1]);
+    eSummary(ID, tab.id);
   } else if (tab.url.indexOf('.storkapp.me/paper/') > 0) { // 2024-4-2
     $('#found').html('&copy; /showPaper.php?' + tab.url.split('/showPaper.php?')[1]);
     eSummary(tab.title, tab.id);

@@ -1042,6 +1042,9 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   if (t_strings.indexOf('No authors listed') > -1 ||
       byTag(zone)[num].getElementsByClassName('short-authors')[0].textContent === '') {
     byTag(zone)[num].innerHTML = '[No authors listed] ' + id_journal(t_strings.substr(20), ID);
+  } else if (t_strings.indexOf('See abstract for full author list') > -1) {
+    byTag(zone)[num].innerHTML = '[Too many authors] ' + id_journal(
+                                                     t_strings.substr(t_strings.indexOf('. ') + 2), ID);
   } else if (grp_author_name(t_strings)) { // useless unless the first author is a group
     byTag(zone)[num].innerHTML = trim(t_strings.substr(0, t_strings.indexOf('. '))) +
                                    '. ' + id_journal(t_strings.substr(t_strings.indexOf('. ') + 2), ID);
@@ -1517,7 +1520,7 @@ function get_request (msg) {
     return;
   } else if (!r || !r.count) {
     if (k) { r.count = k; } else {
-      sendResponse({});
+      // sendResponse({});
       return;
     }
   }
@@ -1690,7 +1693,7 @@ function get_request (msg) {
     if (!msg.except && r.item[i].f_v && r.item[i].fid) {
       tmp = '<a id="thepaperlink_f' + pmid + '" class="thepaperlink-red" href="' +
           ez_format_link(p,
-            'https://connect.h1.co/article/' + uneval_trim(r.item[i].fid)
+            'https://archive.connect.h1.co/article/' + uneval_trim(r.item[i].fid)
           ) + '" target="_blank">f1000<sup>' + uneval_trim(r.item[i].f_v) + '</sup></a>';
       div_html += tmp;
     }
@@ -1906,7 +1909,8 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
 } else if (page_url.indexOf('://facultyopinions.com/article/') > 0) {
   process_f1000();
   noRun = 31;
-} else if (page_url.indexOf('://connect.h1.co/article/') > 0) {
+} else if (page_url.indexOf('://connect.h1.co/article/') > 0 ||
+           page_url.indexOf('://archive.connect.h1.co/article/') > 0) {
   process_f1000();
   noRun = 32;
 } else if (page_url.indexOf('://www.storkapp.me/paper/') > 0 ||
