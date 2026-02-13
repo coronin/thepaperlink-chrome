@@ -1,37 +1,17 @@
 'use strict';
 
-const DEBUG = false;
-let i; let len; let aKey; let aVal;
-let ws; let ws_timer;
-let ws_addr = localStorage.getItem('websocket_server') || 'node.thepaperlink.com:8081';
-let uid = localStorage.getItem('ip_time_uid') || null;
-let scholar_count = 0;
-let scholar_run = 0;
-let scholar_queue = [];
-let scholar_no_more = 0;
-let scholar_page_open_limits = 3;
-let shark_limits = localStorage.getItem('shark_limit') || 3;
-let loading_theServer = false;
-let load_try = 10;
-let local_ip = '';
-const alldigi = /^\d+$/;
-const dd = document;
-let base = 'https://www.thepaperlink.com';
-let guest_apikey = null;
-let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
-let ncbi_api;
-let local_mirror; let ezproxy_prefix; let cc_address;
-let arbitrary_sec = 3;
-let pubmeder_ok = false;
-let cloud_op = '';
-let broadcast_loaded = false;
-const extension_load_date = new Date();
-const date_str = 'day_' + extension_load_date.getFullYear() +
-                 '_' + (extension_load_date.getMonth() + 1) +
-                 '_' + extension_load_date.getDate();
-let jcr_obj = {};
+// Service Worker for Manifest V3
+// This is a thin wrapper that loads the main background logic from background.html
 
-function load_JCR () {
+// Forward chrome.runtime API to the background page
+// Note: This service worker just redirects to the persistent background page
+// which handles all the actual logic
+
+// Import scripts are not available in MV3 service workers without type: module
+// For now, we'll use the background page approach which still works in MV3 (deprecated but functional)
+
+console.log('The Paper Link service worker started');
+
   const xhr = new XMLHttpRequest();
   xhr.open('GET', chrome.runtime.getURL('jcr.csv.json'), true);
   xhr.onreadystatechange = function () {

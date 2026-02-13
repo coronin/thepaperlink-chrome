@@ -1,29 +1,41 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "the paper link 2.9",
   "short_name": "tpl 2.9",
   "version": "2.9.46.5",
-  "minimum_chrome_version": "39",
+  "minimum_chrome_version": "110",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
-  "content_security_policy": "script-src 'self' https://www.thepaperlink.com https://www.thepaperlink.cn https://www.thepaperlink.net https://pubget-hrd.appspot.com; font-src 'none'; frame-src 'none'; img-src 'self'; media-src 'none'; object-src 'none'",
-  "web_accessible_resources": [
-    "loadingLine.gif",
-    "clippyIt.png",
-    "jcr.csv.json",
-    "ext20210522.js"
-  ],
   "permissions": [
-    "background",
     "contextMenus",
     "tabs",
     "clipboardWrite",
-    "declarativeContent",
     "storage",
     "downloads"
   ],
+  "host_permissions": [
+    "*://www.thepaperlink.com/*",
+    "*://www.thepaperlink.cn/*",
+    "*://www.thepaperlink.net/*",
+    "*://pubget-hrd.appspot.com/*",
+    "*://scholar.google.com/*",
+    "*://f1000.com/*",
+    "*://facultyopinions.com/*",
+    "*://connect.h1.co/*",
+    "*://archive.connect.h1.co/*",
+    "*://www.storkapp.me/*",
+    "*://www.biorxiv.org/*",
+    "*://www.medrxiv.org/*",
+    "*://connect.biorxiv.org/*",
+    "*://connect.medrxiv.org/*",
+    "*://www.ncbi.nlm.nih.gov/*",
+    "*://pubmed.ncbi.nlm.nih.gov/*",
+    "*://sci-hub.ru/*",
+    "*://sci-hub.se/*",
+    "*://sci-hub.st/*"
+  ],
   "background": {
-    "page": "background.html",
-    "persistent": true
+    "service_worker": "background.js",
+    "type": "module"
   },
   "omnibox": { "keyword": "tpl" },
   "icons": {
@@ -33,7 +45,7 @@
     "19": "19.png",
     "16": "16.png"
   },
-  "page_action": {
+  "action": {
     "default_popup": "ess.html",
     "default_icon": {
       "128": "128.png",
@@ -45,6 +57,17 @@
     "default_title": "the paper link 2.9, brought to you by Liang Cai"
   },
   "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "loadingLine.gif",
+        "clippyIt.png",
+        "jcr.csv.json",
+        "ext20210522.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [ {
     "matches": [
       "https://www.thepaperlink.com/oauth*",
@@ -83,7 +106,7 @@
       "https://www.ncbi.nlm.nih.gov/*",
       "https://pubmed.ncbi.nlm.nih.gov/*"
     ],
-    "exclude_globs": [
+    "exclude_matches": [
       "*://www.ncbi.nlm.nih.gov/sites/entrez/",
       "*://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed",
       "https://pubmed.ncbi.nlm.nih.gov/advanced/"
