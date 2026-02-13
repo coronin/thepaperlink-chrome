@@ -1,7 +1,110 @@
 'use strict';
 
-const _port = chrome.runtime.connect({ name: 'background_port' });
-const _bkg = chrome.extension.getBackgroundPage();
+// MV3 compatible: try to connect to background
+let _port = null;
+let _portReconnectTimer = null;
+
+// MV3: _bkg fallback - use local console and localStorage since getBackgroundPage is not available
+const _bkg = {
+  console: console,
+  localStorage: localStorage
+};
+
+// MV3: Sync data from chrome.storage.local to window.localStorage on load
+function syncStorageFromChrome() {
+  chrome.storage.local.get(null, function(items) {
+    if (items) {
+      // Sync all stored keys to window.localStorage
+      for (let key in items) {
+        if (items[key] !== undefined && items[key] !== null) {
+          try {
+            const val = items[key];
+            // Skip objects/arrays - they would become "[object Object]"
+            // Only sync strings, numbers, and booleans
+            if (typeof val === 'object') {
+              console.log('Skipping object key:', key);
+              continue;
+            }
+            localStorage.setItem(key, (typeof val === 'string') ? val : String(val));
+          } catch(e) {
+            console.log('Failed to sync key:', key, e);
+          }
+        }
+      }
+      console.log('Storage synced from chrome.storage.local');
+    }
+  });
+}
+
+// Call sync on load
+syncStorageFromChrome();
+
+// Function to connect to background service worker
+function connectToBackground() {
+  if (_port) return;
+
+  try {
+    _port = chrome.runtime.connect({ name: 'background_port' });
+
+    _port.onMessage.addListener((message) => {
+      // Handle incoming messages
+      console.log('Message from background:', message);
+    });
+
+    _port.onDisconnect.addListener(() => {
+      console.log('Port disconnected');
+      _port = null;
+      // Schedule reconnection
+      if (_portReconnectTimer) clearTimeout(_portReconnectTimer);
+      _portReconnectTimer = setTimeout(connectToBackground, 2000);
+    });
+
+    console.log('Connected to background');
+  } catch(e) {
+    console.log('Could not connect to background:', e);
+    // Schedule retry
+    if (_portReconnectTimer) clearTimeout(_portReconnectTimer);
+    _portReconnectTimer = setTimeout(connectToBackground, 2000);
+  }
+}
+
+// Initial connection
+connectToBackground();
+
+// Helper function to send message to background
+function sendToBackground(message, callback) {
+  if (_port) {
+    try {
+      _port.postMessage(message);
+      // Wait for response via onMessage listener
+      if (callback) setTimeout(() => callback({ sent: true }), 100);
+    } catch(e) {
+      console.log('Port error, trying sendMessage:', e);
+      // Fallback to sendMessage
+      chrome.runtime.sendMessage(message, (response) => {
+        handleBackgroundResponse(response, callback);
+      });
+    }
+  } else {
+    // Use sendMessage as fallback
+    chrome.runtime.sendMessage(message, (response) => {
+      handleBackgroundResponse(response, callback);
+    });
+  }
+}
+
+// Handle response from background
+function handleBackgroundResponse(response, callback) {
+  if (chrome.runtime.lastError) {
+    console.log('Background error:', chrome.runtime.lastError.message);
+    // Try to reconnect
+    connectToBackground();
+    if (callback) callback(null);
+  } else {
+    if (callback) callback(response);
+  }
+}
+
 const email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 
 function adjust_keywords () {

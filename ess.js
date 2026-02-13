@@ -1,8 +1,95 @@
 'use strict';
 
-if (typeof _port === 'undefined') {
-  const _port = chrome.runtime.connect({ name: 'background_port' });
+// MV3 compatible: connection to background service worker
+let _port = null;
+let _portReconnectTimer = null;
+
+// Function to connect to background service worker
+function connectToBackground() {
+  if (_port) return;
+
+  try {
+    _port = chrome.runtime.connect({ name: 'background_port' });
+
+    _port.onMessage.addListener((message) => {
+      console.log('Message from background:', message);
+      // Handle messages from background
+      if (message && message.search_trend) {
+        const found = document.getElementById('found');
+        if (found) {
+          found.innerHTML += '<span style="color:blue;text-decoration:none;">&#x1f4c8;' +
+            message.search_trend + '&nbsp;<span>';
+        }
+      }
+    });
+
+    _port.onDisconnect.addListener(() => {
+      console.log('Port disconnected');
+      _port = null;
+      // Schedule reconnection
+      if (_portReconnectTimer) clearTimeout(_portReconnectTimer);
+      _portReconnectTimer = setTimeout(connectToBackground, 2000);
+    });
+
+    console.log('Connected to background');
+  } catch(e) {
+    console.log('Could not connect to background:', e);
+    // Schedule retry
+    if (_portReconnectTimer) clearTimeout(_portReconnectTimer);
+    _portReconnectTimer = setTimeout(connectToBackground, 2000);
+  }
 }
+
+// Initial connection
+connectToBackground();
+
+// MV3: Sync data from chrome.storage.local to window.localStorage on load
+function syncStorageFromChrome() {
+  chrome.storage.local.get(null, function(items) {
+    if (items) {
+      // Sync all stored keys to window.localStorage
+      for (let key in items) {
+        if (items[key] !== undefined && items[key] !== null) {
+          try {
+            const val = items[key];
+            // Skip objects/arrays - they would become "[object Object]"
+            // Only sync strings, numbers, and booleans
+            if (typeof val === 'object') {
+              console.log('Skipping object key:', key);
+              continue;
+            }
+            localStorage.setItem(key, (typeof val === 'string') ? val : String(val));
+          } catch(e) {
+            console.log('Failed to sync key:', key, e);
+          }
+        }
+      }
+      console.log('Storage synced from chrome.storage.local');
+    }
+  });
+}
+
+// Call sync on load
+syncStorageFromChrome();
+
+// Helper function to send message to background
+function sendToBackground(message, callback) {
+  if (_port) {
+    try {
+      _port.postMessage(message);
+      if (callback) setTimeout(() => callback({ sent: true }), 100);
+    } catch(e) {
+      chrome.runtime.sendMessage(message, (response) => {
+        if (callback) callback(response);
+      });
+    }
+  } else {
+    chrome.runtime.sendMessage(message, (response) => {
+      if (callback) callback(response);
+    });
+  }
+}
+
 let foundOrig;
 
 function hideMore () {
@@ -525,14 +612,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 });
 
 chrome.runtime.onMessage.addListener(function (msg) { // 2020-2-4 ??
-  window.alert('check runtime msg');
-  console.log(msg);
-});
-_port.onMessage.addListener(function (msg) {
-  console.log(msg);
+  console.log('Runtime message:', msg);
   if (msg && msg.search_trend) {
     $('#found').append('<span style="color:blue;text-decoration:none;">&#x1f4c8;' +
                        msg.search_trend + '&nbsp;<span>');
-    // sendResponse({});
   }
 });

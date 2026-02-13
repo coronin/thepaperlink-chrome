@@ -9,7 +9,7 @@
  *
  * this started as a UserScript for GreaseMonkey Firefox, http://userscripts.org/scripts/show/97865
  *
- * the paper link 2.9 (for chrome and edge)
+ * the paper link 3.0 (for brave, chrome, edge, etc)
  *   https://github.com/coronin/thepaperlink-chrome/releases
  */
 
@@ -48,8 +48,35 @@ if (typeof uneval === 'undefined') {
 
 try {
   _port = chrome.runtime.connect({ name: 'background_port' });
+  _port.onDisconnect.addListener(() => {
+    _port = null;
+    // Try to reconnect after a delay
+    setTimeout(() => {
+      try {
+        _port = chrome.runtime.connect({ name: 'background_port' });
+      } catch(e) {}
+    }, 1000);
+  });
 } catch (err) {
   console.log('>> ' + err);
+}
+
+// MV3 compatible: add sendMessage as fallback
+function sendToBackground(message, callback) {
+  chrome.runtime.sendMessage(message, function(response) {
+    if (chrome.runtime.lastError) {
+      // Silent fail - but try to reconnect port
+      if (!_port) {
+        setTimeout(() => {
+          try {
+            _port = chrome.runtime.connect({ name: 'background_port' });
+          } catch(e) {}
+        }, 1000);
+      }
+    } else if (callback) {
+      callback(response);
+    }
+  });
 }
 
 function uneval_trim (a) {
@@ -63,9 +90,47 @@ function byClassOne (d) { return page_d.getElementsByClassName(d)[0]; }
 
 function trim (s) { return (s || '').replace(/^\s+|\s+$/g, ''); }
 
+// MV3: Clipboard helper function using textarea method
+function copyToClipboard(text) {
+  const textarea = page_d.createElement('textarea');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-1000px';
+  textarea.value = text;
+  page_d.body.appendChild(textarea);
+  textarea.select();
+  try {
+    page_d.execCommand('copy');
+    DEBUG && console.log('Copied to clipboard via textarea');
+  } catch (e) {
+    DEBUG && console.log('Failed to copy:', e);
+  }
+  page_d.body.removeChild(textarea);
+}
+
 function a_proxy (d) {
-  _port && _port.postMessage(d);
-  _port || console.log('>> runtime fail to connect background_port');
+  // MV3: Also save to chrome.storage.local for persistence
+  if (d.save_apikey && d.save_email) {
+    chrome.storage.local.set({
+      'pubmeder_apikey': d.save_apikey,
+      'pubmeder_email': d.save_email,
+      'b_apikey_gold': 'yes'
+    });
+  } else if (d.save_apikey) {
+    chrome.storage.local.set({
+      'thepaperlink_apikey': d.save_apikey,
+      'a_apikey_gold': 'yes'
+    });
+  } else if (d.ncbi_api) {
+    chrome.storage.local.set({ 'tpl_ncbi_api': d.ncbi_api });
+  }
+
+  // Try port first (MV2 style)
+  if (_port) {
+    _port.postMessage(d);
+  } else {
+    // Fallback to sendMessage (MV3 style)
+    sendToBackground(d);
+  }
 }
 a_proxy({ load_local_mirror: 1 });
 
@@ -87,6 +152,7 @@ function append_i3t (pmid, S, sec) {
       i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px">&nbsp;preprint</span>';
     } else {
       i3s.innerHTML = '<span style="background:#e0ecf1;padding:0 1px 0 1px" class="tpl ' + S.toLowerCase() + '"></span>';
+      a_proxy({ fetch_JCR: S.toLowerCase() });
     }
     if (impact3 !== null) {
       impact3.style.border = '1px #e0ecf1 solid';
@@ -483,7 +549,8 @@ function LastFirst (s) {
 
 function insert_clippy (ID, t_cont, _obj, multi_left = false) {
   if (!_obj) {
-    a_proxy({ t_cont: t_cont }); // 2020-9-22
+    // MV3: handle clipboard directly in content script
+    copyToClipboard(t_cont);
     return;
   }
   const b = page_d.createElement('div');
@@ -499,7 +566,8 @@ function insert_clippy (ID, t_cont, _obj, multi_left = false) {
   b.innerHTML = '&nbsp;<img class="pl4_clippy" title="copy to clipboard" src="' + clippy_file +
       '" alt="copy" width="14" height="14" />';
   b.id = 'clippy' + ID;
-  b.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  // MV3: handle clipboard directly in content script
+  b.onclick = function () { copyToClipboard(t_cont); };
   _obj.appendChild(b);
 }
 
@@ -751,7 +819,9 @@ function new_pubmed_single1 (not_first) {
 
   const trigger_obj = section_obj.getElementsByClassName('journal-actions dropdown-block')[0].getElementsByTagName('button')[0];
   section_obj.getElementsByClassName('journal-actions dropdown-block')[0].id = 'thepaperlink_if' + ID;
-  append_i3t(ID, section_obj.getElementsByClassName('journal-actions dropdown-block')[0].textContent, 0);
+  append_i3t(ID, trim(
+    section_obj.getElementsByClassName('journal-actions dropdown-block')[0].textContent.split('Actions')[0]
+  ), 0);
   const tpl_obj = section_obj.getElementsByClassName('identifiers')[0];
   tpl_obj.getElementsByClassName('identifier pubmed')[0].id = 'tpl' + ID;
 
@@ -816,7 +886,7 @@ function new_pubmed_single1 (not_first) {
   insert_clippy(ID, t_cont, section_obj.getElementsByClassName('short-article-details')[0], 3);
 
   const y = page_d.createElement('button');
-  y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  y.onclick = function () { copyToClipboard(t_cont); };
   y.innerHTML = '<span class="button-label">Copy</span>';
   y.setAttribute('style', 'float:left;border:1px solid #aeb0b5;line-height:1.7rem;font-size:1.6rem;margin:0.5rem 1rem 0 1rem');
   section_obj.getElementsByClassName('result-actions-bar')[0].appendChild(y);
@@ -833,7 +903,7 @@ function new_pubmed_single () {
   const ID = byClassOne('current-id').textContent;
   const trigger_obj = byID('full-view-journal-trigger');
   trigger_obj.parentNode.id = 'thepaperlink_if' + ID;
-  append_i3t(ID, trigger_obj.parentNode.textContent, 0);
+  append_i3t(ID, trim( trigger_obj.parentNode.textContent.split('Actions')[0] ), 0);
   const tpl_obj = byID('full-view-identifiers');
   tpl_obj.getElementsByClassName('identifier pubmed')[0].id = 'tpl' + ID;
   pmidString = ',' + ID; // parse_div will remove the first ch
@@ -897,13 +967,13 @@ function new_pubmed_single () {
   insert_clippy(ID, t_cont, byClassOne('short-article-details'), 3);
 
   const y = page_d.createElement('button');
-  y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  y.onclick = function () { copyToClipboard(t_cont); };
   y.innerHTML = '<span class="button-label">Copy</span>';
   y.setAttribute('style', 'float:left;margin:0 1.5rem 0 0');
   byClassOne('actions-buttons inline').prepend(y);
   const yy = page_d.createElement('div');
   yy.className = 'inner-wrap';
-  yy.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  yy.onclick = function () { copyToClipboard(t_cont); };
   yy.innerHTML = '<button style="border-radius:3px;width:141px"><span class="button-label">Copy</span></button>';
   byClassOne('actions-buttons sidebar').appendChild(yy);
 
@@ -1041,7 +1111,7 @@ function new_pubmed_multi1 (zone, num, ajax = false) {
   //             ].getAttribute('data-all-citations-url').indexOf(ID) === 1) {
   //     const y = page_d.createElement('div');
   //     y.className = 'cite dropdown-block';
-  //     y.onclick = function () { a_proxy({ t_cont: t_cont }); };
+  //     y.onclick = function () { copyToClipboard(t_cont); };
   //     y.innerHTML = '<button class="cite-search-result"> Copy </button>';
   //     yy[yyi].appendChild(y);
   //     //y.setAttribute('style', '');
@@ -1324,12 +1394,6 @@ function get_request (msg) {
     byID('account_info').classList.add('flash');  // <button>
     // sendResponse({});
     return;
-  } else if (msg.except && msg.except === 'Offline.') { // 2024-4-5
-    byID('pl4_title').innerHTML = old_title;
-    for (let i = 0, len = i3t_Sources.length; i < len; i += 1) {
-      a_proxy({ fetch_JCR: i3t_Sources[i].toLowerCase() });
-    }
-    i3t_Sources = [];
   } else if (msg.except) {
     if (!search_term && page_url.indexOf('/pubmed/') > 0) {
       search_term = page_url.split('/pubmed/')[1];
@@ -1436,6 +1500,12 @@ function get_request (msg) {
     // sendResponse({});
     return;
   } else if (msg.returnAbs) { // 2018-9-14
+    // Clear the failure timeout on success
+    const absEl = byID('thepaperlink_abs' + msg.pmid);
+    if (absEl && absEl.dataset.timeoutId) {
+      clearTimeout(parseInt(absEl.dataset.timeoutId, 10));
+      absEl.dataset.timeoutId = '';
+    }
     window.alert(msg.returnAbs);
     if (byID('thepaperlink_text' + msg.pmid) !== null) {
       byID('thepaperlink_text' + msg.pmid).style.display = 'block';
@@ -1445,6 +1515,33 @@ function get_request (msg) {
       byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
     }
     localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
+    // sendResponse({});
+    return;
+  } else if (msg.t_cont) { // MV3: clipboard handled in content script
+    let t_cont = msg.t_cont;
+    if (t_cont.indexOf('Free article.') > 0) {
+      t_cont = t_cont.replace(' Free article.', '');
+    }
+    if (t_cont.indexOf('Free PMC article.') > 0) {
+      t_cont = t_cont.replace(' Free PMC article.', '');
+    }
+    if (t_cont.indexOf('Review.') > 0) {
+      t_cont = t_cont.replace(' Review.', '');
+    }
+    if (t_cont.indexOf('Online ahead of print.') > 0) {
+      t_cont = t_cont.replace(' Online ahead of print.', '');
+    }
+    // Use Clipboard API with fallback
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t_cont).then(() => {
+        DEBUG && console.log('Copied to clipboard via Clipboard API');
+      }).catch(() => {
+        // Fallback to textarea method
+        copyToClipboard(t_cont);
+      });
+    } else {
+      copyToClipboard(t_cont);
+    }
     // sendResponse({});
     return;
   } else if (msg.class_JCR) { // 2024-4-2
@@ -1460,6 +1557,7 @@ function get_request (msg) {
   const k = pmidArray.length;
   let bookmark_div = '<div id="css_loaded" class="thepaperlink" style="margin-left:10px;font-size:80%;font-weight:normal;cursor:pointer"> ';
   let styles = '.thepaperlink {' +
+          '  position: relative;' +
           '  background: #e0ecf1;' +
           '  border:2px solid #dedede; border-top:2px solid #eee; border-left:2px solid #eee;' +
           '  padding: 2px 4px;' +
@@ -1499,6 +1597,12 @@ function get_request (msg) {
           '}' +
           'textarea.thepaperlink-text {' +
           '  overflow:auto; padding-right:10px; outline:none; border:0; width:440px; height:200px; font-size:11px; color:grey; line-height:1.8; font-family:sans-serif' +
+          '}' +
+          '.thepaperlink-qr {' +
+          '  display:none; position:absolute; z-index:9999; padding:10px; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2); opacity:1' +
+          '}' +
+          '.thepaperlink-home:hover + .thepaperlink-qr {' +
+          '  display:block; opacity:1' +
           '}';
 
   if (msg.to_other_sites) { // respond to from_xx, style
@@ -1508,8 +1612,10 @@ function get_request (msg) {
     page_d.body.appendChild(insert_style);
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
-    div_html = '<a class="thepaperlink-home" href="' + msg.uri + '/:' + msg.pmid +
-               '" target="_blank">the paper link</a>';
+    const qrUrl = (msg.uri || '') + '/:' + (msg.pmid || '');
+    div_html = '<a class="thepaperlink-home" href="' + qrUrl +
+               '" target="_blank">the paper link</a>' +
+               '<span class="thepaperlink-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(qrUrl) + '" alt="QR"/></span>';
     div_html += msg.extra;
     div.innerHTML = div_html;
     if (byID(msg.to_other_sites).textContent === ' the paper link') {
@@ -1570,6 +1676,7 @@ function get_request (msg) {
     if (msg.except) {
       pmid = pmidArray[i];
     } else {
+      if (!r.item || !r.item[i]) continue; // Guard against malformed response
       pmid = uneval_trim(r.item[i].pmid);
       j = pmidArray.indexOf(pmid);
       if (j > -1) {
@@ -1582,7 +1689,8 @@ function get_request (msg) {
     div = page_d.createElement('div');
     div.className = 'thepaperlink';
     div_html = '<a class="thepaperlink-home" id="pl4_once_' + pmid + '" href="' +
-               (msg.uri || jss_base) + '/:' + pmid + '" target="_blank">the paper link</a>: ';
+               (msg.uri || jss_base) + '/:' + pmid + '" target="_blank">the paper link</a>: ' +
+               '<span class="thepaperlink-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://pubmed.gov/' + pmid + '" alt="QR"/></span>';
     if (!msg.except) {
       impact3 = byID('thepaperlink_if' + pmid);
       if (impact3 !== null) {
@@ -1611,6 +1719,18 @@ function get_request (msg) {
       } else if (r.item[i].slfo && r.item[i].slfo !== '~') { // && impact3 === null
         tmp = '<span>impact<i style="font-size:75%">' + uneval_trim(r.item[i].slfo) + '</i></span>';
         div_html += tmp;
+      }
+    } else {
+      // Network error: try to get slfoV from existing .tpl element
+      const tplEl = byID('thepaperlink_if' + pmid);
+      if (tplEl) {
+        const tplSpans = tplEl.getElementsByClassName('tpl');
+        if (tplSpans.length > 0) {
+          const tplText = tplSpans[0].textContent.trim();
+          if (tplText && !isNaN(parseFloat(tplText))) {
+            slfoV = parseFloat(tplText);
+          }
+        }
       }
     }
     if (absNeeded) { // @@@@ 2018 Sep
@@ -1794,12 +1914,24 @@ function get_request (msg) {
 
     if (byID('thepaperlink_abs' + pmid) !== null) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
-        byID(this.id).textContent = 'trying';
-        a_proxy({ ajaxAbs: this.id.substr(16) });
+        const absId = this.id;
+        const pmidVal = absId.substr(16);
+        byID(absId).textContent = 'trying';
+        // Set timeout to show pubmed.gov link on failure
+        const timeoutId = setTimeout(() => {
+          if (byID(absId) && byID(absId).textContent === 'trying') {
+            byID(absId).innerHTML = 'view its abstract on <a href="https://pubmed.gov/' + pmidVal + '" target="_blank">pubmed.gov/' + pmidVal + '</a>';
+          }
+        }, 5000); // 5 second timeout
+        // Store timeout ID for potential cancellation
+        byID(absId).dataset.timeoutId = timeoutId;
+        a_proxy({ ajaxAbs: pmidVal });
       };
+      // Check if we have f_v data (only when not in network error)
+      const hasF1000 = !msg.except && r.item && r.item[i] && r.item[i].f_v && r.item[i].fid;
       if (!slfoV || slfoV < 2.0) {
         byID('thepaperlink_abs' + pmid).parentNode.style.opacity = 0.3333;
-      } else if ((slfoV && slfoV > 9.9) || (r.item[i].f_v && r.item[i].fid)) { // @@@@
+      } else if ((slfoV && slfoV > 9.9) || hasF1000) { // @@@@
         byID('tpl' + pmid).style.paddingTop = '10px';
         const barText = page_d.createElement('textarea');
         barText.style.display = 'none';
@@ -1963,5 +2095,8 @@ if (!noRun) {
   load_jss();
   parse_page_div(false); // big boss, onload not ajax
 }
-_port && _port.onMessage.addListener(get_request);
+// Handle messages from background (both MV2 port and MV3 sendMessage)
+if (_port) {
+  _port.onMessage.addListener(get_request);
+}
 chrome.runtime.onMessage.addListener(get_request); // msg from b_proxy

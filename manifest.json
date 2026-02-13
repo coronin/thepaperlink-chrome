@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "the paper link 2.9",
-  "short_name": "tpl 2.9",
-  "version": "2.9.46.5",
+  "name": "the paper link 3.0",
+  "short_name": "tpl 3.0",
+  "version": "3.0.1",
   "minimum_chrome_version": "110",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
   "permissions": [
@@ -10,7 +10,10 @@
     "tabs",
     "clipboardWrite",
     "storage",
-    "downloads"
+    "downloads",
+    "declarativeContent",
+    "alarms",
+    "idle"
   ],
   "host_permissions": [
     "*://www.thepaperlink.com/*",
@@ -54,7 +57,7 @@
       "19": "19.png",
       "16": "16.png"
     },
-    "default_title": "the paper link 2.9, brought to you by Liang Cai"
+    "default_title": "the paper link 3.0, brought to you by Liang Cai"
   },
   "options_page": "options.html",
   "web_accessible_resources": [
