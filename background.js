@@ -820,7 +820,7 @@ function common_dThree (itemZero, withRed) {
   }
   if (withRed && itemZero.f_v && itemZero.fid) {
     tmp = '<a class="thepaperlink-red" href="' +
-          ez_format_link(ezproxy_prefix, 'https://connect.h1.co/article/' + itemZero.fid) +
+          ez_format_link(ezproxy_prefix, 'https://archive.connect.h1.co/article/' + itemZero.fid) +
           '" target="_blank">f1000<sup>' + itemZero.f_v + '</sup></a>';
     extra += tmp;
   }

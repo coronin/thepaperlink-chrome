@@ -508,17 +508,32 @@ function grp_author_name (ts) {
   if (ts.indexOf('. Electronic address:') > -1) { // 32413319
     return ts.split('. Electronic address:')[1];
   } else if (tsLower.indexOf('working group') > -1 ||
+      tsLower.indexOf('workgroup') > -1 ||
       tsLower.indexOf('study group') > -1 ||
+      tsLower.indexOf('research group') > -1 ||
+      tsLower.indexOf(' groups') > 0 ||
+      tsLower.indexOf('academy of ') > -1 ||
+      tsLower.indexOf('members for ') > -1 ||
       tsLower.indexOf('network ') > -1 ||
-      tsLower.indexOf(' committee') > 0 ||
-      tsLower.indexOf(' association') > 0 ||
-      tsLower.indexOf(' team') > 0 ||
-      tsLower.indexOf(' office') > 0 ||
-      tsLower.indexOf(' network') > 0 ||
-      tsLower.indexOf(' collaborative') > 0 ||
-      tsLower.indexOf(' investigators') > 0 ||
+      tsLower.indexOf('partnership on ') > -1 ||
+      tsLower.indexOf('party on ') > -1 ||
+      tsLower.indexOf('project ') > -1 ||
       tsLower.indexOf('society of ') > -1 ||
-      tsLower.indexOf('grou ') > -1 ||
+      tsLower.indexOf('society for ') > -1 ||
+      tsLower.indexOf(' association') > 0 ||
+      tsLower.indexOf(' fund') > 0 ||
+      tsLower.indexOf(' hospital') > 0 ||
+      tsLower.indexOf(' investigators') > 0 ||
+      tsLower.indexOf(' network') > 0 ||
+      tsLower.indexOf(' office') > 0 ||
+      tsLower.indexOf(' source site') > 0 ||
+      tsLower.indexOf(' taskforce') > 0 ||
+      tsLower.indexOf(' team') > 0 ||
+      tsLower.indexOf(' center') > 0 ||
+      tsLower.indexOf(' collaborative') > 0 ||
+      tsLower.indexOf(' committee') > 0 ||
+      tsLower.indexOf(' consortium') > 0 ||
+      tsLower.indexOf('group for ') > -1 ||
       tsLower.indexOf('group of ') > -1) {
     return ts;
   } else {
