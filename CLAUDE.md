@@ -71,7 +71,9 @@ There is no build system. To test changes:
 1. **On background.js startup**: `syncFromSyncToLocal()` checks if local is empty, then syncs from sync to local
 2. **On background.js startup**: `syncToStorageSync()` syncs from local to sync
 3. **On page load (ess/options.js)**: `syncStorageFromChrome()` syncs from sync to local
-4. **On history page load**: Uses chrome.storage.local directly, objects with scholar/shark keys handled specially
+4. **On options.html page load**: `syncFromLocalStorage()` syncs MV2 localStorage to chrome.storage.local and chrome.storage.sync
+5. **On options.html #saveBtn click**: `syncFromLocalStorage()` syncs localStorage changes to chrome.storage
+6. **On history page load**: Uses chrome.storage.local directly, objects with scholar/shark keys handled specially
 
 - `window.localStorage` - Not used in MV3
 
@@ -126,19 +128,26 @@ Changes:
 - Visual feedback: green border on success, red border on nothing to sync (lines 184-190)
 ```
 
-### ess.js (-52 lines)
+### ess.js
 ```
 Changes:
 - Changed let _port to var _port (for history.html compatibility)
 - Added syncStorageFromChrome() to sync from chrome.storage.sync to chrome.storage.local
+- Added storageCache object to cache chrome.storage.local values
+- Added storageGet(key) helper function (sync wrapper)
+- Added storageSet(key, val) helper function (sync wrapper)
+- Replaced all localStorage.getItem with storageGet
+- Replaced all localStorage.setItem with storageSet
 ```
 
-### options.js (-38 lines)
+### options.js
 ```
 Changes:
 - Removed _bkg.localStorage reference
 - Added syncStorageFromChrome() to sync from chrome.storage.sync to chrome.storage.local
-- Uses chrome.storage.local directly for settings
+- Added syncFromLocalStorage() to sync MV2 localStorage data to chrome.storage
+- On page load: calls syncFromLocalStorage() with setTimeout 500ms delay
+- On #saveBtn click: calls syncFromLocalStorage() after saveOptions()
 ```
 
 ## Key Conventions

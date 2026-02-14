@@ -80,6 +80,25 @@ function syncStorageFromChrome() {
 // Call sync on load
 syncStorageFromChrome();
 
+// MV3: helper to use chrome.storage.local instead of localStorage
+var storageCache = {};
+chrome.storage.local.get(null, function(items) {
+  if (items) {
+    for (var key in items) {
+      storageCache[key] = items[key];
+    }
+  }
+});
+function storageGet(key) {
+  return storageCache[key];
+}
+function storageSet(key, val) {
+  storageCache[key] = val;
+  var obj = {};
+  obj[key] = val;
+  chrome.storage.local.set(obj);
+}
+
 let foundOrig;
 
 function hideMore () {
@@ -102,8 +121,8 @@ function t_cont (copyId) {
 function peaks (name) {
   if (!name) { return; }
   let peaksURL = 'https://2.thepaperlink.com/?term=';
-  let tpl = localStorage.getItem('thepaperlink_apikey') || '';
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  let tpl = storageGet('thepaperlink_apikey') || '';
+  if (storageGet('rev_proxy') === 'yes') {
     peaksURL = 'https://2.thepaperlink.cn/?term=';
   }
   if (tpl) { tpl = '&apikey=' + tpl; }
@@ -113,10 +132,10 @@ function peaks (name) {
 function titleLink (ID) {
   let doiURL = 'https://dx.doi.org';
   let base = 'https://www.thepaperlink.com';
-  if (localStorage.getItem('local_mirror')) {
-    doiURL = 'https://' + localStorage.getItem('local_mirror');
+  if (storageGet('local_mirror')) {
+    doiURL = 'https://' + storageGet('local_mirror');
   }
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (storageGet('rev_proxy') === 'yes') {
     base = 'https://www.thepaperlink.cn';
   }
   if (/\d{2}\.\d{4,5}\//.test(ID)) {
@@ -146,9 +165,9 @@ function eFetch (pmid) {
     $('#abs_' + pmid + '> .moreAbout').removeClass('Off');
     $('.AbsButton').addClass('Off');
     return;
-  } else if (localStorage.getItem('abs_' + pmid)) {
+  } else if (storageGet('abs_' + pmid)) {
     $('.AbsButton').addClass('Off');
-    $('#result').append('<p class="moreAbout">' + localStorage.getItem('abs_' + pmid) + '</p>');
+    $('#result').append('<p class="moreAbout">' + storageGet('abs_' + pmid) + '</p>');
     $('.moreAbout').on('click', function () { hideMore(); });
     $('.moreAbout').css('cursor', 'pointer');
     return;
@@ -156,17 +175,17 @@ function eFetch (pmid) {
   $('.loadIcon').removeClass('Off');
   let url;
   let args = {
-    apikey: localStorage.getItem('GUEST_APIKEY'),
+    apikey: storageGet('GUEST_APIKEY'),
     db: 'pubmed',
     id: pmid
   };
-  if (localStorage.getItem('rev_proxy') === 'yes') {
+  if (storageGet('rev_proxy') === 'yes') {
     url = 'https://www.thepaperlink.cn/entrezajax/efetch';
   } else {
     url = 'https://www.thepaperlink.com/entrezajax/efetch';
   }
-  if ( localStorage.getItem('tpl_ncbi_api') ) {
-    args.ncbi_api = localStorage.getItem('tpl_ncbi_api');
+  if ( storageGet('tpl_ncbi_api') ) {
+    args.ncbi_api = storageGet('tpl_ncbi_api');
   }
   $.getJSON(url, args, function (d) {
     _port && _port.postMessage({ sendID: pmid });
@@ -178,7 +197,7 @@ function eFetch (pmid) {
     if (l.MedlineCitation.Article.Abstract) {
       const abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
-      localStorage.setItem('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText); // v3
+      storageSet('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText); // v3
     } else {
       hideMore();
       return;
@@ -280,7 +299,7 @@ function eFetch (pmid) {
 
 function eSummary (term, tabId, no_term_update) {
   const webenvCheck = /[a-zA-Z]/;
-  const limit = localStorage.getItem('pubmed_limit') || '5';
+  const limit = storageGet('pubmed_limit') || '5';
   let urll = '';
   if (foundOrig === undefined) { foundOrig = $('#found').text(); }
   if (!(/^[0-9,]+$/.test('' + term)) && !no_term_update) {
@@ -293,8 +312,8 @@ function eSummary (term, tabId, no_term_update) {
     urll = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?tool=thepaperlink_chrome&db=pubmed&retmode=xml&retmax=' +
            limit + '&id=' + term;
   }
-  if ( localStorage.getItem('tpl_ncbi_api') ) {
-    urll += '&api_key=' + localStorage.getItem('tpl_ncbi_api');
+  if ( storageGet('tpl_ncbi_api') ) {
+    urll += '&api_key=' + storageGet('tpl_ncbi_api');
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   $.get(urll,
@@ -390,8 +409,8 @@ function eSS (search_term, tabId) {
   }
   if (foundOrig !== undefined) { $('#found').text(foundOrig); }
   let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?tool=thepaperlink_chrome&db=pubmed&usehistory=y&term=' + search_term;
-  if ( localStorage.getItem('tpl_ncbi_api') ) {
-    url += '&api_key=' + localStorage.getItem('tpl_ncbi_api');
+  if ( storageGet('tpl_ncbi_api') ) {
+    url += '&api_key=' + storageGet('tpl_ncbi_api');
   }
   $('#result').html('loading <img class="loadIcon" src="loadingLine.gif" alt="...">');
   if ($('#result').hasClass('Off')) {

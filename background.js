@@ -1,165 +1,139 @@
 'use strict';
 
-// Manifest V3 Service Worker - Optimized
-// Best practices for MV3 service worker implementation
+let i; let len; let aKey; let aVal;
+let ws; let ws_timer;
+let ws_addr = 'node.thepaperlink.com:8081';
+let uid = null;
+let scholar_count = 0;
+let scholar_run = 0;
+let scholar_queue = [];
+let scholar_no_more = 0;
+let scholar_page_open_limits = 3;
+let shark_limits = 3;
+let loading_theServer = false;
+let load_try = 10;
+let local_ip = '';
+const alldigi = /^\d+$/;
+const dd = document;
+let base = 'https://www.thepaperlink.com';
+let guest_apikey = null;
+let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
+let ncbi_api;
+let local_mirror; let ezproxy_prefix; let cc_address;
+let arbitrary_sec = 3;
+let pubmeder_ok = false;
+let cloud_op = '';
+let broadcast_loaded = false;
+const extension_load_date = new Date();
+const date_str = 'day_' + extension_load_date.getFullYear() +
+                 '_' + (extension_load_date.getMonth() + 1) +
+                 '_' + extension_load_date.getDate();
+let jcr_obj = {};
+
+const connectedPorts = new Map();
 
 console.log('The Paper Link service worker starting...');
 
-// =====================
-// 1. STATE MANAGEMENT
-// =====================
-let appState = {
-  apikey: null,
-  req_key: null,
-  pubmeder_apikey: null,
-  pubmeder_email: null,
-  pubmeder_ok: false,
-  cloud_op: '',
-  ws_addr: 'node.thepaperlink.com:8081',
-  uid: null,
-  local_mirror: '127.0.0.1',
-  ezproxy_prefix: '',
-  cc_address: '',
-  arbitrary_sec: 3,
-  base: 'https://www.thepaperlink.com',
-  jcr_obj: {}
-};
-
-// =====================
-// 2. PORT MANAGEMENT
-// =====================
-const connectedPorts = new Map();
-
-// =====================
-// 2.1 JCR DATA LOADING
-// =====================
-function loadJCR() {
-  console.time('>> load JCR data');
+function load_JCR () {
   fetch(chrome.runtime.getURL('jcr.csv.json'))
     .then(response => response.json())
     .then(data => {
-      appState.jcr_obj = data.above5 || {};
-      console.log('JCR data loaded:', Object.keys(appState.jcr_obj).length, 'journals');
-      console.timeEnd('>> load JCR data');
+      jcr_obj = data.above5 || {};
+      console.log('JCR data loaded:', Object.keys(jcr_obj).length, 'journals');
     })
     .catch(err => {
       console.log('Failed to load JCR data:', err);
-      console.timeEnd('>> load JCR data');
     });
 }
 
-// Load JCR data on startup
-loadJCR();
+function ez_format_link (prefix, url) {
+  if (!prefix) {
+    return url;
+  } else if (prefix.substr(0, 1) === '.') {
+    let ss = ''; const s = url.split('/');
+    for (i = 0; i < s.length; i += 1) {
+      ss += s[i];
+      if (i === 2) {
+        ss += prefix;
+      }
+      ss += '/';
+    }
+    return ss;
+  } else {
+    return (prefix + url);
+  }
+}
 
-// Sync user settings to chrome.storage.sync on startup (similar to MV2)
-syncToStorageSync();
+function get_ymd () {
+  const d = new Date();
+  return [d.getFullYear(), (d.getMonth() + 1), d.getDate()];
+}
 
-// =====================
-// 3. STATE LOADING (async)
-// =====================
+function get_yearStr () {
+  const d = new Date();
+  return '' + d.getFullYear();
+}
 
-// Sync from chrome.storage.sync to chrome.storage.local (for new device sync)
-function syncFromSyncToLocal() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['thepaperlink_apikey', 'pubmeder_apikey'], (localItems) => {
-      // Check if local has valid apikey
-      const hasLocalData = localItems && (
-        localItems.thepaperlink_apikey ||
-        localItems.pubmeder_apikey
-      );
+function get_end_num (str) {
+  if (!str) { return 0; }
+  try {
+    return parseInt(str.substr(str.lastIndexOf(',') + 1), 10);
+  } catch (err) {
+    console.log('>> get_end_num: ' + err);
+    return 0;
+  }
+}
 
-      if (hasLocalData) {
-        // Local has data, no need to sync from sync
-        resolve();
+function post_theServer (v) {
+  console.log('post_theServer called (simplified)');
+}
+
+function get_theServer_ajax () {
+  console.log('get_theServer_ajax not implemented');
+}
+
+function broadcast_Listener () {
+  console.log('broadcast_Listener not implemented');
+}
+
+function syncFromSyncToLocal(callback) {
+  chrome.storage.local.get(['thepaperlink_apikey', 'pubmeder_apikey'], function(localItems) {
+    if (localItems && (localItems.thepaperlink_apikey || localItems.pubmeder_apikey)) {
+      if (callback) callback();
+      return;
+    }
+    chrome.storage.sync.get(null, function(syncItems) {
+      if (!syncItems || Object.keys(syncItems).length === 0) {
+        console.log('No data in storage.sync');
+        if (callback) callback();
         return;
       }
-
-      // Local is empty, try to sync from sync
-      chrome.storage.sync.get(null, (syncItems) => {
-        if (!syncItems || Object.keys(syncItems).length === 0) {
-          console.log('No data in storage.sync either');
-          resolve();
-          return;
-        }
-
-        console.log('Syncing from storage.sync to local:', Object.keys(syncItems).length, 'items');
-
-        // Filter valid values - chrome.storage supports objects natively
-        const validItems = {};
-        for (let key in syncItems) {
-          const val = syncItems[key];
-          if (val === null || val === undefined) continue;
-          // Skip string values that are invalid
-          if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
-          // Keep objects, strings, numbers, booleans
-          validItems[key] = val;
-        }
-
-        if (Object.keys(validItems).length > 0) {
-          chrome.storage.local.set(validItems, () => {
-            console.log('Synced from sync to local:', Object.keys(validItems).length, 'items');
-            resolve();
-          });
-        } else {
-          resolve();
-        }
-      });
+      console.log('Syncing from storage.sync to local:', Object.keys(syncItems).length, 'items');
+      const validItems = {};
+      for (let key in syncItems) {
+        const val = syncItems[key];
+        if (val === null || val === undefined) continue;
+        if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
+        validItems[key] = val;
+      }
+      if (Object.keys(validItems).length > 0) {
+        chrome.storage.local.set(validItems, function() {
+          console.log('Synced from sync to local:', Object.keys(validItems).length, 'items');
+          if (callback) callback();
+        });
+      } else {
+        if (callback) callback();
+      }
     });
   });
 }
 
-function loadState() {
-  return new Promise((resolve) => {
-    // First sync from sync to local if needed
-    syncFromSyncToLocal().then(() => {
-      chrome.storage.local.get(null, (items) => {
-        if (!items) {
-          resolve();
-          return;
-        }
-
-        // Load all state values
-        appState.apikey = items.thepaperlink_apikey || items.tpl_apikey || null;
-      appState.pubmeder_apikey = items.pubmeder_apikey || null;
-      appState.pubmeder_email = items.pubmeder_email || null;
-      appState.ws_addr = items.websocket_server || 'node.thepaperlink.com:8081';
-      appState.uid = items.ip_time_uid || null;
-      appState.local_mirror = items.local_mirror || '127.0.0.1';
-      appState.ezproxy_prefix = items.ezproxy_prefix || '';
-      appState.cc_address = items.cc_address || '';
-      appState.arbitrary_sec = parseInt(items.arbitrary_sec) || 3;
-      appState.base = (items.rev_proxy === 'yes') ? 'https://www.thepaperlink.cn' : 'https://www.thepaperlink.com';
-
-      // Derived state
-      appState.pubmeder_ok = !!(appState.pubmeder_apikey && appState.pubmeder_email);
-      appState.req_key = appState.apikey;
-
-      // Build cloud_op
-      appState.cloud_op = '';
-      if (items.mendeley_status === 'success') appState.cloud_op += 'm';
-      if (items.facebook_status === 'success') appState.cloud_op += 'f';
-      if (items.dropbox_status === 'success') appState.cloud_op += 'd';
-      if (items.douban_status === 'success') appState.cloud_op += 'b';
-      if (items.googledrive_status === 'success') appState.cloud_op += 'g';
-      if (items.onedrive_status === 'success') appState.cloud_op += 'o';
-      if (items.baiduyun_status === 'success') appState.cloud_op += 'y';
-
-      console.log('State loaded:', appState);
-      resolve();
-      });
-    });
-  });
-}
-
-// Sync user settings to chrome.storage.sync (similar to MV2)
-// This syncs settings across user's Chrome installations
 function syncToStorageSync() {
-  chrome.storage.local.get(null, (items) => {
+  chrome.storage.local.get(null, function(items) {
     if (!items) return;
-
     let syncValues = {};
     for (let key in items) {
-      // Skip certain keys that shouldn't be synced
+      // Skip these keys from sync
       if (key.indexOf('tabId:') === 0 ||
           key.indexOf('diff_') === 0 ||
           key.indexOf('day_') === 0 ||
@@ -170,445 +144,400 @@ function syncToStorageSync() {
           key.indexOf('tpl') === 0 ||
           key.indexOf('pmid_') === 0 ||
           key.indexOf('id_found') === 0 ||
-          key.indexOf('id_history') === 0) {
+          key.indexOf('id_history') === 0 ||
+          key.indexOf('downloadId_') === 0) {
         continue;
       }
-
-      // Convert to string
       if (typeof items[key] === 'string') {
         syncValues[key] = items[key];
       } else {
         syncValues[key] = String(items[key]);
       }
     }
-
     if (Object.keys(syncValues).length > 0) {
       console.log('Syncing to storage.sync:', Object.keys(syncValues).length, 'items');
-      chrome.storage.sync.set(syncValues, () => {
-        console.log('Synced to storage.sync');
+      chrome.storage.sync.set(syncValues, function() {
+        if (chrome.runtime.lastError) {
+          console.log('Sync quota exceeded:', chrome.runtime.lastError.message);
+        } else {
+          console.log('Synced to storage.sync');
+        }
       });
     }
   });
 }
 
-// =====================
-// 4. PORT CONNECTION HANDLER
-// =====================
-chrome.runtime.onConnect.addListener((port) => {
-  // Validate port name
+// Clean up downloadId_ keys from chrome.storage.sync
+function cleanupDownloadIdFromSync() {
+  chrome.storage.sync.get(null, function(items) {
+    if (!items) return;
+    var keysToRemove = [];
+    for (var key in items) {
+      if (key.indexOf('downloadId_') === 0) {
+        keysToRemove.push(key);
+      }
+    }
+    if (keysToRemove.length > 0) {
+      console.log('Removing downloadId_ keys from sync:', keysToRemove.length);
+      chrome.storage.sync.remove(keysToRemove, function() {
+        console.log('Removed downloadId_ keys from sync');
+      });
+    }
+  });
+}
+
+function loadState(callback) {
+  syncFromSyncToLocal(function() {
+    chrome.storage.local.get(null, function(items) {
+      if (!items) {
+        if (callback) callback();
+        return;
+      }
+      apikey = items.thepaperlink_apikey || items.tpl_apikey || null;
+      req_key = apikey;
+      pubmeder_apikey = items.pubmeder_apikey || null;
+      pubmeder_email = items.pubmeder_email || null;
+      ws_addr = items.websocket_server || 'node.thepaperlink.com:8081';
+      uid = items.ip_time_uid || null;
+      local_mirror = items.local_mirror || '127.0.0.1';
+      ezproxy_prefix = items.ezproxy_prefix || '';
+      cc_address = items.cc_address || '';
+      arbitrary_sec = parseInt(items.arbitrary_sec) || 3;
+      base = (items.rev_proxy === 'yes') ? 'https://www.thepaperlink.cn' : 'https://www.thepaperlink.com';
+      pubmeder_ok = !!(pubmeder_apikey && pubmeder_email);
+      cloud_op = '';
+      if (items.mendeley_status === 'success') cloud_op += 'm';
+      if (items.facebook_status === 'success') cloud_op += 'f';
+      if (items.dropbox_status === 'success') cloud_op += 'd';
+      if (items.douban_status === 'success') cloud_op += 'b';
+      if (items.googledrive_status === 'success') cloud_op += 'g';
+      if (items.onedrive_status === 'success') cloud_op += 'o';
+      if (items.baiduyun_status === 'success') cloud_op += 'y';
+      console.log('State loaded:', { apikey: !!apikey, pubmeder_ok: pubmeder_ok, cloud_op: cloud_op });
+      if (callback) callback();
+    });
+  });
+}
+
+chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== 'background_port') {
     return;
   }
-
-  console.log('Port connected:', port.sender?.url || port.sender?.tab?.id);
-
-  // Generate unique port ID
-  const portId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  console.log('Port connected:', port.sender ? port.sender.url : port.sender);
+  const portId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   connectedPorts.set(portId, port);
-
-  // Handle messages from this port
-  const messageListener = (message) => {
+  port.onMessage.addListener(function(message) {
     handlePortMessage(port, message);
-  };
-  port.onMessage.addListener(messageListener);
-
-  // Handle disconnect
-  const disconnectListener = () => {
+  });
+  port.onDisconnect.addListener(function() {
     console.log('Port disconnected:', portId);
-    port.onMessage.removeListener(messageListener);
-    port.onDisconnect.removeListener(disconnectListener);
     connectedPorts.delete(portId);
-  };
-  port.onDisconnect.addListener(disconnectListener);
+  });
 });
 
-// =====================
-// 5. MESSAGE HANDLER
-// =====================
 function handlePortMessage(port, message) {
   console.log('Port message:', message);
-
-  // Handle load_local_mirror
   if (message.load_local_mirror) {
     port.postMessage({
-      local_mirror: appState.local_mirror,
-      arbitrary_pause: appState.arbitrary_sec * 1000
+      local_mirror: local_mirror,
+      arbitrary_pause: arbitrary_sec * 1000
     });
     return;
   }
-
-  // Handle URL request (API call)
   if (message.url) {
     handleApiRequest(port, message.url);
     return;
   }
-
-  // Handle save_apikey
   if (message.save_apikey) {
     handleSaveApikey(port, message.save_apikey, message.save_email);
     return;
   }
-
-  // Handle load_common_values
   if (message.load_common_values) {
-    loadState().then(() => {
+    loadState(function() {
       port.postMessage({ loaded: true });
     });
     return;
   }
-
-  // Handle menu_display
   if (message.menu_display) {
     createContextMenus();
     port.postMessage({ menu_created: true });
     return;
   }
-
-  // Handle sendID
   if (message.sendID) {
     handleSendID(port, message.sendID);
     return;
   }
-
-  // Handle fetch_JCR (2024-4-2)
   if (message.fetch_JCR) {
-    if (message.fetch_JCR && appState.jcr_obj[message.fetch_JCR]) {
+    if (message.fetch_JCR && jcr_obj[message.fetch_JCR]) {
       port.postMessage({
-        class_JCR: [message.fetch_JCR, appState.jcr_obj[message.fetch_JCR]]
+        class_JCR: [message.fetch_JCR, jcr_obj[message.fetch_JCR]]
       });
     }
     return;
   }
-
-  // Handle t_cont (clipboard) - forward to content script for MV3
   if (message.t_cont) {
     port.postMessage({ t_cont: message.t_cont, received: true });
     return;
   }
-
-  // Handle saveIt
   if (message.saveIt) {
     handleSaveIt(port, message.saveIt);
     return;
   }
-
-  // Handle a_pmid and a_title (Google Scholar) - simplified, no response needed
   if (message.a_pmid && message.a_title) {
     return;
   }
-
-  // Handle reset_gs_counts - simplified, no response needed
   if (message.reset_gs_counts) {
     return;
   }
-
-  // Handle pageAbs - save to storage, no response needed
   if (message.pageAbs) {
-    chrome.storage.local.set({ ['abs_' + message.pmid]: message.pageAbs });
+    var absKey = 'abs_' + message.pmid;
+    var absObj = {};
+    absObj[absKey] = message.pageAbs;
+    chrome.storage.local.set(absObj);
     return;
   }
-
-  // Handle search_term - simplified, no response needed
   if (message.search_term) {
     return;
   }
-
-  // Handle failed_term - simplified, no response needed
   if (message.failed_term) {
     return;
   }
-
-  // Handle pmid with pii or doi - simplified, no response needed
   if (message.pmid && (message.pii_link || message.doi_link)) {
     return;
   }
-
-  // Handle money_* messages - simplified, no response needed
   if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
     return;
   }
-
-  // Handle other messages - no response needed
 }
 
-// API Request Handler
 function handleApiRequest(port, url) {
-  const request_url = appState.base + url +
-    (appState.req_key || '') +
-    '&runtime=' + chrome.runtime.id;
-
-  if (appState.uid) {
-    request_url += '&uid=' + appState.uid;
+  const request_url = base + url + (req_key || '') + '&runtime=' + chrome.runtime.id;
+  if (uid) {
+    request_url += '&uid=' + uid;
   }
-
-  if (!appState.apikey) {
+  if (!apikey) {
     port.postMessage({ except: 'Guest usage limited.', tpl: '' });
     return;
   }
-
   fetch(request_url)
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
       port.postMessage({
         r: data,
-        tpl: appState.apikey,
-        pubmeder: appState.pubmeder_ok,
-        cloud_op: appState.cloud_op,
-        uri: appState.base,
-        p: appState.ezproxy_prefix,
+        tpl: apikey,
+        pubmeder: pubmeder_ok,
+        cloud_op: cloud_op,
+        uri: base,
+        p: ezproxy_prefix,
         year: new Date().getFullYear().toString()
       });
     })
-    .catch(error => {
+    .catch(function(error) {
       console.error('API request failed:', error);
-      port.postMessage({ except: 'Network error.', tpl: appState.apikey });
+      port.postMessage({ except: 'Network error.', tpl: apikey });
     });
 }
 
-// Save API Key Handler
-function handleSaveApikey(port, apikey, email) {
-  const storageUpdate = {};
-
+function handleSaveApikey(port, apikeyVal, email) {
+  var storageUpdate = {};
   if (email) {
-    appState.pubmeder_apikey = apikey;
-    appState.pubmeder_email = email;
-    appState.pubmeder_ok = true;
-    storageUpdate.pubmeder_apikey = apikey;
+    pubmeder_apikey = apikeyVal;
+    pubmeder_email = email;
+    pubmeder_ok = true;
+    storageUpdate.pubmeder_apikey = apikeyVal;
     storageUpdate.pubmeder_email = email;
     storageUpdate.b_apikey_gold = 'yes';
   } else {
-    appState.apikey = apikey;
-    appState.req_key = apikey;
-    storageUpdate.thepaperlink_apikey = apikey;
+    apikey = apikeyVal;
+    req_key = apikeyVal;
+    storageUpdate.thepaperlink_apikey = apikeyVal;
     storageUpdate.a_apikey_gold = 'yes';
   }
-
-  chrome.storage.local.set(storageUpdate, () => {
+  chrome.storage.local.set(storageUpdate, function() {
     port.postMessage({ success: true });
   });
 }
 
-// SendID Handler
 function handleSendID(port, sendID) {
-  chrome.storage.local.get('id_found', (items) => {
-    const id_found = items.id_found || '';
+  chrome.storage.local.get('id_found', function(items) {
+    var id_found = items.id_found || '';
     if (id_found.indexOf(sendID) === -1) {
-      const newFound = id_found + ' ' + sendID;
+      var newFound = id_found + ' ' + sendID;
       chrome.storage.local.set({ id_found: newFound });
     }
     port.postMessage({ received: true });
   });
 }
 
-// SaveIt Handler
 function handleSaveIt(port, pmid) {
-  // Simplified implementation - full implementation would save to server
   port.postMessage({ received: true });
 }
 
-// =====================
-// 6. ONE-TIME MESSAGE HANDLER
-// =====================
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Prevent error logging for internal messages
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message.internal) {
     sendResponse({ received: true });
     return;
   }
-
   console.log('One-time message:', message);
-
-  // Handle load_local_mirror
   if (message.load_local_mirror) {
     sendResponse({
-      local_mirror: appState.local_mirror,
-      arbitrary_pause: appState.arbitrary_sec * 1000
+      local_mirror: local_mirror,
+      arbitrary_pause: arbitrary_sec * 1000
     });
     return;
   }
-
-  // Handle get state
   if (message.get_state || message.getState) {
-    sendResponse(appState);
+    sendResponse({
+      apikey: apikey,
+      req_key: req_key,
+      pubmeder_apikey: pubmeder_apikey,
+      pubmeder_email: pubmeder_email,
+      pubmeder_ok: pubmeder_ok,
+      cloud_op: cloud_op,
+      ws_addr: ws_addr,
+      uid: uid,
+      local_mirror: local_mirror,
+      ezproxy_prefix: ezproxy_prefix,
+      cc_address: cc_address,
+      arbitrary_sec: arbitrary_sec,
+      base: base,
+      jcr_obj: jcr_obj
+    });
     return;
   }
-
-  // Handle load_common_values
   if (message.load_common_values) {
-    loadState().then(() => sendResponse({ loaded: true }));
-    return true; // async
+    loadState(function() {
+      sendResponse({ loaded: true });
+    });
+    return true;
   }
-
-  // Handle menu_display
   if (message.menu_display) {
     createContextMenus();
     sendResponse({ menu_created: true });
     return;
   }
-
-  // Handle save_apikey
   if (message.save_apikey) {
-    handleSaveApikeyMessage(message.save_apikey, message.save_email)
-      .then(() => sendResponse({ success: true }));
-    return true;
-  }
-
-  // Handle ncbi_api
-  if (message.ncbi_api) {
-    chrome.storage.local.set({ 'tpl_ncbi_api': message.ncbi_api }, () => {
+    var storageUpdate = {};
+    if (message.save_email) {
+      pubmeder_apikey = message.save_apikey;
+      pubmeder_email = message.save_email;
+      pubmeder_ok = true;
+      storageUpdate.pubmeder_apikey = message.save_apikey;
+      storageUpdate.pubmeder_email = message.save_email;
+      storageUpdate.b_apikey_gold = 'yes';
+    } else {
+      apikey = message.save_apikey;
+      req_key = message.save_apikey;
+      storageUpdate.thepaperlink_apikey = message.save_apikey;
+      storageUpdate.a_apikey_gold = 'yes';
+    }
+    chrome.storage.local.set(storageUpdate, function() {
       sendResponse({ success: true });
     });
     return;
   }
-
-  // Handle fetch_JCR (2024-4-2)
+  if (message.ncbi_api) {
+    var ncbiObj = {};
+    ncbiObj['tpl_ncbi_api'] = message.ncbi_api;
+    chrome.storage.local.set(ncbiObj, function() {
+      sendResponse({ success: true });
+    });
+    return;
+  }
   if (message.fetch_JCR) {
-    if (message.fetch_JCR && appState.jcr_obj[message.fetch_JCR]) {
+    if (message.fetch_JCR && jcr_obj[message.fetch_JCR]) {
       sendResponse({
-        class_JCR: [message.fetch_JCR, appState.jcr_obj[message.fetch_JCR]]
+        class_JCR: [message.fetch_JCR, jcr_obj[message.fetch_JCR]]
       });
     }
     return;
   }
-
-  // Handle URL request
   if (message.url) {
-    handleApiRequestMessage(message.url)
-      .then(response => sendResponse(response))
-      .catch(error => sendResponse({ except: error.message }));
-    return true; // async
+    var requestUrl = base + message.url + (req_key || '') + '&runtime=' + chrome.runtime.id;
+    if (!apikey) {
+      sendResponse({ except: 'Guest usage limited.', tpl: '' });
+      return;
+    }
+    fetch(requestUrl)
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        sendResponse({
+          r: data,
+          tpl: apikey,
+          pubmeder: pubmeder_ok,
+          cloud_op: cloud_op,
+          uri: base,
+          p: ezproxy_prefix,
+          year: new Date().getFullYear().toString()
+        });
+      })
+      .catch(function(error) {
+        sendResponse({ except: 'Network error.', tpl: apikey });
+      });
+    return true;
   }
-
-  // Handle a_pmid and a_title (Google Scholar) - simplified
   if (message.a_pmid && message.a_title) {
     return;
   }
-
-  // Handle reset_gs_counts - simplified
   if (message.reset_gs_counts) {
     return;
   }
-
-  // Handle pageAbs - simplified
   if (message.pageAbs) {
-    chrome.storage.local.set({ ['abs_' + message.pmid]: message.pageAbs });
+    var absKey2 = 'abs_' + message.pmid;
+    var absObj2 = {};
+    absObj2[absKey2] = message.pageAbs;
+    chrome.storage.local.set(absObj2);
     return;
   }
-
-  // Handle search_term - simplified
   if (message.search_term) {
     return;
   }
-
-  // Handle failed_term - simplified
   if (message.failed_term) {
     return;
   }
-
-  // Handle pmid with pii or doi - simplified
   if (message.pmid && (message.pii_link || message.doi_link)) {
     return;
   }
-
-  // Handle money_* messages - simplified
   if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
     return;
   }
-
-  // Handle from_f1000 - simplified
   if (message.from_f1000) {
     return;
   }
-
-  // Handle from_sites_w_pmid - simplified
   if (message.from_sites_w_pmid) {
     return;
   }
-
-  // Handle from_sites_w_doi - simplified
   if (message.from_sites_w_doi) {
+    return;
+  }
+  if (message.do_syncValues) {
+    syncToStorageSync();
     return;
   }
 });
 
-async function handleSaveApikeyMessage(apikey, email) {
-  const storageUpdate = {};
-
-  if (email) {
-    appState.pubmeder_apikey = apikey;
-    appState.pubmeder_email = email;
-    appState.pubmeder_ok = true;
-    storageUpdate.pubmeder_apikey = apikey;
-    storageUpdate.pubmeder_email = email;
-    storageUpdate.b_apikey_gold = 'yes';
-  } else {
-    appState.apikey = apikey;
-    appState.req_key = apikey;
-    storageUpdate.thepaperlink_apikey = apikey;
-    storageUpdate.a_apikey_gold = 'yes';
-  }
-
-  return new Promise((resolve) => {
-    chrome.storage.local.set(storageUpdate, resolve);
-  });
-}
-
-async function handleApiRequestMessage(url) {
-  const request_url = appState.base + url +
-    (appState.req_key || '') +
-    '&runtime=' + chrome.runtime.id;
-
-  if (!appState.apikey) {
-    return { except: 'Guest usage limited.', tpl: '' };
-  }
-
-  try {
-    const response = await fetch(request_url);
-    const data = await response.json();
-    return {
-      r: data,
-      tpl: appState.apikey,
-      pubmeder: appState.pubmeder_ok,
-      cloud_op: appState.cloud_op,
-      uri: appState.base,
-      p: appState.ezproxy_prefix,
-      year: new Date().getFullYear().toString()
-    };
-  } catch (error) {
-    return { except: 'Network error.', tpl: appState.apikey };
-  }
-}
-
-// =====================
-// 7. CONTEXT MENUS
-// =====================
 function createContextMenus() {
-  chrome.contextMenus.removeAll(() => {
-    // Create menu items
+  chrome.contextMenus.removeAll(function() {
     chrome.contextMenus.create({
       id: 'search_tpl',
       title: "Search the paper link for '%s'",
       contexts: ['selection']
     });
-
     chrome.contextMenus.create({
       id: 'bookmark_tool',
       title: 'Bookmark tool',
       contexts: ['page']
     });
-
     chrome.contextMenus.create({
       id: 'stored_search',
       title: 'Stored search',
       contexts: ['page']
     });
-
     chrome.contextMenus.create({
       id: 'options',
       title: 'Extension Options',
       contexts: ['page']
     });
-
     chrome.contextMenus.create({
       id: 'authorize',
       title: 'Authorize connections',
@@ -617,14 +546,13 @@ function createContextMenus() {
   });
 }
 
-// Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
   switch (info.menuItemId) {
     case 'search_tpl':
-      chrome.tabs.create({ url: appState.base + '/?q=' + info.selectionText });
+      chrome.tabs.create({ url: base + '/?q=' + info.selectionText });
       break;
     case 'bookmark_tool':
-      chrome.tabs.create({ url: appState.base + '/js/' });
+      chrome.tabs.create({ url: base + '/js/' });
       break;
     case 'stored_search':
       chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
@@ -633,60 +561,50 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       chrome.tabs.create({ url: chrome.runtime.getURL('options.html') });
       break;
     case 'authorize':
-      chrome.tabs.create({ url: appState.base + '/oauth' });
+      chrome.tabs.create({ url: base + '/oauth' });
       break;
   }
 });
 
-// =====================
-// 8. LIFECYCLE MANAGEMENT
-// =====================
-
-// Initialize on install
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(function() {
   console.log('Extension installed');
-  loadState().then(() => {
+  loadState(function() {
     createContextMenus();
   });
 });
 
-// Initialize on startup
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(function() {
   console.log('Extension startup');
   loadState();
 });
 
-// Keep-alive using alarms (recommended by Google)
-// Service worker can be terminated after ~30 seconds of inactivity
-chrome.alarms.create('keepAlive', { periodInMinutes: 0.5 }); // Every 30 seconds
+chrome.alarms.create('keepAlive', { periodInMinutes: 0.5 });
 
-chrome.alarms.onAlarm.addListener((alarm) => {
+chrome.alarms.onAlarm.addListener(function(alarm) {
   if (alarm.name === 'keepAlive') {
-    // Log for debugging (lightweight operation)
     console.log('Service worker alive, ports:', connectedPorts.size);
   }
 });
 
-// Also handle idle state to restart service worker
-chrome.idle.setDetectionInterval(60); // Check every minute
+chrome.idle.setDetectionInterval(60);
 
-chrome.idle.onStateChanged.addListener((state) => {
+chrome.idle.onStateChanged.addListener(function(state) {
   if (state === 'active') {
-    // Browser became active, ensure we're initialized
-    if (!appState.apikey) {
+    if (!apikey) {
       loadState();
     }
   }
 });
 
-// =====================
-// 9. STORAGE CHANGE LISTENER
-// =====================
-chrome.storage.onChanged.addListener((changes, areaName) => {
-  // Reload state when storage changes
+chrome.storage.onChanged.addListener(function(changes, areaName) {
   if (areaName === 'local') {
     loadState();
   }
 });
+
+load_JCR();
+cleanupDownloadIdFromSync();
+syncToStorageSync();
+loadState();
 
 console.log('Service worker initialized');

@@ -36,26 +36,24 @@ function connectToBackground() {
 // Initial connection
 connectToBackground();
 
+function hasThreeCommas(str) {
+  return str.split(',').length === 4;
+}
+
 // MV3: Sync from chrome.storage.sync to chrome.storage.local
 // Note: chrome.storage supports objects natively (JSON serialization)
 function syncStorageFromChrome() {
-  // First get all data from chrome.storage.sync
   chrome.storage.sync.get(null, function(syncItems) {
     if (!syncItems) {
       console.log('No items in storage.sync');
       return;
     }
     console.log('Syncing from storage.sync:', Object.keys(syncItems).length, 'items');
-
-    // Filter out invalid values and set to chrome.storage.local
     const localItems = {};
     for (let key in syncItems) {
       const val = syncItems[key];
-      // Skip null and undefined
       if (val === null || val === undefined) continue;
-      // Skip string values that are invalid
       if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
-      // Keep objects, strings, numbers, booleans - chrome.storage supports all these
       localItems[key] = val;
     }
 
@@ -68,9 +66,136 @@ function syncStorageFromChrome() {
     }
   });
 }
+syncStorageFromChrome();  // Call sync on load
 
-// Call sync on load
-syncStorageFromChrome();
+// MV3: Sync from localStorage (MV2) to chrome.storage.local and chrome.storage.sync
+// Called on page load and on save button click
+function syncFromLocalStorage() {
+  // Check if localStorage has data
+  if (!localStorage.length) {
+    console.log('No localStorage data to sync');
+    return;
+  }
+
+  var localItems = {};
+  chrome.storage.local.get(null, function(chrItems) {
+
+  var syncItems = {};
+  var pmidKeys = []; // Collect pmid_ keys for limiting to 64
+  var keywordKeys = []; // Collect keyword-related keys for limiting to 200
+
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    var val = localStorage.getItem(key);
+    if (!key || val === null) continue;
+    if (key.indexOf('undefined') > -1) continue;
+    if (val === 'undefined' || val === '[object Object]') continue;
+
+    // Save all valid items to chrome.storage.local (higher quota ~5MB)
+    localItems[key] = val;
+
+    // Collect pmid_ keys for limiting to 64 in storage.sync
+    if (key.indexOf('pmid_') === 0) {
+      pmidKeys.push(key);
+    }
+
+    // Skip these keys from sync to storage.sync
+    // These will only be stored in chrome.storage.local (higher quota)
+    if (key.indexOf('tabId:') === 0 ||
+        key.indexOf('downloadId_') === 0 ||
+        key.indexOf('diff_') === 0 ||
+        key.indexOf('day_') === 0 ||
+        key.indexOf('email_') === 0 ||
+        key.indexOf('shark_') === 0 ||
+        key.indexOf('scholar_') === 0 ||
+        key.indexOf('abs_') === 0 ||
+        key.indexOf('id_found') === 0 ||
+        key.indexOf('id_history') === 0) {
+      continue;
+    }
+
+    // For pmid_ keys: only keep latest 64 in storage.sync
+    if (key.indexOf('pmid_') === 0) {
+      if (pmidKeys.length <= 64) {  // 2026-2-14
+        syncItems[key] = val;
+      }
+      continue;
+    }
+
+    // Collect keyword-related keys for limiting to 200 in storage.sync
+    if (hasThreeCommas(val) && val.indexOf('201') === 0 || val.indexOf('202') === 0) {
+      keywordKeys.push(key);
+      if (keywordKeys.length <= 200) {  // 2026-2-14
+        syncItems[key] = val;
+      }
+      continue;
+    }
+
+    syncItems[key] = val;
+  }
+
+  if (pmidKeys.length > 64) {
+    pmidKeys.reverse();
+    var pmidToRemove = pmidKeys.slice(64);
+    for (var j = 0; j < pmidToRemove.length; j++) {
+      delete localItems[pmidToRemove[j]];
+      console.log('Removing old pmid_ key from local:', pmidToRemove[j]);
+    }
+  }
+
+  if (keywordKeys.length > 200) {
+    keywordKeys.reverse();
+    var keywordToRemove = keywordKeys.slice(200);
+    for (var k = 0; k < keywordToRemove.length; k++) {
+      delete localItems[keywordToRemove[k]];
+      console.log('Removing old keyword key from local:', keywordToRemove[k]);
+    }
+  }
+
+  if (Object.keys(chrItems).length > 0) {
+    console.log('Merge storage.local to localStorage'); // 2026-2-14
+    const chrKeys = Object.keys(chrItems);
+    let i; let len; let chrKey; let chrVal;
+    for (i = 0, len = chrKeys.length; i < len; i += 1) {
+      chrKey = chrKeys[i];
+      chrVal = chrItems[chrKey];
+      if (!localStorage.getItem(chrKey) && typeof chrVal === 'string') {
+        localStorage.setItem(chrKey, chrVal);
+      } else if (localStorage.getItem(chrKey) && localStorage.getItem(chrKey) != chrVal) {
+        console.log(chrKey, chrVal, '-->', localStorage.getItem(chrKey));
+      }// else {
+      //  console.log('Not merged', chrKey, typeof chrVal);
+      //}
+    }
+  }
+
+  if (Object.keys(localItems).length === 0) {
+    console.log('No valid localStorage data to sync');
+    return;
+  }
+
+  console.log('Syncing from localStorage:', Object.keys(localItems).length, 'items to local,', Object.keys(syncItems).length, 'items to sync');
+  chrome.storage.local.set(localItems, function() {
+    console.log('Saved to storage.local:', Object.keys(localItems).length, 'items');
+  });
+
+  // Save to chrome.storage.sync with limits: 64 pmid_, 200 keywords, rest under 512 items/100KB
+  if (Object.keys(syncItems).length > 0) {
+    chrome.storage.sync.set(syncItems, function() {
+      if (chrome.runtime.lastError) {
+        console.log('Sync quota exceeded:', chrome.runtime.lastError.message);
+      } else {
+        console.log('Saved to storage.sync:', Object.keys(syncItems).length, 'items');
+      }
+    });
+  }
+}); }
+
+// Try to sync from localStorage on page load
+// Use setTimeout to ensure DOM is ready
+setTimeout(function() {
+  syncFromLocalStorage();
+}, 500);
 
 const email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 
@@ -128,7 +253,7 @@ function reset_key (v) {
 }
 
 function valid_thepaperlink (ak) {
-  _bkg.console.time('Call theServer to validate apikey');
+  console.time('Call theServer to validate apikey');
   return $.get('https://www.thepaperlink.com/api',
     {
       validate: ak,
@@ -142,12 +267,12 @@ function valid_thepaperlink (ak) {
       }
     }, 'json'
   ).always(function () {
-    _bkg.console.timeEnd('Call theServer to validate apikey');
+    console.timeEnd('Call theServer to validate apikey');
   });
 }
 
 function valid_pubmeder (e, ak) {
-  _bkg.console.time('Call theServer to validate pubmeder');
+  console.time('Call theServer to validate pubmeder');
   return $.get('https://pubmeder-hrd.appspot.com/input?pmid=999999999&apikey=' + ak + '&email=' + e,
     function (txt) {
       if (txt === 'correct') {
@@ -157,7 +282,7 @@ function valid_pubmeder (e, ak) {
       }
     }, 'text'
   ).always(function () {
-    _bkg.console.timeEnd('Call theServer to validate pubmeder');
+    console.timeEnd('Call theServer to validate pubmeder');
   });
 }
 
@@ -248,7 +373,7 @@ function saveOptions () {
         localStorage.setItem('shark_limit', a);
       }
     } catch (err) {
-      _bkg.console.log(err);
+      console.log(err);
     }
   }
   if (pubmed_limit) {
@@ -260,7 +385,7 @@ function saveOptions () {
         localStorage.setItem('pubmed_limit', 10); // 2020-4-2
       }
     } catch (err) {
-      _bkg.console.log(err);
+      console.log(err);
     }
   }
   if (arbitrary_sec) {
@@ -272,7 +397,7 @@ function saveOptions () {
         localStorage.setItem('arbitrary_sec', 3); // 2022-5-19
       }
     } catch (err) {
-      _bkg.console.log(err);
+      console.log(err);
     }
   }
   if (ezproxy_prefix && (ezproxy_prefix.substr(0, 7) === 'http://' || ezproxy_prefix.substr(0, 8) === 'https://')) {
@@ -368,7 +493,11 @@ $(document).ready(function () {
   $('#history_html').text('logs');
   $('#history_html').attr('href', chrome.runtime.getURL('history.html'));
 
-  $('#saveBtn').on('click', function () { saveOptions(); });
+  $('#saveBtn').on('click', function () {
+    saveOptions();
+    // MV3: Sync localStorage changes to chrome.storage
+    syncFromLocalStorage();
+  });
   $('#save_it_tab').on('click', function () { $('#option_tabs').tabs('select', 1); });
   $('#alert_tab').on('click', function () { $('#option_tabs').tabs('select', 3); });
   $('#ezproxy_input').focus(function () {
@@ -599,34 +728,36 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    let terms = localStorage.getItem('past_search_terms').split('||');
+    const terms_string = '';
     let tmp = $('#keywords_list');
-    let t = 0; let i; let a; let b; let c = [];
-    terms.pop();
-    for (i = terms.length - 1; i > -1; i -= 1) { // list most recent on top
-      b = localStorage.getItem(terms[i]);
-      if (b) {
-        a = terms[i].toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
-        if (a !== terms[i]) { // prettify history
-          localStorage.setItem(a, b);
-          localStorage.removeItem(terms[i]);
+    let t = 0; let i; let a; let c = [];
+    for (i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      var val = localStorage.getItem(key);
+      if (hasThreeCommas(val) && val.indexOf('201') === 0 || val.indexOf('202') === 0) {
+        a = key.toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
+        if (a !== key) { // prettify history
+          localStorage.setItem(a, val);
+          localStorage.removeItem(key);
         }
-        if (c[a] && get_end_num(c[a]) >= get_end_num(b)) {
-          localStorage.removeItem(terms[i]);
+        if (c[a] && get_end_num(c[a]) >= get_end_num(val)) {
+          localStorage.removeItem(key);
         } else if (c[a]) { // get_end_num  c[a] < b
-          _bkg.console.log('count should only increase "' + a + '"');
+          console.log('count should only increase "' + a + '"');
         } else {
-          c.push({ key: a, value: b });
+          terms_string += '||' + a;
+          c.push({ key: a, value: val });
           tmp.append(
             '<li class="keywords_li"><input class="keywords" type="checkbox" id="' +
               a.replace(/"/g, ',,') + '" /> <span style="width:200px">' + a +
-              '</span> <a href="#">' + get_end_num(b) + '</a></li>'
+              '</span> <a href="#">' + get_end_num(val) + '</a></li>'
           );
           t += 1;
         }
       }
     }
     if (t > 0) {
+      localStorage.setItem('past_search_terms', terms_string); // 2026-2-14
       let span_max = 200;
       $('.keywords_li span').each(function () {
         if ($(this).width() > span_max) {

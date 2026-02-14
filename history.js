@@ -184,11 +184,11 @@ function load_ALL_localStorage () {
       });
       $('#load_ALL').on('click', null
                    ).text('storage.sync from local, done!'
-                   ).css('border', '5px solid green');
+                   ).css('background-color', 'green');
     } else {
       $('#load_ALL').on('click', null
                    ).text('nothing to sync.'
-                   ).css('border', '5px solid red');
+                   ).css('background-color', 'yellow');
     }
   });
 }
