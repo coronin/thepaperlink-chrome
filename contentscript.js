@@ -48,15 +48,6 @@ if (typeof uneval === 'undefined') {
 
 try {
   _port = chrome.runtime.connect({ name: 'background_port' });
-  _port.onDisconnect.addListener(() => {
-    _port = null;
-    // Try to reconnect after a delay
-    setTimeout(() => {
-      try {
-        _port = chrome.runtime.connect({ name: 'background_port' });
-      } catch(e) {}
-    }, 1000);
-  });
 } catch (err) {
   console.log('>> ' + err);
 }
@@ -366,7 +357,7 @@ function process_storkapp () { // 2018 Dec
 
 function process_f1000 () { // 2022 March
   let i; let len; let pmid = ''; let doi = '';
-  const fid = parseInt(page_url.split('.com/article/')[1], 10);
+  const fid = parseInt(page_url.split('.co/article/')[1], 10);  // f1000.com/ --> h1.co/
   // for (i = 0; i < byTag('meta').length; i += 1) {  // not working 2022-3-20
   //   if (byTag('meta')[i].getAttribute('name') === 'citation_pmid') {
   //     pmid = byTag('meta')[i].getAttribute('content');
@@ -395,16 +386,16 @@ function process_f1000 () { // 2022 March
       }
       const badge_score_div = byTag('aside')[0].getElementsByTagName('h2')[0]; // 2022-5-29
       let f_v = '';
-      if (badge_score_div.getElementsByTagName('span')[0].textContent === 'recommended') {
+      if (badge_score_div && badge_score_div.getElementsByTagName('span')[0].textContent === 'recommended') {
         f_v = trim(badge_score_div.getElementsByTagName('div')[0].textContent);
         console.log(arbitrary_pause, pmid, fid, f_v);
         a_proxy({ from_f1000: pmid + ',' + fid + ',' + f_v });
-      } else {
-        console.log(badge_score_div);
-      }
-      if (pmid && byClassOne('css-acwcvw')) {  // handle abstract 2022-3-20
+      }// else {
+      //  console.log(badge_score_div);
+      //}
+      if (pmid && byClassOne('css-1l0p3iw')) {  // handle abstract 2026-2-14
         a_proxy({
-          pageAbs: trim(byClassOne('css-acwcvw').textContent.split('Copyright © ')[0]),
+          pageAbs: trim(byClassOne('css-1l0p3iw').textContent.split('Copyright © ')[0]),
           pmid: pmid
         });
       }
@@ -1599,10 +1590,10 @@ function get_request (msg) {
           '  overflow:auto; padding-right:10px; outline:none; border:0; width:440px; height:200px; font-size:11px; color:grey; line-height:1.8; font-family:sans-serif' +
           '}' +
           '.thepaperlink-qr {' +
-          '  display:none; position:absolute; z-index:9999; padding:10px; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2); opacity:1' +
+          '  display:none; position:absolute; z-index:9999; padding:10px; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2)' +
           '}' +
           '.thepaperlink-home:hover + .thepaperlink-qr {' +
-          '  display:block; opacity:1' +
+          '  display:block' +
           '}';
 
   if (msg.to_other_sites) { // respond to from_xx, style
@@ -1986,11 +1977,7 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
     page_url === 'https://www.thepaperlink.cn/settings' ||
     page_url === 'https://www.thepaperlink.cn/reg' ||
     page_url === 'http://www.thepaperlink.cn/settings' ||
-    page_url === 'http://www.thepaperlink.cn/reg' ||
-    page_url === 'https://www.thepaperlink.net/settings' ||
-    page_url === 'https://www.thepaperlink.net/reg' ||
-    page_url === 'http://www.thepaperlink.net/settings' ||
-    page_url === 'http://www.thepaperlink.net/reg') { // storage data for access the api server
+    page_url === 'http://www.thepaperlink.cn/reg' ) { // storage data for access the api server
   a_proxy({ save_apikey: byID('apikey').innerHTML, save_email: null });
   a_proxy({ save_cloud_op: byID('cloud_op').innerHTML });
   noRun = 2;
@@ -2035,8 +2022,10 @@ if (page_url === 'https://www.thepaperlink.com/reg' ||
   });
   noRun = 6;
 } else if (page_url.indexOf('://sci-hub.ru/') > 0 ||
-    page_url.indexOf('://sci-hub.se/') > 0 ||
-    page_url.indexOf('://sci-hub.st/') > 0) {
+    page_url.indexOf('://sci-hub.st/') > 0 ||
+    page_url.indexOf('://sci-hub.su/') > 0 ||
+    page_url.indexOf('://sci-hub.box/') > 0 ||
+    page_url.indexOf('://sci-hub.red/') > 0) {
   process_scihub();
   noRun = 50;
 } else if (page_url.indexOf('://www.biorxiv.org/content/') > 0 ||

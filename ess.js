@@ -1,8 +1,9 @@
 'use strict';
 
 // MV3 compatible: connection to background service worker
-let _port = null;
-let _portReconnectTimer = null;
+// Note: var can be redeclared, so this works even if history.js already declared _port
+var _port = null;
+var _portReconnectTimer = null;
 
 // Function to connect to background service worker
 function connectToBackground() {
@@ -43,52 +44,41 @@ function connectToBackground() {
 // Initial connection
 connectToBackground();
 
-// MV3: Sync data from chrome.storage.local to window.localStorage on load
+// MV3: Sync from chrome.storage.sync to chrome.storage.local
+// Note: chrome.storage supports objects natively (JSON serialization)
 function syncStorageFromChrome() {
-  chrome.storage.local.get(null, function(items) {
-    if (items) {
-      // Sync all stored keys to window.localStorage
-      for (let key in items) {
-        if (items[key] !== undefined && items[key] !== null) {
-          try {
-            const val = items[key];
-            // Skip objects/arrays - they would become "[object Object]"
-            // Only sync strings, numbers, and booleans
-            if (typeof val === 'object') {
-              console.log('Skipping object key:', key);
-              continue;
-            }
-            localStorage.setItem(key, (typeof val === 'string') ? val : String(val));
-          } catch(e) {
-            console.log('Failed to sync key:', key, e);
-          }
-        }
-      }
-      console.log('Storage synced from chrome.storage.local');
+  // First get all data from chrome.storage.sync
+  chrome.storage.sync.get(null, function(syncItems) {
+    if (!syncItems) {
+      console.log('No items in storage.sync');
+      return;
+    }
+    console.log('Syncing from storage.sync:', Object.keys(syncItems).length, 'items');
+
+    // Filter out invalid values and set to chrome.storage.local
+    const localItems = {};
+    for (let key in syncItems) {
+      const val = syncItems[key];
+      // Skip null and undefined
+      if (val === null || val === undefined) continue;
+      // Skip string values that are invalid
+      if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
+      // Keep objects, strings, numbers, booleans - chrome.storage supports all these
+      localItems[key] = val;
+    }
+
+    if (Object.keys(localItems).length > 0) {
+      chrome.storage.local.set(localItems, function() {
+        console.log('Synced to storage.local:', Object.keys(localItems).length, 'items');
+      });
+    } else {
+      console.log('No valid items to sync');
     }
   });
 }
 
 // Call sync on load
 syncStorageFromChrome();
-
-// Helper function to send message to background
-function sendToBackground(message, callback) {
-  if (_port) {
-    try {
-      _port.postMessage(message);
-      if (callback) setTimeout(() => callback({ sent: true }), 100);
-    } catch(e) {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (callback) callback(response);
-      });
-    }
-  } else {
-    chrome.runtime.sendMessage(message, (response) => {
-      if (callback) callback(response);
-    });
-  }
-}
 
 let foundOrig;
 

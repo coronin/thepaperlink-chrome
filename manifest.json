@@ -18,7 +18,6 @@
   "host_permissions": [
     "*://www.thepaperlink.com/*",
     "*://www.thepaperlink.cn/*",
-    "*://www.thepaperlink.net/*",
     "*://pubget-hrd.appspot.com/*",
     "*://scholar.google.com/*",
     "*://f1000.com/*",
@@ -33,8 +32,10 @@
     "*://www.ncbi.nlm.nih.gov/*",
     "*://pubmed.ncbi.nlm.nih.gov/*",
     "*://sci-hub.ru/*",
-    "*://sci-hub.se/*",
-    "*://sci-hub.st/*"
+    "*://sci-hub.st/*",
+    "*://sci-hub.su/*",
+    "*://sci-hub.box/*",
+    "*://sci-hub.red/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -79,12 +80,12 @@
       "*://www.thepaperlink.cn/reg",
       "*://www.thepaperlink.cn/settings",
       "*://www.thepaperlink.net/reg",
-      "*://www.thepaperlink.net/settings",
-      "*://pubmeder.cailiang.net/registration",
       "*://pubmeder-hrd.appspot.com/registration",
       "https://sci-hub.ru/*",
-      "https://sci-hub.se/*",
       "https://sci-hub.st/*",
+      "https://sci-hub.su/*",
+      "https://sci-hub.box/*",
+      "https://sci-hub.red/*",
       "http://scholar.google.com/scholar*",
       "https://scholar.google.com/scholar*",
       "http://f1000.com/prime/*",

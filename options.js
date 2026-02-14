@@ -1,43 +1,8 @@
 'use strict';
 
 // MV3 compatible: try to connect to background
-let _port = null;
-let _portReconnectTimer = null;
-
-// MV3: _bkg fallback - use local console and localStorage since getBackgroundPage is not available
-const _bkg = {
-  console: console,
-  localStorage: localStorage
-};
-
-// MV3: Sync data from chrome.storage.local to window.localStorage on load
-function syncStorageFromChrome() {
-  chrome.storage.local.get(null, function(items) {
-    if (items) {
-      // Sync all stored keys to window.localStorage
-      for (let key in items) {
-        if (items[key] !== undefined && items[key] !== null) {
-          try {
-            const val = items[key];
-            // Skip objects/arrays - they would become "[object Object]"
-            // Only sync strings, numbers, and booleans
-            if (typeof val === 'object') {
-              console.log('Skipping object key:', key);
-              continue;
-            }
-            localStorage.setItem(key, (typeof val === 'string') ? val : String(val));
-          } catch(e) {
-            console.log('Failed to sync key:', key, e);
-          }
-        }
-      }
-      console.log('Storage synced from chrome.storage.local');
-    }
-  });
-}
-
-// Call sync on load
-syncStorageFromChrome();
+var _port = null;
+var _portReconnectTimer = null;
 
 // Function to connect to background service worker
 function connectToBackground() {
@@ -71,39 +36,41 @@ function connectToBackground() {
 // Initial connection
 connectToBackground();
 
-// Helper function to send message to background
-function sendToBackground(message, callback) {
-  if (_port) {
-    try {
-      _port.postMessage(message);
-      // Wait for response via onMessage listener
-      if (callback) setTimeout(() => callback({ sent: true }), 100);
-    } catch(e) {
-      console.log('Port error, trying sendMessage:', e);
-      // Fallback to sendMessage
-      chrome.runtime.sendMessage(message, (response) => {
-        handleBackgroundResponse(response, callback);
-      });
+// MV3: Sync from chrome.storage.sync to chrome.storage.local
+// Note: chrome.storage supports objects natively (JSON serialization)
+function syncStorageFromChrome() {
+  // First get all data from chrome.storage.sync
+  chrome.storage.sync.get(null, function(syncItems) {
+    if (!syncItems) {
+      console.log('No items in storage.sync');
+      return;
     }
-  } else {
-    // Use sendMessage as fallback
-    chrome.runtime.sendMessage(message, (response) => {
-      handleBackgroundResponse(response, callback);
-    });
-  }
+    console.log('Syncing from storage.sync:', Object.keys(syncItems).length, 'items');
+
+    // Filter out invalid values and set to chrome.storage.local
+    const localItems = {};
+    for (let key in syncItems) {
+      const val = syncItems[key];
+      // Skip null and undefined
+      if (val === null || val === undefined) continue;
+      // Skip string values that are invalid
+      if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
+      // Keep objects, strings, numbers, booleans - chrome.storage supports all these
+      localItems[key] = val;
+    }
+
+    if (Object.keys(localItems).length > 0) {
+      chrome.storage.local.set(localItems, function() {
+        console.log('Synced to storage.local:', Object.keys(localItems).length, 'items');
+      });
+    } else {
+      console.log('No valid items to sync');
+    }
+  });
 }
 
-// Handle response from background
-function handleBackgroundResponse(response, callback) {
-  if (chrome.runtime.lastError) {
-    console.log('Background error:', chrome.runtime.lastError.message);
-    // Try to reconnect
-    connectToBackground();
-    if (callback) callback(null);
-  } else {
-    if (callback) callback(response);
-  }
-}
+// Call sync on load
+syncStorageFromChrome();
 
 const email_filter = /^[^@]+@[^@]+.[a-z]{2,}$/i;
 

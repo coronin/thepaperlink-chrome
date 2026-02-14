@@ -51,19 +51,75 @@ function loadJCR() {
 // Load JCR data on startup
 loadJCR();
 
+// Sync user settings to chrome.storage.sync on startup (similar to MV2)
+syncToStorageSync();
+
 // =====================
 // 3. STATE LOADING (async)
 // =====================
-function loadState() {
+
+// Sync from chrome.storage.sync to chrome.storage.local (for new device sync)
+function syncFromSyncToLocal() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(null, (items) => {
-      if (!items) {
+    chrome.storage.local.get(['thepaperlink_apikey', 'pubmeder_apikey'], (localItems) => {
+      // Check if local has valid apikey
+      const hasLocalData = localItems && (
+        localItems.thepaperlink_apikey ||
+        localItems.pubmeder_apikey
+      );
+
+      if (hasLocalData) {
+        // Local has data, no need to sync from sync
         resolve();
         return;
       }
 
-      // Load all state values
-      appState.apikey = items.thepaperlink_apikey || items.tpl_apikey || null;
+      // Local is empty, try to sync from sync
+      chrome.storage.sync.get(null, (syncItems) => {
+        if (!syncItems || Object.keys(syncItems).length === 0) {
+          console.log('No data in storage.sync either');
+          resolve();
+          return;
+        }
+
+        console.log('Syncing from storage.sync to local:', Object.keys(syncItems).length, 'items');
+
+        // Filter valid values - chrome.storage supports objects natively
+        const validItems = {};
+        for (let key in syncItems) {
+          const val = syncItems[key];
+          if (val === null || val === undefined) continue;
+          // Skip string values that are invalid
+          if (typeof val === 'string' && (val === 'undefined' || val === '[object Object]')) continue;
+          // Keep objects, strings, numbers, booleans
+          validItems[key] = val;
+        }
+
+        if (Object.keys(validItems).length > 0) {
+          chrome.storage.local.set(validItems, () => {
+            console.log('Synced from sync to local:', Object.keys(validItems).length, 'items');
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    });
+  });
+}
+
+function loadState() {
+  return new Promise((resolve) => {
+    // First sync from sync to local if needed
+    syncFromSyncToLocal().then(() => {
+      chrome.storage.local.get(null, (items) => {
+        if (!items) {
+          resolve();
+          return;
+        }
+
+        // Load all state values
+        appState.apikey = items.thepaperlink_apikey || items.tpl_apikey || null;
       appState.pubmeder_apikey = items.pubmeder_apikey || null;
       appState.pubmeder_email = items.pubmeder_email || null;
       appState.ws_addr = items.websocket_server || 'node.thepaperlink.com:8081';
@@ -90,7 +146,48 @@ function loadState() {
 
       console.log('State loaded:', appState);
       resolve();
+      });
     });
+  });
+}
+
+// Sync user settings to chrome.storage.sync (similar to MV2)
+// This syncs settings across user's Chrome installations
+function syncToStorageSync() {
+  chrome.storage.local.get(null, (items) => {
+    if (!items) return;
+
+    let syncValues = {};
+    for (let key in items) {
+      // Skip certain keys that shouldn't be synced
+      if (key.indexOf('tabId:') === 0 ||
+          key.indexOf('diff_') === 0 ||
+          key.indexOf('day_') === 0 ||
+          key.indexOf('email_') === 0 ||
+          key.indexOf('shark_') === 0 ||
+          key.indexOf('scholar_') === 0 ||
+          key.indexOf('abs_') === 0 ||
+          key.indexOf('tpl') === 0 ||
+          key.indexOf('pmid_') === 0 ||
+          key.indexOf('id_found') === 0 ||
+          key.indexOf('id_history') === 0) {
+        continue;
+      }
+
+      // Convert to string
+      if (typeof items[key] === 'string') {
+        syncValues[key] = items[key];
+      } else {
+        syncValues[key] = String(items[key]);
+      }
+    }
+
+    if (Object.keys(syncValues).length > 0) {
+      console.log('Syncing to storage.sync:', Object.keys(syncValues).length, 'items');
+      chrome.storage.sync.set(syncValues, () => {
+        console.log('Synced to storage.sync');
+      });
+    }
   });
 }
 
@@ -195,8 +292,43 @@ function handlePortMessage(port, message) {
     return;
   }
 
-  // Handle other messages
-  port.postMessage({ received: true });
+  // Handle a_pmid and a_title (Google Scholar) - simplified, no response needed
+  if (message.a_pmid && message.a_title) {
+    return;
+  }
+
+  // Handle reset_gs_counts - simplified, no response needed
+  if (message.reset_gs_counts) {
+    return;
+  }
+
+  // Handle pageAbs - save to storage, no response needed
+  if (message.pageAbs) {
+    chrome.storage.local.set({ ['abs_' + message.pmid]: message.pageAbs });
+    return;
+  }
+
+  // Handle search_term - simplified, no response needed
+  if (message.search_term) {
+    return;
+  }
+
+  // Handle failed_term - simplified, no response needed
+  if (message.failed_term) {
+    return;
+  }
+
+  // Handle pmid with pii or doi - simplified, no response needed
+  if (message.pmid && (message.pii_link || message.doi_link)) {
+    return;
+  }
+
+  // Handle money_* messages - simplified, no response needed
+  if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
+    return;
+  }
+
+  // Handle other messages - no response needed
 }
 
 // API Request Handler
@@ -347,8 +479,56 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // async
   }
 
-  // Default
-  sendResponse({ received: true });
+  // Handle a_pmid and a_title (Google Scholar) - simplified
+  if (message.a_pmid && message.a_title) {
+    return;
+  }
+
+  // Handle reset_gs_counts - simplified
+  if (message.reset_gs_counts) {
+    return;
+  }
+
+  // Handle pageAbs - simplified
+  if (message.pageAbs) {
+    chrome.storage.local.set({ ['abs_' + message.pmid]: message.pageAbs });
+    return;
+  }
+
+  // Handle search_term - simplified
+  if (message.search_term) {
+    return;
+  }
+
+  // Handle failed_term - simplified
+  if (message.failed_term) {
+    return;
+  }
+
+  // Handle pmid with pii or doi - simplified
+  if (message.pmid && (message.pii_link || message.doi_link)) {
+    return;
+  }
+
+  // Handle money_* messages - simplified
+  if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
+    return;
+  }
+
+  // Handle from_f1000 - simplified
+  if (message.from_f1000) {
+    return;
+  }
+
+  // Handle from_sites_w_pmid - simplified
+  if (message.from_sites_w_pmid) {
+    return;
+  }
+
+  // Handle from_sites_w_doi - simplified
+  if (message.from_sites_w_doi) {
+    return;
+  }
 });
 
 async function handleSaveApikeyMessage(apikey, email) {

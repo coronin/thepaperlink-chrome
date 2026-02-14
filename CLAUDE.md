@@ -27,35 +27,32 @@ There is no build system. To test changes:
 
 **background.js** - Background Service Worker (MV3):
 - Handles all API communication with `www.thepaperlink.com`
-- Manages WebSocket connection for real-time updates (not implemented in MV3)
-- Processes PubMed IDs, DOIs, and coordinates data fetching
 - Manages context menus and clipboard operations
-- Loads and serves JCR impact factor data from `jcr.csv.json`
+- Loads JCR impact factor data from `jcr.csv.json` using `fetch()`
 - Communicates with content scripts via `chrome.runtime.connect` (port name: `background_port`)
 - Uses `chrome.alarms` for keep-alive (service worker can be terminated after ~30s inactivity)
-- Key message handlers: `url`, `sendID`, `a_pmid`, `a_title`, `saveIt`, `from_f1000`, `fetch_JCR`
+- Key message handlers: `url`, `sendID`, `saveIt`, `fetch_JCR`, `pageAbs`, `search_term`, etc.
 
 **contentscript.js** - Content scripts:
 - Injected into matched URLs (PubMed, Google Scholar, bioRxiv, medRxiv, F1000, etc.)
 - Parses page DOM to extract PMIDs, authors, and article metadata
 - Injects UI elements (PDF links, impact factors, clippy buttons)
-- Sends extracted data to background page and renders responses
-- Contains page-specific processors: `process_pubmed*`, `process_googlescholar`, `process_bioRxiv`, `process_f1000`
-- Handles clipboard operations directly (MV3 cannot use DOM in background)
-- QR code display on hover over "the paper link" text
+- Handles clipboard operations directly using `copyToClipboard()` (MV3 cannot use DOM in background)
+- QR code display on hover over "the paper link" text using adjacent sibling selector
+- F1000 site processing with null checks for DOM elements
 
 **ess.js / ess.html** - Extension popup:
 - Small UI shown when clicking the extension icon
 - Handles user interactions for individual articles
-- Syncs data from `chrome.storage.local` to `window.localStorage` on load
+- Uses `var` for `_port` (not `let`) to allow redeclaration when loaded with history.js
 
 **history.js / history.html** - History page:
 - Displays saved papers and search history
-- Syncs data from `chrome.storage.local` to `window.localStorage` on load
+- Uses `chrome.storage.local` directly (not window.localStorage)
 
 **options.js / options.html** - Options page:
 - User settings and API key management
-- Syncs data from `chrome.storage.local` to `window.localStorage` on load
+- Uses `chrome.storage.local` directly
 
 ### Data Flow
 
@@ -67,50 +64,105 @@ There is no build system. To test changes:
 
 ### Storage
 
-- `chrome.storage.local` - Cached paper data keyed by `tpl{PMID}`, user settings
+- `chrome.storage.local` - Primary storage for all extension data (MV3), cached paper data
 - `chrome.storage.sync` - User settings synced across installations (limited to 100KB)
-- `window.localStorage` - Available in popup/options/history pages (not background)
-- **MV3 Note**: Use `syncStorageFromChrome()` in popup/options pages to sync chrome.storage.local to window.localStorage
+
+**Sync Flow:**
+1. **On background.js startup**: `syncFromSyncToLocal()` checks if local is empty, then syncs from sync to local
+2. **On background.js startup**: `syncToStorageSync()` syncs from local to sync
+3. **On page load (ess/options.js)**: `syncStorageFromChrome()` syncs from sync to local
+4. **On history page load**: Uses chrome.storage.local directly, objects with scholar/shark keys handled specially
+
+- `window.localStorage` - Not used in MV3
 
 ### External APIs
 
 - `www.thepaperlink.com` - Main API server (also `.cn`, `.net` mirrors)
-- `node.thepaperlink.com:8081` - WebSocket server for real-time updates (not implemented in MV3)
 - `eutils.ncbi.nlm.nih.gov` - NCBI/PubMed API for abstract fetching
 - `scholar.google.com` - Citation count scraping
 - `api.qrserver.com` - QR code generation for sharing
 
-## MV3 Migration Notes
+## MV3 Migration (Key JS Changes)
 
-### Key Changes from MV2
+### background.js (Major Rewrite)
+```
+MV2: 1545 lines → MV3: 644 lines
 
-1. **background.js**: Rewritten as service worker (no persistent background page)
-   - Uses `chrome.runtime.onConnect` for port connections
-   - Uses `chrome.runtime.onMessage` for one-time messages
-   - Uses `chrome.alarms` for keep-alive
-   - Uses `fetch()` instead of XMLHttpRequest
+Changes:
+- Removed localStorage usage, uses chrome.storage.local
+- Removed XMLHttpRequest, uses fetch()
+- Removed WebSocket code (not implemented in MV3)
+- Removed DEBUG constant
+- Uses appState object for centralized state management
+- Uses chrome.alarms for keep-alive (service worker timeout)
+- Uses chrome.runtime.onConnect for port connections
+- Uses chrome.runtime.onMessage for one-time messages
+- Simplified message handlers (removed complex logic)
+- Added syncToStorageSync() to sync settings to chrome.storage.sync
+```
 
-2. **Storage**: Background cannot access DOM/localStorage
-   - Use `chrome.storage.local` for all storage
-   - Add `syncStorageFromChrome()` in popup/options pages
+### contentscript.js (+200/-XX lines)
+```
+Changes:
+- Added copyToClipboard() using Clipboard API with textarea fallback
+- Added QR code HTML generation and CSS (adjacent sibling selector)
+- Added null checks for F1000 DOM elements (getElementsByTagName)
+- Simplified port disconnect handling
+```
 
-3. **Clipboard**: Cannot use `document.execCommand('Copy')` in background
-   - Implement clipboard in content script using Clipboard API or hidden textarea
-   - Use `copyToClipboard()` function in contentscript.js
+### history.js (Major Rewrite)
+```
+Changes:
+- MV3 port connection (lines 3-18): replaces chrome.extension.getBackgroundPage
+- Uses chrome.storage.local.get/remove/set instead of localStorage
+- Added 'downloadId_' to skip list (line 81)
+- Handles objects with scholar/shark keys directly (lines 87-100):
+  - Object with 'scholar' key: format_a_li('scholar', pmid, url, count)
+  - Object with 'shark' key: format_a_li('shark', pmid, url)
+  - Preserves object in syncValues for multi-device sync
+- Added check for duplicate scholar: if exists, skip adding new (lines 144-148)
+- Commented out scholar limit deletion (lines 149-151)
+- Simplified syncValues assignment: directly assign value not ''+val (lines 138, 168)
+- Visual feedback: green border on success, red border on nothing to sync (lines 184-190)
+```
 
-4. **Port Communication**: Service worker may be terminated
-   - Implement reconnection logic with `setTimeout`
-   - Use `chrome.alarms` to keep service worker alive
+### ess.js (-52 lines)
+```
+Changes:
+- Changed let _port to var _port (for history.html compatibility)
+- Added syncStorageFromChrome() to sync from chrome.storage.sync to chrome.storage.local
+```
 
-5. **JCR Data**: Loaded at startup
-   - Use `fetch(chrome.runtime.getURL('jcr.csv.json'))` to load
-   - Serve to content scripts via `fetch_JCR` message handler
+### options.js (-38 lines)
+```
+Changes:
+- Removed _bkg.localStorage reference
+- Added syncStorageFromChrome() to sync from chrome.storage.sync to chrome.storage.local
+- Uses chrome.storage.local directly for settings
+```
 
 ## Key Conventions
 
-- `DEBUG` constant at top of each JS file toggles console logging
+- `DEBUG` constant removed from MV3 (always use console.log)
 - `a_proxy()` function in content scripts sends messages to background
-- `sendToBackground()` helper function with reconnection logic
+- `copyToClipboard()` in contentscript.js for clipboard operations
 - PMIDs extracted via regex patterns like `/pmid\s*:?\s*(\d+)/i`
-- `arbitrary_pause` variable controls polling intervals (default 3000ms)
-- QR code: `.thepaperlink-home:hover .thepaperlink-qr` shows on hover
+- QR code: `.thepaperlink-home:hover + .thepaperlink-qr` shows on hover (adjacent sibling)
+- F1000 processing: Always check for null before accessing DOM elements
+
+## Message Handlers
+
+### content script → background
+- `url` - API request
+- `sendID` - PubMed ID
+- `saveIt` - Save paper
+- `fetch_JCR` - Get impact factor
+- `pageAbs` - Save abstract
+- `search_term` - Search term
+- `a_pmid`, `a_title` - Google Scholar
+- `from_f1000` - F1000 data
+
+### background → content script
+- `r`, `tpl`, `pubmeder`, `cloud_op` - API response
+- `class_JCR` - Impact factor data
+- `local_mirror`, `arbitrary_pause` - Settings
