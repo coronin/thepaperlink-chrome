@@ -13,7 +13,7 @@ function connectToBackground() {
 
     _port.onMessage.addListener((message) => {
       // Handle incoming messages
-      console.log('Message from background:', message);
+      if (!message.received) console.log('Message from background:', message);
     });
 
     _port.onDisconnect.addListener(() => {
@@ -77,16 +77,16 @@ function syncFromLocalStorage() {
     return;
   }
 
-  var localItems = {};
+  const localItems = {};
   chrome.storage.local.get(null, function(chrItems) {
 
-  var syncItems = {};
-  var pmidKeys = []; // Collect pmid_ keys for limiting to 64
-  var keywordKeys = []; // Collect keyword-related keys for limiting to 200
+  const syncItems = {};
+  const pmidKeys = []; // Collect pmid_ keys for limiting to 64
+  const keywordKeys = []; // Collect keyword-related keys for limiting to 200
 
-  for (var i = 0; i < localStorage.length; i++) {
-    var key = localStorage.key(i);
-    var val = localStorage.getItem(key);
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const val = localStorage.getItem(key);
     if (!key || val === null) continue;
     if (key.indexOf('undefined') > -1) continue;
     if (val === 'undefined' || val === '[object Object]') continue;
@@ -116,7 +116,7 @@ function syncFromLocalStorage() {
 
     // For pmid_ keys: only keep latest 64 in storage.sync
     if (key.indexOf('pmid_') === 0) {
-      if (pmidKeys.length <= 64) {  // 2026-2-14
+      if (pmidKeys.length <= 64) { // 2026-2-14
         syncItems[key] = val;
       }
       continue;
@@ -125,7 +125,7 @@ function syncFromLocalStorage() {
     // Collect keyword-related keys for limiting to 200 in storage.sync
     if (hasThreeCommas(val) && val.indexOf('201') === 0 || val.indexOf('202') === 0) {
       keywordKeys.push(key);
-      if (keywordKeys.length <= 200) {  // 2026-2-14
+      if (keywordKeys.length <= 200) { // 2026-2-14
         syncItems[key] = val;
       }
       continue;
@@ -136,8 +136,8 @@ function syncFromLocalStorage() {
 
   if (pmidKeys.length > 64) {
     pmidKeys.reverse();
-    var pmidToRemove = pmidKeys.slice(64);
-    for (var j = 0; j < pmidToRemove.length; j++) {
+    const pmidToRemove = pmidKeys.slice(64);
+    for (let j = 0; j < pmidToRemove.length; j++) {
       delete localItems[pmidToRemove[j]];
       console.log('Removing old pmid_ key from local:', pmidToRemove[j]);
     }
@@ -145,15 +145,15 @@ function syncFromLocalStorage() {
 
   if (keywordKeys.length > 200) {
     keywordKeys.reverse();
-    var keywordToRemove = keywordKeys.slice(200);
-    for (var k = 0; k < keywordToRemove.length; k++) {
+    const keywordToRemove = keywordKeys.slice(200);
+    for (let k = 0; k < keywordToRemove.length; k++) {
       delete localItems[keywordToRemove[k]];
       console.log('Removing old keyword key from local:', keywordToRemove[k]);
     }
   }
 
   if (Object.keys(chrItems).length > 0) {
-    console.log('Merge storage.local to localStorage'); // 2026-2-14
+    console.log('Will merge storage.local to localStorage'); // 2026-2-14
     const chrKeys = Object.keys(chrItems);
     let i; let len; let chrKey; let chrVal;
     for (i = 0, len = chrKeys.length; i < len; i += 1) {
@@ -176,7 +176,7 @@ function syncFromLocalStorage() {
 
   console.log('Syncing from localStorage:', Object.keys(localItems).length, 'items to local,', Object.keys(syncItems).length, 'items to sync');
   chrome.storage.local.set(localItems, function() {
-    console.log('Saved to storage.local:', Object.keys(localItems).length, 'items');
+    console.log('Saved to storage.local');
   });
 
   // Save to chrome.storage.sync with limits: 64 pmid_, 200 keywords, rest under 512 items/100KB
@@ -185,7 +185,7 @@ function syncFromLocalStorage() {
       if (chrome.runtime.lastError) {
         console.log('Sync quota exceeded:', chrome.runtime.lastError.message);
       } else {
-        console.log('Saved to storage.sync:', Object.keys(syncItems).length, 'items');
+        console.log('Saved to storage.sync');
       }
     });
   }
@@ -732,8 +732,8 @@ $(document).ready(function () {
     let tmp = $('#keywords_list');
     let t = 0; let i; let a; let c = [];
     for (i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      var val = localStorage.getItem(key);
+      let key = localStorage.key(i);
+      let val = localStorage.getItem(key);
       if (hasThreeCommas(val) && val.indexOf('201') === 0 || val.indexOf('202') === 0) {
         a = key.toLowerCase().replace(/(^\s*)|(\s*$)/gi, '').replace(/[ ]{2,}/gi, ' ');
         if (a !== key) { // prettify history

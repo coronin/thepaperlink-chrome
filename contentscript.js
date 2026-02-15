@@ -1710,7 +1710,7 @@ function get_request (msg) {
         div_html += tmp;
       }
     } else {
-      // Network error: try to get slfoV from existing .tpl element
+      // Try to get slfoV from existing .tpl element
       const tplEl = byID('thepaperlink_if' + pmid);
       if (tplEl) {
         const tplSpans = tplEl.getElementsByClassName('tpl');

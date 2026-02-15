@@ -1,4 +1,3 @@
-*.zip
 .idea/*
 .DS_Store
 .claude/*

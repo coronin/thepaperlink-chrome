@@ -1,0 +1,65 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install terser
+        run: npm install -g terser
+
+      - name: Create dist directory and clean
+        run: rm -rf dist && mkdir -p dist
+
+      - name: Copy static files to dist
+        run: |
+          cp manifest.json dist/
+          cp history.html dist/
+          cp options.html dist/
+          cp ess.html dist/
+          cp background.html dist/
+          cp ext20210522.js dist/
+          cp jcr.csv.json dist/
+          cp loadingLine.gif dist/
+          cp clippyIt.png dist/
+          cp 16.png dist/
+          cp 19.png dist/
+          cp 32.png dist/
+          cp 48.png dist/
+          cp 128.png dist/
+          cp jquery-1.8.3.min.js dist/
+          cp jquery-ui-1.9.2.custom.min.js dist/
+          cp jquery.cookie.js dist/
+
+      - name: Minify and copy JS files to dist
+        run: |
+          terser background.js -o dist/background.js --compress --mangle
+          terser contentscript.js -o dist/contentscript.js --compress --mangle
+          terser history.js -o dist/history.js --compress --mangle
+          terser options.js -o dist/options.js --compress --mangle
+          terser ess.js -o dist/ess.js --compress --mangle
+          terser jsClient.js -o dist/jsClient.js --compress --mangle
+
+      - name: Create version zip
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          cd dist && zip -r ../${VERSION}.zip *
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

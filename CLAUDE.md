@@ -34,18 +34,18 @@ No build system. To test changes:
 3. **ess/options/history.js**: `syncStorageFromChrome()` syncs sync→local on page load
 
 **Sync Limits (chrome.storage.sync):**
-- Skip: `tabId:`, `diff_`, `day_`, `email_`, `shark_`, `scholar_`, `abs_`, `tpl`, `id_found`, `id_history`, `downloadId_`
+- Skip: `tabId:`, `downloadId_`, `diff_`, `day_`, `email_`, `shark_`, `scholar_`, `abs_`, `tpl`, `id_found`, `id_history`
 - Keep latest 64 `pmid_` keys
 - Keep latest 200 keywords
 
 ## Message Handlers
 
 ### Shared Functions
-- `doApiRequest(url, sendResponse)` - Shared API request helper
+- `doRequest(url, sendResponse)` - Shared External request helper
 - `handleCommonMessage(message, sendFn)` - Unified handler for port and message
 
 ### content script → background
-- `url` - API request (uses `doApiRequest()`)
+- `url` - API request (uses `doRequest()`)
 - `sendID`, `saveIt`, `fetch_JCR`, `pageAbs`, `search_term`, `a_pmid`, `a_title`, `from_f1000`
 
 ### background → content script

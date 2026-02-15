@@ -13,7 +13,7 @@ function connectToBackground() {
     _port = chrome.runtime.connect({ name: 'background_port' });
 
     _port.onMessage.addListener((message) => {
-      console.log('Message from background:', message);
+      if (!message.received) console.log('Message from background:', message);
       // Handle messages from background
       if (message && message.search_trend) {
         const found = document.getElementById('found');
@@ -94,7 +94,7 @@ function storageGet(key) {
 }
 function storageSet(key, val) {
   storageCache[key] = val;
-  var obj = {};
+  let obj = {};
   obj[key] = val;
   chrome.storage.local.set(obj);
 }
@@ -131,13 +131,13 @@ function peaks (name) {
 
 function titleLink (ID) {
   let doiURL = 'https://dx.doi.org';
-  let base = 'https://www.thepaperlink.com';
+  let base = 'https://pubmed.gov'; //'https://www.thepaperlink.com';
   if (storageGet('local_mirror')) {
     doiURL = 'https://' + storageGet('local_mirror');
   }
-  if (storageGet('rev_proxy') === 'yes') {
-    base = 'https://www.thepaperlink.cn';
-  }
+  //if (storageGet('rev_proxy') === 'yes') {
+  //  base = 'https://www.thepaperlink.cn';
+  //}
   if (/\d{2}\.\d{4,5}\//.test(ID)) {
     chrome.tabs.create({ url: doiURL + '/' + ID, active: false });
   } else if (/^PMC\d+$/.test(ID)) {
@@ -147,12 +147,12 @@ function titleLink (ID) {
     });
   } else if (/^\d+$/.test(ID)) {
     chrome.tabs.create({
-      url: base + '/:' + ID,
+      url: base + '/' + ID,
       active: false
     });
   } else {
     chrome.tabs.create({
-      url: base + '/?q=' + ID,
+      url: 'https://www.thepaperlink.com/?q=' + ID,
       active: false
     });
   }
@@ -173,127 +173,124 @@ function eFetch (pmid) {
     return;
   }
   $('.loadIcon').removeClass('Off');
-  let url;
-  let args = {
-    apikey: storageGet('GUEST_APIKEY'),
-    db: 'pubmed',
-    id: pmid
-  };
-  if (storageGet('rev_proxy') === 'yes') {
-    url = 'https://www.thepaperlink.cn/entrezajax/efetch';
-  } else {
-    url = 'https://www.thepaperlink.com/entrezajax/efetch';
+  // Use NCBI eUtils directly (no proxy needed)
+  let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?tool=thepaperlink_chrome&db=pubmed&id=' + pmid + '&rettype=abstract&retmode=xml';
+  if (storageGet('tpl_ncbi_api')) {
+    url += '&api_key=' + storageGet('tpl_ncbi_api');
   }
-  if ( storageGet('tpl_ncbi_api') ) {
-    args.ncbi_api = storageGet('tpl_ncbi_api');
-  }
-  $.getJSON(url, args, function (d) {
+  $.get(url, function (xml) {
     _port && _port.postMessage({ sendID: pmid });
     $('.AbsButton').addClass('Off');
     $('.loadIcon').addClass('Off');
     $('#result').append('<div id="abs_' + pmid + '"></div>');
-    const l = d.result.PubmedArticle[0]; let tmp; let j; let len;
-
-    if (l.MedlineCitation.Article.Abstract) {
-      const abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
+    // PubmedArticle > MedlineCitation > Article > Abstract > AbstractText
+    const l_AbstractText = $(xml).find('AbstractText').first().text().trim();
+    if (l_AbstractText) {
+      const abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l_AbstractText + '</p>';
+      storageSet('abs_' + pmid, l_AbstractText);
       $('#abs_' + pmid).append(abstract);
-      storageSet('abs_' + pmid, '' + l.MedlineCitation.Article.Abstract.AbstractText); // v3
     } else {
       hideMore();
       return;
     }
-    if (l.MedlineCitation.CommentsCorrectionsList) {
+    let tmp; let j; let jl;
+    // CommentsCorrectionsList: need to find child PMID elements
+    const l_CommentsCorrectionsList = $(xml).find('CommentsCorrectionsList PMID');
+    jl = l_CommentsCorrectionsList.length;
+    if (jl > 0) {
       let ref_list = '<p class="moreAbout"><b style="text-decoration:underline">References:</b> ';
-      len = l.MedlineCitation.CommentsCorrectionsList.length;
-      for (j = 0; j < len; j += 1) {
+      for (j = 0; j < jl; j += 1) {
+        const pmidRef = $(l_CommentsCorrectionsList[j]).text().trim();
+        // Get RefSource from parent CommentsCorrectionsList
+        const refSource = $(l_CommentsCorrectionsList[j]).parent().attr('RefSource') || '';
         if (j === 0) {
-          tmp = '<a target="_blank" href="https://www.thepaperlink.com/:' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
+          tmp = '<a target="_blank" href="https://pubmed.gov/' + pmidRef + '">' + refSource.replace(/([a-zA-Z]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
         } else {
-          tmp = '; <a target="_blank" href="https://www.thepaperlink.com/:' + l.MedlineCitation.CommentsCorrectionsList[j].PMID + '">' + l.MedlineCitation.CommentsCorrectionsList[j].RefSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
+          tmp = '; <a target="_blank" href="https://pubmed.gov/' + pmidRef + '">' + refSource.replace(/([a-zA-Z()]+). (\d{4})( [A-Z]|;).+/g, '$1 <span style="color:#999">$2</span>') + '</a>';
         }
         ref_list += tmp;
       }
       ref_list += '</p>';
       $('#abs_' + pmid).append(ref_list);
     }
-
-    if (l.MedlineCitation.Article.DataBankList) {
-      let lsc = l.MedlineCitation.Article.DataBankList.length;
-      let ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
-      while ((!ls || ls.DataBankName !== 'PDB') && lsc > 0) {
-        lsc -= 1;
-        ls = l.MedlineCitation.Article.DataBankList[lsc - 1];
+    // DataBankList: find PDB entries
+    const l_DataBankList = $(xml).find('DataBank');
+    let pdbFound = null;
+    l_DataBankList.each(function () {
+      if ($(this).attr('DataBankName') === 'PDB') {
+        pdbFound = $(this);
+        return false; // break
       }
-      if (lsc > 0) {
+    });
+    if (pdbFound) {
+      const l_AccessionNumbers = pdbFound.find('AccessionNumber');
+      if (l_AccessionNumbers.length > 0) {
         let DataBank_list = '<p class="moreAbout"><b style="text-decoration:underline">PDB Files:</b> ';
-        len = ls.AccessionNumberList.length;
-        for (j = 0; j < len; j += 1) {
-          if (j === 0) {
-            tmp = '<a target="_blank" href="http://j.cail.cn/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
+        l_AccessionNumbers.each(function (idx) {
+          const accNum = $(this).text().trim();
+          if (idx === 0) {
+            tmp = '<a target="_blank" href="http://j.cail.cn/pdb/' + accNum + '">' + accNum + '</a> ';
           } else {
-            tmp = '; <a target="_blank" href="http://j.cail.cn/pdb/' + ls.AccessionNumberList[j] + '">' + ls.AccessionNumberList[j] + '</a> ';
+            tmp = '; <a target="_blank" href="http://j.cail.cn/pdb/' + accNum + '">' + accNum + '</a> ';
           }
           DataBank_list += tmp;
-        }
+        });
         DataBank_list += '</p>';
         $('#abs_' + pmid).append(DataBank_list);
       }
     }
-
-    if (l.MedlineCitation.Article.GrantList) {
+    // GrantList: <Grant><GrantID>...</GrantID><Agency>...</Agency></Grant>
+    const l_GrantList = $(xml).find('Grant');
+    if (l_GrantList.length > 0) {
       let grant_list = '<p class="moreAbout"><b style="text-decoration:underline">Fund By:</b> ';
-      len = l.MedlineCitation.Article.GrantList.length;
-      for (j = 0; j < len; j += 1) {
-        if (j === 0) {
-          tmp = l.MedlineCitation.Article.GrantList[j].Agency + ': ' + l.MedlineCitation.Article.GrantList[j].GrantID;
-        } else {
-          tmp = '; ' + l.MedlineCitation.Article.GrantList[j].Agency + ': ' + l.MedlineCitation.Article.GrantList[j].GrantID;
-        }
+      l_GrantList.each(function (idx) {
+        const agency = $(this).find('Agency').text().trim();
+        const grantId = $(this).find('GrantID').text().trim();
+        if (!agency && !grantId) return;
+        tmp = (idx === 0) ? (agency + ': ' + grantId) : ('; ' + agency + ': ' + grantId);
         grant_list += tmp;
-      }
+      });
       grant_list += '</p>';
       $('#abs_' + pmid).append(grant_list);
     }
-
-    if (l.MedlineCitation.ChemicalList) {
+    // ChemicalList: <Chemical><NameOfSubstance>...</NameOfSubstance></Chemical>
+    const l_ChemicalList = $(xml).find('Chemical');
+    if (l_ChemicalList.length > 0) {
       let keyChem = '<p class="moreAbout"><b style="text-decoration:underline">Chemical:</b> ';
-      len = l.MedlineCitation.ChemicalList.length;
-      for (j = 0; j < len; j += 1) {
-        if (j === 0) {
-          tmp = l.MedlineCitation.ChemicalList[j].NameOfSubstance;
+      l_ChemicalList.each(function (idx) {
+        const name = $(this).find('NameOfSubstance').text().trim() || $(this).text().trim();
+        if (idx === 0) {
+          tmp = name;
         } else {
-          tmp = '; ' + l.MedlineCitation.ChemicalList[j].NameOfSubstance;
+          tmp = '; ' + name;
         }
         keyChem += tmp;
-      }
+      });
       keyChem += '</p>';
       $('#abs_' + pmid).append(keyChem);
     }
-
-    if (l.MedlineCitation.MeshHeadingList) {
+    // MeshHeadingList
+    const l_MeshHeadingList = $(xml).find('MeshHeading');
+    if (l_MeshHeadingList.length > 0) {
       let keyHead = '<p class="moreAbout"><b style="text-decoration:underline">Heading:</b> ';
-      len = l.MedlineCitation.MeshHeadingList.length;
-      for (j = 0; j < len; j += 1) {
-        if (j === 0) {
-          tmp = l.MedlineCitation.MeshHeadingList[j].DescriptorName;
+      l_MeshHeadingList.each(function (idx) {
+        const descriptor = $(this).find('DescriptorName').text().trim();
+        if (idx === 0) {
+          tmp = descriptor;
         } else {
-          tmp = '; ' + l.MedlineCitation.MeshHeadingList[j].DescriptorName;
+          tmp = '; ' + descriptor;
         }
         keyHead += tmp;
-      }
+      });
       keyHead += '</p>';
       $('#abs_' + pmid).append(keyHead);
     }
-
     $('.moreAbout').on('click', function () { hideMore(); });
     $('.moreAbout').css('cursor', 'pointer');
-  }).fail(function (jqXHR, textStatus, errorThrown) {
+  }).fail(function () {
     $('.loadIcon').addClass('Off');
-    if (textStatus !== '503') {
-      $('<div/>').html('<p>I am sorry. Nothing I can do with PMID:' + pmid + '</p>').appendTo('#result');
-    } else {
-      $('<div/>').html('<p>The server is overloaded. Try tomorrow!').appendTo('#result');
-    }
+    $('<div/>').html('<p class="efetchFailed" style="cursor:pointer">Fetch ' + pmid + ' - Failed.</p>').appendTo('#result');
+    $('.efetchFailed').on('click', function () { hideMore(); });
   });
 }
 
@@ -398,7 +395,7 @@ function eSummary (term, tabId, no_term_update) {
     },
     'xml'
   ).fail(function (e) {
-    $('#result').text('esummary failed: ' + e);
+    $('#result').text('Failed to get summary: ' + e);
   });
 }
 
@@ -444,7 +441,7 @@ function eSS (search_term, tabId) {
     },
     'xml'
   ).fail(function (e) {
-    $('#result').html('eSS failed: ' + e);
+    $('#result').html('Search failed: ' + e);
   });
 }
 
@@ -478,7 +475,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   document.title = '' + tab.id; // ess.html
   $('#result').removeClass('Off');
   if (tab.url.indexOf('chrome-extension://') === 0) {
-    $('#result').html('ess.js used in history.html');
+    $('#result').html('ess.js - tpl');
   } else if (tab.url.indexOf('//pubmed.cn/') > 0) {
     ID = tab.url.split('//pubmed.cn/')[1];
     if (/^\d+$/.test(ID)) {
@@ -521,10 +518,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     $('#found').html('&copy; ' + tab.title.split(':')[0]);
     eSS(ID, tab.id);
   // } else if (tab.url.indexOf('//ir.nsfc.gov.cn/paperDetail/') > 0) {
-  //   var hrefStr = tab.url.split('/');
-  //   var l = hrefStr.length;
-  //   var paperId = decodeURI(hrefStr[l - 1]);
-  //   var queryJson = { achievementID: paperId };  //  javascripts/paperDetail.js
+  //   const hrefStr = tab.url.split('/');
+  //   const l = hrefStr.length;
+  //   const paperId = decodeURI(hrefStr[l - 1]);
+  //   const queryJson = { achievementID: paperId };  //  javascripts/paperDetail.js
   //   $.ajax({
   //     type: 'POST',
   //     url: 'http://ir.nsfc.gov.cn/baseQuery/data/paperInfo',

@@ -14,7 +14,6 @@ let loading_theServer = false;
 let load_try = 10;
 let local_ip = '';
 const alldigi = /^\d+$/;
-const dd = document;
 let base = 'https://www.thepaperlink.com';
 let guest_apikey = null;
 let apikey; let req_key; let pubmeder_apikey; let pubmeder_email;
@@ -34,12 +33,16 @@ const connectedPorts = new Map();
 
 console.log('The Paper Link service worker starting...');
 
+function hasThreeCommas(str) {
+  return str.split(',').length === 4;
+}
+
 function load_JCR () {
   fetch(chrome.runtime.getURL('jcr.csv.json'))
     .then(response => response.json())
     .then(data => {
-      jcr_obj = data.above5 || {};
-      console.log('JCR data loaded:', Object.keys(jcr_obj).length, 'journals');
+      jcr_obj = data.above3 || {};
+      console.log(data.version, 'JCR data loaded:', Object.keys(jcr_obj).length, 'journals');
     })
     .catch(err => {
       console.log('Failed to load JCR data:', err);
@@ -131,10 +134,13 @@ function syncFromSyncToLocal(callback) {
 function syncToStorageSync() {
   chrome.storage.local.get(null, function(items) {
     if (!items) return;
-    let syncValues = {};
-    let pmidKeys = [];
-    let keysToRemove = [];
+    const syncValues = {};
+    const pmidKeys = [];
+    const keywordKeys = [];
+    const keysToRemove = [];
+    let val;
     for (let key in items) {
+      val = items[key];
       if (key.indexOf('tabId:') === 0 ||
           key.indexOf('downloadId_') === 0 ||
           key.indexOf('diff_') === 0 ||
@@ -147,13 +153,20 @@ function syncToStorageSync() {
           key.indexOf('id_found') === 0 ||
           key.indexOf('id_history') === 0) {
         keysToRemove.push(key);
+        continue;
       }
-      if (typeof items[key] === 'string') {
-        syncValues[key] = items[key];
+      if (typeof val === 'string') {
+        if (hasThreeCommas(val) && val.indexOf('201') === 0 || val.indexOf('202') === 0) {
+          keywordKeys.push(key);
+          if (keywordKeys.length > 200) { // 2026-2-15
+            continue;
+          }
+        }
+        syncValues[key] = val;
       } else if (key.indexOf('pmid_') === 0) {
         pmidKeys.push(key);
-        if (pmidKeys.length <= 64) {  // 2026-2-14
-          syncValues[key] = items[key];
+        if (pmidKeys.length <= 64) { // 2026-2-14
+          syncValues[key] = val;
         }
       }
     }
@@ -161,22 +174,29 @@ function syncToStorageSync() {
       console.log('Removing from sync:', keysToRemove.length);
       chrome.storage.sync.remove(keysToRemove, function() {
         console.log('Removed storage.sync');
-      });
-    }
-    if (Object.keys(syncValues).length > 0) {
-      console.log('Syncing to storage.sync:', Object.keys(syncValues).length, 'items');
-      chrome.storage.sync.set(syncValues, function() {
-        if (chrome.runtime.lastError) {
-          console.log('Sync quota exceeded:', chrome.runtime.lastError.message);
-        } else {
-          console.log('Synced to storage.sync');
+        if (Object.keys(syncValues).length > 0) {
+          console.log('Syncing to storage.sync:', Object.keys(syncValues).length, 'items');
+          chrome.storage.sync.set(syncValues, function() {
+            if (chrome.runtime.lastError) {
+              console.log('Sync quota exceeded:', chrome.runtime.lastError.message);
+            } else {
+              console.log('Synced to storage.sync');
+            }
+          });
         }
       });
     }
   });
 }
 
+let isLoadingState = false;
+
 function loadState(callback) {
+  if (isLoadingState) {
+    if (callback) callback();
+    return;
+  }
+  isLoadingState = true;
   syncFromSyncToLocal(function() {
     chrome.storage.local.get(null, function(items) {
       if (!items) {
@@ -204,6 +224,7 @@ function loadState(callback) {
       if (items.onedrive_status === 'success') cloud_op += 'o';
       if (items.baiduyun_status === 'success') cloud_op += 'y';
       console.log('State loaded:', { apikey: !!apikey, pubmeder_ok: pubmeder_ok, cloud_op: cloud_op });
+      isLoadingState = false;
       if (callback) callback();
     });
   });
@@ -225,9 +246,9 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 });
 
-// Shared helper function for API requests
-function doApiRequest(url, sendResponse) {
-  var requestUrl = base + url + (req_key || '') + '&runtime=' + chrome.runtime.id;
+// Shared helper function for External requests
+function doRequest(url, sendResponse) {
+  let requestUrl = base + url + (req_key || '') + '&runtime=' + chrome.runtime.id;
   if (uid) {
     requestUrl += '&uid=' + uid;
   }
@@ -249,8 +270,12 @@ function doApiRequest(url, sendResponse) {
       });
     })
     .catch(function(error) {
-      console.error('API request failed:', error);
-      sendResponse({ except: 'Network error.', tpl: apikey });
+      // Don't log if it's an HTML response (JSON parse error)
+      if (!error.message || !error.message.includes('JSON')) {
+        console.error(requestUrl);
+        console.log('External request failed:', error);
+      }
+      sendResponse({ except: 'Server error.', tpl: apikey });
     });
 }
 
@@ -264,11 +289,11 @@ function handleCommonMessage(message, sendFn) {
     return false;
   }
   if (message.url) {
-    doApiRequest(message.url, sendFn);
+    doRequest(message.url, sendFn);
     return true;
   }
   if (message.save_apikey) {
-    var storageUpdate = {};
+    const storageUpdate = {};
     if (message.save_email) {
       pubmeder_apikey = message.save_apikey;
       pubmeder_email = message.save_email;
@@ -300,9 +325,9 @@ function handleCommonMessage(message, sendFn) {
   }
   if (message.sendID) {
     chrome.storage.local.get('id_found', function(items) {
-      var id_found = items.id_found || '';
+      const id_found = items.id_found || '';
       if (id_found.indexOf(message.sendID) === -1) {
-        var newFound = id_found + ' ' + message.sendID;
+        const newFound = id_found + ' ' + message.sendID;
         chrome.storage.local.set({ id_found: newFound });
       }
       sendFn({ received: true });
@@ -318,7 +343,7 @@ function handleCommonMessage(message, sendFn) {
     return false;
   }
   if (message.t_cont) {
-    var t_cont = message.t_cont;
+    let t_cont = message.t_cont;
     if (t_cont.indexOf('Free article.') > 0) {
       t_cont = t_cont.replace(' Free article.', '');
     }
@@ -345,8 +370,8 @@ function handleCommonMessage(message, sendFn) {
     return false;
   }
   if (message.pageAbs) {
-    var absKey = 'abs_' + message.pmid;
-    var absObj = {};
+    const absKey = 'abs_' + message.pmid;
+    const absObj = {};
     absObj[absKey] = message.pageAbs;
     chrome.storage.local.set(absObj);
     return false;
@@ -367,7 +392,7 @@ function handleCommonMessage(message, sendFn) {
 }
 
 function handlePortMessage(port, message) {
-  console.log('Port message:', message);
+  if (!message.a_pmid && !message.fetch_JCR) console.log('Port message:', message);
   handleCommonMessage(message, function(response) {
     port.postMessage(response);
   });
@@ -398,7 +423,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     return;
   }
   if (message.ncbi_api) {
-    var ncbiObj = {};
+    const ncbiObj = {};
     ncbiObj['tpl_ncbi_api'] = message.ncbi_api;
     chrome.storage.local.set(ncbiObj, function() {
       sendResponse({ success: true });
@@ -511,7 +536,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
 });
 
 chrome.omnibox.onInputEntered.addListener(function(text) {
-  var newURL = base + '?q=' + text;
+  const newURL = base + '?q=' + text;
   chrome.tabs.create({ url: newURL });
 });
 

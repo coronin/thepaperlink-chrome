@@ -67,7 +67,7 @@ function load_ALL_localStorage () {
   // MV3: use chrome.storage.local instead of localStorage
   chrome.storage.local.get(null, function(items) {
     if (!items) return;
-    var keys = Object.keys(items);
+    const keys = Object.keys(items);
     for (i = 0, len = keys.length; i < len; i += 1) {
       aKey = keys[i];
       aVal = items[aKey];
@@ -96,7 +96,7 @@ function load_ALL_localStorage () {
             aVal.shark.split(',')[1]   );
         }
         if (aVal.scholar || aVal.shark) {
-          syncValues[aKey] = aVal;  // 2026-2-14
+          syncValues[aKey] = aVal; // 2026-2-14
         }
         continue;
       } else if (typeof aVal !== 'string') {
