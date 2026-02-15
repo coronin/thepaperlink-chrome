@@ -728,7 +728,7 @@ $(document).ready(function () {
   }
 
   if (localStorage.getItem('past_search_terms')) {
-    const terms_string = '';
+    let terms_string = '';
     let tmp = $('#keywords_list');
     let t = 0; let i; let a; let c = [];
     for (i = 0; i < localStorage.length; i++) {

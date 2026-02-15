@@ -99,6 +99,7 @@ function broadcast_Listener () {
 function syncFromSyncToLocal(callback) {
   chrome.storage.local.get(['thepaperlink_apikey', 'pubmeder_apikey'], function(localItems) {
     if (localItems && (localItems.thepaperlink_apikey || localItems.pubmeder_apikey)) {
+      console.log('Merge not ready @@@@');
       if (callback) callback();
       return;
     }
@@ -108,7 +109,6 @@ function syncFromSyncToLocal(callback) {
         if (callback) callback();
         return;
       }
-      console.log('Syncing from storage.sync to local:', Object.keys(syncItems).length, 'items');
       const validItems = {};
       for (let key in syncItems) {
         const val = syncItems[key];
@@ -132,9 +132,11 @@ function syncToStorageSync() {
   chrome.storage.local.get(null, function(items) {
     if (!items) return;
     let syncValues = {};
+    let pmidKeys = [];
+    let keysToRemove = [];
     for (let key in items) {
-      // Skip these keys from sync
       if (key.indexOf('tabId:') === 0 ||
+          key.indexOf('downloadId_') === 0 ||
           key.indexOf('diff_') === 0 ||
           key.indexOf('day_') === 0 ||
           key.indexOf('email_') === 0 ||
@@ -142,17 +144,24 @@ function syncToStorageSync() {
           key.indexOf('scholar_') === 0 ||
           key.indexOf('abs_') === 0 ||
           key.indexOf('tpl') === 0 ||
-          key.indexOf('pmid_') === 0 ||
           key.indexOf('id_found') === 0 ||
-          key.indexOf('id_history') === 0 ||
-          key.indexOf('downloadId_') === 0) {
-        continue;
+          key.indexOf('id_history') === 0) {
+        keysToRemove.push(key);
       }
       if (typeof items[key] === 'string') {
         syncValues[key] = items[key];
-      } else {
-        syncValues[key] = String(items[key]);
+      } else if (key.indexOf('pmid_') === 0) {
+        pmidKeys.push(key);
+        if (pmidKeys.length <= 64) {  // 2026-2-14
+          syncValues[key] = items[key];
+        }
       }
+    }
+    if (keysToRemove.length > 0) {
+      console.log('Removing from sync:', keysToRemove.length);
+      chrome.storage.sync.remove(keysToRemove, function() {
+        console.log('Removed storage.sync');
+      });
     }
     if (Object.keys(syncValues).length > 0) {
       console.log('Syncing to storage.sync:', Object.keys(syncValues).length, 'items');
@@ -162,25 +171,6 @@ function syncToStorageSync() {
         } else {
           console.log('Synced to storage.sync');
         }
-      });
-    }
-  });
-}
-
-// Clean up downloadId_ keys from chrome.storage.sync
-function cleanupDownloadIdFromSync() {
-  chrome.storage.sync.get(null, function(items) {
-    if (!items) return;
-    var keysToRemove = [];
-    for (var key in items) {
-      if (key.indexOf('downloadId_') === 0) {
-        keysToRemove.push(key);
-      }
-    }
-    if (keysToRemove.length > 0) {
-      console.log('Removing downloadId_ keys from sync:', keysToRemove.length);
-      chrome.storage.sync.remove(keysToRemove, function() {
-        console.log('Removed downloadId_ keys from sync');
       });
     }
   });
@@ -235,94 +225,20 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 });
 
-function handlePortMessage(port, message) {
-  console.log('Port message:', message);
-  if (message.load_local_mirror) {
-    port.postMessage({
-      local_mirror: local_mirror,
-      arbitrary_pause: arbitrary_sec * 1000
-    });
-    return;
-  }
-  if (message.url) {
-    handleApiRequest(port, message.url);
-    return;
-  }
-  if (message.save_apikey) {
-    handleSaveApikey(port, message.save_apikey, message.save_email);
-    return;
-  }
-  if (message.load_common_values) {
-    loadState(function() {
-      port.postMessage({ loaded: true });
-    });
-    return;
-  }
-  if (message.menu_display) {
-    createContextMenus();
-    port.postMessage({ menu_created: true });
-    return;
-  }
-  if (message.sendID) {
-    handleSendID(port, message.sendID);
-    return;
-  }
-  if (message.fetch_JCR) {
-    if (message.fetch_JCR && jcr_obj[message.fetch_JCR]) {
-      port.postMessage({
-        class_JCR: [message.fetch_JCR, jcr_obj[message.fetch_JCR]]
-      });
-    }
-    return;
-  }
-  if (message.t_cont) {
-    port.postMessage({ t_cont: message.t_cont, received: true });
-    return;
-  }
-  if (message.saveIt) {
-    handleSaveIt(port, message.saveIt);
-    return;
-  }
-  if (message.a_pmid && message.a_title) {
-    return;
-  }
-  if (message.reset_gs_counts) {
-    return;
-  }
-  if (message.pageAbs) {
-    var absKey = 'abs_' + message.pmid;
-    var absObj = {};
-    absObj[absKey] = message.pageAbs;
-    chrome.storage.local.set(absObj);
-    return;
-  }
-  if (message.search_term) {
-    return;
-  }
-  if (message.failed_term) {
-    return;
-  }
-  if (message.pmid && (message.pii_link || message.doi_link)) {
-    return;
-  }
-  if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
-    return;
-  }
-}
-
-function handleApiRequest(port, url) {
-  const request_url = base + url + (req_key || '') + '&runtime=' + chrome.runtime.id;
+// Shared helper function for API requests
+function doApiRequest(url, sendResponse) {
+  var requestUrl = base + url + (req_key || '') + '&runtime=' + chrome.runtime.id;
   if (uid) {
-    request_url += '&uid=' + uid;
+    requestUrl += '&uid=' + uid;
   }
   if (!apikey) {
-    port.postMessage({ except: 'Guest usage limited.', tpl: '' });
+    sendResponse({ except: 'Guest usage limited.', tpl: '' });
     return;
   }
-  fetch(request_url)
+  fetch(requestUrl)
     .then(function(response) { return response.json(); })
     .then(function(data) {
-      port.postMessage({
+      sendResponse({
         r: data,
         tpl: apikey,
         pubmeder: pubmeder_ok,
@@ -334,56 +250,132 @@ function handleApiRequest(port, url) {
     })
     .catch(function(error) {
       console.error('API request failed:', error);
-      port.postMessage({ except: 'Network error.', tpl: apikey });
+      sendResponse({ except: 'Network error.', tpl: apikey });
     });
 }
 
-function handleSaveApikey(port, apikeyVal, email) {
-  var storageUpdate = {};
-  if (email) {
-    pubmeder_apikey = apikeyVal;
-    pubmeder_email = email;
-    pubmeder_ok = true;
-    storageUpdate.pubmeder_apikey = apikeyVal;
-    storageUpdate.pubmeder_email = email;
-    storageUpdate.b_apikey_gold = 'yes';
-  } else {
-    apikey = apikeyVal;
-    req_key = apikeyVal;
-    storageUpdate.thepaperlink_apikey = apikeyVal;
-    storageUpdate.a_apikey_gold = 'yes';
+// Shared message handler - returns true if async response needed
+function handleCommonMessage(message, sendFn) {
+  if (message.load_local_mirror) {
+    sendFn({
+      local_mirror: local_mirror,
+      arbitrary_pause: arbitrary_sec * 1000
+    });
+    return false;
   }
-  chrome.storage.local.set(storageUpdate, function() {
-    port.postMessage({ success: true });
-  });
-}
-
-function handleSendID(port, sendID) {
-  chrome.storage.local.get('id_found', function(items) {
-    var id_found = items.id_found || '';
-    if (id_found.indexOf(sendID) === -1) {
-      var newFound = id_found + ' ' + sendID;
-      chrome.storage.local.set({ id_found: newFound });
+  if (message.url) {
+    doApiRequest(message.url, sendFn);
+    return true;
+  }
+  if (message.save_apikey) {
+    var storageUpdate = {};
+    if (message.save_email) {
+      pubmeder_apikey = message.save_apikey;
+      pubmeder_email = message.save_email;
+      pubmeder_ok = true;
+      storageUpdate.pubmeder_apikey = message.save_apikey;
+      storageUpdate.pubmeder_email = message.save_email;
+      storageUpdate.b_apikey_gold = 'yes';
+    } else {
+      apikey = message.save_apikey;
+      req_key = message.save_apikey;
+      storageUpdate.thepaperlink_apikey = message.save_apikey;
+      storageUpdate.a_apikey_gold = 'yes';
     }
-    port.postMessage({ received: true });
-  });
+    chrome.storage.local.set(storageUpdate, function() {
+      sendFn({ success: true });
+    });
+    return false;
+  }
+  if (message.load_common_values) {
+    loadState(function() {
+      sendFn({ loaded: true });
+    });
+    return false;
+  }
+  if (message.menu_display) {
+    createContextMenus();
+    sendFn({ menu_created: true });
+    return false;
+  }
+  if (message.sendID) {
+    chrome.storage.local.get('id_found', function(items) {
+      var id_found = items.id_found || '';
+      if (id_found.indexOf(message.sendID) === -1) {
+        var newFound = id_found + ' ' + message.sendID;
+        chrome.storage.local.set({ id_found: newFound });
+      }
+      sendFn({ received: true });
+    });
+    return false;
+  }
+  if (message.fetch_JCR) {
+    if (jcr_obj[message.fetch_JCR]) {
+      sendFn({
+        class_JCR: [message.fetch_JCR, jcr_obj[message.fetch_JCR]]
+      });
+    }
+    return false;
+  }
+  if (message.t_cont) {
+    var t_cont = message.t_cont;
+    if (t_cont.indexOf('Free article.') > 0) {
+      t_cont = t_cont.replace(' Free article.', '');
+    }
+    if (t_cont.indexOf('Free PMC article.') > 0) {
+      t_cont = t_cont.replace(' Free PMC article.', '');
+    }
+    if (t_cont.indexOf('Review.') > 0) {
+      t_cont = t_cont.replace(' Review.', '');
+    }
+    if (t_cont.indexOf('Online ahead of print.') > 0) {
+      t_cont = t_cont.replace(' Online ahead of print.', '');
+    }
+    sendFn({ t_cont: t_cont, received: true });
+    return false;
+  }
+  if (message.saveIt) {
+    sendFn({ received: true });
+    return false;
+  }
+  if (message.a_pmid && message.a_title) {
+    return false;
+  }
+  if (message.reset_gs_counts) {
+    return false;
+  }
+  if (message.pageAbs) {
+    var absKey = 'abs_' + message.pmid;
+    var absObj = {};
+    absObj[absKey] = message.pageAbs;
+    chrome.storage.local.set(absObj);
+    return false;
+  }
+  if (message.search_term) {
+    return false;
+  }
+  if (message.failed_term) {
+    return false;
+  }
+  if (message.pmid && (message.pii_link || message.doi_link)) {
+    return false;
+  }
+  if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
+    return false;
+  }
+  return false;
 }
 
-function handleSaveIt(port, pmid) {
-  port.postMessage({ received: true });
+function handlePortMessage(port, message) {
+  console.log('Port message:', message);
+  handleCommonMessage(message, function(response) {
+    port.postMessage(response);
+  });
 }
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message.internal) {
     sendResponse({ received: true });
-    return;
-  }
-  console.log('One-time message:', message);
-  if (message.load_local_mirror) {
-    sendResponse({
-      local_mirror: local_mirror,
-      arbitrary_pause: arbitrary_sec * 1000
-    });
     return;
   }
   if (message.get_state || message.getState) {
@@ -405,37 +397,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     });
     return;
   }
-  if (message.load_common_values) {
-    loadState(function() {
-      sendResponse({ loaded: true });
-    });
-    return true;
-  }
-  if (message.menu_display) {
-    createContextMenus();
-    sendResponse({ menu_created: true });
-    return;
-  }
-  if (message.save_apikey) {
-    var storageUpdate = {};
-    if (message.save_email) {
-      pubmeder_apikey = message.save_apikey;
-      pubmeder_email = message.save_email;
-      pubmeder_ok = true;
-      storageUpdate.pubmeder_apikey = message.save_apikey;
-      storageUpdate.pubmeder_email = message.save_email;
-      storageUpdate.b_apikey_gold = 'yes';
-    } else {
-      apikey = message.save_apikey;
-      req_key = message.save_apikey;
-      storageUpdate.thepaperlink_apikey = message.save_apikey;
-      storageUpdate.a_apikey_gold = 'yes';
-    }
-    chrome.storage.local.set(storageUpdate, function() {
-      sendResponse({ success: true });
-    });
-    return;
-  }
   if (message.ncbi_api) {
     var ncbiObj = {};
     ncbiObj['tpl_ncbi_api'] = message.ncbi_api;
@@ -444,76 +405,15 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     });
     return;
   }
-  if (message.fetch_JCR) {
-    if (message.fetch_JCR && jcr_obj[message.fetch_JCR]) {
-      sendResponse({
-        class_JCR: [message.fetch_JCR, jcr_obj[message.fetch_JCR]]
-      });
-    }
-    return;
-  }
-  if (message.url) {
-    var requestUrl = base + message.url + (req_key || '') + '&runtime=' + chrome.runtime.id;
-    if (!apikey) {
-      sendResponse({ except: 'Guest usage limited.', tpl: '' });
-      return;
-    }
-    fetch(requestUrl)
-      .then(function(response) { return response.json(); })
-      .then(function(data) {
-        sendResponse({
-          r: data,
-          tpl: apikey,
-          pubmeder: pubmeder_ok,
-          cloud_op: cloud_op,
-          uri: base,
-          p: ezproxy_prefix,
-          year: new Date().getFullYear().toString()
-        });
-      })
-      .catch(function(error) {
-        sendResponse({ except: 'Network error.', tpl: apikey });
-      });
-    return true;
-  }
-  if (message.a_pmid && message.a_title) {
-    return;
-  }
-  if (message.reset_gs_counts) {
-    return;
-  }
-  if (message.pageAbs) {
-    var absKey2 = 'abs_' + message.pmid;
-    var absObj2 = {};
-    absObj2[absKey2] = message.pageAbs;
-    chrome.storage.local.set(absObj2);
-    return;
-  }
-  if (message.search_term) {
-    return;
-  }
-  if (message.failed_term) {
-    return;
-  }
-  if (message.pmid && (message.pii_link || message.doi_link)) {
-    return;
-  }
-  if (message.money_emailIt || message.money_reportWrongLink || message.money_needInfo) {
-    return;
-  }
-  if (message.from_f1000) {
-    return;
-  }
-  if (message.from_sites_w_pmid) {
-    return;
-  }
-  if (message.from_sites_w_doi) {
+  if (message.from_f1000 || message.from_sites_w_pmid || message.from_sites_w_doi) {
     return;
   }
   if (message.do_syncValues) {
     syncToStorageSync();
     return;
   }
+  console.log('One-time message:', message);
+  return handleCommonMessage(message, sendResponse);
 });
 
 function createContextMenus() {
@@ -602,8 +502,20 @@ chrome.storage.onChanged.addListener(function(changes, areaName) {
   }
 });
 
+// Omnibox - Address bar keyword search
+chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
+  suggest([
+    { content: text + '&pdf_only=on', description: 'only search articles with valid PDF' },
+    { content: text + '&reviews_only=on', description: 'only research reviews in PubMed' }
+  ]);
+});
+
+chrome.omnibox.onInputEntered.addListener(function(text) {
+  var newURL = base + '?q=' + text;
+  chrome.tabs.create({ url: newURL });
+});
+
 load_JCR();
-cleanupDownloadIdFromSync();
 syncToStorageSync();
 loadState();
 

@@ -82,11 +82,23 @@ function byClassOne (d) { return page_d.getElementsByClassName(d)[0]; }
 function trim (s) { return (s || '').replace(/^\s+|\s+$/g, ''); }
 
 // MV3: Clipboard helper function using textarea method
-function copyToClipboard(text) {
+function copyToClipboard(t_cont) {
+  if (t_cont.indexOf('Free article.') > 0) {
+    t_cont = t_cont.replace(' Free article.', '');
+  }
+  if (t_cont.indexOf('Free PMC article.') > 0) {
+    t_cont = t_cont.replace(' Free PMC article.', '');
+  }
+  if (t_cont.indexOf('Review.') > 0) {
+    t_cont = t_cont.replace(' Review.', '');
+  }
+  if (t_cont.indexOf('Online ahead of print.') > 0) {
+    t_cont = t_cont.replace(' Online ahead of print.', '');
+  }
   const textarea = page_d.createElement('textarea');
   textarea.style.position = 'fixed';
   textarea.style.top = '-1000px';
-  textarea.value = text;
+  textarea.value = t_cont;
   page_d.body.appendChild(textarea);
   textarea.select();
   try {
@@ -1509,29 +1521,15 @@ function get_request (msg) {
     // sendResponse({});
     return;
   } else if (msg.t_cont) { // MV3: clipboard handled in content script
-    let t_cont = msg.t_cont;
-    if (t_cont.indexOf('Free article.') > 0) {
-      t_cont = t_cont.replace(' Free article.', '');
-    }
-    if (t_cont.indexOf('Free PMC article.') > 0) {
-      t_cont = t_cont.replace(' Free PMC article.', '');
-    }
-    if (t_cont.indexOf('Review.') > 0) {
-      t_cont = t_cont.replace(' Review.', '');
-    }
-    if (t_cont.indexOf('Online ahead of print.') > 0) {
-      t_cont = t_cont.replace(' Online ahead of print.', '');
-    }
-    // Use Clipboard API with fallback
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(t_cont).then(() => {
+      navigator.clipboard.writeText(msg.t_cont).then(() => {
         DEBUG && console.log('Copied to clipboard via Clipboard API');
       }).catch(() => {
         // Fallback to textarea method
-        copyToClipboard(t_cont);
+        copyToClipboard(msg.t_cont);
       });
     } else {
-      copyToClipboard(t_cont);
+      copyToClipboard(msg.t_cont);
     }
     // sendResponse({});
     return;

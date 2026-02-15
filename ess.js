@@ -197,7 +197,7 @@ function eFetch (pmid) {
     if (l.MedlineCitation.Article.Abstract) {
       const abstract = '<p class="moreAbout"><b style="text-decoration:underline">Abstract:</b> ' + l.MedlineCitation.Article.Abstract.AbstractText + '</p>';
       $('#abs_' + pmid).append(abstract);
-      storageSet('abs_' + pmid, l.MedlineCitation.Article.Abstract.AbstractText); // v3
+      storageSet('abs_' + pmid, '' + l.MedlineCitation.Article.Abstract.AbstractText); // v3
     } else {
       hideMore();
       return;
