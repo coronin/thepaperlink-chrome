@@ -1509,13 +1509,13 @@ function get_request (msg) {
       clearTimeout(parseInt(absEl.dataset.timeoutId, 10));
       absEl.dataset.timeoutId = '';
     }
-    window.alert(msg.returnAbs);
     if (byID('thepaperlink_text' + msg.pmid) !== null) {
       byID('thepaperlink_text' + msg.pmid).style.display = 'block';
       byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
       byID('thepaperlink_abs' + msg.pmid).style.display = 'none';
     } else {
       byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
+      window.alert(msg.returnAbs);
     }
     localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
     // sendResponse({});
@@ -1905,6 +1905,7 @@ function get_request (msg) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
         const absId = this.id;
         const pmidVal = absId.substr(16);
+        a_proxy({ ajaxAbs: pmidVal });
         byID(absId).textContent = 'trying';
         // Set timeout to show pubmed.gov link on failure
         const timeoutId = setTimeout(() => {
@@ -1914,7 +1915,6 @@ function get_request (msg) {
         }, 5000); // 5 second timeout
         // Store timeout ID for potential cancellation
         byID(absId).dataset.timeoutId = timeoutId;
-        a_proxy({ ajaxAbs: pmidVal });
       };
       // Check if we have f_v data (only when not in network error)
       const hasF1000 = !msg.except && r.item && r.item[i] && r.item[i].f_v && r.item[i].fid;
