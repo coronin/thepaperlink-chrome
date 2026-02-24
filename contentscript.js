@@ -1959,9 +1959,24 @@ function load_jss () {
     //   jss_base = 'https://www.thepaperlink.cn';
     // }
     if (!byID('paperlink2_display')) {
+      // Check if jQuery 1.8.3 is already loaded
+      if (typeof window.jQuery === 'undefined' || window.jQuery.fn.jquery !== '1.8.3') {
+        // Load jQuery 1.8.3 (local)
+        const jquery_script = document.createElement('script');
+        jquery_script.setAttribute('type', 'text/javascript');
+        jquery_script.src = chrome.runtime.getURL('jquery-1.8.3.min.js');
+        page_d.body.appendChild(jquery_script);
+      }
+
+      // Load head.load.096.js (local)
+      const head_load_script = document.createElement('script');
+      head_load_script.setAttribute('type', 'text/javascript');
+      head_load_script.src = chrome.runtime.getURL('head.load.096.js');
+      page_d.body.appendChild(head_load_script);
+
+      // Load ext20210522.js (local)
       const extension_la = document.createElement('script');
       extension_la.setAttribute('type', 'text/javascript');
-      // extension_la.setAttribute('src', jss_base + '/jss?y=' + (Math.random()));
       extension_la.src = chrome.runtime.getURL('ext20210522.js');
       page_d.body.appendChild(extension_la);
     }

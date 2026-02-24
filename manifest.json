@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "the paper link 3.0",
   "short_name": "tpl 3.0",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "minimum_chrome_version": "110",
   "description": "Direct paper links; display Faculty Opinions; Peak authors; etc. Built by Liang Cai",
   "permissions": [
@@ -65,7 +65,9 @@
         "loadingLine.gif",
         "clippyIt.png",
         "jcr.csv.json",
-        "ext20210522.js"
+        "ext20210522.js",
+        "head.load.096.js",
+        "jquery-1.8.3.min.js"
       ],
       "matches": ["<all_urls>"]
     }
