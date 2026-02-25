@@ -343,37 +343,6 @@ function handleCommonMessage(message, sendFn) {
     }
     return false;
   }
-  if (message.ajaxAbs) {
-    const pmid = message.ajaxAbs;
-    chrome.storage.local.get('abs_' + pmid, function(items) {
-      if (items && items['abs_' + pmid]) {
-        sendFn({ returnAbs: items['abs_' + pmid], pmid: pmid });
-      } else {
-        // Use NCBI eUtils directly (no proxy needed)
-        let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?tool=thepaperlink_chrome&db=pubmed&id=' + pmid + '&rettype=abstract&retmode=xml';
-        if (tpl_ncbi_api) {
-          url += '&api_key=' + tpl_ncbi_api;
-        }
-        fetch(url)
-          .then(function(response) { return response.text(); })
-          .then(function(xmlText) {
-            // Parse XML using regex (service worker doesn't have DOMParser)
-            const abstractMatch = xmlText.match(/<AbstractText[^>]*>([\s\S]*?)<\/AbstractText>/);
-            const abstract = abstractMatch ? abstractMatch[1].trim() : '';
-            if (abstract) {
-              sendFn({ returnAbs: abstract, pmid: pmid });
-              const absObj = {};
-              absObj['abs_' + pmid] = abstract;
-              chrome.storage.local.set(absObj);
-            }
-          })
-          .catch(function(error) {
-            console.error('eutils/efetch failed:', error);
-          });
-      }
-    });
-    return false;
-  }
   if (message.t_cont) {
     let t_cont = message.t_cont;
     if (t_cont.indexOf('Free article.') > 0) {

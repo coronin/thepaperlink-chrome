@@ -70,6 +70,55 @@ function sendToBackground(message, callback) {
   });
 }
 
+function ajaxAbs (pmid) {
+  chrome.storage.local.get('abs_' + pmid, function(items) {
+    if (items && items['abs_' + pmid]) {
+      returnAbs({ returnAbs: items['abs_' + pmid], pmid: pmid });
+    } else {
+      // Use NCBI eUtils directly (no proxy needed)
+      let url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?tool=thepaperlink_chrome&db=pubmed&id=' + pmid + '&rettype=abstract&retmode=xml';
+      if ( localStorage.getItem('tpl_ncbi_api') ) {
+        url += '&api_key=' + localStorage.getItem('tpl_ncbi_api');
+      } else {
+        console.error('no api key, get from https://www.ncbi.nlm.nih.gov/account/settings/');
+        fetch(url)
+        .then(function(response) { return response.text(); })
+        .then(function(xmlText) {
+          // Parse XML using regex (service worker doesn't have DOMParser)
+          const abstractMatch = xmlText.match(/<AbstractText[^>]*>([\s\S]*?)<\/AbstractText>/);
+          const abstract = abstractMatch ? abstractMatch[1].trim() : '';
+          if (abstract) {
+            returnAbs({ returnAbs: abstract, pmid: pmid });
+            const absObj = {};
+            absObj['abs_' + pmid] = abstract;
+            chrome.storage.local.set(absObj);
+          }
+        })
+        .catch(function(error) {
+          console.error('eutils/efetch failed:', error);
+        });
+    } }
+  });
+}
+
+function returnAbs (msg) { // 2018-9-14, 2026-2-25
+  // Clear the failure timeout on success
+  const absEl = byID('thepaperlink_abs' + msg.pmid);
+  if (absEl && absEl.dataset.timeoutId) {
+    clearTimeout(parseInt(absEl.dataset.timeoutId, 10));
+    absEl.dataset.timeoutId = '';
+  }
+  if (byID('thepaperlink_text' + msg.pmid) !== null) {
+    byID('thepaperlink_text' + msg.pmid).style.display = 'block';
+    byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
+    byID('thepaperlink_abs' + msg.pmid).style.display = 'none';
+  } else {
+    byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
+    window.alert(msg.returnAbs);
+  }
+  localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
+}
+
 function uneval_trim (a) {
   const b = uneval(a) || '""';
   return b.substr(1, b.length - 2);
@@ -125,6 +174,7 @@ function a_proxy (d) {
     });
   } else if (d.ncbi_api) {
     chrome.storage.local.set({ 'tpl_ncbi_api': d.ncbi_api });
+    localStorage.setItem('tpl_ncbi_api', d.ncbi_api);
   }
 
   // Try port first (MV2 style)
@@ -1502,24 +1552,6 @@ function get_request (msg) {
     }
     // sendResponse({});
     return;
-  } else if (msg.returnAbs) { // 2018-9-14
-    // Clear the failure timeout on success
-    const absEl = byID('thepaperlink_abs' + msg.pmid);
-    if (absEl && absEl.dataset.timeoutId) {
-      clearTimeout(parseInt(absEl.dataset.timeoutId, 10));
-      absEl.dataset.timeoutId = '';
-    }
-    if (byID('thepaperlink_text' + msg.pmid) !== null) {
-      byID('thepaperlink_text' + msg.pmid).style.display = 'block';
-      byID('thepaperlink_text' + msg.pmid).value = msg.returnAbs;
-      byID('thepaperlink_abs' + msg.pmid).style.display = 'none';
-    } else {
-      byID('thepaperlink_abs' + msg.pmid).textContent = 'abstract';
-      window.alert(msg.returnAbs);
-    }
-    localStorage.setItem('thePaperLink_ID', msg.pmid); // 2018-9-30
-    // sendResponse({});
-    return;
   } else if (msg.t_cont) { // MV3: clipboard handled in content script
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(msg.t_cont).then(() => {
@@ -1905,7 +1937,7 @@ function get_request (msg) {
       byID('thepaperlink_abs' + pmid).onclick = function () {
         const absId = this.id;
         const pmidVal = absId.substr(16);
-        a_proxy({ ajaxAbs: pmidVal });
+        ajaxAbs(pmidVal); // a_proxy({ ajaxAbs: pmidVal });
         byID(absId).textContent = 'trying';
         // Set timeout to show pubmed.gov link on failure
         const timeoutId = setTimeout(() => {
